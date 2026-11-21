@@ -1,6 +1,6 @@
 import { FitWordDirective } from './fit-word.directive';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Lock } from 'lucide-angular';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
 import { moduleIcon } from '../../core/modules/module-icons';

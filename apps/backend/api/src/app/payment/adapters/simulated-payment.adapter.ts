@@ -1,23 +1,26 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'crypto';
 import {
   BillingInvoice,
   BillingOverview,
   CheckoutSessionInfo,
   CheckoutSessionResult,
-  CreateCheckoutSessionDto,
   CreateRegistrationCheckoutDto,
   PaymentGateway,
+  PlanChangeStart,
+  StartPlanChangeRequest,
   WebhookResult,
-} from '../interfaces/payment-gateway.interface';
+} from '../payment-gateway.port';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { SaasService } from '../../saas/saas.service';
-import { minorUnitFactor } from '../../saas/saas.config';
 import type { BillingPeriod } from '../../saas/enums/billing-period.enum';
+import { PlanChangeReason, SubscriptionStanding } from '../../saas/plan-change';
 import { BadRequestError, ServiceUnavailableError } from '../../i18n/localized.exception';
 import { isDevLikeEnvironment } from '../../config/environment';
+import { BillingStateService } from '../billing-state.service';
+import { overviewFromRecord } from '../billing-overview';
 
 /** What a simulated checkout session carries. Signed, so a client cannot mint or alter one. */
 interface SimulatedSessionClaims {
@@ -27,6 +30,10 @@ interface SimulatedSessionClaims {
   email: string;
   pendingRegistrationId: string | null;
   organizationId: string | null;
+  /** Who started an organization's plan change, for its history. */
+  initiatedBy: string | null;
+  /** Whether it changes a subscription in force or buys a new one: the history says which. */
+  flow: PlanChangeStart['flow'] | null;
   trialPeriodDays: number | null;
   issuedAt: number;
   nonce: string;
@@ -59,6 +66,8 @@ export class SimulatedPaymentAdapter implements PaymentGateway, OnModuleInit {
   constructor(
     @InjectRepository(Organization) private readonly organizationRepository: Repository<Organization>,
     private readonly saasService: SaasService,
+    private readonly billingState: BillingStateService,
+    private readonly dataSource: DataSource,
   ) {}
 
   onModuleInit(): void {
@@ -86,6 +95,8 @@ export class SimulatedPaymentAdapter implements PaymentGateway, OnModuleInit {
       email: dto.email,
       pendingRegistrationId,
       organizationId: null,
+      initiatedBy: null,
+      flow: null,
       trialPeriodDays: dto.trialPeriodDays ?? null,
       issuedAt: Date.now(),
       nonce: randomUUID(),
@@ -93,20 +104,35 @@ export class SimulatedPaymentAdapter implements PaymentGateway, OnModuleInit {
     return { sessionId, url: this.redirectUrl(dto.successUrl, sessionId) };
   }
 
-  async createCheckoutSession(dto: CreateCheckoutSessionDto): Promise<CheckoutSessionResult> {
+  /**
+   * The same two flows the real provider has, completed without charging: a subscription in force
+   * has its plan changed, an organization without one is subscribed. Both come back through the
+   * signed session, which `confirmOrganizationCheckout` records.
+   */
+  async startPlanChange(request: StartPlanChangeRequest): Promise<PlanChangeStart> {
     this.assertAllowed();
-    const planSlug = this.planSlugOf(dto.priceId);
+    const planSlug = this.planSlugOf(request.priceId);
+    const organization = await this.organizationRepository.findOne({ where: { id: request.organizationId } });
+    if (!organization) {
+      throw new BadRequestError('payment.organization_not_found');
+    }
+    const flow: PlanChangeStart['flow'] =
+      organization.subscriptionStatus && SubscriptionStanding.IN_FORCE.has(organization.subscriptionStatus)
+        ? 'subscription_update'
+        : 'checkout';
     const sessionId = this.sign({
       kind: 'organization',
       planSlug,
-      email: dto.userEmail,
+      email: request.userEmail,
       pendingRegistrationId: null,
-      organizationId: dto.organizationId,
+      organizationId: request.organizationId,
+      initiatedBy: request.actorUserId,
+      flow,
       trialPeriodDays: null,
       issuedAt: Date.now(),
       nonce: randomUUID(),
     });
-    return { sessionId, url: this.redirectUrl(dto.successUrl, sessionId) };
+    return { flow, url: this.redirectUrl(request.successUrl, sessionId) };
   }
 
   async getCheckoutSession(sessionId: string): Promise<CheckoutSessionInfo> {
@@ -133,22 +159,41 @@ export class SimulatedPaymentAdapter implements PaymentGateway, OnModuleInit {
     if (claims.kind !== 'organization' || claims.organizationId !== organizationId) {
       throw new BadRequestError('payment.payment_session_does_not_belong_organization');
     }
-    const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
-    if (!organization) {
-      throw new BadRequestError('payment.organization_not_found');
-    }
     const session = await this.getCheckoutSession(sessionId);
-    organization.externalCustomerId = session.customerId;
-    organization.externalSubscriptionId = session.subscriptionId;
-    organization.subscriptionStatus = session.subscriptionStatus ?? 'active';
-    organization.subscriptionPeriodEnd = session.currentPeriodEnd;
     const plan = await this.saasService.getPlanBySlug(claims.planSlug);
-    if (plan) {
-      organization.plan = plan;
-      organization.planId = plan.id;
-    }
-    await this.organizationRepository.save(organization);
-    await this.saasService.clearOrganizationCache(organizationId);
+
+    const stale = await this.dataSource.transaction(async (manager) => {
+      const group = await this.billingState.billedWith(manager, organizationId);
+      const anchor = group.find((organization) => organization.id === organizationId);
+      if (!anchor) {
+        throw new BadRequestError('payment.organization_not_found');
+      }
+      return this.billingState.record(
+        manager,
+        group,
+        {
+          // A plan change keeps the subscription it changes; only a new subscription has a new id.
+          subscriptionId:
+            (claims.flow === 'subscription_update' ? anchor.externalSubscriptionId : null) ??
+            session.subscriptionId ??
+            `sim_sub_${organizationId}`,
+          customerId: session.customerId,
+          status: session.subscriptionStatus ?? 'active',
+          periodEnd: session.currentPeriodEnd,
+          plan,
+        },
+        {
+          reason: claims.flow === 'subscription_update' ? PlanChangeReason.PROVIDER_UPDATE : PlanChangeReason.CHECKOUT,
+          changedBy: claims.initiatedBy,
+        },
+      );
+    });
+    for (const id of stale) await this.saasService.clearOrganizationCache(id);
+    return this.getBillingOverview(organizationId);
+  }
+
+  /** There is no provider-side state behind a simulated subscription: what is recorded is all of it. */
+  async reconcileSubscription(organizationId: string): Promise<BillingOverview> {
     return this.getBillingOverview(organizationId);
   }
 
@@ -160,31 +205,8 @@ export class SimulatedPaymentAdapter implements PaymentGateway, OnModuleInit {
     if (!organization) {
       throw new BadRequestError('payment.organization_not_found');
     }
-    const currency = SaasService.currencyForCountry(organization.country ?? undefined);
-    return {
-      plan: organization.plan
-        ? {
-            slug: organization.plan.slug,
-            name: organization.plan.name,
-            monthlyPrice:
-              SaasService.priceFor(organization.plan.slug, currency) ?? organization.plan.monthlyPrice ?? null,
-            currency,
-            minorUnits: minorUnitFactor(currency),
-          }
-        : null,
-      subscription: organization.subscriptionStatus
-        ? {
-            status: organization.subscriptionStatus,
-            currentPeriodEnd: organization.subscriptionPeriodEnd
-              ? new Date(organization.subscriptionPeriodEnd).toISOString()
-              : null,
-            cancelAtPeriodEnd: false,
-            // There is no provider portal behind a simulated subscription.
-            managedBy: 'platform',
-          }
-        : null,
-      paymentMethod: null,
-    };
+    // There is no provider portal behind a simulated subscription.
+    return overviewFromRecord(organization, 'platform');
   }
 
   async getInvoices(): Promise<BillingInvoice[]> {

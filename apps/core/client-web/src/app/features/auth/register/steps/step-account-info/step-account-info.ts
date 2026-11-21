@@ -2,14 +2,14 @@ import { Component, Input, computed, inject, OnInit } from '@angular/core';
 import { CountryService } from '../../../../../core/services/country.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { IntlPhoneInputComponent } from '../../../../../shared/components/intl-phone-input/intl-phone-input.component';
 import { PasswordStrengthComponent } from '../../../../../shared/components/password-strength/password-strength.component';
 import { HttpClient } from '@angular/common/http';
 import { AsyncValidators } from '../../../../../shared/validators/async.validators';
 import { LucideAngularModule, User, Mail, Lock, Phone, AlertCircle } from 'lucide-angular';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 @Component({
   selector: 'app-step-account-info',

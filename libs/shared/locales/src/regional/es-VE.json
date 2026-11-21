@@ -1,0 +1,9 @@
+{
+  "$locale": "es-VE",
+  "$note": "Venezuela. Solo las claves cuya redacción difiere del español neutro de América Latina; todo lo demás cae a base/. El nombre de un impuesto no está aquí: lo declara el paquete del mercado (markets/ve/taxes.ts, principalTaxName) y llega a la pantalla y al PDF desde ahí, así que no puede discrepar. Vocabulario a confirmar con un hablante del país.",
+  "hcm.employees.form.proportional_bonus": "Utilidades proporcionales",
+  "hcm.employees.form.social_security_number": "Número de asegurado (IVSS)",
+  "payroll.runs.type_label.christmas_bonus": "Utilidades",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica seniat imprenta digital certificado",
+  "settings.sections_meta.profile.keywords": "empresa rif razón social dirección"
+}

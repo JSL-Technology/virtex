@@ -53,15 +53,12 @@ export class JournalEntriesController {
   @Idempotent()
   @UseGuards(PeriodLockGuard, TemporalValidityGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
-  create(
+  async create(
     @Body() createJournalEntryDto: CreateJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.journalEntriesService.create(
-      createJournalEntryDto,
-      user.organizationId,
-      { actorUserId: user.id },
-    );
+    const entry = await this.journalEntriesService.create(createJournalEntryDto, user.organizationId, { actorUserId: user.id });
+    return this.asRead(entry.id, user);
   }
 
   @Get()
@@ -79,38 +76,47 @@ export class JournalEntriesController {
   @Patch(':id')
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
-  update(
+  async update(
     @Param('id', UuidParamPipe) id: string,
     @Body() updateDto: UpdateJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.journalEntriesService.update(id, user.organizationId, updateDto, {
-      actorUserId: user.id,
-    });
+    const entry = await this.journalEntriesService.update(id, user.organizationId, updateDto, { actorUserId: user.id });
+    return this.asRead(entry.id, user);
   }
 
   @Post(':id/reverse')
   @Idempotent()
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
-  reverse(
+  async reverse(
     @Param('id', UuidParamPipe) id: string,
     @Body() reverseDto: ReverseJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.journalEntriesService.reverse(id, user.organizationId, reverseDto, {
-      actorUserId: user.id,
-    });
+    const entry = await this.journalEntriesService.reverse(id, user.organizationId, reverseDto, { actorUserId: user.id });
+    return this.asRead(entry.id, user);
   }
   
   @Post(':id/create-reversal')
   @Idempotent()
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
-  createReversal(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-      return this.journalEntriesService.createReversalEntry(id, user.organizationId, {
-        actorUserId: user.id,
-      });
+  async createReversal(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    const entry = await this.journalEntriesService.createReversalEntry(id, user.organizationId, { actorUserId: user.id });
+    return this.asRead(entry.id, user);
+  }
+
+  /**
+   * The entry as `GET /journal-entries/:id` answers it, read after the write committed (FIN-JE-03).
+   *
+   * Each route answered with the entity it had in hand: the create, the entity built before posting,
+   * its lines carrying the entry back in its intermediate state (`Draft`, no number) beside an entry
+   * already `Posted`; a replayed request, whatever the first had stored. One representation now, the
+   * same on the first request, on a replay and on a read.
+   */
+  private asRead(id: string, user: AuthenticatedUser) {
+    return this.journalEntriesService.findOne(id, user.organizationId);
   }
 
   /**

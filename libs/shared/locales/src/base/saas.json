@@ -1,8 +1,63 @@
 {
   "saas.feature_disabled": {
-    "es": "La función {{featureKey}} no está incluida en tu plan.",
-    "en": "Feature {{featureKey}} is not included in your plan.",
-    "pt": "A função {{featureKey}} não está incluída no seu plano."
+    "es": "La función «{{feature}}» no está incluida en el plan de tu empresa.",
+    "en": "“{{feature}}” is not included in your company's plan.",
+    "pt": "O recurso «{{feature}}» não está incluído no plano da sua empresa."
+  },
+  "saas.features.ai_agents": {
+    "es": "Agentes automáticos",
+    "en": "Automatic agents",
+    "pt": "Agentes automáticos"
+  },
+  "saas.features.ai_anomalies": {
+    "es": "Detección de anomalías",
+    "en": "Anomaly detection",
+    "pt": "Detecção de anomalias"
+  },
+  "saas.features.ai_assistant": {
+    "es": "Asistente del ERP",
+    "en": "ERP assistant",
+    "pt": "Assistente do ERP"
+  },
+  "saas.features.ai_cashflow": {
+    "es": "Flujo de caja proyectado",
+    "en": "Projected cash flow",
+    "pt": "Fluxo de caixa projetado"
+  },
+  "saas.features.ai_collections": {
+    "es": "Notas de cobranza redactadas por el asistente",
+    "en": "Collection notes written by the assistant",
+    "pt": "Notas de cobrança redigidas pelo assistente"
+  },
+  "saas.features.ai_forecasting": {
+    "es": "Predicción de demanda",
+    "en": "Demand forecasting",
+    "pt": "Previsão de demanda"
+  },
+  "saas.features.ai_manager_reports": {
+    "es": "Informe del gerente",
+    "en": "Manager's report",
+    "pt": "Relatório do gestor"
+  },
+  "saas.features.ai_reconciliation": {
+    "es": "Conciliación asistida",
+    "en": "Assisted reconciliation",
+    "pt": "Conciliação assistida"
+  },
+  "saas.features.ai_vision": {
+    "es": "Lectura de fotos y documentos con IA",
+    "en": "AI photo and document reading",
+    "pt": "Leitura de fotos e documentos com IA"
+  },
+  "saas.features.enterprise_sso": {
+    "es": "Inicio de sesión único corporativo",
+    "en": "Enterprise single sign-on",
+    "pt": "Login único corporativo"
+  },
+  "saas.features.group_consolidation": {
+    "es": "Consolidación del grupo",
+    "en": "Group consolidation",
+    "pt": "Consolidação do grupo"
   },
   "saas.limit_reached.body": {
     "es": "Tu plan permite {{limit}} {{resource}}. Amplía el plan en Configuración → Facturación para seguir trabajando.",
@@ -83,6 +138,26 @@
     "es": "Tu plan ya no admite más {{resource}} en este período. Amplía el plan para continuar.",
     "en": "Your plan allows no more {{resource}} this period. Upgrade your plan to continue.",
     "pt": "O seu plano já não permite mais {{resource}} neste período. Atualize o plano para continuar."
+  },
+  "saas.plan_required.ask_admin": {
+    "es": "Pídele a quien administra la suscripción de tu empresa que cambie de plan.",
+    "en": "Ask whoever manages your company's subscription to change plans.",
+    "pt": "Peça a quem administra a assinatura da sua empresa que mude de plano."
+  },
+  "saas.plan_required.body": {
+    "es": "«{{feature}}» no forma parte del plan de tu empresa. Un plan superior lo incluye.",
+    "en": "“{{feature}}” is not part of your company's plan. A higher plan includes it.",
+    "pt": "«{{feature}}» não faz parte do plano da sua empresa. Um plano superior o inclui."
+  },
+  "saas.plan_required.see_plans": {
+    "es": "Ver los planes",
+    "en": "See the plans",
+    "pt": "Ver os planos"
+  },
+  "saas.plan_required.title": {
+    "es": "No incluido en tu plan",
+    "en": "Not included in your plan",
+    "pt": "Não incluído no seu plano"
   },
   "saas.resources.ai_credits": {
     "es": "Créditos de IA",

@@ -30,6 +30,7 @@ import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condi
 import { ClosingChecklistService } from './closing-checklist.service';
 import { CloseReadinessSourceService } from './close-readiness.source';
 import { PeriodGateSourceService } from './period-gate.source';
+import { BookkeepingReprovisioningService } from './provisioning/bookkeeping-reprovisioning.service';
 import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
 import { PeriodLockModule } from './period-lock.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -82,6 +83,7 @@ import { AccountingInboxProvider } from './inbox/accounting-inbox.provider';
     CloseReadinessSourceService, PeriodGateSourceService,
     LedgerMappingService,
     TenantBookkeepingProvisioner,
+    BookkeepingReprovisioningService,
     FiscalCalendarService,
     LedgerLookupService,
     CurrencyRevaluationService,

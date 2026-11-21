@@ -7,8 +7,8 @@ import { NotificationService } from '../../../core/services/notification';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { formPayload } from '../../../shared/utils/form-payload.util';
@@ -18,6 +18,9 @@ import {
   IdentityDocumentTypeOption,
 } from '../../../core/api/identity-documents.service';
 import { CountryPackService } from '../../../core/api/country-pack.service';
+import { AuthService } from '../../../core/services/auth';
+import { PriceListsService } from '../../masters/data/price-lists.service';
+import { PriceList } from '../../../core/models/price-list.model';
 
 @Component({
   selector: 'app-customer-form-page',
@@ -73,6 +76,17 @@ export class CustomerFormPage implements OnInit {
   // ── The company's market (its country pack, QA C-06) ───────────────────────
 
   private readonly countryPack = inject(CountryPackService);
+  private readonly auth = inject(AuthService);
+  private readonly priceListsApi = inject(PriceListsService);
+
+  /**
+   * The price list the customer buys at (FAC-PL-01). Shown to whoever may read the lists, editable
+   * only by whoever may edit them: assigning the wholesale list is a discount decision, and the
+   * server refuses it without `price_lists:edit` too.
+   */
+  protected readonly canViewPriceLists = this.auth.hasPermissions(['price_lists:view']);
+  protected readonly canAssignPriceList = this.auth.hasPermissions(['price_lists:edit']);
+  protected readonly priceLists = signal<Pick<PriceList, 'id' | 'name' | 'currency' | 'status' | 'isDefault'>[]>([]);
 
   /**
    * Whether the taxpayer classification means anything here. It decides what a customer withholds
@@ -151,7 +165,17 @@ export class CustomerFormPage implements OnInit {
       //  fecha—, así que toda factura nacía venciendo el mismo día en que se emitía.
       paymentTerms: [''],
       paymentTermDays: [null as number | null],
+      priceListId: [{ value: '', disabled: !this.canAssignPriceList }],
+      //  Si los recordatorios automáticos de la empresa le llegan. Un organismo público que paga en
+      //  su calendario, o una cuenta que lleva una persona: se le saca del calendario y se le
+      //  recuerda a mano.
+      automaticReminders: [true],
     });
+    if (this.canViewPriceLists) {
+      this.priceListsApi.getPriceLists().pipe(catchError(() => of([] as PriceList[]))).subscribe((lists) =>
+        this.priceLists.set(lists.map(({ id, name, currency, status, isDefault }) => ({ id, name, currency, status, isDefault }))),
+      );
+    }
 
     this.customerCountry.set((this.customerForm.get('country')?.value ?? '').toUpperCase());
     this.customerForm
@@ -225,7 +249,7 @@ export class CustomerFormPage implements OnInit {
     this.isLoading.set(true);
     this.customersService.getCustomerById(id).subscribe({
       next: (customer) => {
-        this.customerForm.patchValue(customer);
+        this.customerForm.patchValue({ ...customer, priceListId: customer.priceListId ?? '' });
         this.isLoading.set(false);
       },
       error: () => {
@@ -265,7 +289,7 @@ export class CustomerFormPage implements OnInit {
     this.problems.set([]);
 
     this.isLoading.set(true);
-    const { taxpayerType, ...rest } = this.customerForm.getRawValue();
+    const { taxpayerType, priceListId, ...rest } = this.customerForm.getRawValue();
 
     // "Sin clasificar" is the select's empty option, and the field help tells the user to leave it
     // there when they do not know the classification. It was sent as the empty string, which
@@ -277,6 +301,8 @@ export class CustomerFormPage implements OnInit {
       {
         ...rest,
         taxpayerType: taxpayerType || null,
+        // Sent only by whoever may assign it; otherwise the field is not part of the request at all.
+        ...(this.canAssignPriceList ? { priceListId: priceListId || null } : {}),
         //  Vacío no es cero: cero significa «al contado» y vacío «usa el valor por defecto de la
         //  organización». El `<input type="number">` entrega cadena vacía para ambos.
         paymentTermDays:

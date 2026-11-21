@@ -1,7 +1,7 @@
 
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { GenerateReportDto } from './dto/generate-report.dto';
 import { BadRequestError } from '../i18n/localized.exception';
@@ -20,6 +20,10 @@ import { PERMISSIONS } from '../shared/permissions';
  * Every route here served the tenant's complete general ledger and complete daybook to any
  * authenticated user, because the controller declared no permission at all. The ageing report is
  * the receivables position, which is not a general-audience document either.
+ *
+ * There is no `GET /reports/aging` any more: it was a second ageing, by ledger, that answered 500
+ * on the first open invoice, while every screen used `GET /customer-payments/aging` and
+ * `GET /accounts-payable/aging` (IA-B02). The report builder's `aging-report` is that same report.
  */
 @ApiTags('Reports')
 @ApiBearerAuth()
@@ -29,18 +33,6 @@ export class ReportsController {
     private readonly reportsService: ReportsService,
     private readonly profitabilityService: ProfitabilityService,
   ) {}
-
-  @Get('aging')
-  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
-  @ApiOperation({ summary: 'Get aging report' })
-  @ApiResponse({ status: 200, description: 'Return aging report.' })
-  getAgingReport(@CurrentUser() user: AuthenticatedUser, @Query() query: AgingReportDto) {
-
-    return this.reportsService.getAgingReport(
-      user.organizationId,
-      query.ledgerId,
-    );
-  }
 
   /**
    * Gross margin by product.
@@ -88,9 +80,10 @@ export class ReportsController {
           generateReportDto.options as JournalReportDto,
         );
       case 'aging-report':
-        return this.reportsService.getAgingReport(
+        return this.reportsService.receivablesAging(
           user.organizationId,
-          (generateReportDto.options as AgingReportDto).ledgerId,
+          generateReportDto.options as AgingReportDto,
+          user.id,
         );
       default:
         // A localized 400, not a bare `Error` — which the exception filter reports as a 500 and an

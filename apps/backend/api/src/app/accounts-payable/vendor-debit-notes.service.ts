@@ -24,6 +24,7 @@ import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbe
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope } from '../organizations/contracts/branch.contract';
 import { assertPostableAccount, isInventoryAccount, resolvePurchaseTaxAccount } from './payables-accounts';
+import { checkReceivedDocument, fiscalAuthorityOf } from '../markets';
 import { VendorDebitNoteQueryDto } from './dto/vendor-debit-note-query.dto';
 import { billPayable } from './vendor-bill-balance';
 
@@ -42,14 +43,15 @@ export interface VendorDebitNoteRow {
   number: string;
   date: string;
   reason: string;
-  ncf: string | null;
+  /** The number on the supplier's own document for it, where its market numbers one. */
+  supplierFiscalNumber: string | null;
   amount: number;
   taxAmount: number;
   status: VendorDebitNoteStatus;
   branchId: string | null;
   journalEntryId: string | null;
   vendorBillId: string;
-  billNcf: string | null;
+  billSupplierFiscalNumber: string | null;
   currencyCode: string;
   supplierId: string | null;
   supplierName: string | null;
@@ -87,6 +89,9 @@ export class VendorDebitNotesService {
     return this.dataSource.transaction(async (manager) => {
       const { vendorBillId, reason } = dto;
       const amount = roundAmount(dto.amount);
+      // The supplier's own document for the note, checked by the market's rule — the border used to
+      // demand the shape of a Dominican comprobante from a tenant of any market.
+      const supplierFiscalNumber = await this.checkedSupplierDocument(manager, organizationId, dto.supplierFiscalNumber);
       const taxAmount = roundAmount(dto.taxAmount ?? 0);
 
       // Locked: two notes against the same bill must not both read the old balance.
@@ -165,7 +170,7 @@ export class VendorDebitNotesService {
           vendorBillId,
           branchId: vendorBill.branchId ?? null,
           reason,
-          ncf: dto.ncf ? dto.ncf.toUpperCase() : null,
+          supplierFiscalNumber: supplierFiscalNumber ?? null,
           amount,
           taxAmount,
           expenseAccountId: dto.expenseAccountId,
@@ -185,7 +190,9 @@ export class VendorDebitNotesService {
         header: { key: 'ledger.debit_note.vendor_entry', params: { reason: `${number} · ${reason}` } },
         payable: {
           key: 'ledger.debit_note.vendor_payable',
-          params: { bill: vendorBill.ncf || `${vendorBill.vendor?.name ?? ''} ${String(vendorBill.date).slice(0, 10)}`.trim() },
+          params: {
+            bill: vendorBill.supplierFiscalNumber || `${vendorBill.vendor?.name ?? ''} ${String(vendorBill.date).slice(0, 10)}`.trim(),
+          },
         },
         counterpart: { key: 'ledger.debit_note.vendor_counterpart', params: { reason } },
         tax: { key: 'ledger.debit_note.vendor_tax_returned' },
@@ -239,14 +246,14 @@ export class VendorDebitNotesService {
         'note.id AS "id"',
         'note.number AS "number"',
         'note.reason AS "reason"',
-        'note.ncf AS "ncf"',
+        'note.supplierFiscalNumber AS "supplierFiscalNumber"',
         'note.amount AS "amount"',
         'note.taxAmount AS "taxAmount"',
         'note.status AS "status"',
         'note.branchId AS "branchId"',
         'note.journalEntryId AS "journalEntryId"',
         'bill.id AS "vendorBillId"',
-        'bill.ncf AS "billNcf"',
+        'bill.supplierFiscalNumber AS "billSupplierFiscalNumber"',
         'bill.currencyCode AS "currencyCode"',
         'vendor.id AS "supplierId"',
         'vendor.name AS "supplierName"',
@@ -402,5 +409,29 @@ export class VendorDebitNotesService {
       id,
       organizationId,
     ]);
+  }
+
+  /**
+   * The number on the supplier's own document for the note, checked by the rule of the company's
+   * market (`MarketPurchases.receivedDocument`) and kept in that market's canonical form where it
+   * has one. Null when none was given, and when the market keeps the number as printed.
+   */
+  private async checkedSupplierDocument(
+    manager: EntityManager,
+    organizationId: string,
+    raw: string | null | undefined,
+  ): Promise<string | null> {
+    if (!raw?.trim()) return null;
+    const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
+    const country = (organization?.country ?? '').toUpperCase() || null;
+    const checked = checkReceivedDocument(country, raw);
+    if (checked.status === 'invalid') {
+      throw new BadRequestError('accounts_payable.supplier_document_refused', {
+        document: raw.trim(),
+        authority: fiscalAuthorityOf(country),
+        reason: checked.error ?? 'format',
+      });
+    }
+    return checked.normalized ?? raw.trim();
   }
 }

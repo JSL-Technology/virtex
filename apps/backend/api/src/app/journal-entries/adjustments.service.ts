@@ -19,6 +19,7 @@ import { roundAmount, toCents } from '../common/money';
 import { toIsoDate } from '../common/dates';
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 @Injectable()
 export class AdjustmentsService {
@@ -280,7 +281,7 @@ export class AdjustmentsService {
       );
     }
 
-    const closingJournal = await manager.findOneBy(Journal, { organizationId, code: 'CIERRE' });
+    const closingJournal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.closing.code });
     if (!closingJournal) {
       throw new BadRequestError('accounting.closing_journal_cierre_not_found_create');
     }

@@ -9,6 +9,9 @@ export interface Tax {
   rate: number;
   type: TaxType;
   countryCode?: string;
+  /** The period the rate may be applied in (LOC-06); null bounds are open. */
+  effectiveFrom?: string | null;
+  effectiveTo?: string | null;
   organizationId: string;
   createdAt: Date;
   updatedAt: Date;

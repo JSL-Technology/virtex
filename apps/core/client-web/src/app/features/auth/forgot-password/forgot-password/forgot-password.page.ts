@@ -9,14 +9,14 @@ import { environment } from '../../../../../environments/environment';
 import { switchMap } from 'rxjs/operators';
 import { LanguageService } from '../../../../core/services/language';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 @Component({
   selector: 'app-forgot-password',

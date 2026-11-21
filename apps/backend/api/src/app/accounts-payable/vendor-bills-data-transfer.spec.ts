@@ -31,13 +31,14 @@ describeWithDb('vendor bills import', () => {
   const recorded = new Set(['B0100000999']);
 
   const actor = '33333333-3333-4333-8333-333333333333';
-  /** `tax_id_proveedor,ncf,fecha,vencimiento,concepto,cuenta_gasto,subtotal,impuesto,total`. */
+  /** `tax_id_proveedor,numero_fiscal,fecha,vencimiento,concepto,cuenta_gasto,subtotal,impuesto,total`. */
   const rows = (...lines: string[]): VendorBillImportRowDto[] =>
     lines.map((line) => {
-      const [vendorTaxId, ncf, date, dueDate, description, expenseAccountCode, subtotal, taxAmount, total] = line.split(',');
+      const [vendorTaxId, supplierFiscalNumber, date, dueDate, description, expenseAccountCode, subtotal, taxAmount, total] =
+        line.split(',');
       return Object.assign(new VendorBillImportRowDto(), {
         vendorTaxId,
-        ncf,
+        supplierFiscalNumber,
         date,
         dueDate,
         description,
@@ -71,7 +72,9 @@ describeWithDb('vendor bills import', () => {
     // The service's own suite covers what it enforces; here it stands in, with one of its refusals.
     const payablesService = {
       assertImportable: async (dto: CreateVendorBillDto) => {
-        if (dto.ncf && recorded.has(dto.ncf)) throw new ConflictError('accounts_payable.ncf_already_recorded', { ncf: dto.ncf });
+        if (dto.supplierFiscalNumber && recorded.has(dto.supplierFiscalNumber)) {
+          throw new ConflictError('accounts_payable.supplier_document_already_recorded', { document: dto.supplierFiscalNumber });
+        }
       },
       create: async (dto: CreateVendorBillDto, _org: string, actor: string | null) => {
         created.push({ dto, actor });
@@ -109,7 +112,7 @@ describeWithDb('vendor bills import', () => {
         actor,
         dto: expect.objectContaining({
           vendorId: '44444444-4444-4444-8444-444444444444',
-          ncf: 'B0100000123',
+          supplierFiscalNumber: 'B0100000123',
           date: '2026-01-15',
           dueDate: '2026-02-14',
           taxAmount: 1800,
@@ -135,14 +138,14 @@ describeWithDb('vendor bills import', () => {
       'data_transfer.vendor_bills.unknown_supplier',
       'data_transfer.vendor_bills.total_mismatch',
       'data_transfer.vendor_bills.account_not_usable',
-      'accounts_payable.ncf_already_recorded',
+      'accounts_payable.supplier_document_already_recorded',
       'data_transfer.vendor_bills.due_before_date',
       null,
     ]);
     expect(created).toEqual([]);
   });
 
-  it('refuses the same supplier\'s same comprobante twice in one file, however it is written', async () => {
+  it('refuses the same supplier\'s same document twice in one file, however it is written', async () => {
     const problems = await provider.import.checkFile(
       rows(
         '131-12345-7,B0100000301,2026-01-15,2026-02-14,Primera,6105,100,,',
@@ -152,7 +155,7 @@ describeWithDb('vendor bills import', () => {
     );
 
     expect(problems).toEqual([
-      { index: 1, column: 'ncf', key: 'data_transfer.duplicate_in_file', params: { value: 'b01-00000301', first: 2 } },
+      { index: 1, column: 'numero_fiscal', key: 'data_transfer.duplicate_in_file', params: { value: 'b01-00000301', first: 2 } },
     ]);
   });
 });

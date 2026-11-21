@@ -1,14 +1,11 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,13 +16,19 @@ import { AuthenticatedUser } from '../security/principal';
 import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
 import {
   RegisterFiscalRangeDto,
+  SetFiscalRangeActiveDto,
   UpsertFiscalRegimeSettingsDto,
+  UpsertTransmissionSettingsDto,
 } from './dto/fiscal-regime-settings.dto';
+import { TransmissionConfigService } from './services/transmission-config.service';
+import { FiscalSubmissionService, visibleSubmission } from './services/fiscal-submission.service';
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 
 /**
- * The tenant's e-invoicing configuration and the number ranges their authority granted them.
+ * The tenant's e-invoicing configuration and the number ranges their authority granted them — the
+ * ranges of every market that numbers from one, the Dominican NCF included.
  *
- * ## Why this endpoint decides whether six markets work at all
+ * ## Why this endpoint decides whether a market works at all
  *
  * The regimes are implemented, but a Chilean tenant cannot issue without a CAF, an Ecuadorean one
  * without an emission point, a Brazilian one without their IBGE codes. Until now the only way to
@@ -42,7 +45,52 @@ import {
 @ApiBearerAuth()
 @Controller('einvoicing/regime')
 export class FiscalRegimeSettingsController {
-  constructor(private readonly settings: FiscalRegimeSettingsService) {}
+  constructor(
+    private readonly settings: FiscalRegimeSettingsService,
+    private readonly transmission: TransmissionConfigService,
+    private readonly submissions: FiscalSubmissionService,
+  ) {}
+
+  /** The tenant's transmission channel, without the credential (FAC-EINV-04). */
+  @Get('transmission')
+  @HasPermission(PERMISSIONS.TAXES_VIEW)
+  @ApiOperation({ summary: 'El canal de transmisión del contribuyente, sin la credencial.' })
+  async transmissionSettings(@CurrentUser() user: AuthenticatedUser) {
+    return this.transmission.view(user.organizationId, await this.settings.countryOf(user.organizationId));
+  }
+
+  /**
+   * Save it. Re-authentication is required: whoever sets this credential files documents with
+   * legal effect in the company's name. What waited for the configuration is retried at once.
+   */
+  @Put('transmission')
+  @HasPermission(PERMISSIONS.TAXES_EDIT)
+  @RequireStepUp(StepUpScope.MANAGE_FISCAL_CREDENTIALS)
+  @ApiOperation({ summary: 'Guardar el canal de transmisión (la credencial se cifra y nunca se devuelve).' })
+  async saveTransmission(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpsertTransmissionSettingsDto) {
+    const country = await this.settings.countryOf(user.organizationId);
+    const view = await this.transmission.save(user.organizationId, country, dto);
+    if (view.configured) await this.submissions.requeueNotConfigured(user.organizationId, country);
+    return view;
+  }
+
+  /** Where an invoice's electronic document stands with the authority. */
+  @Get('submissions/invoice/:invoiceId')
+  @HasPermission(PERMISSIONS.INVOICES_VIEW)
+  @ApiOperation({ summary: 'El estado del documento electrónico de una factura ante la autoridad.' })
+  async submissionForInvoice(@CurrentUser() user: AuthenticatedUser, @Param('invoiceId', UuidParamPipe) invoiceId: string) {
+    const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
+    // The sealed payload and the raw response stay on the server: large, and not for the screen.
+    return submission ? visibleSubmission(submission) : null;
+  }
+
+  /** Try again now: transmit a pending or failed document, or ask again about one already sent. */
+  @Post('submissions/:id/retry')
+  @HasPermission(PERMISSIONS.INVOICES_EDIT)
+  @ApiOperation({ summary: 'Reintentar ahora la transmisión o la consulta del veredicto.' })
+  async retrySubmission(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return visibleSubmission(await this.submissions.retryNow(id, user.organizationId));
+  }
 
   @Get('settings')
   @HasPermission(PERMISSIONS.TAXES_VIEW)
@@ -81,20 +129,19 @@ export class FiscalRegimeSettingsController {
   }
 
   /**
-   * Retire a range. It stays on file, deactivated.
-   *
-   * `DELETE` is the verb the client uses and deactivation is what happens, because the row is the
-   * authorisation past documents were issued under. Destroying it destroys the only record of
+   * Retire a range, or put a superseded one back in force (retiring the one in force for its type
+   * and series). The one way a range's state changes: there is no `DELETE`, because the row is the
+   * authorisation past documents were issued under, and destroying it destroys the only record of
    * which permission covered which document.
    */
-  @Delete('ranges/:id')
-  @HasPermission(PERMISSIONS.TAXES_DELETE)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Retirar un rango; la fila permanece para la trazabilidad.' })
-  async deactivateRange(
+  @Patch('ranges/:id')
+  @HasPermission(PERMISSIONS.TAXES_EDIT)
+  @ApiOperation({ summary: 'Retirar o reactivar un rango; la fila permanece para la trazabilidad.' })
+  async setRangeActive(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', UuidParamPipe) id: string,
-  ): Promise<void> {
-    await this.settings.deactivateRange(user.organizationId, id);
+    @Body() dto: SetFiscalRangeActiveDto,
+  ) {
+    return this.settings.setRangeActive(user.organizationId, id, dto.isActive);
   }
 }

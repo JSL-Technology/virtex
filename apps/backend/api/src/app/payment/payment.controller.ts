@@ -15,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { Public } from '../security/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
-import { CreateCheckoutSessionDto, ConfirmCheckoutDto } from './dto/payment.dto';
+import { StartPlanChangeDto, ConfirmCheckoutDto } from './dto/payment.dto';
 import { AuthenticatedUser } from '../security/principal';
 import { BadRequestError } from '../i18n/localized.exception';
 
@@ -38,25 +38,30 @@ export class PaymentController {
   ) {}
 
   /**
-   * Start a Stripe Checkout session for the caller's organization.
+   * Change the caller's organization to a plan.
    *
-   * The client names a PLAN, not a Stripe price, and does not choose where the browser lands
-   * afterwards. Both used to come straight from the request body and straight into Stripe, which
-   * made this endpoint a redirect the attacker controls but the victim's browser sees leaving
-   * `checkout.stripe.com` — phishing with a genuine payment-processor origin (CWE-601) — and let
-   * a caller subscribe to any price on the Stripe account, including internal or test prices.
-   * The auth controller already resolved this the right way for signup; this is the same fix.
+   * One door, whatever the organization's billing state: a subscription in force has its price
+   * changed on the provider's confirmation page, an organization with none is sent to buy one.
+   * This used to be `POST /payment/checkout-session`, which always bought a NEW subscription — a
+   * second one, billed beside the first, for every tenant that changed plan.
+   *
+   * The client names a PLAN, not a provider price, and does not choose where the browser lands
+   * afterwards. Both used to come straight from the request body and into Stripe, which made this a
+   * redirect the attacker controls but the victim's browser sees leaving `checkout.stripe.com` —
+   * phishing with a genuine payment-processor origin (CWE-601) — and let a caller subscribe to any
+   * price on the account, including internal or test prices.
    */
-  @Post('checkout-session')
+  @Post('plan-change')
   @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
-  async createCheckoutSession(
+  async startPlanChange(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: CreateCheckoutSessionDto,
+    @Body() dto: StartPlanChangeDto,
     @Ip() ip: string
   ) {
-    if (!user.organizationId) {
+    const organizationId = user.organizationId;
+    if (!organizationId) {
         throw new BadRequestError('payment.user_does_not_belong_organization');
     }
 
@@ -73,20 +78,24 @@ export class PaymentController {
       );
     }
 
-    const { successUrl, cancelUrl } = this.billingRedirectUrls();
+    const { successUrl, cancelUrl, planChangedUrl } = this.billingRedirectUrls();
+    const audit = (details: Record<string, unknown>) =>
+      this.auditTrailService.record(user.id, 'Organization', organizationId, ActionType.UPDATE, { action: 'start-plan-change', planSlug: plan.slug, ...details }, undefined, ip, organizationId);
 
     try {
-      const result = await this.paymentService.createCheckoutSession(
-        user.organizationId,
-        user.email,
+      const started = await this.paymentService.startPlanChange({
+        organizationId,
+        actorUserId: user.id,
+        userEmail: user.email,
         priceId,
         successUrl,
-        cancelUrl
-      );
-      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-checkout-session', planSlug: plan.slug }, undefined, ip, user.organizationId);
-      return result;
+        cancelUrl,
+        planChangedUrl,
+      });
+      await audit({ flow: started.flow });
+      return { url: started.url };
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-checkout-session', planSlug: plan.slug, error: (e as Error).message }, undefined, ip, user.organizationId);
+      await audit({ error: (e as Error).message });
       throw e;
     }
   }
@@ -95,11 +104,12 @@ export class PaymentController {
    * Where Stripe sends the browser back to. Built from FRONTEND_URL so the destination is always
    * this application, never a value a caller supplied.
    */
-  private billingRedirectUrls(): { successUrl: string; cancelUrl: string } {
+  private billingRedirectUrls(): { successUrl: string; cancelUrl: string; planChangedUrl: string } {
     const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL').replace(/\/$/, '');
     return {
       successUrl: `${frontendUrl}/settings/billing?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${frontendUrl}/settings/billing`,
+      planChangedUrl: `${frontendUrl}/settings/billing?plan_change=confirmed`,
     };
   }
 
@@ -132,6 +142,18 @@ export class PaymentController {
       throw new BadRequestError('payment.user_does_not_belong_organization');
     }
     return this.paymentService.confirmOrganizationCheckout(user.organizationId, body.sessionId);
+  }
+
+  // step-up-exempt: records the subscription exactly as the provider has it, for this tenant only.
+  // It moves no money and grants nothing the provider did not.
+  @Post('subscription/reconcile')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.BILLING_MANAGE)
+  async reconcileSubscription(@CurrentUser() user: AuthenticatedUser) {
+    if (!user.organizationId) {
+      throw new BadRequestError('payment.user_does_not_belong_organization');
+    }
+    return this.paymentService.reconcileSubscription(user.organizationId);
   }
 
   @Get('invoices')

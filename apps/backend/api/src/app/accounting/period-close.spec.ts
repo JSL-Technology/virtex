@@ -15,6 +15,9 @@ import {
   AccountType,
 } from '../chart-of-accounts/enums/account-enums';
 import { AccountingPeriod, PeriodStatus } from './entities/accounting-period.entity';
+import { Dimension } from '../dimensions/entities/dimension.entity';
+import { DimensionValue } from '../dimensions/entities/dimension-value.entity';
+import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
 import {
   JournalEntry,
   JournalEntryStatus,
@@ -36,6 +39,10 @@ import { ClosingAutomationService } from './closing-automation.service';
 import { ResultTransferService } from './result-transfer.service';
 import { DepreciationService } from '../fixed-assets/depreciation.service';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
+import { ClosingChecklistService } from './closing-checklist.service';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
+import { ClosingBlockerRegistry } from '../contracts/closing-blockers/closing-blocker.registry';
+import { defaultFxTreatment } from '../contracts/accounting/fx-treatment.contract';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
@@ -70,6 +77,8 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
   let balances: AccountBalancesService;
   let reporting: FinancialReportingService;
   let closing: PeriodClosingService;
+  let revaluation: CurrencyRevaluationService;
+  let checklist: ClosingChecklistService;
   let yearEnd: YearEndCloseService;
 
   let organizationId: string;
@@ -144,13 +153,20 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     // funcional del inquilino y resuelve su diario por código en vez de recibirlos hechos. El spec
     // se quedó con cuatro y dejó de compilar, así que el cierre de periodo —el proceso que este
     // archivo existe para proteger— no se ha ejecutado desde entonces.
-    const revaluation = new CurrencyRevaluationService(
+    revaluation = new CurrencyRevaluationService(
       entries,
       balances,
       rateResolver,
       dataSource,
       new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
       new JournalLookupService(dataSource.getRepository(Journal)),
+    );
+
+    checklist = new ClosingChecklistService(
+      dataSource,
+      new JournalQueryService(dataSource),
+      new ClosingBlockerRegistry(),
+      revaluation,
     );
 
     closing = new PeriodClosingService(
@@ -224,6 +240,9 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
           systemRole,
           isPostable: true,
           isActive: true,
+          // As the chart-of-accounts service writes it: the treatment its type and role call for
+          // (FIN-AC-03). Without it every account is held at its historical rate.
+          fxTreatment: defaultFxTreatment(type, systemRole),
         }),
       );
       account[key] = saved.id;
@@ -237,6 +256,10 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     await make('expense', '5101', 'Gastos operativos', AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, AccountNature.DEBIT);
     await make('depreciation', '5201', 'Gasto por depreciación', AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, AccountNature.DEBIT, AccountRole.DEPRECIATION_EXPENSE);
     await make('forex', '5901', 'Diferencia cambiaria', AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, AccountNature.DEBIT, AccountRole.FOREX_GAIN_LOSS);
+    // Not money: a prepayment is used up in services, an advance settled by delivering goods.
+    await make('prepaid', '1401', 'Gastos pagados por anticipado', AccountType.ASSET, AccountCategory.CURRENT_ASSET, AccountNature.DEBIT);
+    await make('advances', '2301', 'Anticipos de clientes', AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, AccountNature.CREDIT, AccountRole.CUSTOMER_ADVANCES);
+    await make('unrealized', '5902', 'Diferencia cambiaria no realizada', AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, AccountNature.DEBIT, AccountRole.UNREALIZED_FOREX_GAIN_LOSS);
 
     await dataSource.getRepository(OrganizationSettings).save(
       dataSource.getRepository(OrganizationSettings).create({
@@ -464,6 +487,82 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
   });
 
   /**
+   * The annual close with analytical accounting on (FIN-AC-01).
+   *
+   * It did not work at all. `readiness` answered `canClose: true` and the close answered 400:
+   * `journal_entries.account_code_p2_requires_mandatory_dimension`, because the closing entry had
+   * one untagged line per account and a mandatory dimension rule refused it. The only way out of
+   * the product was to delete the rule. And where no rule existed, the close still left the profit
+   * and loss BY COST CENTRE untouched: a single line of 100 does not cancel 60 on one centre and
+   * 40 on another.
+   *
+   * The close now works by (account × dimension combination), so the rule is satisfied by
+   * construction and every centre returns to zero.
+   */
+  it('closes the year of a tenant with a mandatory dimension rule, centre by centre', async () => {
+    const dimension = await dataSource.getRepository(Dimension).save(
+      dataSource.getRepository(Dimension).create({ organizationId, name: 'Centro de costo', isActive: true }),
+    );
+    for (const value of ['A', 'B']) {
+      await dataSource.getRepository(DimensionValue).save(
+        dataSource.getRepository(DimensionValue).create({ dimensionId: dimension.id, value, isActive: true }),
+      );
+    }
+    // Mandatory on the expense account: every line that touches it must say which centre it is.
+    await dataSource.getRepository(DimensionRule).save(
+      dataSource.getRepository(DimensionRule).create({
+        accountId: account['expense'],
+        dimensionId: dimension.id,
+        isRequired: true,
+      }),
+    );
+
+    const tagged = (code: string) => ({ 'Centro de costo': code });
+    await post('2026-01-10', 'Venta', [
+      { accountId: account['cash'], debit: 20_000 },
+      { accountId: account['revenue'], credit: 20_000 },
+    ]);
+    await entries.create(
+      {
+        date: '2026-01-15',
+        description: 'Gasto por centro',
+        journalId: generalJournalId,
+        lines: [
+          { accountId: account['expense'], debit: 6_000, credit: 0, dimensions: tagged('A') },
+          { accountId: account['expense'], debit: 4_000, credit: 0, dimensions: tagged('B') },
+          { accountId: account['cash'], debit: 0, credit: 10_000 },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      ctx,
+    );
+
+    await closing.closePeriod(januaryId, organizationId, ACTOR);
+    await closing.closePeriod(februaryId, organizationId, ACTOR);
+
+    // It used to throw here.
+    await expect(yearEnd.closeFiscalYear({ fiscalYearId }, organizationId, ACTOR)).resolves.toMatchObject({
+      status: FiscalYearStatus.CLOSED,
+    });
+
+    const expenseIn = (dimensions?: Record<string, string>) =>
+      balances.balanceOf(account['expense'], { organizationId, ledgerId, asOf: '2026-02-28', dimensions });
+
+    // Every centre back to zero, not just the total.
+    await expect(expenseIn(tagged('A'))).resolves.toBe(0);
+    await expect(expenseIn(tagged('B'))).resolves.toBe(0);
+    await expect(expenseIn()).resolves.toBe(0);
+
+    // And the result landed in retained earnings, attributed to the centre that produced it:
+    // 20 000 of revenue with no centre, 6 000 and 4 000 of expense with one each.
+    const retainedIn = (dimensions?: Record<string, string>) =>
+      balances.balanceOf(account['retained'], { organizationId, ledgerId, asOf: '2026-02-28', dimensions });
+    await expect(retainedIn(tagged('A'))).resolves.toBe(6_000);
+    await expect(retainedIn(tagged('B'))).resolves.toBe(4_000);
+    await expect(retainedIn()).resolves.toBe(-10_000);
+  });
+
+  /**
    * The annual-close screen asks before it offers the button (QA M-09): what is in the way, and
    * what the close will move to retained earnings.
    */
@@ -581,6 +680,215 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       asOf: '2026-02-28',
     });
     expect(revenue).toBe(-20_000);
+  });
+
+  it('revalues an open foreign-currency position at the closing rate, once (FINB-01)', async () => {
+    // A dollar balance on a monetary account, booked at 58 and restated at 60 on 31 January.
+    await dataSource.getRepository(OrganizationSettings).update({ organizationId }, { defaultCashId: account['cash'] });
+    await entries.create(
+      {
+        date: '2026-01-10',
+        description: 'Cobro en dólares',
+        journalId: generalJournalId,
+        lines: [
+          { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
+          { accountId: account['revenue'], debit: 0, credit: 5_800 },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      // Posted the way collections posts it: a system posting whose rate the module resolved. A
+      // person typing this line by hand is held to the day's published quote (FIN-JE-01).
+      { ...ctx, systemReason: 'Cobro en divisa' },
+    );
+    await dataSource.query(`INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ('USD', 'DOP', 60, '2026-01-31')`).catch(() => undefined);
+
+    const [first] = await revaluation.run('2026-01-31', organizationId);
+    expect(first).toMatchObject({ positions: 1, adjusted: 1 });
+    expect(await balances.balanceOf(account['cash'], { organizationId, ledgerId, asOf: '2026-01-31' })).toBe(6_000);
+    expect(await balances.balanceOf(account['forex'], { organizationId, ledgerId, asOf: '2026-01-31' })).toBe(-200); // a gain
+
+    // Running it again restates nothing: the adjustment moved the carrying amount of that currency.
+    const [second] = await revaluation.run('2026-01-31', organizationId);
+    expect(second).toMatchObject({ positions: 1, adjusted: 0 });
+  });
+
+  it('stops instead of skipping when a currency to revalue has no closing rate (FINB-01)', async () => {
+    await dataSource.getRepository(OrganizationSettings).update({ organizationId }, { defaultCashId: account['cash'] });
+    await entries.create(
+      {
+        date: '2026-02-10',
+        description: 'Cobro en francos',
+        journalId: generalJournalId,
+        lines: [
+          { accountId: account['cash'], debit: 650, credit: 0, currencyCode: 'CHF', foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
+          { accountId: account['revenue'], debit: 0, credit: 650 },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      // Posted the way collections posts it: a system posting whose rate the module resolved. A
+      // person typing this line by hand is held to the day's published quote (FIN-JE-01).
+      { ...ctx, systemReason: 'Cobro en divisa' },
+    );
+    await expect(revaluation.run('2026-02-28', organizationId)).rejects.toMatchObject({
+      messageKey: 'accounting.revaluation.closing_rate_missing',
+    });
+  });
+
+  /**
+   * Only money is restated (FIN-AC-03, IAS 21.23).
+   *
+   * The revaluation decided which accounts were monetary from the settings' roles, the bank
+   * accounts posting to an account and a flag that nothing set — and restated customer advances,
+   * which an advance settled by delivering goods is not (IFRIC 22). The chart states it now, per
+   * account, and the close reads only that.
+   */
+  describe('what the period-end revaluation restates (FIN-AC-03)', () => {
+    /** One day's dollar movements: cash in, a prepayment, a customer's advance, all at 58. */
+    const postDollars = async () => {
+      await entries.create(
+        {
+          date: '2026-01-12',
+          description: 'Movimientos en dólares',
+          journalId: generalJournalId,
+          lines: [
+            { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
+            { accountId: account['prepaid'], debit: 2_900, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 50, foreignCurrencyCredit: 0, exchangeRate: 58 },
+            { accountId: account['advances'], debit: 0, credit: 4_640, currencyCode: 'USD', foreignCurrencyDebit: 0, foreignCurrencyCredit: 80, exchangeRate: 58 },
+            { accountId: account['revenue'], debit: 0, credit: 4_060 },
+          ],
+        } as CreateJournalEntryDto,
+        organizationId,
+        { ...ctx, systemReason: 'Movimientos en divisa' },
+      );
+      await dataSource
+        .query(`INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ('USD', 'DOP', 60, '2026-01-31')`)
+        .catch(() => undefined);
+    };
+    const balance = (key: string) => balances.balanceOf(account[key], { organizationId, ledgerId, asOf: '2026-01-31' });
+
+    it('restates the cash, and leaves the prepayment and the advance at the rate of their day', async () => {
+      await postDollars();
+
+      const [result] = await revaluation.run('2026-01-31', organizationId);
+
+      expect(result).toMatchObject({ positions: 1, adjusted: 1 });
+      expect(await balance('cash')).toBe(6_000);
+      expect(await balance('prepaid')).toBe(2_900);
+      expect(await balance('advances')).toBe(-4_640);
+    });
+
+    it('posts the unrealised difference apart from the realised one when the company has the account', async () => {
+      await dataSource
+        .getRepository(OrganizationSettings)
+        .update({ organizationId }, { defaultUnrealizedForexGainLossAccountId: account['unrealized'] });
+      await postDollars();
+
+      await revaluation.run('2026-01-31', organizationId);
+
+      expect(await balance('unrealized')).toBe(-200);
+      expect(await balance('forex')).toBe(0);
+    });
+
+    it('a company without one posts it to its exchange-difference account, as before the two were separated', async () => {
+      await postDollars();
+      await revaluation.run('2026-01-31', organizationId);
+      expect(await balance('forex')).toBe(-200);
+      expect(await balance('unrealized')).toBe(0);
+    });
+
+    it('tells the close, before it runs, what it will restate and what it leaves for review', async () => {
+      await postDollars();
+
+      await expect(revaluation.outlook('2026-01-31', organizationId)).resolves.toEqual({
+        positions: 1,
+        currencies: ['USD'],
+        missingRates: [],
+        historical: [
+          { code: '1401', currency: 'USD' },
+          { code: '2301', currency: 'USD' },
+        ],
+      });
+
+      const items = await checklist.getChecklist(januaryId, organizationId);
+      expect(items.find((item) => item.id === 'currency-revaluation')).toMatchObject({
+        descriptionKey: 'accounting.checklist.items.revaluation_ready',
+        params: { count: 1, currencies: 'USD', missing: '' },
+        isCompleted: true,
+      });
+      // For the accountant to confirm that neither is money; nothing here stops the close.
+      expect(items.find((item) => item.id === 'historical-fx-balances')).toMatchObject({
+        descriptionKey: 'accounting.checklist.items.historical_fx_balances',
+        params: { count: 2, accounts: '1401 (USD), 2301 (USD)' },
+        isCompleted: true,
+        noteKey: 'accounting.checklist.historical_fx_note',
+      });
+    });
+
+    it('names the currency the close cannot restate, and where to enter its rate', async () => {
+      await entries.create(
+        {
+          date: '2026-01-14',
+          description: 'Cobro en francos',
+          journalId: generalJournalId,
+          lines: [
+            { accountId: account['cash'], debit: 650, credit: 0, currencyCode: 'CHF', foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
+            { accountId: account['revenue'], debit: 0, credit: 650 },
+          ],
+        } as CreateJournalEntryDto,
+        organizationId,
+        { ...ctx, systemReason: 'Cobro en divisa' },
+      );
+
+      const items = await checklist.getChecklist(januaryId, organizationId);
+      expect(items.find((item) => item.id === 'currency-revaluation')).toMatchObject({
+        descriptionKey: 'accounting.checklist.items.revaluation_rates_missing',
+        params: { missing: 'CHF' },
+        isCompleted: false,
+        resolutionLink: '/masters/currencies/exchange-rates',
+      });
+      expect(items.some((item) => item.id === 'historical-fx-balances')).toBe(false);
+    });
+
+    it('with no foreign-currency balance there is nothing to restate, and the line says so', async () => {
+      const items = await checklist.getChecklist(januaryId, organizationId);
+      expect(items.find((item) => item.id === 'currency-revaluation')).toMatchObject({
+        descriptionKey: 'accounting.checklist.items.revaluation_nothing',
+        isCompleted: true,
+      });
+    });
+  });
+
+  /**
+   * A period that has not ended is not ready to close (FIN-AC-02).
+   *
+   * There was no check: «Noviembre 2026» closed on the 7th of November, and December closed
+   * before it began. A month closed early refuses every posting in the rest of it — each sale,
+   * payment and payroll entry — and nothing said so.
+   */
+  it('refuses to close a period that has not ended, and closes it when asked explicitly', async () => {
+    // A period whose end is in the future, in this tenant's own calendar.
+    const [future] = await dataSource.getRepository(AccountingPeriod).save([
+      {
+        organizationId,
+        name: 'Período por venir',
+        startDate: '2099-01-01' as unknown as Date,
+        endDate: '2099-01-31' as unknown as Date,
+        status: PeriodStatus.OPEN,
+      },
+    ]);
+
+    await expect(closing.closePeriod(future.id, organizationId, ACTOR)).rejects.toMatchObject({
+      messageKey: 'accounting.period_has_not_ended_yet',
+    });
+
+    // The reason to do it anyway exists — a company that stops trading mid month — so it is a
+    // door, said out loud by whoever walks through it. Periods still close in order, so the ones
+    // before it close first: the new rule is one more condition, not a way round the others.
+    await closing.closePeriod(januaryId, organizationId, ACTOR);
+    await closing.closePeriod(februaryId, organizationId, ACTOR);
+    await expect(
+      closing.closePeriod(future.id, organizationId, ACTOR, { closeBeforeItEnds: true }),
+    ).resolves.toMatchObject({ status: PeriodStatus.CLOSED });
   });
 
   it('refuses to close a period twice', async () => {

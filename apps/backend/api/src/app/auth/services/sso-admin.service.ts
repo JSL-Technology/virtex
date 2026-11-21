@@ -19,7 +19,7 @@ import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/locali
 export const PENDING_DOMAIN_CLAIM_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
 // DNS host (relative to the domain) where the org must publish the verification TXT record.
-const DNS_VERIFICATION_PREFIX = '_virteex-sso';
+const DNS_VERIFICATION_PREFIX = '_virtex-sso';
 
 /** API-safe view of an IdP — never includes the (encrypted) client secret. */
 export interface IdentityProviderView {
@@ -207,7 +207,7 @@ export class SsoAdminService {
       organizationId,
       domain,
       verified: false,
-      verificationToken: `virteex-sso-verification=${crypto.randomBytes(24).toString('hex')}`,
+      verificationToken: `virtex-sso-verification=${crypto.randomBytes(24).toString('hex')}`,
     });
     return this.describe(await this.domainRepository.save(created));
   }
@@ -243,7 +243,7 @@ export class SsoAdminService {
   }
 
   /**
-   * Verify domain ownership by looking up the TXT record at `_virteex-sso.<domain>` and
+   * Verify domain ownership by looking up the TXT record at `_virtex-sso.<domain>` and
    * matching the issued token. This is the anti-takeover control that gates enabling SSO.
    */
   async verifyDomain(organizationId: string, id: string) {

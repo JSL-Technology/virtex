@@ -94,6 +94,38 @@ describeWithDb('organization settings sections', () => {
     });
   });
 
+  it('the reminder schedule: off until turned on, days whole, bounded, in order (TES-13)', async () => {
+    const start = await service.get('collections', organizationId);
+    expect(start.fields).toEqual({ collectionsAutomaticReminders: false, collectionsReminderDays: [-3, 1, 7, 15, 30] });
+    // What «restore default» goes back to, as the array the row holds — not the text `{-3,1,7,15,30}`.
+    expect(start.defaultFields).toEqual({ collectionsAutomaticReminders: false, collectionsReminderDays: [-3, 1, 7, 15, 30] });
+
+    const saved = await service.update('collections', organizationId, {
+      fields: { collectionsAutomaticReminders: true, collectionsReminderDays: [30, 1, 1, -5] },
+    });
+    expect(saved.fields).toEqual({ collectionsAutomaticReminders: true, collectionsReminderDays: [-5, 1, 30] });
+
+    await expect(
+      service.update('collections', organizationId, { fields: { collectionsAutomaticReminders: 'yes' } }),
+    ).rejects.toMatchObject({ messageKey: 'organizations.settings.yes_or_no' });
+    await expect(
+      service.update('collections', organizationId, { fields: { collectionsReminderDays: [1, 400] } }),
+    ).rejects.toMatchObject({ messageKey: 'organizations.settings.reminder_days_range' });
+    await expect(
+      service.update('collections', organizationId, { fields: { collectionsReminderDays: [1.5] } }),
+    ).rejects.toMatchObject({ messageKey: 'organizations.settings.reminder_days_range' });
+    await expect(
+      service.update('collections', organizationId, { fields: { collectionsReminderDays: [] } }),
+    ).rejects.toMatchObject({ messageKey: 'organizations.settings.reminder_days_count' });
+    await expect(
+      service.update('collections', organizationId, { fields: { collectionsReminderDays: [1, 2, 3, 4, 5, 6, 7, 8, 9] } }),
+    ).rejects.toMatchObject({ messageKey: 'organizations.settings.reminder_days_count' });
+    // The column holds the same line, for any writer the section does not see.
+    await expect(
+      dataSource.query(`UPDATE organization_settings SET collections_reminder_days = '{1,500}' WHERE organization_id = $1`, [organizationId]),
+    ).rejects.toThrow(/CHK_organization_settings_reminder_days/);
+  });
+
   it('lets the base currency change only before there are books', async () => {
     const changed = await service.update('currencies', organizationId, { baseCurrency: 'usd' });
     expect(changed.baseCurrency).toEqual({ code: 'USD', locked: false });

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import {
   CountryService,
   type FiscalFieldSpec,
@@ -11,7 +11,7 @@ import {
   type TaxpayerKind,
 } from '../../../../../core/services/country.service';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { CountryNamesService } from '../../../../../core/i18n/countries';
 import { CountryFlagComponent } from '../../../../../shared/components/country-flag/country-flag.component';
 

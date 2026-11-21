@@ -14,6 +14,7 @@ import { AccountBalancesService } from '../chart-of-accounts/account-balances.se
 import { roundAmount, toCents } from '../common/money';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 @Injectable()
 export class InflationAdjustmentService {
@@ -65,7 +66,7 @@ export class InflationAdjustmentService {
     }
 
     await this.dataSource.transaction(async manager => {
-        const adjustmentJournal = await manager.findOneBy(Journal, { organizationId, code: 'AJU-INF' });
+        const adjustmentJournal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.inflationAdjustment.code });
         if (!adjustmentJournal) {
             throw new BadRequestError('accounting.inflation_adjustment_journal_aju_inf_not');
         }

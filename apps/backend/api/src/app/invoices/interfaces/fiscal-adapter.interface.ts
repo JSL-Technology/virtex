@@ -1,27 +1,32 @@
 import { EntityManager } from 'typeorm';
+import type { EmissionKind } from '../../markets';
 import { Invoice } from '../entities/invoice.entity';
+
+export type { EmissionKind };
 
 /** The fiscal identity a regime assigns to a document at the moment it is issued. */
 export interface FiscalNumberAssignment {
-  /** The fiscal number itself, or null in a regime that issues none. */
-  ncf: string | null;
+  /**
+   * The fiscal number as the document carries it, written by the market's mask; null where the
+   * number is not the product's to assign (a stamp, the authority's own counter) or none exists.
+   */
+  fiscalNumber: string | null;
   /** The document type the number was drawn from (`E31`, `B01`, `01`, `33`…). */
   documentType: string | null;
   /** Expiry of the authorization the number belongs to, `YYYY-MM-DD`, or null. */
   expiresAt: string | null;
+  /**
+   * The consecutive drawn from the range, and the range's series, as drawn — recorded so nothing
+   * downstream parses them back out of the formatted number. Null where no range was drawn from.
+   */
+  sequence: number | null;
+  series: string | null;
 }
 
 /**
- * A document type one market lets a tenant issue, for the UI to offer.
- *
- * This used to be `readonly NcfType[]` — the DGII's own enum — and the audit's H18 is partly about
- * what that costs: a Mexican, Colombian or Chilean tenant has document types too (`I` ingreso,
- * factura electrónica de venta, DTE 33 afecta / 34 exenta), and none of them is expressible as an
- * `NcfType`. An interface that can only describe one country's codes is an interface that resolves
- * every other country to the generic adapter, which is exactly what it did.
- *
- * The code stays a plain string because it is the authority's own code and is written verbatim into
- * the document; the enum survives as the Dominican adapter's source for its own values.
+ * A document type one market lets a tenant issue, for the UI to offer: a row of the market's
+ * catalogue (`markets/<cc>/documents.ts`). The code is the authority's own, written verbatim into
+ * the document, so it is a plain string and never an enum of one authority's codes.
  */
 export interface FiscalDocumentTypeOption {
   /** The authority's code, as it appears in the document: `E31`, `01`, `33`, `55`. */
@@ -50,31 +55,30 @@ export interface FiscalAssignmentContext {
   /**
    * Type explicitly requested by the caller, as the authority's own code.
    *
-   * Where present the adapter must honour it or refuse — it is how exports (E46), government (E45)
-   * and special regimes (E44) become issuable at all in the Dominican Republic, and how a Chilean
-   * tenant chooses between an afecta (33) and an exenta (34).
+   * Where present the adapter honours it or refuses, by the market's rule (`MarketNumbering.
+   * requestedType`): where the issuer may choose, it is how a type no rule picks by itself becomes
+   * issuable (an export, a sale to the government); where the type follows from the document, a
+   * request that contradicts it is refused rather than resolved silently.
    */
   requestedType?: string | null;
   /**
-   * Which kind of document to issue when no type is requested, in a market that has both — the
-   * Dominican traditional NCF (serie B) and e-CF (serie E), and any other market whose catalogue
-   * declares traditional types beside electronic ones. Chosen by the caller from the company's
-   * emission mode, its live ranges and whether it can sign (`InvoicesService.issuableTypes`).
-   * Absent: the adapter's own default.
+   * Which kind of document to issue when no type is requested, in a market whose catalogue declares
+   * traditional types beside electronic ones (`MarketNumbering.emissionKinds`). Chosen by the caller
+   * from the company's emission mode, its live ranges and whether it can sign
+   * (`InvoicesService.issuableTypes`). Absent: the market's default.
    */
   emissionKind?: EmissionKind | null;
 }
 
-/** Signed and transmitted to the authority, or numbered from an authorised range and printed. */
-export type EmissionKind = 'ELECTRONIC' | 'TRADITIONAL';
 
 /**
- * Assigns a document its fiscal identity for one market.
+ * Assigns a document its fiscal identity for one market — implemented once, by `MarketFiscalAdapter`,
+ * which follows the market's declared numbering.
  *
- * The interface used to mutate the invoice in place and return `void`, which hid the fact that
- * the assignment has three parts — number, type and authorization expiry — and left the last two
- * unrecorded. `FechaVencimientoSecuencia` is mandatory in an e-CF, so a number without its window
- * cannot be transmitted.
+ * The assignment is returned rather than written onto the invoice because it has several parts —
+ * number, type, the authorization's expiry, and the consecutive and series it was drawn as — and an
+ * authority that requires the expiry on the document (the Dominican e-CF's
+ * `FechaVencimientoSecuencia`, a DIAN resolution's window) cannot be sent a number without it.
  */
 export interface FiscalAdapter {
   /** Fiscal identity for a sales document. */
@@ -85,22 +89,40 @@ export interface FiscalAdapter {
     context: FiscalAssignmentContext & { originalInvoice: Invoice },
   ): Promise<FiscalNumberAssignment>;
 
+  /**
+   * Fiscal identity for a debit note: a charge added to an issued invoice (FAC-INV-05). Absent: the
+   * market's regime does not issue debit notes through this product yet, and one is refused rather
+   * than numbered as something its authority would reject.
+   */
+  assignDebitNoteNumber?(
+    context: FiscalAssignmentContext & { originalInvoice: Invoice },
+  ): Promise<FiscalNumberAssignment>;
+
   /** The types this market lets a tenant issue on a sales document, for the UI to offer. */
   availableSalesTypes(): readonly FiscalDocumentTypeOption[];
 
   /**
    * Of these types, the ones the company can draw a number for today: an active authorised range
    * with numbers left and not expired. A market whose numbers are not drawn from a stored range
-   * (Mexico: the PAC's UUID; Argentina: AFIP's own counter) answers every type.
+   * (a stamp, the authority's own counter) answers every type; one where the product issues no
+   * fiscal number, none.
    */
   liveTypes(context: LiveTypesContext): Promise<ReadonlySet<string>>;
 
   /**
-   * The types the adapter picks by itself, for an invoice with no type requested, in each kind.
-   * Absent: any type of that kind. The Dominican adapter picks crédito fiscal or consumo — B01/B02
-   * or E31/E32 — and never an export or a government document unasked.
+   * The types the market picks by itself, for an invoice with no type requested, in each kind
+   * (`MarketNumbering.automaticTypes`). Absent: any type of that kind. A market that distinguishes a
+   * sale to a taxpayer from one to a consumer picks one of those two, and never an export or a
+   * government document unasked.
    */
   automaticTypes?(kind: EmissionKind): readonly string[];
+
+  /**
+   * A till receipt's fiscal number, in a market whose consumers receive the authority's receipt from
+   * the till; null when the company holds no range in force for it. Absent: till sales carry their
+   * commercial number only.
+   */
+  assignTillReceiptNumber?(context: { organizationId: string; today: string; manager: EntityManager }): Promise<FiscalNumberAssignment | null>;
 }
 
 export interface LiveTypesContext {

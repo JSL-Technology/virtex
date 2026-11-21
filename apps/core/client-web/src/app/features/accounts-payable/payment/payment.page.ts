@@ -7,13 +7,13 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { CashPositionRow } from '../../accounting/data/treasury.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -188,7 +188,7 @@ export class VendorPaymentPage implements OnInit {
    * 5,000.00» (QA M-07); the line fell back to a slice of the bill's UUID.
    */
   billReference(bill: VendorBill): string {
-    return bill.ncf || this.format.date(bill.date);
+    return bill.supplierFiscalNumber || this.format.date(bill.date);
   }
 
   addBill(bill: VendorBill): void {
@@ -196,7 +196,7 @@ export class VendorPaymentPage implements OnInit {
     this.lines.push(
       this.fb.group({
         vendorBillId: [bill.id],
-        // `ncf` and the vendor relation, not `billNumber`/`vendorName` — neither of which the
+        // the supplier's document number and the vendor relation, not `billNumber`/`vendorName` — neither of which the
         // API returns. Both columns rendered blank in the payment picker.
         billNumber: [this.billReference(bill)],
         vendorName: [bill.vendor?.name ?? ''],

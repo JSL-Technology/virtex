@@ -1,4 +1,4 @@
-import type { RegionalFormat } from '@virteex/shared/types';
+import type { RegionalFormat } from '@virtex/shared/types';
 
 /**
  * The currency a tenant keeps its books in, as the locale context needs it (QA A-12).

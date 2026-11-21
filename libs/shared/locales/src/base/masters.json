@@ -126,7 +126,7 @@
   },
   "masters.banks.reference_empty_help": {
     "en": "Or add at once the {{count}} institutions the banking regulator lists in {{country}}, with their legal name, tax ID and the SWIFT code an official source confirms.",
-    "es": "O agrega de una vez las {{count}} entidades que el regulador bancario lista en {{country}}, con su razón social, RNC y el SWIFT confirmado por fuente oficial.",
+    "es": "O agrega de una vez las {{count}} entidades que el regulador bancario lista en {{country}}, con su razón social, identificación fiscal y el SWIFT confirmado por fuente oficial.",
     "pt": "Ou adicione de uma vez as {{count}} instituições que o regulador bancário lista em {{country}}, com razão social, identificação fiscal e o SWIFT confirmado por fonte oficial."
   },
   "masters.banks.reference_import": {
@@ -171,7 +171,7 @@
   },
   "masters.banks.tax_id": {
     "en": "Tax ID",
-    "es": "RNC / identificación fiscal",
+    "es": "Identificación fiscal",
     "pt": "Identificação fiscal"
   },
   "masters.banks.updated": {
@@ -419,6 +419,11 @@
     "en": "Currency",
     "pt": "Moeda"
   },
+  "masters.price_lists.default_badge": {
+    "es": "Predeterminada",
+    "en": "Default",
+    "pt": "Padrão"
+  },
   "masters.price_lists.delete": {
     "es": "Eliminar",
     "en": "Delete",
@@ -529,10 +534,25 @@
     "en": "Error updating the price list.",
     "pt": "Erro ao atualizar a tabela de preços."
   },
+  "masters.price_lists_form.is_default": {
+    "es": "Lista predeterminada para esta moneda",
+    "en": "Default list for this currency",
+    "pt": "Lista padrão para esta moeda"
+  },
+  "masters.price_lists_form.is_default_hint": {
+    "es": "Se aplica a todo cliente sin lista propia que compre en esta moneda. Solo puede haber una por moneda: marcarla aquí la desmarca en la anterior.",
+    "en": "Applies to every customer without a list of their own who buys in this currency. There can be only one per currency: ticking it here unticks it on the previous one.",
+    "pt": "Aplica-se a todo cliente sem lista própria que compre nesta moeda. Só pode haver uma por moeda: marcá-la aqui desmarca a anterior."
+  },
   "masters.price_lists_form.list_name": {
     "es": "Nombre de la lista",
     "en": "List name",
     "pt": "Nome da tabela"
+  },
+  "masters.price_lists_form.min_quantity": {
+    "es": "Desde cantidad",
+    "en": "From quantity",
+    "pt": "A partir da quantidade"
   },
   "masters.price_lists_form.price": {
     "es": "Precio",
@@ -599,15 +619,120 @@
     "en": "Valid until",
     "pt": "Válido até"
   },
+  "masters.supplier_bank.account_not_found": {
+    "es": "La cuenta bancaria no existe.",
+    "en": "The bank account does not exist.",
+    "pt": "A conta bancária não existe."
+  },
+  "masters.supplier_bank.account_number_invalid": {
+    "es": "El número de cuenta debe tener entre 4 y 40 letras o dígitos.",
+    "en": "The account number must have 4 to 40 letters or digits.",
+    "pt": "O número de conta deve ter entre 4 e 40 letras ou dígitos."
+  },
+  "masters.supplier_bank.add": {
+    "es": "Añadir cuenta",
+    "en": "Add account",
+    "pt": "Adicionar conta"
+  },
+  "masters.supplier_bank.added": {
+    "es": "Cuenta bancaria añadida.",
+    "en": "Bank account added.",
+    "pt": "Conta bancária adicionada."
+  },
+  "masters.supplier_bank.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "masters.supplier_bank.checking": {
+    "es": "Corriente",
+    "en": "Checking",
+    "pt": "Corrente"
+  },
+  "masters.supplier_bank.default": {
+    "es": "Predeterminada",
+    "en": "Default",
+    "pt": "Predefinida"
+  },
+  "masters.supplier_bank.fill_bank_and_number": {
+    "es": "Indica el banco y un número de cuenta de al menos 4 caracteres.",
+    "en": "Enter the bank and an account number of at least 4 characters.",
+    "pt": "Indique o banco e um número de conta com pelo menos 4 caracteres."
+  },
+  "masters.supplier_bank.hint": {
+    "es": "Donde se le paga. El número se guarda cifrado y solo se muestran sus cuatro últimos dígitos; cambiarlas pide confirmar tu identidad.",
+    "en": "Where the supplier is paid. The number is stored encrypted and only its last four digits are shown; changing them asks you to confirm your identity.",
+    "pt": "Onde se paga ao fornecedor. O número é guardado cifrado e só se mostram os quatro últimos dígitos; alterá-las pede para confirmar a sua identidade."
+  },
+  "masters.supplier_bank.make_default": {
+    "es": "Hacer predeterminada",
+    "en": "Make default",
+    "pt": "Tornar predefinida"
+  },
+  "masters.supplier_bank.not_saved": {
+    "es": "No se pudo guardar la cuenta bancaria.",
+    "en": "The bank account could not be saved.",
+    "pt": "Não foi possível guardar a conta bancária."
+  },
+  "masters.supplier_bank.number": {
+    "es": "Número de cuenta",
+    "en": "Account number",
+    "pt": "Número de conta"
+  },
+  "masters.supplier_bank.remove": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "masters.supplier_bank.savings": {
+    "es": "Ahorros",
+    "en": "Savings",
+    "pt": "Poupança"
+  },
+  "masters.supplier_bank.supplier_not_found": {
+    "es": "El proveedor no existe.",
+    "en": "The supplier does not exist.",
+    "pt": "O fornecedor não existe."
+  },
+  "masters.supplier_bank.title": {
+    "es": "Cuentas bancarias",
+    "en": "Bank accounts",
+    "pt": "Contas bancárias"
+  },
+  "masters.supplier_bank.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
   "masters.supplier_form.address": {
     "es": "Dirección",
     "en": "Address",
     "pt": "Endereço"
   },
+  "masters.supplier_form.blocked_hint": {
+    "es": "Mientras esté bloqueado no se le registran facturas ni se le paga.",
+    "en": "While blocked, no bills are recorded or paid for this supplier.",
+    "pt": "Enquanto bloqueado, não se registam faturas nem se paga a este fornecedor."
+  },
+  "masters.supplier_form.blocked_reason": {
+    "es": "Motivo del bloqueo",
+    "en": "Reason for the block",
+    "pt": "Motivo do bloqueio"
+  },
+  "masters.supplier_form.blocked_reason_required": {
+    "es": "Indica por qué se bloquea al proveedor.",
+    "en": "State why the supplier is blocked.",
+    "pt": "Indique porque o fornecedor é bloqueado."
+  },
   "masters.supplier_form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
     "pt": "Cancelar"
+  },
+  "masters.supplier_form.commercial_terms": {
+    "es": "Condiciones comerciales",
+    "en": "Commercial terms",
+    "pt": "Condições comerciais"
   },
   "masters.supplier_form.contact_person": {
     "es": "Persona de contacto",
@@ -619,10 +744,20 @@
     "en": "Country",
     "pt": "País"
   },
+  "masters.supplier_form.currency_code": {
+    "es": "Moneda de facturación",
+    "en": "Billing currency",
+    "pt": "Moeda de faturação"
+  },
   "masters.supplier_form.decides_what_withheld_when_you_pay": {
     "es": "Determina qué se le retiene al pagarle. Si no lo sabes, déjalo sin clasificar: no se retendrá nada automáticamente.",
     "en": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically.",
     "pt": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
+  },
+  "masters.supplier_form.default_expense_account": {
+    "es": "Cuenta de gasto por defecto",
+    "en": "Default expense account",
+    "pt": "Conta de despesa por omissão"
   },
   "masters.supplier_form.document_invalid": {
     "es": "El {{document}} no es válido. Revisa que esté completo y bien tecleado.",
@@ -659,10 +794,25 @@
     "en": "Error updating the supplier.",
     "pt": "Erro ao atualizar o fornecedor."
   },
+  "masters.supplier_form.expense_account_not_found": {
+    "es": "La cuenta de gasto no existe o no admite movimientos.",
+    "en": "The expense account does not exist or does not accept postings.",
+    "pt": "A conta de despesa não existe ou não aceita lançamentos."
+  },
   "masters.supplier_form.fill_your_supplier_details": {
     "es": "Completa la información detallada de tu proveedor.",
     "en": "Fill in your supplier's details.",
     "pt": "Preencha os dados do seu fornecedor."
+  },
+  "masters.supplier_form.payment_term_days": {
+    "es": "Días de crédito",
+    "en": "Payment terms (days)",
+    "pt": "Dias de crédito"
+  },
+  "masters.supplier_form.payment_term_days_hint": {
+    "es": "El vencimiento de una factura sin fecha de vencimiento se calcula con estos días.",
+    "en": "A bill with no due date is due this many days after its date.",
+    "pt": "O vencimento de uma fatura sem data de vencimento calcula-se com estes dias."
   },
   "masters.supplier_form.phone": {
     "es": "Teléfono",
@@ -673,6 +823,21 @@
     "es": "Guardar proveedor",
     "en": "Save supplier",
     "pt": "Salvar fornecedor"
+  },
+  "masters.supplier_form.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "masters.supplier_form.status_active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "masters.supplier_form.status_blocked": {
+    "es": "Bloqueado",
+    "en": "Blocked",
+    "pt": "Bloqueado"
   },
   "masters.supplier_form.supplier_could_not_loaded": {
     "es": "No se pudo cargar el proveedor.",
@@ -704,6 +869,11 @@
     "en": "Document number",
     "pt": "Número do documento"
   },
+  "masters.supplier_form.tax_id_already_registered": {
+    "es": "Ya tienes un proveedor con la identificación fiscal {{taxId}}: {{supplier}}. Usa ese proveedor en lugar de crear otro.",
+    "en": "You already have a supplier with tax ID {{taxId}}: {{supplier}}. Use that supplier instead of creating another.",
+    "pt": "Já tem um fornecedor com a identificação fiscal {{taxId}}: {{supplier}}. Use esse fornecedor em vez de criar outro."
+  },
   "masters.supplier_form.title_edit": {
     "es": "Editar proveedor",
     "en": "Edit supplier",
@@ -734,6 +904,16 @@
     "en": "Country Code (optional)",
     "pt": "Código do País (opcional)"
   },
+  "masters.tax_form.effective_from": {
+    "es": "Vigente desde (opcional)",
+    "en": "In force from (optional)",
+    "pt": "Em vigor desde (opcional)"
+  },
+  "masters.tax_form.effective_to": {
+    "es": "Vigente hasta (opcional)",
+    "en": "In force until (optional)",
+    "pt": "Em vigor até (opcional)"
+  },
   "masters.tax_form.error_creating_tax": {
     "es": "Error al crear el impuesto.",
     "en": "Error creating the tax.",
@@ -747,7 +927,7 @@
   "masters.tax_form.name_placeholder": {
     "es": "Ej: IVA general",
     "en": "e.g. Standard VAT",
-    "pt": "Ex.: ICMS padrão"
+    "pt": "Ex.: IVA padrão"
   },
   "masters.tax_form.rate": {
     "es": "Tasa",
@@ -798,6 +978,11 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "masters.tax_form.validity_help": {
+    "es": "Una factura solo puede usar esta tasa si su fecha cae dentro de este período. Si la ley cambia la tasa, cierra esta con la fecha de fin y crea la nueva desde la fecha en que entra en vigor.",
+    "en": "An invoice can use this rate only if its date falls within this period. When the law changes the rate, end this one and create the new rate from the date it takes effect.",
+    "pt": "Uma fatura só pode usar esta taxa se a sua data estiver dentro deste período. Se a lei mudar a taxa, encerre esta com a data de fim e crie a nova a partir da data em que entra em vigor."
   },
   "masters.taxes.add_first_state": {
     "es": "Añadir el primer estado",

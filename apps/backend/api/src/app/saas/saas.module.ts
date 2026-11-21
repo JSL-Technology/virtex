@@ -1,4 +1,4 @@
-import { Module, Global, forwardRef } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Plan } from './entities/plan.entity';
 import { PlanLimit } from './entities/plan-limit.entity';
@@ -9,7 +9,6 @@ import { SaasController } from './saas.controller';
 import { Organization } from '../organizations/entities/organization.entity';
 import { SubscriptionActiveGuard } from './guards/subscription-active.guard';
 import { PlanLimitCheckGuard } from './guards/plan-limit-check.guard';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsageMetricRepository } from './repositories/usage-metric.repository';
 import { OrganizationSubscriptionHistory } from '../organizations/entities/organization-subscription-history.entity';
 import { MetricsModule } from '../metrics/metrics.module';
@@ -18,7 +17,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { MailModule } from '../mail/mail.module';
 import { BillingNotificationsListener } from './listeners/billing-notifications.listener';
 import { User } from '../users/entities/user.entity/user.entity';
-import { SaasCronService } from './services/saas-cron.service';
 import { EntitlementsPort } from './contracts/entitlements.contract';
 
 @Global()
@@ -45,7 +43,7 @@ import { EntitlementsPort } from './contracts/entitlements.contract';
     // shared, Redis-backed instance everywhere.
   ],
   controllers: [SaasController],
-  providers: [SaasService, SubscriptionActiveGuard, PlanLimitCheckGuard, UsageMetricRepository, SaasCronService,
+  providers: [SaasService, SubscriptionActiveGuard, PlanLimitCheckGuard, UsageMetricRepository,
     BillingNotificationsListener,
     { provide: EntitlementsPort, useExisting: SaasService },
   ],

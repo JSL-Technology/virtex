@@ -35,7 +35,8 @@ export class CloseAssistantComponent {
   readonly view = signal<CloseAssistantView | null>(null);
   readonly plan = signal<AiReport | null>(null);
   readonly requesting = signal(false);
-  readonly canWrite = this.auth.hasPermissions(['ai_reports:view']);
+  // Writing the plan is the assistant's: the permission, and a plan that includes it.
+  readonly canWrite = this.auth.hasPermissions(['ai_reports:view']) && this.auth.hasFeature('ai_assistant');
   protected readonly DoneIcon = CheckCircle2;
   protected readonly TodoIcon = Circle;
   protected readonly AiIcon = Sparkles;

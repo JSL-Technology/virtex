@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { canTransition, mainPath } from '@virteex/shared/types';
+import { canTransition, mainPath } from '@virtex/shared/types';
 
 import { PURCHASE_ORDER_LIFECYCLE, REQUISITION_LIFECYCLE } from './procurement-lifecycles';
 import { PurchaseOrderStatus } from './entities/purchase-order.entity';

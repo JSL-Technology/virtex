@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Paperclip, Upload } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
 
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
 import { DocumentShellComponent, DocumentTone } from '../../../../shared/components/gestures';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { NotificationService } from '../../../../core/services/notification';

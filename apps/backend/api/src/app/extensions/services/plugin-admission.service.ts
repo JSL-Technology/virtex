@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { execFileSync } from 'child_process';
 import * as path from 'path';
@@ -55,19 +56,38 @@ export class PluginAdmissionService {
    * had not spelled the variable correctly.
    */
   private readonly devLike = isDevLikeEnvironment();
-  private readonly sonarUrl = process.env['SONAR_HOST_URL'] || 'http://localhost:9000';
-  private readonly sonarToken = process.env['SONAR_TOKEN'] || '';
-  private readonly dastUrl = process.env['PLUGIN_DAST_URL'] || '';
-  private readonly dastToken = process.env['PLUGIN_DAST_TOKEN'] || '';
-  private readonly requireDast =
-    (process.env['PLUGIN_DAST_MODE'] ?? (this.devLike ? 'best-effort' : 'required')) ===
-    'required';
-  private readonly opaBin = process.env['OPA_BIN'] || path.join(process.cwd(), 'tools', 'opa');
-  private readonly opaPolicy =
-    process.env['PLUGIN_OPA_POLICY'] ||
-    path.join(process.cwd(), 'platform', 'policies', 'security', 'plugin_admission.rego');
+  private readonly sonarUrl: string;
+  private readonly sonarToken: string;
+  private readonly dastUrl: string;
+  private readonly dastToken: string;
+  private readonly requireDast: boolean;
+  private readonly opaBin: string;
+  private readonly opaPolicy: string;
 
-  constructor(private readonly signingKeys: SigningKeyProvider) {}
+  /**
+   * Read through `ConfigService`, not from `process.env`.
+   *
+   * These were field initialisers over the raw environment, which put them outside the one schema
+   * that says what a deployment may set: the names were not declared, so a misspelt
+   * `SONAR_HOST_UR` silently disabled the scan, and `PLUGIN_DAST_MODE`'s default — whether an
+   * extension the scanner could not reach is admitted — lived here instead of in the schema. They
+   * are declared in `config/env.validation.ts` now, with the production guard on the mode, and
+   * read from the validated configuration.
+   */
+  constructor(
+    private readonly signingKeys: SigningKeyProvider,
+    config: ConfigService,
+  ) {
+    this.sonarUrl = config.get<string>('SONAR_HOST_URL') || 'http://localhost:9000';
+    this.sonarToken = config.get<string>('SONAR_TOKEN') || '';
+    this.dastUrl = config.get<string>('PLUGIN_DAST_URL') || '';
+    this.dastToken = config.get<string>('PLUGIN_DAST_TOKEN') || '';
+    this.requireDast = config.get<string>('PLUGIN_DAST_MODE') === 'required';
+    this.opaBin = config.get<string>('OPA_BIN') || path.join(process.cwd(), 'tools', 'opa');
+    this.opaPolicy =
+      config.get<string>('PLUGIN_OPA_POLICY') ||
+      path.join(process.cwd(), 'platform', 'policies', 'security', 'plugin_admission.rego');
+  }
 
   async validatePlugin(pkg: PluginPackage): Promise<AdmissionResult> {
     try {

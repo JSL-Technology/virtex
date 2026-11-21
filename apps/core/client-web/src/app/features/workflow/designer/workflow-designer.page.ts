@@ -1,5 +1,5 @@
-import { composeKey } from '@virteex/shared/types';
-import { TranslateModule, VxDatePipe, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
+import { TranslateModule, VxDatePipe, VxPluralKeyPipe } from '@virtex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -94,7 +94,7 @@ import { GroupPanelComponent } from './panels/group-panel.component';
 import { NodePanelComponent } from './panels/node-panel.component';
 import { ProcessPanelComponent } from './panels/process-panel.component';
 import { setSummaryLocale, summarizePredicate } from './predicate-summary';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import {
   CanvasEdge,
   CanvasGroup,

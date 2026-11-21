@@ -1,3 +1,4 @@
+import { CreateDatasheetBookDto, DatasheetSheetInputDto, UpdateDatasheetBookDto } from '../dto/datasheet-book.dto';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +9,7 @@ import { DatasheetVersion } from '../entities/datasheet-version.entity';
 import { DatasheetPermission, DatasheetAccessRole } from '../entities/datasheet-permission.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../../security/principal';
-import { ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 
 /** What each access role may do. Ordered from most to least. */
 const CAN_EDIT = new Set([DatasheetAccessRole.OWNER, DatasheetAccessRole.EDITOR]);
@@ -145,31 +146,40 @@ export class DatasheetsService {
     return [...new Set(rows.map((row) => row.bookId))];
   }
 
-  async create(data: Partial<DatasheetBook>, user: AuthenticatedUser): Promise<DatasheetBook> {
-    const book = this.bookRepo.create({
-      ...data,
-      ownerId: user.id,
-      organizationId: user.organizationId
-    });
-
-    const savedBook = await this.bookRepo.save(book);
-
-    // Create default sheet if none provided
-    if (!data.sheets || data.sheets.length === 0) {
-      const sheet = this.sheetRepo.create({
-        name: 'Hoja 1',
-        index: 0,
-        bookId: savedBook.id
-      });
-      await this.sheetRepo.save(sheet);
+  /**
+   * Create a book in the caller's tenant.
+   *
+   * Columns are copied one by one from the DTO, never spread: `create({ ...body }) + save()` with an
+   * `id` in the body UPDATED that row — another tenant's book included — and stamped it with the
+   * caller's organization and owner, moving it across tenants. A new book cannot carry ids of any kind.
+   */
+  async create(data: CreateDatasheetBookDto, user: AuthenticatedUser): Promise<DatasheetBook> {
+    if (data.sheets?.some((sheet) => sheet.id)) {
+      throw new BadRequestError('datasheets.new_book_sheets_cannot_carry_ids');
     }
-
+    const savedBook = await this.bookRepo.manager.transaction(async (manager) => {
+      const book = await manager.save(
+        manager.create(DatasheetBook, {
+          name: data.name,
+          description: data.description,
+          mode: data.mode,
+          tags: data.tags,
+          ownerId: user.id,
+          organizationId: user.organizationId,
+        }),
+      );
+      const sheets = data.sheets?.length ? data.sheets : [{ name: 'Hoja 1', index: 0 }];
+      for (const sheet of sheets) {
+        await manager.save(manager.create(DatasheetSheet, { ...sheetColumns(sheet), bookId: book.id }));
+      }
+      return book;
+    });
     return this.findOne(savedBook.id, user);
   }
 
   async update(
     id: string,
-    data: Partial<DatasheetBook>,
+    data: UpdateDatasheetBookDto,
     user: AuthenticatedUser,
   ): Promise<DatasheetBook> {
     const book = await this.findOne(id, user);
@@ -178,27 +188,24 @@ export class DatasheetsService {
       throw new ForbiddenError('datasheets.you_do_not_have_permission_edit', { id });
     }
 
-    // The tenant and the owner are not editable through this route: a book cannot be moved to
-    // another organization, and `bookRepo.update(id, data)` used to write whatever the body said.
-    delete (data as Partial<DatasheetBook>).organizationId;
-    delete (data as Partial<DatasheetBook>).ownerId;
-
-    if (data.sheets) {
-      // Handle sheet updates/sync
-      for (const sheetData of data.sheets) {
-        if (sheetData.id) {
-          // Scoped to this book: `update(sheetData.id, …)` alone let a caller rewrite a sheet of
-          // any book in the deployment by naming its id in the body.
-          await this.sheetRepo.update({ id: sheetData.id, bookId: id }, sheetData);
+    await this.bookRepo.manager.transaction(async (manager) => {
+      for (const sheet of data.sheets ?? []) {
+        if (sheet.id) {
+          // Scoped to this book: a sheet id from another book (or tenant) matches nothing.
+          const result = await manager.update(DatasheetSheet, { id: sheet.id, bookId: id }, sheetColumns(sheet));
+          if (!result.affected) throw new NotFoundError('datasheets.sheet_not_found', { id: sheet.id });
         } else {
-          const newSheet = this.sheetRepo.create({ ...sheetData, bookId: id });
-          await this.sheetRepo.save(newSheet);
+          await manager.save(manager.create(DatasheetSheet, { ...sheetColumns(sheet), bookId: id }));
         }
       }
-      delete data.sheets;
-    }
-
-    await this.bookRepo.update(id, data);
+      // Only the book's own editable columns; tenant, owner and id are not reachable from here.
+      const columns: Partial<DatasheetBook> = {};
+      if (data.name !== undefined) columns.name = data.name;
+      if (data.description !== undefined) columns.description = data.description;
+      if (data.mode !== undefined) columns.mode = data.mode;
+      if (data.tags !== undefined) columns.tags = data.tags;
+      if (Object.keys(columns).length) await manager.update(DatasheetBook, { id, organizationId: user.organizationId }, columns);
+    });
     return this.findOne(id, user);
   }
 
@@ -241,4 +248,16 @@ export class DatasheetsService {
       order: { versionNumber: 'DESC' }
     });
   }
+}
+
+/** The columns a client may write on a sheet. */
+function sheetColumns(sheet: DatasheetSheetInputDto | { name: string; index: number }): Partial<DatasheetSheet> {
+  const input = sheet as DatasheetSheetInputDto;
+  const columns: Partial<DatasheetSheet> = { name: input.name, index: input.index };
+  if (input.protected !== undefined) columns.protected = input.protected;
+  if (input.cells !== undefined) columns.cells = input.cells as Record<string, unknown> as never;
+  if (input.conditionalFormats !== undefined) columns.conditionalFormats = input.conditionalFormats as never;
+  if (input.charts !== undefined) columns.charts = input.charts as never;
+  if (input.namedRanges !== undefined) columns.namedRanges = input.namedRanges as never;
+  return columns;
 }

@@ -5,13 +5,13 @@ import { VxBranchPickerComponent } from '../../../shared/components/branch-picke
 import { LucideAngularModule, Calendar, RefreshCw } from 'lucide-angular';
 import { ActivatedRoute } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AgingReport, AgingService } from '../../../core/api/aging.service';
 import { toIsoDate } from '../financial-statements/report-period';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 export type AgingSide = 'payables' | 'receivables';
 

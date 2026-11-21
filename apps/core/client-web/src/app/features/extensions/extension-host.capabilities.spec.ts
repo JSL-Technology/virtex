@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
 import { ExtensionHostComponent } from './extension-host.component';
-import { normalizeExtensionApiPath, extensionMayRead } from '@virteex/shared/util-auth';
+import { normalizeExtensionApiPath, extensionMayRead } from '@virtex/shared/util-auth';
 
 /**
  * What a granted capability actually opens.

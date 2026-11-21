@@ -7,7 +7,7 @@ import {
   SUPPORTED_LANGUAGES,
   isLanguageCode,
   normalizeKey,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 import { currentLanguage, currentLocaleContext } from './request-locale';
 import es from './messages/es.json';
 import en from './messages/en.json';

@@ -16,7 +16,7 @@ import {
 } from './entities/accounting-period.entity';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { addMonthsIso, monthsBetween, nextDay, previousDay, toIsoDate } from '../common/dates';
 
 /**
@@ -271,7 +271,7 @@ export class YearEndCloseService {
         order: { startDate: 'ASC' },
       });
       if (laterClosed) {
-        throw new ForbiddenError('accounting.fiscal_year_cannot_reopened_because_year', {
+        throw new ConflictError('accounting.fiscal_year_cannot_reopened_because_year', {
           from: toIsoDate(laterClosed.startDate),
         });
       }

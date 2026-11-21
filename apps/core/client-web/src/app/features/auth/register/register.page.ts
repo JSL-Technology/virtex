@@ -16,7 +16,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import {
   LucideAngularModule,
   CheckCircle,
@@ -34,7 +34,7 @@ import { RegisterPayload } from '../../../shared/interfaces/register-payload.int
 import { StepAccountInfo } from './steps/step-account-info/step-account-info';
 import { StepEmailVerify } from './steps/step-email-verify/step-email-verify';
 import { StepPhoneVerify, PhoneSkipMode } from './steps/step-phone-verify/step-phone-verify';
-import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
 import { StepBusiness } from './steps/step-business/step-business';
 import { StepConfiguration } from './steps/step-configuration/step-configuration';
 import { StepPlan } from './steps/step-plan/step-plan';
@@ -58,7 +58,7 @@ import { GeoMismatchModalComponent } from '../../../shared/components/geo-mismat
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { LanguageService } from '../../../core/services/language';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { NotificationService } from '../../../core/services/notification';
 
 const FORM_DRAFT_KEY = 'register_form_draft';

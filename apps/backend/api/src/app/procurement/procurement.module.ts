@@ -1,3 +1,14 @@
+import { PurchaseReturn } from './entities/purchase-return.entity';
+import { LandedCostAllocation } from './entities/landed-cost-allocation.entity';
+import { LandedCostsService } from './landed-costs.service';
+import { LandedCostsController } from './landed-costs.controller';
+import { PurchaseRfq, PurchaseRfqLine, PurchaseRfqSupplier } from './entities/purchase-rfq.entity';
+import { SupplierQuote, SupplierQuoteLine } from './entities/supplier-quote.entity';
+import { PurchaseAgreement, PurchaseAgreementLine } from './entities/purchase-agreement.entity';
+import { RfqsService } from './rfqs.service';
+import { RfqsController } from './rfqs.controller';
+import { PurchaseAgreementsService } from './purchase-agreements.service';
+import { PurchaseAgreementsController } from './purchase-agreements.controller';
 import { ProcurementCopilotTools } from './procurement.copilot-tools';
 import { PurchaseOrderApprovalSource, RequisitionApprovalSource } from './procurement-approval.sources';
 import { Module, OnModuleInit } from '@nestjs/common';
@@ -36,6 +47,15 @@ import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module'
       PurchaseOrderLine,
       SupplierPortalUser,
       PurchaseOrderReceipt,
+      LandedCostAllocation,
+      PurchaseReturn,
+      PurchaseRfq,
+      PurchaseRfqLine,
+      PurchaseRfqSupplier,
+      SupplierQuote,
+      SupplierQuoteLine,
+      PurchaseAgreement,
+      PurchaseAgreementLine,
       ReplenishmentAgentSettings,
     ]),
     // The replenishment agent registers a workflow step.
@@ -43,13 +63,13 @@ import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module'
     // A receipt brings goods into stock (and onto the books) through the inventory module.
     InventoryModule,
     AuthModule,
-    // For the document numbering service only: purchasing posts nothing to the ledger.
+    // Document numbering, and the landed-cost entry (CMP-21) through the posting port.
     JournalEntriesModule,
     // A foreign-currency order is costed at the spot rate of the day its goods arrive (QA A-12).
     CurrenciesModule,
   ],
-  controllers: [ProcurementController, PurchaseOrdersController, GoodsReceiptsController, ReplenishmentAgentController],
-  providers: [ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource, ReplenishmentAgentService, ReplenishmentWorkflowActions],
+  controllers: [RfqsController, PurchaseAgreementsController, LandedCostsController, ProcurementController, PurchaseOrdersController, GoodsReceiptsController, ReplenishmentAgentController],
+  providers: [RfqsService, PurchaseAgreementsService, LandedCostsService, ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource, ReplenishmentAgentService, ReplenishmentWorkflowActions],
   exports: [ProcurementService, PurchaseOrdersService],
 })
 export class ProcurementModule implements OnModuleInit {

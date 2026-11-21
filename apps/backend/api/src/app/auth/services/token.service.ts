@@ -302,8 +302,8 @@ export class TokenService {
         // the value is always a duration string like '15m'.
         expiresIn: (expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION) as `${number}m`,
         algorithm: 'HS256',
-        issuer: 'virteex-api',
-        audience: 'virteex-web',
+        issuer: 'virtex-api',
+        audience: 'virtex-web',
       });
     }
 
@@ -316,8 +316,8 @@ export class TokenService {
       expiresIn: expSeconds,
       algorithm: 'RS256',
       keyid: kid,
-      issuer: 'virteex-api',
-      audience: 'virteex-web',
+      issuer: 'virtex-api',
+      audience: 'virtex-web',
     });
   }
 

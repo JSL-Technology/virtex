@@ -1,6 +1,6 @@
 import { humanizeProperty } from '../../i18n/validation-messages';
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
 
 /**

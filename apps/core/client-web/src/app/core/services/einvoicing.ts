@@ -3,29 +3,61 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export type EcfStatus =
+/**
+ * Where a document stands with its authority. One vocabulary for every market: the Dominican e-CF
+ * had states of its own while six other regimes shared another set.
+ *
+ * `CONTINGENCY` is a document issued while the authority could not be reached — the sale happened
+ * and the number is spent, so it is owed and retried. `ACCEPTED_WITH_OBSERVATIONS` is an
+ * authority's own third verdict («Aceptado Condicional»): the document stands and the observations
+ * are the taxpayer's to read.
+ */
+export type FiscalSubmissionStatus =
   | 'PENDING'
-  | 'SIGNED'
+  | 'NOT_CONFIGURED'
   | 'SENT'
+  | 'CONTINGENCY'
   | 'ACCEPTED'
   | 'ACCEPTED_WITH_OBSERVATIONS'
   | 'REJECTED'
-  | 'CONTINGENCY'
   | 'ERROR';
 
-export interface EcfSubmissionView {
-  ncf: string;
-  ecfType: string;
-  status: EcfStatus;
-  trackId: string | null;
-  securityCode: string | null;
-  qrUrl: string | null;
+/**
+ * One document's transmission to its authority, in any market with a regime.
+ *
+ * `fiscalNumber` is the number that authority gave it (an e-NCF, a folio, a CAE); `documentKey` the
+ * identifier it recomputes from the document itself (the Dominican código de seguridad, a CUFE, a
+ * clave de acceso); `verificationUrl` where its portal resolves the document, which is what the QR
+ * of the printed representation encodes. The sealed document is not here: it is downloaded from its
+ * own route by whoever may read it.
+ */
+export interface FiscalSubmissionView {
+  id: string;
+  invoiceId: string;
+  countryCode: string;
+  regime: string;
+  fiscalNumber: string | null;
+  documentType: string | null;
+  status: FiscalSubmissionStatus;
+  documentKey: string | null;
+  trackingId: string | null;
+  verificationUrl: string | null;
+  authorization: string | null;
   messages: string[];
+  attempts: number;
+  nextAttemptAt: string | null;
+  lastError: string | null;
   sentAt: string | null;
   respondedAt: string | null;
 }
 
-export interface EcfCertificateView {
+/**
+ * A signing certificate as the settings screen shows it.
+ *
+ * Named for what it is rather than for one authority's document: the type was `SigningCertificateView`
+ * and this service `ecfUrl`, which is the Dominican e-CF in a screen eight markets use.
+ */
+export interface FiscalCertificateView {
   id: string;
   alias: string;
   subjectCommonName?: string;
@@ -50,86 +82,57 @@ export interface EcfCertificateView {
   createdAt: string;
 }
 
-export type NcfType =
-  | 'B01' | 'B02' | 'B03' | 'B04' | 'B11' | 'B13' | 'B14' | 'B15' | 'B16' | 'B17'
-  | 'E31' | 'E32' | 'E33' | 'E34' | 'E41' | 'E43' | 'E44' | 'E45' | 'E46' | 'E47';
-
-export interface NcfSequenceView {
-  id: string;
-  type: NcfType;
-  prefix: string;
-  startsAt: number;
-  endsAt: number;
-  currentSequence: number;
-  isActive: boolean;
-  expiresAt?: string | null;
-}
-
-export interface ProvisionNcfSequenceInput {
-  type: NcfType;
-  prefix: string;
-  startsAt: number;
-  endsAt: number;
-  /** Last day the DGII authorizes the range, `YYYY-MM-DD`. */
-  expiresAt?: string;
-  /** The authorization reference the DGII issued, for audit and support. */
-  authorizationCode?: string;
-}
-
 /**
- * Client for the Dominican Republic electronic-invoicing (e-CF) API: certificate management, e-NCF
- * range provisioning and per-invoice e-CF status. The DGII returns are `FiscalReturnsService`'s.
+ * Client for the electronic-invoicing API: certificate management and per-invoice transmission
+ * status, in every market with a regime. The authorised ranges are every market's
+ * (`FiscalSettingsService.ranges`); the periodic returns are `FiscalReturnsService`'s.
  */
 @Injectable({ providedIn: 'root' })
 export class EinvoicingService {
   private http = inject(HttpClient);
-  private ecfUrl = `${environment.apiUrl}/einvoicing`;
-  private complianceUrl = `${environment.apiUrl}/compliance`;
+  private baseUrl = `${environment.apiUrl}/einvoicing`;
 
   // ── Certificates ──────────────────────────────────────────────────────────
-  listCertificates(): Observable<EcfCertificateView[]> {
-    return this.http.get<EcfCertificateView[]>(`${this.ecfUrl}/certificates`);
+  listCertificates(): Observable<FiscalCertificateView[]> {
+    return this.http.get<FiscalCertificateView[]>(`${this.baseUrl}/certificates`);
   }
 
-  uploadCertificate(file: File, password: string, alias: string): Observable<EcfCertificateView> {
+  uploadCertificate(file: File, password: string, alias: string): Observable<FiscalCertificateView> {
     const form = new FormData();
     form.append('file', file);
     form.append('password', password);
     form.append('alias', alias);
-    return this.http.post<EcfCertificateView>(`${this.ecfUrl}/certificates`, form);
+    return this.http.post<FiscalCertificateView>(`${this.baseUrl}/certificates`, form);
   }
 
   deactivateCertificate(id: string): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.ecfUrl}/certificates/${id}`);
+    return this.http.delete<{ success: boolean }>(`${this.baseUrl}/certificates/${id}`);
   }
 
   // ── Per-invoice e-CF ──────────────────────────────────────────────────────
   /**
-   * What the DGII knows about this invoice, or `null` when it has never been transmitted.
+   * Where this invoice's document stands with its authority, or `null` when it owes none.
    *
    * `null` is an ordinary answer, not a failure: a tenant with no certificate has no submission
    * for any invoice, and this is asked on every document open. The endpoint used to answer `404`,
    * so the browser logged a failed request each time and the caller had to catch an error to
    * learn something normal.
    */
-  getInvoiceStatus(invoiceId: string): Observable<EcfSubmissionView | null> {
-    return this.http.get<EcfSubmissionView | null>(`${this.ecfUrl}/invoices/${invoiceId}/status`);
+  getInvoiceStatus(invoiceId: string): Observable<FiscalSubmissionView | null> {
+    return this.http.get<FiscalSubmissionView | null>(`${this.baseUrl}/invoices/${invoiceId}/status`);
   }
 
-  submitInvoice(invoiceId: string): Observable<EcfSubmissionView> {
-    return this.http.post<EcfSubmissionView>(`${this.ecfUrl}/invoices/${invoiceId}/submit`, {});
+  /** Transmit it now, or ask the authority again about one already sent. */
+  submitInvoice(invoiceId: string): Observable<FiscalSubmissionView> {
+    return this.http.post<FiscalSubmissionView>(`${this.baseUrl}/invoices/${invoiceId}/submit`, {});
+  }
+
+  /** The same, from the fiscal-settings screen, where a submission is known by its own id. */
+  retrySubmission(submissionId: string): Observable<FiscalSubmissionView> {
+    return this.http.post<FiscalSubmissionView>(`${this.baseUrl}/regime/submissions/${submissionId}/retry`, {});
   }
 
   downloadXml(invoiceId: string): Observable<Blob> {
-    return this.http.get(`${this.ecfUrl}/invoices/${invoiceId}/xml`, { responseType: 'blob' });
-  }
-
-  // ── e-NCF sequences ───────────────────────────────────────────────────────
-  listSequences(): Observable<NcfSequenceView[]> {
-    return this.http.get<NcfSequenceView[]>(`${this.complianceUrl}/ncf-sequences`);
-  }
-
-  provisionSequence(input: ProvisionNcfSequenceInput): Observable<NcfSequenceView> {
-    return this.http.post<NcfSequenceView>(`${this.complianceUrl}/ncf-sequences`, input);
+    return this.http.get(`${this.baseUrl}/invoices/${invoiceId}/xml`, { responseType: 'blob' });
   }
 }

@@ -3,15 +3,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-period.enum';
 
 /**
- * Start a Checkout session for an existing organization.
+ * Change an existing organization's plan.
  *
- * The client names a plan; it does not name a Stripe price and it does not choose the redirect
+ * The client names a plan; it does not name a provider price and it does not choose the redirect
  * targets. Both used to be free-form strings on the request body that went straight to Stripe,
  * which turned this endpoint into an attacker-controlled redirect issued from a real payment
  * processor's origin, and let any caller subscribe to any price on the account. The server
  * resolves the price from the plan and builds the URLs from FRONTEND_URL.
  */
-export class CreateCheckoutSessionDto {
+export class StartPlanChangeDto {
   @ApiProperty({ example: 'pro', description: 'Slug of the plan to subscribe to' })
   @IsString({ message: 'validation.payment.selected_plan_not_valid' })
   @IsNotEmpty({ message: 'validation.payment.you_must_select_plan' })

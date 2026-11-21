@@ -33,14 +33,18 @@ export class SupplierStatementService {
       `COALESCE((SELECT je.date FROM journal_entries je WHERE je.id = ${alias}.reversal_journal_entry_id), (${alias}.voided_at AT TIME ZONE 'UTC')::date)`;
     const scoped = (alias: string) => branch.sql.replace('branch_id', `${alias}.branch_id`);
 
-    // What a bill made payable: its total less what was withheld from the supplier.
+    // What a bill made payable: its total less what was withheld from the supplier. A bill is named
+    // by the number on the supplier's document — an NCF, a CFDI folio fiscal, an NF-e access key —
+    // or, where its market's authority numbers nothing, by the supplier's own invoice number, which
+    // used to leave the column empty for every market but one.
+    const documentReference = `COALESCE(b.supplier_fiscal_number, b.supplier_invoice_number)`;
     const movementsSql = `
-      SELECT b.date, 'bill' AS kind, b.id AS document_id, b.ncf AS reference,
+      SELECT b.date, 'bill' AS kind, b.id AS document_id, ${documentReference} AS reference,
              b.total - b.tax_withheld - b.income_tax_withheld AS amount, b.currency_code
         FROM vendor_bills b
        WHERE b.organization_id = $1 AND b.vendor_id = $2 AND b.journal_entry_id IS NOT NULL${scoped('b')}
       UNION ALL
-      SELECT ${reversalDate('b')}, 'bill_void', b.id, b.ncf,
+      SELECT ${reversalDate('b')}, 'bill_void', b.id, ${documentReference},
              -(b.total - b.tax_withheld - b.income_tax_withheld), b.currency_code
         FROM vendor_bills b
        WHERE b.organization_id = $1 AND b.vendor_id = $2 AND b.status = 'VOID'

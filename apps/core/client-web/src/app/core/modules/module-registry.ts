@@ -1,3 +1,4 @@
+import type { SaasFeatureKey } from '@virtex/shared/types';
 import { Routes } from '@angular/router';
 import { ModuleManifest, ModuleRoute, MenuGroup, fullPath, requiredPermissionsFor} from './module-manifest';
 import { WORKSPACE_MODULE } from './manifests/workspace.manifest';
@@ -152,6 +153,9 @@ export function buildModuleRoutes(): Routes {
       // `authenticated` is not grantable — see `requiredPermissionsFor`. Passing it through
       // as a required permission is what locked every non-wildcard role out of Home.
       permissions: requiredPermissionsFor(route.permission),
+      // The plan capability, checked by the same guard: an address typed or bookmarked does not
+      // open what the menu does not offer.
+      ...(route.feature ? { feature: route.feature } : {}),
       windowKind: route.kind,
     },
   }));
@@ -163,6 +167,8 @@ export interface MenuEntry {
   labelKey: string;
   icon: string;
   permission: string;
+  /** The plan capability the window needs, when it needs one (`ModuleRoute.feature`). */
+  feature?: SaasFeatureKey;
 }
 
 export interface MenuSection {
@@ -193,6 +199,7 @@ export function buildMenu(module: ModuleManifest): MenuSection[] {
         labelKey: route.menu.labelKey,
         icon: route.icon ?? source.icon,
         permission: route.permission,
+        ...(route.feature ? { feature: route.feature } : {}),
       };
       const list = sections.get(route.menu.group);
       if (list) list.push(entry);

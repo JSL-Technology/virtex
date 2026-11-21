@@ -128,6 +128,11 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
             field: 'defaultForexGainLossAccountId',
             labelKey: 'settings.sections.fields.forex_gain_loss_account',
             helpKey: 'settings.sections.fields.forex_gain_loss_account_help'
+          },
+          {
+            field: 'defaultUnrealizedForexGainLossAccountId',
+            labelKey: 'settings.sections.fields.unrealized_forex_gain_loss_account',
+            helpKey: 'settings.sections.fields.unrealized_forex_gain_loss_account_help'
           }
         ]
       }
@@ -244,6 +249,38 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
         kind: 'integer',
         min: 5,
         max: 30
+      },
+      {
+        field: 'maxFuturePostingDays',
+        labelKey: 'settings.sections.fields.max_future_posting_days',
+        helpKey: 'settings.sections.fields.max_future_posting_days_help',
+        kind: 'integer',
+        min: 0,
+        max: 366
+      }
+    ],
+  },
+  {
+    section: 'budgets',
+    anchor: 'budgets',
+    titleKey: 'settings.declarations.budgets',
+    groups: [],
+    policies: [
+      {
+        field: 'budgetControlMode',
+        labelKey: 'settings.sections.fields.budget_control_mode',
+        helpKey: 'settings.sections.fields.budget_control_mode_help',
+        kind: 'select',
+        options: ['block', 'warn', 'none'],
+        optionPrefix: 'settings.sections.budget_control_mode.'
+      },
+      {
+        field: 'budgetToleranceBps',
+        labelKey: 'settings.sections.fields.budget_tolerance',
+        helpKey: 'settings.sections.fields.budget_tolerance_help',
+        kind: 'basis-points',
+        min: 0,
+        max: 5000
       }
     ],
   },
@@ -299,6 +336,52 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
         ]
       }
     ],
-    policies: [],
+    // How strict purchasing is with what the supplier sends and bills (CMP-01, CMP-15).
+    policies: [
+      {
+        field: 'poReceiptOverToleranceBps',
+        labelKey: 'settings.sections.fields.po_receipt_over_tolerance',
+        helpKey: 'settings.sections.fields.po_receipt_over_tolerance_help',
+        kind: 'basis-points',
+        min: 0,
+        max: 5000
+      },
+      {
+        field: 'apMatchPriceToleranceBps',
+        labelKey: 'settings.sections.fields.ap_match_price_tolerance',
+        helpKey: 'settings.sections.fields.ap_match_price_tolerance_help',
+        kind: 'basis-points',
+        min: 0,
+        max: 5000
+      }
+    ],
   },
 ];
+
+/**
+ * Collections: the payment reminders that go out on their own (TES-13). Its own page under
+ * «Operaciones» rather than a block of the accounting policies — it is about the company's
+ * customers, not its books.
+ */
+export const COLLECTIONS_DECLARATION: SectionDeclaration = {
+  section: 'collections',
+  anchor: 'collections',
+  titleKey: 'settings.declarations.collections',
+  groups: [],
+  policies: [
+    {
+      field: 'collectionsAutomaticReminders',
+      labelKey: 'settings.sections.fields.automatic_reminders',
+      helpKey: 'settings.sections.fields.automatic_reminders_help',
+      kind: 'toggle',
+    },
+    {
+      field: 'collectionsReminderDays',
+      labelKey: 'settings.sections.fields.reminder_days',
+      helpKey: 'settings.sections.fields.reminder_days_help',
+      kind: 'days',
+      min: -60,
+      max: 365,
+    },
+  ],
+};

@@ -1,27 +1,15 @@
-/**
- * Tax-identifier validation, as other modules may use it.
- *
- * The validators live in `fiscal/` with the rest of the country catalogue; this is the surface the
- * module offers, so a purchase can check its supplier's RNC without depending on how localization
- * organises its insides.
- */
 import type { TaxIdLookupResult } from '../fiscal/public-country-config';
 
-export { isValidDominicanTaxId, TaxpayerKind } from '../fiscal/tax-id-validators';
-export {
-  validateTaxId,
-  canonicalizeTaxId,
-  fiscalIdentifierFor,
-  fiscalIdentifierLabel,
-  identityDocumentLabel,
-} from '../fiscal/identity-document-catalogue';
+/**
+ * Looking a fiscal identifier up in the authority's registry, to pre-fill a legal name.
+ *
+ * Validation is not here: it is arithmetic over the market's own documents and checks, and every
+ * module reaches it through the market registry (`validateTaxId`, `fiscalIdentifierFor` in
+ * `markets`). What only localization can do is ask a third party — always advisory, never a gate:
+ * a registry being down must not stop anyone from signing up.
+ */
 export type { TaxIdLookupResult };
 
-/**
- * The tax authority's taxpayer registry, as other modules may consult it — to propose a supplier's
- * legal name from the RNC printed on a bill. An unreachable registry answers `found: false`, not an
- * error: the check digit decides validity, the lookup only saves typing.
- */
 export abstract class TaxIdRegistryPort {
   abstract lookupTaxId(
     countryCode: string,

@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -22,7 +22,7 @@ import {
   DimensionsService,
   valueTree,
 } from '../data/dimensions.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The dimension being edited: a copy, so the list does not change until it is saved. */
 interface Draft {

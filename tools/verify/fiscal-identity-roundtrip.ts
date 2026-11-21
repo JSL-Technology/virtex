@@ -30,12 +30,12 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { Organization } from '../../apps/backend/api/src/app/organizations/entities/organization.entity';
 import { FiscalRegion } from '../../apps/backend/api/src/app/localization/entities/fiscal-region.entity';
-import { TaxpayerKind } from '../../apps/backend/api/src/app/localization/fiscal/tax-id-validators';
 import {
+  TaxpayerKind,
   canonicalizeTaxId,
+  validateFiscalFields,
   validateTaxId,
-} from '../../apps/backend/api/src/app/localization/fiscal/identity-document-catalogue';
-import { validateFiscalFields } from '../../apps/backend/api/src/app/localization/fiscal/country-profiles';
+} from '../../apps/backend/api/src/app/markets';
 import { purgeProbeAccounts } from './probe-cleanup';
 
 const GREEN = '\u001b[32m';

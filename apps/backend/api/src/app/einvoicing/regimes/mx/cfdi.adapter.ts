@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
-import { EcfCertificate } from '../../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../../entities/signing-certificate.entity';
 import {
   CertificateVaultService,
   LoadedCertificate,
@@ -18,6 +18,7 @@ import {
   SealedFiscalDocument,
 } from '../fiscal-regime.types';
 import { CfdiBuilder } from './cfdi.builder';
+import { modifiedDocumentOf } from '../modified-document';
 import { PacProvider } from './pac.provider';
 import { BadRequestError } from '../../../i18n/localized.exception';
 
@@ -38,8 +39,8 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
   private readonly builder = new CfdiBuilder();
 
   constructor(
-    @InjectRepository(EcfCertificate)
-    private readonly certificates: Repository<EcfCertificate>,
+    @InjectRepository(SigningCertificate)
+    private readonly certificates: Repository<SigningCertificate>,
     private readonly vault: CertificateVaultService,
     private readonly signatures: XmlSignatureService,
     private readonly pac: PacProvider,
@@ -65,6 +66,10 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
       invoice,
       organization,
       customer,
+      // A note relates to the comprobante it corrects, by the UUID that comprobante was stamped
+      // with. Resolved before anything is sealed: a relation to a document that was never stamped
+      // is a relation the SAT rejects, and finding that out here is the correctable case.
+      modifies: await modifiedDocumentOf(manager, invoice, 'MX'),
       issuerRegime: organization.fiscalProfile?.['regimenFiscal'] ?? '',
       issuingPostalCode: organization.postalCode ?? '',
       certificateNumber: certificate.serialNumber ?? '',
@@ -100,9 +105,9 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.pac.stamp(document.payload);
+    return this.pac.stamp(document.payload, context.organizationId);
   }
 
   /**
@@ -136,7 +141,7 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
     organizationId: string,
     manager: FiscalRegimeContext['manager'],
   ): Promise<LoadedCertificate & { serialNumber?: string }> {
-    const stored = await manager.findOne(EcfCertificate, {
+    const stored = await manager.findOne(SigningCertificate, {
       where: { organizationId, regime: certificateRegimeFor('MX'), isActive: true },
       order: { createdAt: 'DESC' },
     });

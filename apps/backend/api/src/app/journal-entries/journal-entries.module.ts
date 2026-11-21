@@ -31,7 +31,6 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { AdjustmentsService } from './adjustments.service';
 import { AdjustmentsController } from './adjustments.controller';
 import { PeriodLockModule } from '../accounting/period-lock.module';
-import { BudgetsModule } from '../budgets/budgets.module';
 import { WorkflowsModule } from '../workflows/workflows.module';
 import { JournalEntryLineValuation } from './entities/journal-entry-line-valuation.entity';
 import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
@@ -48,8 +47,8 @@ import { JournalQueryService } from './services/journal-query.service';
 @Module({
   imports: [
     // The budget stops an expense typed into the journal exactly as it stops the same expense
-    // arriving as a supplier bill. Without it the control was one screen away from being bypassed.
-    BudgetsModule,
+    // arriving as a supplier bill; both reach it through `BudgetControlRegistry` (contracts, global),
+    // so neither module imports budgets.
     TypeOrmModule.forFeature([
       JournalEntry,
       JournalEntryLine,
@@ -114,16 +113,11 @@ import { JournalQueryService } from './services/journal-query.service';
     JournalsController,
     AdjustmentsController,
   ],
-  // `FileParserService` is exported because `CoaImportService` injects it and reaches it through
-  // this module. It was provided here and not exported, so `CoaImportModule` could not resolve
-  // it and the application refused to start — `Nest can't resolve dependencies of the
-  // CoaImportService (…, ?, …)`.
   exports: [
     JournalEntriesService,
     // Also export the port so subledgers can inject it by the abstract-class token.
     AccountingPostingPort,
     JournalEntryNumberingService,
-    FileParserService,
     LedgerNarrativeService,
     // `AuditAdjustmentsService` posts an approved audit adjustment through this service. It could
     // not reach it while the service was provided here and not exported — one of the reasons the

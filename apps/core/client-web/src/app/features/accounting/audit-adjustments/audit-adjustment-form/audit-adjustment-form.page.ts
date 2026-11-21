@@ -16,11 +16,11 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
-import { TranslateModule, FORMAT_PIPES, FormatService, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { ChartOfAccountsApiService } from '../../data/chart-of-accounts.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 

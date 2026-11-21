@@ -10,7 +10,7 @@ import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.serv
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
 /** DNS host (relative to the domain) where the verification TXT record lives. */
-const DNS_VERIFICATION_PREFIX = '_virteex-sso';
+const DNS_VERIFICATION_PREFIX = '_virtex-sso';
 
 /**
  * Consecutive daily checks that must fail before a domain loses its verification. A record can

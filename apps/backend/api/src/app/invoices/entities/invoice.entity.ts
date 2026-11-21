@@ -9,17 +9,16 @@ import {
   UpdateDateColumn,
   VersionColumn,
   Index,
+  Check,
 } from 'typeorm';
 import { InvoiceLineItem } from './invoice-line-item.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import {
-  numericTransformer,
-  numericTransformerNotNull,
-} from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { roundToCurrency } from '../../common/money';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
+import { ADJUSTMENT_REASONS, type AdjustmentReason } from '../../markets';
 
 export enum InvoiceStatus {
   /** Prepared but not issued. Carries NO fiscal number and is not posted to the ledger. */
@@ -34,6 +33,16 @@ export enum InvoiceStatus {
   CREDIT_NOTE = 'Credit Note',
 }
 
+/** How a VOID document came to be void. */
+export enum CancellationMode {
+  /** A commercial document the authority never saw, voided because nothing had touched it. */
+  VOID = 'VOID',
+  /** Annulled by the issuer and declared to the authority (the Dominican 608). */
+  REPORTED = 'REPORTED',
+  /** Reversed in full by a credit note: still the sale it was, corrected by the note. */
+  CREDIT_NOTE = 'CREDIT_NOTE',
+}
+
 export enum InvoiceType {
   INVOICE = 'INVOICE',
   CREDIT_NOTE = 'CREDIT_NOTE',
@@ -41,26 +50,8 @@ export enum InvoiceType {
 }
 
 /**
- * Why a credit or debit note was issued. Mirrors the DGII `CodigoModificacion` catalogue, which is
- * mandatory on every e-CF that modifies another one; the previous code hardcoded '3' (corrects
- * amounts) even when the note annulled the document outright.
- */
-export enum ModificationCode {
-  /** 1 — annuls the referenced comprobante entirely. */
-  ANNULMENT = '1',
-  /** 2 — corrects descriptive text, amounts unchanged. */
-  TEXT_CORRECTION = '2',
-  /** 3 — corrects amounts. */
-  AMOUNT_CORRECTION = '3',
-  /** 4 — replaces a comprobante issued under contingency. */
-  CONTINGENCY_REPLACEMENT = '4',
-  /** 5 — reference for consumption (informative). */
-  CONSUMPTION_REFERENCE = '5',
-}
-
-/**
  * How the document is settled. The two-letter values are the product's own; the DGII code they map
- * to lives in `einvoicing/config/dgii-catalogues.ts`, because the same commercial concept carries
+ * to lives in `einvoicing/regimes/do/dgii-catalogues.ts`, because the same commercial concept carries
  * different codes in different regimes.
  */
 export enum PaymentMethod {
@@ -77,18 +68,28 @@ export enum PaymentMethod {
 
 @Index('IDX_invoices_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'invoices' })
+@Check(
+  'CHK_invoices_adjustment_reason',
+  `"adjustment_reason" IS NULL OR "adjustment_reason" IN (${ADJUSTMENT_REASONS.map((reason) => `'${reason}'`).join(', ')})`,
+)
+@Check('CHK_invoices_cancellation_mode', `"cancellation_mode" IS NULL OR "cancellation_mode" IN ('VOID', 'REPORTED', 'CREDIT_NOTE')`)
 @Index('IDX_invoices_org_issue_date', ['organizationId', 'issueDate'])
 @Index('IDX_invoices_org_status', ['organizationId', 'status'])
 @Index('IDX_invoices_org_customer', ['organizationId', 'customerId'])
-// One fiscal number per tenant, enforced by the database rather than by hope. Re-provisioning an
-// e-NCF range used to reset the counter and silently reissue numbers already on customers'
-// invoices; the range-overlap check in ComplianceService now prevents it, and this index is what
-// makes the guarantee hold even if a future path forgets to ask.
+// One fiscal number per tenant, enforced by the database rather than by hope. Re-provisioning a
+// range used to reset the counter and silently reissue numbers already on customers' invoices; the
+// overlap check in FiscalRangeService.register prevents it, and this index is what makes the
+// guarantee hold even if a future path forgets to ask.
 @Index('UQ_invoices_org_fiscal_number', ['organizationId', 'fiscalNumber'], {
   unique: true,
   where: '"fiscal_number" IS NOT NULL',
 })
 @Index('UQ_invoices_org_number', ['organizationId', 'invoiceNumber'], { unique: true })
+// The numbers already drawn from a range, for registering a new range that must not overlap them
+// and for matching a document to the range it came from.
+@Index('IDX_invoices_fiscal_sequence', ['organizationId', 'fiscalDocumentType', 'fiscalSeries', 'fiscalSequence'], {
+  where: '"fiscal_sequence" IS NOT NULL',
+})
 export class Invoice {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -131,6 +132,22 @@ export class Invoice {
   /** Expiry of the authorization that covers `fiscalNumber`, stamped at issuance. */
   @Column({ name: 'fiscal_number_expires_at', type: 'date', nullable: true })
   fiscalNumberExpiresAt?: string | null;
+
+  /**
+   * The consecutive the number was drawn as, from the tenant's authorised range, and that range's
+   * series (`''` where the market numbers without one).
+   *
+   * Recorded at issuance so nothing reads them back out of the formatted number: the authority's
+   * mask decides how `fiscalNumber` is written, and a prefix that carries a digit (`FE2` + `1001`)
+   * cannot be parsed back into its parts. A range is checked against the numbers already issued
+   * from it, and an e-invoicing builder writes the consecutive, from these two columns. Null where
+   * the number was not drawn from a range — a stamp, the authority's own counter, no fiscal number.
+   */
+  @Column({ name: 'fiscal_sequence', type: 'bigint', nullable: true, transformer: numericTransformer })
+  fiscalSequence?: number | null;
+
+  @Column({ name: 'fiscal_series', type: 'varchar', length: 16, nullable: true })
+  fiscalSeries?: string | null;
 
   /**
    * One customer column, with a foreign key.
@@ -243,7 +260,7 @@ export class Invoice {
     precision: 18,
     scale: 2,
     transformer: numericTransformerNotNull,
-    comment: 'Consumption tax (ITBIS/IVA) in transaction currency',
+    comment: 'Consumption tax in transaction currency',
   })
   tax: number;
 
@@ -428,15 +445,6 @@ export class Invoice {
   @JoinColumn({ name: 'original_invoice_id' })
   originalInvoice?: Invoice | null;
 
-  /** DGII `CodigoModificacion`, mandatory on a note that modifies another comprobante. */
-  @Column({
-    name: 'modification_code',
-    type: 'enum',
-    enum: ModificationCode,
-    nullable: true,
-  })
-  modificationCode?: ModificationCode | null;
-
   /** The journal entry this document posted. Null only while the document is a draft. */
   @Column({ name: 'journal_entry_id', type: 'uuid', nullable: true })
   journalEntryId?: string | null;
@@ -454,6 +462,37 @@ export class Invoice {
   @Column({ name: 'void_reason', type: 'text', nullable: true })
   voidReason?: string | null;
 
+  /**
+   * Why this note modifies the document it names, in the product's own terms — a credit note's
+   * reason and a debit note's alike (FAC-INV-05). Each market writes its authority's code for it
+   * (`adjustmentCodeFor`); the core never stores one market's code, as it did while this was the
+   * DGII's `CodigoModificacion` on every invoice of every market.
+   */
+  @Column({ name: 'adjustment_reason', type: 'varchar', length: 32, nullable: true })
+  adjustmentReason?: AdjustmentReason | null;
+
+  /**
+   * How a VOID document came to be void (FAC-INV-05): voided as a commercial document, annulled and
+   * declared to the authority, or reversed in full by a credit note. A fiscal return reads it — an
+   * invoice reversed by a credit note is still a sale of its month; an annulled one is not.
+   */
+  @Column({ name: 'cancellation_mode', type: 'varchar', length: 16, nullable: true })
+  cancellationMode?: CancellationMode | null;
+
+  /**
+   * The authority's reason code, where its catalogue has one (`fiscal_reason_codes`): the
+   * Dominican 608 codes. Checked by the database against the tenant's country.
+   */
+  @Column({ name: 'cancellation_reason_code', type: 'varchar', length: 16, nullable: true })
+  cancellationReasonCode?: string | null;
+
+  /** The entries that reversed it when it was cancelled without a credit note. */
+  @Column({ name: 'cancellation_journal_entry_id', type: 'uuid', nullable: true })
+  cancellationJournalEntryId?: string | null;
+
+  @Column({ name: 'cancellation_cost_journal_entry_id', type: 'uuid', nullable: true })
+  cancellationCostJournalEntryId?: string | null;
+
   @Column({ length: 3, default: 'USD', name: 'currency_code' })
   currencyCode: string;
 
@@ -466,7 +505,7 @@ export class Invoice {
     scale: 6,
     default: 1.0,
     name: 'exchange_rate',
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
     comment: 'Rate to convert from transaction currency to base currency',
   })
   exchangeRate: number;
@@ -498,19 +537,6 @@ export class Invoice {
 
   @VersionColumn()
   version: number;
-
-  /**
-   * True once the document carries a Dominican e-NCF that must reach the DGII.
-   *
-   * By the DGII's own shapes — an `E` and two digits of type, then ten of sequence — and by the
-   * recorded type when there is one. It used to be "starts with E", which also matched a Colombian
-   * number under a DIAN prefix such as `ELEC123` and would have queued it for the DGII.
-   */
-  get isElectronicFiscalDocument(): boolean {
-    const number = (this.fiscalNumber ?? '').toUpperCase();
-    if (!/^E\d{12}$/.test(number)) return false;
-    return this.fiscalDocumentType ? /^E\d{2}$/.test(this.fiscalDocumentType.toUpperCase()) : true;
-  }
 
   /** Amount still creditable by a credit note, in transaction currency. */
   get creditableRemaining(): number {

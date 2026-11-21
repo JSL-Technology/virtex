@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { Router, RouterLink } from '@angular/router';
 
 import { Ban, LucideAngularModule, Pencil, Trash2 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { DocumentShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxBranchLabelComponent } from '../../../shared/components/branch-picker';

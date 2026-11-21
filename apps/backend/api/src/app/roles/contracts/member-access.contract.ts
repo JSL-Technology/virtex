@@ -1,4 +1,4 @@
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 /** Anything that can run a parameterised query: a DataSource, an EntityManager, a QueryRunner. */
 export interface Queryable {

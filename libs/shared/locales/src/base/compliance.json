@@ -1,38 +1,8 @@
 {
-  "compliance.already_issued_document_have_already_issued": {
-    "es": "Ya existen {{alreadyIssued}} comprobante(s) emitidos con números dentro del rango {{first}}–{{last}}.",
-    "en": "{{alreadyIssued}} document(s) have already been issued with numbers inside the range {{first}}–{{last}}.",
-    "pt": "Já existem {{alreadyIssued}} documento(s) emitidos com números dentro da faixa {{first}}–{{last}}."
-  },
-  "compliance.authorisation_ncf_sequence_type_type_expired": {
-    "es": "La autorización de la secuencia de NCF para el tipo {{type}} venció el {{expiresAt}}. Registra el nuevo rango autorizado antes de emitir.",
-    "en": "The authorisation for the NCF sequence of type {{type}} expired on {{expiresAt}}. Register the new authorised range before issuing.",
-    "pt": "A autorização da sequência de NCF do tipo {{type}} expirou em {{expiresAt}}. Registe o novo intervalo autorizado antes de emitir."
-  },
-  "compliance.authorization_expiry_date_has_passed_range": {
-    "es": "La fecha de vencimiento de la autorización ya pasó; el rango no podría usarse.",
-    "en": "The authorization's expiry date has passed; the range could not be used.",
-    "pt": "A data de vencimento da autorização já passou; a faixa não poderia ser usada."
-  },
   "compliance.count_account_have_no_sat_grouping": {
     "es": "{{count}} cuenta(s) no tienen código agrupador del SAT (por ejemplo {{example}}). El catálogo no se puede generar sin él: asígnalo en el catálogo de cuentas.",
     "en": "{{count}} account(s) have no SAT grouping code (for example {{example}}). The catalogue cannot be generated without it: assign it in the chart of accounts.",
     "pt": "{{count}} conta(s) não têm código agrupador do SAT (por exemplo {{example}}). O catálogo não pode ser gerado sem ele: atribua-o no plano de contas."
-  },
-  "compliance.document_not_electronic_accounting_document_available": {
-    "es": "«{{document}}» no es un documento de contabilidad electrónica. Disponibles: {{available}}.",
-    "en": "“{{document}}” is not an electronic accounting document. Available: {{available}}.",
-    "pt": "«{{document}}» não é um documento de contabilidade eletrônica. Disponíveis: {{available}}."
-  },
-  "compliance.document_type_type_not_authorised_region": {
-    "es": "El tipo de comprobante \"{{type}}\" no está definido para el régimen fiscal de tu país.",
-    "en": "The document type \"{{type}}\" is not defined for your country's fiscal regime.",
-    "pt": "O tipo de documento \"{{type}}\" não está definido para o regime fiscal do teu país."
-  },
-  "compliance.ending_number_cannot_lower_than_starting": {
-    "es": "El número final no puede ser menor que el inicial.",
-    "en": "The ending number cannot be lower than the starting one.",
-    "pt": "O número final não pode ser menor que o inicial."
   },
   "compliance.fiscal_report_kind_not_tracked": {
     "es": "El reporte «{{kind}}» no tiene seguimiento mensual de presentación. Disponibles: 606, 607, 608, 609, catalogo, balanza.",
@@ -44,40 +14,10 @@
     "en": "The {{kind}} report for {{period}} has not been generated yet. Generate it before declaring it filed.",
     "pt": "O relatório {{kind}} de {{period}} ainda não foi gerado. Gere-o antes de declará-lo como entregue."
   },
-  "compliance.format_kind_not_recognised_available_formats": {
-    "es": "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.",
-    "en": "Format \"{{kind}}\" is not recognised. The available formats are 606, 607, 608 and 609.",
-    "pt": "Formato \"{{kind}}\" não reconhecido. Os formatos disponíveis são 606, 607, 608 e 609."
-  },
   "compliance.month_must_between_12": {
     "es": "El mes debe estar entre 1 y 12.",
     "en": "The month must be between 1 and 12.",
     "pt": "O mês deve estar entre 1 e 12."
-  },
-  "compliance.ncf_range_overlaps": {
-    "es": "El rango {{startsAt}}–{{endsAt}} de {{type}} se solapa con un rango ya registrado ({{ranges}}). Reutilizar una numeración ya emitida generaría comprobantes fiscales duplicados.",
-    "en": "The {{type}} range {{startsAt}}–{{endsAt}} overlaps a range already registered ({{ranges}}). Reusing issued numbers would create duplicate fiscal documents.",
-    "pt": "A faixa {{startsAt}}–{{endsAt}} de {{type}} se sobrepõe a uma faixa já registrada ({{ranges}}). Reutilizar uma numeração já emitida geraria documentos fiscais duplicados."
-  },
-  "compliance.ncf_sequence_not_found": {
-    "es": "Secuencia NCF no encontrada.",
-    "en": "NCF sequence not found.",
-    "pt": "Sequência NCF não encontrada."
-  },
-  "compliance.ncf_sequence_range_invalid_ending_number": {
-    "es": "El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.",
-    "en": "The NCF sequence range is invalid: the ending number must be greater than or equal to the starting one.",
-    "pt": "A faixa da sequência NCF é inválida: o número final deve ser maior ou igual ao inicial."
-  },
-  "compliance.ncf_sequence_type_type_exhausted_range": {
-    "es": "La secuencia de NCF para el tipo {{type}} se agotó (rango {{startsAt}}–{{endsAt}}). Solicita un nuevo rango a la DGII y regístralo antes de continuar facturando.",
-    "en": "The NCF sequence for type {{type}} is exhausted (range {{startsAt}}–{{endsAt}}). Request a new range from the DGII and register it before invoicing again.",
-    "pt": "A sequência de NCF para o tipo {{type}} esgotou-se (intervalo {{startsAt}}–{{endsAt}}). Solicite um novo intervalo à DGII e registe-o antes de continuar a faturar."
-  },
-  "compliance.ncf_sequence_type_type_has_non": {
-    "es": "La secuencia de NCF para el tipo {{type}} tiene límites no numéricos.",
-    "en": "The NCF sequence for type {{type}} has non-numeric bounds.",
-    "pt": "A sequência NCF do tipo {{type}} tem limites não numéricos."
   },
   "compliance.no_active_ncf_sequence_type_type": {
     "es": "No hay una secuencia de NCF activa para el tipo {{type}}. Registra el rango autorizado por la DGII en Ajustes › Comprobantes fiscales antes de emitir este comprobante.",
@@ -99,35 +39,60 @@
     "en": "Organization not found.",
     "pt": "Organização não encontrada."
   },
-  "compliance.prefix_prefix_does_not_match_document": {
-    "es": "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.",
-    "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
-    "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
+  "compliance.payroll_records_unavailable": {
+    "es": "Este despliegue no tiene el módulo de nómina, así que no hay nómina que declarar.",
+    "en": "This deployment has no payroll module, so there is no payroll to declare.",
+    "pt": "Esta implantação não tem o módulo de folha, portanto não há folha a declarar."
   },
   "compliance.purchase_records_unavailable": {
     "es": "Las compras no están disponibles en esta instalación, así que no se puede generar este reporte.",
     "en": "Purchasing is not available in this installation, so this report cannot be generated.",
     "pt": "As compras não estão disponíveis nesta instalação, então este relatório não pode ser gerado."
   },
-  "compliance.range_expiry_date_required": {
-    "es": "Indica la fecha de vencimiento que la autoridad fiscal asignó al rango {{type}}.",
-    "en": "Enter the expiry date the tax authority assigned to the {{type}} range.",
-    "pt": "Indique a data de vencimento que a autoridade fiscal atribuiu ao intervalo {{type}}."
-  },
   "compliance.report_606_credit_note_without_modified_ncf": {
     "en": "The 606 was not generated: {{count}} supplier debit note(s) (the credit-note NCF the supplier issued you) modify a vendor bill without an NCF ({{notes}}). Open that bill and use “Record NCF”, then generate the 606 again.",
     "es": "El 606 no se generó: {{count}} nota(s) de débito a proveedor (el NCF de nota de crédito que te emitió el proveedor) modifican una factura de proveedor sin NCF ({{notes}}). Abre esa factura y usa «Registrar NCF»; luego genera el 606 de nuevo.",
     "pt": "O 606 não foi gerado: {{count}} nota(s) de débito a fornecedor (o NCF de nota de crédito emitido pelo fornecedor) modificam uma fatura sem NCF ({{notes}}). Abra essa fatura e use «Registrar NCF»; depois gere o 606 novamente."
+  },
+  "compliance.report_606_purchase_not_classified": {
+    "es": "{{count}} compra(s) no dicen qué se compró, y el 606 lo declara en cada línea: {{bills}}. Clasifícalas en la factura y vuelve a generar el formato.",
+    "en": "{{count}} purchase(s) do not state what was bought, and the 606 declares it on every line: {{bills}}. Classify them on the bill and generate the file again.",
+    "pt": "{{count}} compra(s) não dizem o que foi comprado, e o 606 declara isso em cada linha: {{bills}}. Classifique-as na fatura e gere o arquivo novamente."
   },
   "compliance.report_606_supplier_tax_id_missing": {
     "es": "El 606 no se generó: {{count}} factura(s) de proveedor con NCF no tienen un RNC o cédula válido del proveedor ({{bills}}). Corrige el RNC en la ficha del proveedor y vuelve a generarlo.",
     "en": "The 606 was not generated: {{count}} vendor bill(s) with an NCF have no valid supplier RNC or cédula ({{bills}}). Correct the RNC on the supplier record and generate it again.",
     "pt": "O 606 não foi gerado: {{count}} fatura(s) de fornecedor com NCF não têm RNC ou cédula válido do fornecedor ({{bills}}). Corrija o RNC no cadastro do fornecedor e gere novamente."
   },
-  "compliance.report_format_dgii_dominican_republic_filing": {
-    "es": "El formato {{report}} es un envío de la DGII (República Dominicana) y no aplica a una organización registrada en {{country}}.",
-    "en": "The {{report}} format is a DGII (Dominican Republic) filing and does not apply to an organization registered in {{country}}.",
-    "pt": "O formato {{report}} é uma declaração da DGII (República Dominicana) e não se aplica a uma organização registada em {{country}}."
+  "compliance.return_needs_permission": {
+    "es": "La declaración «{{code}}» lleva datos que tu usuario no tiene permiso de ver ({{permission}}).",
+    "en": "The «{{code}}» return carries data your user is not allowed to see ({{permission}}).",
+    "pt": "A declaração «{{code}}» leva dados que seu usuário não tem permissão para ver ({{permission}})."
+  },
+  "compliance.return_not_filed_in_this_market": {
+    "es": "La declaración «{{code}}» no se presenta en {{country}}.",
+    "en": "The «{{code}}» return is not filed in {{country}}.",
+    "pt": "A declaração «{{code}}» não é apresentada em {{country}}."
+  },
+  "compliance.return_option_date_expected": {
+    "es": "El dato «{{option}}» debe ser una fecha (AAAA-MM-DD); se recibió «{{value}}».",
+    "en": "The «{{option}}» value must be a date (YYYY-MM-DD); «{{value}}» was received.",
+    "pt": "O dado «{{option}}» deve ser uma data (AAAA-MM-DD); foi recebido «{{value}}»."
+  },
+  "compliance.return_option_not_declared": {
+    "es": "La declaración «{{code}}» no admite el dato «{{option}}».",
+    "en": "The «{{code}}» return takes no «{{option}}».",
+    "pt": "A declaração «{{code}}» não aceita o dado «{{option}}»."
+  },
+  "compliance.return_option_required": {
+    "es": "La declaración «{{code}}» necesita el dato «{{option}}».",
+    "en": "The «{{code}}» return needs «{{option}}».",
+    "pt": "A declaração «{{code}}» precisa do dado «{{option}}»."
+  },
+  "compliance.return_option_value_not_allowed": {
+    "es": "El dato «{{option}}» no admite el valor «{{value}}»; los valores posibles son {{values}}.",
+    "en": "The «{{option}}» value «{{value}}» is not allowed; the possible values are {{values}}.",
+    "pt": "O dado «{{option}}» não aceita o valor «{{value}}»; os valores possíveis são {{values}}."
   },
   "compliance.year_not_valid": {
     "es": "El año no es válido.",

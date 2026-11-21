@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { MenuGroup, ModuleManifest } from './module-manifest';
 import { MODULES, buildMenu, ownerOf, resolveRoute, railModules } from './module-registry';
+import { canAccess } from './route-access';
 import { GROUP_LABEL } from './menu-labels';
 import { moduleIcon } from './module-icons';
 import { AuthService } from '../services/auth';
@@ -156,10 +157,9 @@ export class ActiveModuleService {
         group: section.group,
         labelKey: GROUP_LABEL[section.group],
         entries: section.entries
-          .filter(
-            (entry) =>
-              entry.permission === 'authenticated' || this.auth.hasPermissions([entry.permission]),
-          )
+          // The permission AND the plan: an entry the company's plan does not include is not
+          // offered, as an entry the role does not hold is not (`canAccess`, IA-02).
+          .filter((entry) => canAccess(this.auth, entry))
           //  El prefijo de empresa se añade AQUÍ y en ningún otro sitio. Las plantillas reciben
           //  la URL terminada, así que ninguna puede olvidarse de la empresa —y la que se
           //  olvidara mandaría a alguien a los libros de otra sin que nada fallara—.

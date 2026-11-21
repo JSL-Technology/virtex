@@ -3,7 +3,7 @@ import { DianBuilder, DianBuildInput } from './dian.builder';
 import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
-import { TaxpayerType } from '../../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../../markets';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.
@@ -45,6 +45,10 @@ describe('DIAN — factura electrónica', () => {
     excise: 0,
     total: 1_190_000,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '01',
+    fiscalSequence: 990000001,
+    fiscalSeries: 'SETP',
     lineItems: [
       {
         description: 'Servicio de mantenimiento',
@@ -218,12 +222,106 @@ describe('DIAN — factura electrónica', () => {
       expect(xml).toContain('<cbc:Name>IVA</cbc:Name>');
     });
 
-    it('issues a credit note as document type 91', () => {
+    /**
+     * A note is its own UBL document, and it is only intelligible beside the one it corrects.
+     *
+     * The builder wrote notes as an `Invoice` carrying a note's type code, with no reference to the
+     * document corrected and no concepto for why (audit FAC-INV-05 / MP-10): the DIAN either
+     * rejects that or files a credit against nothing, and a credit the authority never tied to its
+     * invoice is a credit the taxpayer cannot prove.
+     */
+    it('issues a credit note as its own UBL document, naming what it corrects and why', () => {
       const { xml } = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+        input({
+          invoice: {
+            ...invoice,
+            type: InvoiceType.CREDIT_NOTE,
+            fiscalDocumentType: '91',
+            adjustmentReason: 'GOODS_RETURN',
+            notes: 'Devolución de dos unidades',
+          } as Invoice,
+          modifies: {
+            fiscalNumber: 'SETP990000001',
+            documentType: '01',
+            issueDate: '2026-06-10',
+            documentKey: 'a'.repeat(96),
+            authorityHandle: null,
+            sequence: 1,
+            series: 'SETP99',
+            reasonCode: '1',
+            reasonText: 'Devolución de dos unidades',
+          },
+        }),
       );
 
-      expect(xml).toContain('<cbc:InvoiceTypeCode>91</cbc:InvoiceTypeCode>');
+      expect(xml).toContain('<CreditNote');
+      expect(xml).toContain('urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2');
+      expect(xml).toContain('<cbc:CreditNoteTypeCode>91</cbc:CreditNoteTypeCode>');
+      expect(xml).toContain('<cac:CreditNoteLine>');
+      expect(xml).toContain('<cbc:CreditedQuantity unitCode="EA">1</cbc:CreditedQuantity>');
+      // Why: the DIAN's concepto de corrección, from the market's own table.
+      expect(xml).toContain('<cbc:ResponseCode>1</cbc:ResponseCode>');
+      expect(xml).toContain('<cbc:Description>Devolución de dos unidades</cbc:Description>');
+      // Which: the authorised number and the CUFE the DIAN computed for it.
+      expect(xml).toContain('<cac:BillingReference>');
+      expect(xml).toContain(`<cbc:UUID schemeName="CUFE-SHA384">${'a'.repeat(96)}</cbc:UUID>`);
+      expect(xml).toContain('<cbc:IssueDate>2026-06-10</cbc:IssueDate>');
+    });
+
+    it('issues a debit note as a DebitNote, which the regime refused to write at all', () => {
+      const { xml } = builder.build(
+        input({
+          invoice: {
+            ...invoice,
+            type: InvoiceType.DEBIT_NOTE,
+            fiscalDocumentType: '92',
+            adjustmentReason: 'LATE_PAYMENT_INTEREST',
+          } as Invoice,
+          modifies: {
+            fiscalNumber: 'SETP990000001',
+            documentType: '01',
+            issueDate: '2026-06-10',
+            documentKey: null,
+            authorityHandle: null,
+            sequence: 1,
+            series: 'SETP99',
+            reasonCode: '1',
+            reasonText: null,
+          },
+        }),
+      );
+
+      expect(xml).toContain('<DebitNote');
+      expect(xml).toContain('<cbc:DebitNoteTypeCode>92</cbc:DebitNoteTypeCode>');
+      expect(xml).toContain('<cac:DebitNoteLine>');
+      expect(xml).toContain('<cbc:DebitedQuantity unitCode="EA">1</cbc:DebitedQuantity>');
+      expect(xml).toContain('<cbc:ReferenceID>SETP990000001</cbc:ReferenceID>');
+      // No CUFE recorded for the referenced invoice: the reference carries none rather than
+      // something that is not a CUFE. (The note's OWN CUFE is a different element, always present.)
+      const reference = /<cac:InvoiceDocumentReference>.*?<\/cac:InvoiceDocumentReference>/.exec(xml)?.[0] ?? '';
+      expect(reference).toContain('<cbc:ID>SETP990000001</cbc:ID>');
+      expect(reference).not.toContain('cbc:UUID');
+    });
+
+    it('refuses a note whose reason its market publishes no concepto for', () => {
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '91' } as Invoice,
+            modifies: {
+              fiscalNumber: 'SETP990000001',
+              documentType: '01',
+              issueDate: '2026-06-10',
+              documentKey: null,
+              authorityHandle: null,
+              sequence: 1,
+              series: 'SETP99',
+              reasonCode: null,
+              reasonText: null,
+            },
+          }),
+        ),
+      ).toThrow(/adjustment_reason_has_no_authority_code/);
     });
 
     it('carries the UNSPSC code the product declares', () => {

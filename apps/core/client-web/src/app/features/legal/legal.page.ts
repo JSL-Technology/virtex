@@ -4,13 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { catchError, map, of } from 'rxjs';
-import { LEGAL_DOCUMENTS, LegalDocumentEdition, LegalDocumentId } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS, LegalDocumentEdition, LegalDocumentId } from '@virtex/shared/types';
 import { AuthLayoutComponent } from '../auth/components/auth-layout/auth-layout.component';
 import { LanguageService } from '../../core/services/language';
 import { environment } from '../../../environments/environment';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** Which public page this is. The three documents plus the contact page. */
 export type LegalPageId = LegalDocumentId | 'contact';

@@ -20,8 +20,8 @@ import { blindIndex } from '../common/database/encrypted-column.transformer';
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { IdentityDocumentType } from '../localization/entities/identity-document-type.entity';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
-import { JurisdictionRegistry } from '../jurisdictions/jurisdiction-registry';
-import { StatutoryIdentifierSpec } from '../jurisdictions/jurisdiction-strategy.interface';
+import { payrollEngineFor } from '../markets';
+import { StatutoryIdentifierSpec } from '../markets/contracts';
 
 /**
  * The employee and department registers.
@@ -45,7 +45,6 @@ export class HcmService {
     private readonly compensationRepository: Repository<EmployeeCompensation>,
     private readonly identityDocuments: IdentityDocumentService,
     private readonly tenantCountry: TenantCountryResolver,
-    private readonly jurisdictions: JurisdictionRegistry,
   ) {}
 
   // ── Employees ────────────────────────────────────────────────────────────────
@@ -250,9 +249,8 @@ export class HcmService {
     organizationId: string,
   ): Promise<void> {
     const country = await this.tenantCountry.resolveOrNull(organizationId);
-    if (!country || !this.jurisdictions.supports(country)) return;
-
-    const specs = this.jurisdictions.forCountry(country).statutoryIdentifiers ?? [];
+    const specs = payrollEngineFor(country)?.statutoryIdentifiers ?? [];
+    if (!specs.length) return;
     for (const spec of specs) {
       const value = this.statutoryValue(dto, spec);
       if (value === undefined || value === null || value === '') {
@@ -307,8 +305,7 @@ export class HcmService {
     organizationId: string,
   ): Promise<readonly StatutoryIdentifierSpec[]> {
     const country = await this.tenantCountry.resolveOrNull(organizationId);
-    if (!country || !this.jurisdictions.supports(country)) return [];
-    return this.jurisdictions.forCountry(country).statutoryIdentifiers ?? [];
+    return payrollEngineFor(country)?.statutoryIdentifiers ?? [];
   }
 
   /**

@@ -107,6 +107,39 @@ describe('IdempotencyInterceptor', () => {
     expect(second.response.status).toHaveBeenCalledWith(201);
   });
 
+  it('registra la respuesta ANTES de devolverla: un reintento inmediato la encuentra completada', async () => {
+    // A store that takes its time, as a real one under load does. The response must not leave
+    // before the key is marked completed — or a retry that arrives at once gets a 409.
+    const r = repo();
+    const slowUpdate = r.update;
+    r.update = (where, patch) => new Promise((resolve) => setTimeout(() => resolve(slowUpdate(where, patch)), 20));
+    const interceptor = new IdempotencyInterceptor(r as never);
+    const handler = jest.fn(() => of({ id: 'je-1', status: 'Posted' }));
+
+    await lastValueFrom(interceptor.intercept(context('k-now', { a: 1 }).ctx as never, { handle: handler } as never));
+    expect(r.rows[0].status).toBe('completed');
+
+    const replay = await lastValueFrom(interceptor.intercept(context('k-now', { a: 1 }).ctx as never, { handle: handler } as never));
+    expect(replay).toEqual({ id: 'je-1', status: 'Posted' });
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('si no puede registrar la respuesta, la devuelve y NO libera la clave: la operación ya se hizo', async () => {
+    const r = repo();
+    r.update = async () => {
+      throw new Error('connection lost');
+    };
+    const interceptor = new IdempotencyInterceptor(r as never);
+
+    const result = await lastValueFrom(
+      interceptor.intercept(context('k-lost', { a: 1 }).ctx as never, { handle: () => of({ id: 'je-2' }) } as never),
+    );
+
+    expect(result).toEqual({ id: 'je-2' });
+    // Released, a retry would post it again; held «in progress», a retry is refused instead.
+    expect(r.rows).toHaveLength(1);
+  });
+
   it('rechaza la misma clave con un cuerpo distinto', async () => {
     const r = repo();
     const interceptor = new IdempotencyInterceptor(r as never);

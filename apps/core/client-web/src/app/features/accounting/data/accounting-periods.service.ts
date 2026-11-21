@@ -62,8 +62,16 @@ export class AccountingPeriodsService {
     );
   }
 
-  close(periodId: string): Observable<PeriodCommandResult> {
-    return this.http.post<PeriodCommandResult>(`${this.apiUrl}/close-period`, { periodId });
+  /**
+   * `closeBeforeItEnds` is the explicit acknowledgement the server now requires to close a period
+   * whose end date has not arrived: closing it early refuses every posting in the rest of it, so
+   * the screen asks before sending it rather than letting the request come back 400.
+   */
+  close(periodId: string, closeBeforeItEnds = false): Observable<PeriodCommandResult> {
+    return this.http.post<PeriodCommandResult>(`${this.apiUrl}/close-period`, {
+      periodId,
+      ...(closeBeforeItEnds ? { closeBeforeItEnds: true } : {}),
+    });
   }
 
   /**

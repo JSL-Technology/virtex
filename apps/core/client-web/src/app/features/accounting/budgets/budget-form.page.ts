@@ -4,8 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { Copy, LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';

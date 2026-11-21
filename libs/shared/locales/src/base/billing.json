@@ -4,6 +4,11 @@
     "en": "Add a payment method",
     "pt": "Adicionar forma de pagamento"
   },
+  "billing.billed_through_parent": {
+    "es": "La facturación la gestiona {{name}}: el plan es el de la empresa matriz.",
+    "en": "Billing is managed by {{name}}: the plan is the parent company's.",
+    "pt": "O faturamento é gerenciado por {{name}}: o plano é o da empresa matriz."
+  },
   "billing.change_payment_method": {
     "es": "Cambiar método de pago",
     "en": "Change payment method",
@@ -23,6 +28,11 @@
     "es": "No se pudo iniciar el proceso. Intenta de nuevo.",
     "en": "The process could not be started. Please try again.",
     "pt": "Não foi possível iniciar o processo. Tente novamente."
+  },
+  "billing.invoice_numbered": {
+    "es": "Factura {{number}}",
+    "en": "Invoice {{number}}",
+    "pt": "Fatura {{number}}"
   },
   "billing.invoice_status.draft": {
     "es": "Borrador",
@@ -54,6 +64,26 @@
     "en": "Opening…",
     "pt": "Abrindo…"
   },
+  "billing.payment_method_of_parent": {
+    "es": "El método de pago es el de {{name}}.",
+    "en": "The payment method is {{name}}'s.",
+    "pt": "O método de pagamento é o de {{name}}."
+  },
+  "billing.plan_change.applied": {
+    "es": "Listo: tu plan ya cambió.",
+    "en": "Done: your plan has changed.",
+    "pt": "Pronto: seu plano já mudou."
+  },
+  "billing.plan_change.change_notice": {
+    "es": "Vas a cambiar al plan {{plan}}. En la página segura de pago vas a ver el importe prorrateado antes de confirmar.",
+    "en": "You are switching to the {{plan}} plan. On the secure payment page you will see the prorated amount before you confirm.",
+    "pt": "Você vai mudar para o plano {{plan}}. Na página segura de pagamento, você vai ver o valor proporcional antes de confirmar."
+  },
+  "billing.plan_change.subscribe_notice": {
+    "es": "Elegiste el plan {{plan}}. Vas a completar el pago en la página segura de pago.",
+    "en": "You chose the {{plan}} plan. You will complete the payment on the secure payment page.",
+    "pt": "Você escolheu o plano {{plan}}. Você vai concluir o pagamento na página segura de pagamento."
+  },
   "billing.plans.enterprise.description": {
     "es": "Solución completa sin límites para grandes organizaciones",
     "en": "The complete product, without limits, for large organizations",
@@ -68,6 +98,11 @@
     "es": "Ideal para equipos pequeños que empiezan",
     "en": "Built for small teams getting started",
     "pt": "Ideal para equipas pequenas a começar"
+  },
+  "billing.subscription_invoice": {
+    "es": "Suscripción",
+    "en": "Subscription",
+    "pt": "Assinatura"
   },
   "billing.subscription_status.active": {
     "es": "Activa",

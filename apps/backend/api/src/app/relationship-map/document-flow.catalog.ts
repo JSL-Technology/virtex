@@ -153,12 +153,20 @@ export class DocumentFlowCatalog implements OnApplicationBootstrap {
     const selects: Record<string, string> = {};
     const joins: string[] = [];
 
-    // Optional fields: a property that does not resolve is reported and skipped, not fatal.
-    const optional = (alias: string, prop: string | undefined) => {
+    // Optional fields: a property that does not resolve is reported and skipped, not fatal. Several
+    // properties read as the first of them that is filled, so a document named differently in
+    // different markets still has a name.
+    const optional = (alias: string, prop: string | readonly string[] | undefined) => {
       if (!prop) return;
-      const col = this.findColumn(meta, prop);
-      if (col) selects[alias] = `doc."${ident(col.databaseName)}"::text`;
-      else problems.push({ where: `${spec.type}.${alias}`, problem: `no property "${prop}" on ${spec.entity}` });
+      const props = typeof prop === 'string' ? [prop] : prop;
+      const columns: string[] = [];
+      for (const one of props) {
+        const col = this.findColumn(meta, one);
+        if (col) columns.push(`doc."${ident(col.databaseName)}"::text`);
+        else problems.push({ where: `${spec.type}.${alias}`, problem: `no property "${one}" on ${spec.entity}` });
+      }
+      if (columns.length === 1) selects[alias] = columns[0];
+      else if (columns.length > 1) selects[alias] = `COALESCE(${columns.join(', ')})`;
     };
     optional('number', spec.numberProp);
     optional('date', spec.dateProp);

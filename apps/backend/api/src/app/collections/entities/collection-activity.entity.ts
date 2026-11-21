@@ -24,6 +24,12 @@ export type CallOutcome = (typeof CALL_OUTCOMES)[number];
 @Entity({ name: 'collection_activities' })
 @Index('IDX_collection_activities_org_invoice', ['organizationId', 'invoiceId'])
 @Index('IDX_collection_activities_org_customer_occurred', ['organizationId', 'customerId', 'occurredAt'])
+// One reminder per step of the schedule and invoice: two runs of the schedule cannot both send it.
+@Index('UQ_collection_activities_invoice_schedule_step', ['invoiceId', 'scheduleStep'], {
+  unique: true,
+  where: '"schedule_step" IS NOT NULL',
+})
+@Check('CHK_collection_activities_schedule_step', `"schedule_step" IS NULL OR ("kind" = 'REMINDER' AND "invoice_id" IS NOT NULL)`)
 @Check('CHK_collection_activities_kind', `"kind" IN ('REMINDER', 'CALL', 'PROMISE', 'NOTE')`)
 @Check('CHK_collection_activities_status', `"status" IN ('DRAFT', 'DONE', 'CANCELLED')`)
 @Check('CHK_collection_activities_draft_reminder', `"status" <> 'DRAFT' OR "kind" = 'REMINDER'`)
@@ -88,6 +94,14 @@ export class CollectionActivity {
 
   @Column({ type: 'varchar', length: 16, nullable: true })
   tone: string | null;
+
+  /**
+   * The day of the company's reminder schedule this reminder went out for — days from the due date —
+   * when the schedule sent it; null for everything a person did. A schedule step is never sent twice
+   * for one invoice, nor after a later one (`AutomaticRemindersService`).
+   */
+  @Column({ name: 'schedule_step', type: 'int', nullable: true })
+  scheduleStep: number | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

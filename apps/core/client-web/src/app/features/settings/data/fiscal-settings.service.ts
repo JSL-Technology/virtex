@@ -23,6 +23,27 @@ export interface TaxJurisdiction {
 
 export type TaxJurisdictionInput = Omit<TaxJurisdiction, 'id'>;
 
+/** What the server shows of the transmission channel: never the credential. */
+export interface TransmissionSettings {
+  countryCode: string;
+  transmissionEndpoint: string | null;
+  statusEndpoint: string | null;
+  soapAction: string | null;
+  credentialScheme: 'BEARER' | 'BASIC' | null;
+  hasCredential: boolean;
+  credentialUpdatedAt: string | null;
+  configured: boolean;
+}
+
+export interface TransmissionSettingsInput {
+  transmissionEndpoint?: string | null;
+  statusEndpoint?: string | null;
+  soapAction?: string | null;
+  credentialScheme?: 'BEARER' | 'BASIC' | null;
+  /** Write-only: sent when replaced, `null` to remove. */
+  credential?: string | null;
+}
+
 /** A withholding regime the tenant maintains for itself. */
 export interface WithholdingRegime {
   id: string;
@@ -42,7 +63,8 @@ export type WithholdingRegimeInput = Omit<WithholdingRegime, 'id'>;
 /** What the product does and does not do in the tenant's market. */
 export interface CapabilityCoverage {
   capability: string;
-  level: 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented';
+  /** `not-applicable`: the market has no such obligation (a US invoice carries no fiscal stamp). */
+  level: 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented' | 'not-applicable';
   detail?: string;
   requires?: string;
 }
@@ -110,6 +132,10 @@ export interface FiscalRange {
   authorizationCode: string | null;
   hasSecret: boolean;
   secretKind: string | null;
+  /** In force with fewer than 50 numbers, or a tenth of the range, left — the server's reading. */
+  runningLow: boolean;
+  /** The authorisation lapsed, in the tenant's own calendar. */
+  expired: boolean;
 }
 
 export interface RegisterFiscalRangeInput {
@@ -120,7 +146,7 @@ export interface RegisterFiscalRangeInput {
   validUntil?: string;
   authorizationCode?: string;
   secret?: string;
-  secretKind?: 'CAF_XML' | 'DIAN_TECHNICAL_KEY';
+  secretKind?: 'AUTHORISED_FOLIOS' | 'TECHNICAL_KEY';
 }
 
 /**
@@ -184,6 +210,16 @@ export class FiscalSettingsService {
   // Brazilian one without their IBGE codes. Until this existed the only way to supply any of it
   // was an INSERT, and the product refused to issue — correctly, with no way out.
 
+  /** The tenant's channel to its authority or PAC, without the credential (FAC-EINV-04). */
+  transmissionSettings(): Observable<TransmissionSettings> {
+    return this.http.get<TransmissionSettings>(`${this.einvoicing}/transmission`);
+  }
+
+  /** Requires re-authentication (`manage_fiscal_credentials`); the interceptor asks for it. */
+  saveTransmissionSettings(input: TransmissionSettingsInput): Observable<TransmissionSettings> {
+    return this.http.put<TransmissionSettings>(`${this.einvoicing}/transmission`, input);
+  }
+
   regimeSettings(): Observable<FiscalRegimeSettings | null> {
     return this.http.get<FiscalRegimeSettings | null>(`${this.einvoicing}/settings`);
   }
@@ -200,8 +236,11 @@ export class FiscalSettingsService {
     return this.http.post<FiscalRange>(`${this.einvoicing}/ranges`, input);
   }
 
-  /** Retires the range; the row stays on file, because past documents were issued under it. */
-  deactivateRange(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.einvoicing}/ranges/${id}`);
+  /**
+   * Retires a range, or puts a superseded one back in force (retiring the one in force for its type
+   * and series). The row stays on file either way, because past documents were issued under it.
+   */
+  setRangeActive(id: string, isActive: boolean): Observable<FiscalRange> {
+    return this.http.patch<FiscalRange>(`${this.einvoicing}/ranges/${id}`, { isActive });
   }
 }

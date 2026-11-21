@@ -19,8 +19,11 @@ export interface BillingSubscription {
   status: string;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
-  /** The payment provider's subscription, or the platform's own record (granted plan, trial). */
-  managedBy?: 'provider' | 'platform';
+  /**
+   * The payment provider's subscription; the platform's own record (granted plan, trial), with no
+   * card behind it; or the parent company's, which this company is billed through.
+   */
+  managedBy: 'provider' | 'platform' | 'parent_organization';
 }
 
 export interface BillingOverview {
@@ -35,13 +38,16 @@ export interface BillingOverview {
   } | null;
   subscription: BillingSubscription | null;
   paymentMethod: BillingPaymentMethod | null;
+  /** The company this one is billed through, when it does not manage its own billing. */
+  billedThrough: { organizationId: string; name: string } | null;
 }
 
 export interface BillingInvoice {
   id: string;
   number: string | null;
   date: string;
-  description: string;
+  /** The provider's own description; `null` when it has none, and the screen words one. */
+  description: string | null;
   amount: number;
   currency: string;
   status: string;
@@ -50,6 +56,11 @@ export interface BillingInvoice {
 }
 
 export type PlansLoadState = 'loading' | 'loaded' | 'error';
+
+/** One row of `GET /saas/usage`: a metered quota, or a capability the plan includes or not. */
+export type UsageMetric =
+  | { resource: string; type: 'numeric'; used: number; limit: number; isUnlimited: boolean; period: 'monthly' | 'lifetime' }
+  | { resource: string; type: 'boolean'; isEnabled: boolean; used: null; limit: null };
 
 @Injectable({ providedIn: 'root' })
 export class BillingService {
@@ -100,8 +111,8 @@ export class BillingService {
     ).subscribe();
   }
 
-  getUsage(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/saas/usage`).pipe(
+  getUsage(): Observable<UsageMetric[]> {
+    return this.http.get<UsageMetric[]>(`${this.apiUrl}/saas/usage`).pipe(
       catchError(() => of([]))
     );
   }
@@ -125,6 +136,19 @@ export class BillingService {
     );
   }
 
+  /**
+   * Records the subscription as the provider has it now, after the browser returns from changing it
+   * on the provider's page — without waiting for the webhook, which never arrives in development.
+   */
+  reconcileSubscription(): Observable<BillingOverview | null> {
+    return this.http.post<BillingOverview>(`${this.apiUrl}/payment/subscription/reconcile`, {}).pipe(
+      catchError(err => {
+        console.error('Failed to reconcile the subscription', err);
+        return of(null);
+      })
+    );
+  }
+
   getInvoices(): Observable<BillingInvoice[]> {
     return this.http.get<BillingInvoice[]>(`${this.apiUrl}/payment/invoices`).pipe(
       catchError(err => {
@@ -135,20 +159,23 @@ export class BillingService {
   }
 
   /**
-   * Starts a Stripe Checkout session for a brand-new subscription and redirects
-   * the browser to the hosted payment page. Returns false if the response has
-   * no URL; throws (with a user-facing message) on backend errors.
+   * Moves the organization to a plan and sends the browser where the change is completed.
+   *
+   * The server decides how: a subscription in force has its price changed on the provider's
+   * confirmation page, an organization without one goes to buy it. The client used to decide —
+   * and for every subscription it did not recognise as live it bought a second one beside the
+   * first. Returns false when the response carries nowhere to go.
    */
-  startCheckout(planSlug: string): Observable<boolean> {
+  changePlan(planSlug: string): Observable<boolean> {
     const plan = this.plans().find(p => p.slug === planSlug || p.id === planSlug);
     if (!plan) {
-      return throwError(() => new Error('Este plan no está disponible para contratación en este momento.'));
+      return throwError(() => new Error(this.translate.instant('payment.plan_unavailable_for_purchase')));
     }
 
-    // Only the plan travels. The Stripe price and both redirect URLs are resolved server-side:
-    // a client-supplied return URL made this an open redirect issued from Stripe's own origin,
+    // Only the plan travels. The provider's price and every redirect are resolved server-side: a
+    // client-supplied return URL made this an open redirect issued from the provider's own origin,
     // and a client-supplied price let a caller subscribe to any price on the account.
-    return this.http.post<{ sessionId: string; url: string }>(`${this.apiUrl}/payment/checkout-session`, {
+    return this.http.post<{ url: string }>(`${this.apiUrl}/payment/plan-change`, {
       planSlug: plan.slug,
     }).pipe(
       map(res => {
@@ -159,7 +186,7 @@ export class BillingService {
         return false;
       }),
       catchError(err => {
-        console.error('Checkout failed', err);
+        console.error('Plan change failed', err);
         const message = this.errorText.httpErrorMessage(err, 'errors.start_payment');
         return throwError(() => new Error(message));
       })
@@ -167,8 +194,8 @@ export class BillingService {
   }
 
   /**
-   * Opens the Stripe Billing Portal so existing subscribers can change plan,
-   * update their payment method or cancel — all handled securely by Stripe.
+   * Opens the provider's billing portal, where a subscriber updates the payment method or cancels.
+   * Changing plan is `changePlan`, which takes the customer straight to the plan they chose.
    */
   openBillingPortal(): Observable<boolean> {
     // No body: the return URL is built server-side from FRONTEND_URL.

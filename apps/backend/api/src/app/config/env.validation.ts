@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import * as crypto from 'crypto';
+import { parseExternalEffects } from './external-effects';
 
 /**
  * Startup validation for the process environment.
@@ -71,7 +72,7 @@ const requiredForS3 = () =>
  * down; this applies it early enough for the process to actually reach that code.
  */
 export const devSecret = (name: string): string =>
-  crypto.createHash('sha256').update(`virteex-dev-only:${name}`).digest('hex');
+  crypto.createHash('sha256').update(`virtex-dev-only:${name}`).digest('hex');
 
 /**
  * Placeholder values that indicate a secret was shipped rather than chosen.
@@ -313,37 +314,102 @@ export const envValidation = Joi.object({
   SMS_ALLOWED_COUNTRY_CODES: Joi.string().optional(),
   SMS_GLOBAL_DAILY_LIMIT: Joi.number().integer().positive().optional(),
 
-  // Electronic invoicing (e-CF, Dominican Republic / DGII).
-  // AES-256-GCM key that encrypts DGII signing certificates at rest. Mandatory to ISSUE e-CF — the
-  // certificate vault refuses to operate without it — but optional in a deployment so tenants that
-  // do not use electronic invoicing can boot without configuring it. In development it gets the
-  // same stable generated value as every other local secret: without one a developer could not
-  // load a certificate, and so could not issue a single electronic document.
-  ECF_CERT_ENCRYPTION_KEY: Joi.when('NODE_ENV', {
+  // Electronic invoicing — the same variables in every market.
+  // AES-256-GCM key that encrypts signing certificates at rest, whichever authority issued them.
+  // Mandatory to issue an electronic document — the certificate vault refuses to operate without
+  // it — but optional in a deployment so tenants in a market with no regime, or that do not use
+  // one, can boot without configuring it. In development it gets the same stable generated value
+  // as every other local secret: without one a developer could not load a certificate, and so
+  // could not issue a single electronic document.
+  SIGNING_CERT_ENCRYPTION_KEY: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
-    then: Joi.string().min(16).default(devSecret('ECF_CERT_ENCRYPTION_KEY')),
+    then: Joi.string().min(16).default(devSecret('SIGNING_CERT_ENCRYPTION_KEY')),
     otherwise: Joi.string().min(16).optional(),
   }),
-  // Accept a SELF-SIGNED signing certificate (the fixtures in tools/fixtures/ecf-certificates) so
-  // the e-CF flow can be exercised locally. Only a development or test process may set it: in any
-  // other environment a deployment that carried it would sign documents the DGII cannot trust, so
-  // it fails validation rather than being ignored.
-  ECF_ALLOW_TEST_CERTIFICATES: Joi.when('NODE_ENV', {
+  // Accept a SELF-SIGNED signing certificate (the fixtures in tools/fixtures/signing-certificates)
+  // so the electronic-document flow can be exercised locally. Only a development or test process
+  // may set it: in any other environment a deployment that carried it would sign documents no
+  // authority can trust, so it fails validation rather than being ignored.
+  SIGNING_ALLOW_TEST_CERTIFICATES: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
     then: Joi.boolean().truthy('true').falsy('false').default(false),
     otherwise: Joi.boolean().truthy('true').falsy('false').valid(false).default(false),
   }),
-  // Which DGII environment to transmit to, and optional per-service endpoint overrides (the DGII
-  // versions its paths; overrides let an operator pin the exact ones its environment publishes).
-  DGII_ECF_ENVIRONMENT: Joi.string().valid('TesteCF', 'CerteCF', 'Produccion').optional(),
-  DGII_ECF_BASE_URL: Joi.string().uri().optional(),
-  DGII_ECF_SEED_URL: Joi.string().uri().optional(),
-  DGII_ECF_VALIDATE_SEED_URL: Joi.string().uri().optional(),
-  DGII_ECF_RECEPTION_URL: Joi.string().uri().optional(),
-  DGII_ECF_STATUS_URL: Joi.string().uri().optional(),
-  DGII_ECF_TRACKIDS_URL: Joi.string().uri().optional(),
-  DGII_ECF_APPROVAL_URL: Joi.string().uri().optional(),
-  DGII_ECF_HTTP_TIMEOUT_MS: Joi.number().integer().positive().optional(),
+  // Which outbound effects this process may cause (config/external-effects.ts): `all`, `none`, or a
+  // comma-separated list of kinds. Unset: `all` in a real deployment, `none` when development-like.
+  // A real deployment may NOT be configured with `none`: one that silently stops transmitting fiscal
+  // documents is worse than one that refuses to start.
+  EXTERNAL_EFFECTS: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string().lowercase().pattern(/^[a-z_]+(,[a-z_]+)*$/).optional(),
+    otherwise: Joi.string().lowercase().pattern(/^[a-z_]+(,[a-z_]+)*$/).invalid('none').optional().messages({
+      'any.invalid': 'EXTERNAL_EFFECTS cannot be "none" outside development and test',
+    }),
+  }).custom((value: string | undefined) => {
+    if (value !== undefined) parseExternalEffects(value, false); // throws on an unknown kind
+    return value;
+  }),
+  // Whether this deployment may configure a fiscal channel process-wide at all. A SaaS may not:
+  // each tenant's channel is its own (`fiscal_regime_settings`). Set to `allow`, a single-tenant
+  // deployment's `EINVOICE_<CC>_*` variables are read for tenants that saved no settings.
+  EINVOICE_PROCESS_CREDENTIALS: Joi.string().valid('allow').optional(),
+  // How long a regime's transport waits for its authority, in milliseconds. Not a channel: it
+  // applies in every process.
+  EINVOICE_TIMEOUT_MS: Joi.number().integer().positive().optional(),
+
+  // ── Extensions: admission pipeline and marketplace signing ────────────────
+  //
+  // Declared here, like everything else a deployment can set. They were read straight from
+  // `process.env` in the services that use them, so the schema — the one description of what a
+  // deployment's inputs are — did not know they existed: a misspelt name was silent, the defaults
+  // lived in four different files, and two of them are switches that decide whether code is
+  // scanned and whether an extension is signed with a key that survives a restart.
+  //
+  // Static and dynamic analysis of an extension's code before it is admitted. Without a URL the
+  // step is skipped, which is why the MODE matters: `required` (the default outside development)
+  // refuses an extension the scanner could not reach, `best-effort` admits it.
+  SONAR_HOST_URL: Joi.string().uri().optional(),
+  SONAR_TOKEN: Joi.string().allow('').optional(),
+  PLUGIN_DAST_URL: Joi.string().uri().allow('').optional(),
+  PLUGIN_DAST_TOKEN: Joi.string().allow('').optional(),
+  PLUGIN_DAST_MODE: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string().valid('required', 'best-effort').default('best-effort'),
+    // A deployment may still say `best-effort` on purpose; what it may not do is end up there by
+    // leaving the variable unset.
+    otherwise: Joi.string().valid('required', 'best-effort').default('required'),
+  }),
+  // The policy engine the admission pipeline evaluates its rules with.
+  OPA_BIN: Joi.string().optional(),
+  PLUGIN_OPA_POLICY: Joi.string().optional(),
+  // The keys the marketplace signs an admitted extension with, and the sandbox verifies before
+  // running it. MANDATORY outside development: `signing-key.provider.ts` refuses to start without
+  // them, because an unsigned extension running in the sandbox is arbitrary code in the tenant's
+  // process. Either the bundle, or the pair.
+  MARKETPLACE_SIGNING_KEYS: Joi.string().optional(),
+  MARKETPLACE_SIGNING_PRIVATE_KEY: Joi.string().optional(),
+  MARKETPLACE_SIGNING_PUBLIC_KEY: Joi.string().optional(),
+  // Generate a throwaway signing pair at boot. Development and test only, and refused elsewhere:
+  // an extension signed with it stops verifying at the next restart, so a deployment that carried
+  // this would admit extensions nothing could check afterwards.
+  ALLOW_EPHEMERAL_PLUGIN_KEYS: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.boolean().truthy('true').falsy('false').default(false),
+    otherwise: Joi.boolean().truthy('true').falsy('false').valid(false).default(false),
+  }),
+
+  // ── Operational doors ─────────────────────────────────────────────────────
+  //
+  // Start with NO row-level isolation policies in the database. The first deployment, before the
+  // migrations have run, is a legitimate case and this is how it is allowed: deliberately, by
+  // name, rather than as the default behaviour — a database without isolation is indistinguishable
+  // from a correct one from inside, and nobody finds out until somebody sees another company's
+  // data (`shared/tenancy/tenant-isolation.check.ts`).
+  DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP: Joi.boolean().truthy('true').falsy('false').default(false),
+  // Where the development SMS provider writes the messages it does not send.
+  SMS_OUTBOX_DIR: Joi.string().optional(),
+  // The currency the platform bills its own subscriptions in — the product's, not a tenant's.
+  SAAS_BASE_CURRENCY: Joi.string().uppercase().length(3).default('USD'),
 
   // RS256 keys: required in production, optional in development (ephemeral key is generated).
   RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
@@ -391,7 +457,7 @@ export const envValidation = Joi.object({
   REDIS_PASSWORD: Joi.string().optional(),
   // Declared so Joi coerces it; see the DB_SSL note above for why a bare string flag is a hazard.
   REDIS_TLS: Joi.boolean().default(false),
-  REDIS_NAMESPACE: Joi.string().default('virteex'),
+  REDIS_NAMESPACE: Joi.string().default('virtex'),
 
   /**
    * Rate limiting (one configuration, AppModule). Counted per person per company when signed in,
@@ -419,7 +485,7 @@ export const envValidation = Joi.object({
   MAIL_PASSWORD: optionalInDev(),
   MAIL_FROM_ADDRESS: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
-    // The product is Virtex: the sender read «no-reply@virteex.local» to every recipient (CG-30).
+    // The product is Virtex: the sender read «no-reply@virtex.local» to every recipient (CG-30).
     then: Joi.string().email().default('no-reply@virtex.local'),
     otherwise: Joi.string().email().required(),
   }),
@@ -508,4 +574,18 @@ export const envValidation = Joi.object({
     then: Joi.boolean().default(false),
     otherwise: Joi.boolean().default(true),
   }),
-});
+})
+  /**
+   * Every market's electronic-invoicing channel, by shape rather than by name.
+   *
+   * `EINVOICE_<CC>_…` is the one spelling a deployment configures a market with, so nineteen
+   * markets need no nineteen blocks here and this file names no country. A URL is checked as a
+   * URL; what a value MEANS is the regime's own business, and its adapter says so — the Dominican
+   * environment used to be `DGII_ECF_ENVIRONMENT` with its three authority-specific values listed
+   * here, which is how the core came to know one authority's vocabulary.
+   *
+   * `allow('')` because a variable left empty in a `.env` is how an operator turns an override
+   * off; the regimes read a blank as unset.
+   */
+  .pattern(/^EINVOICE_[A-Z]{2}_[A-Z0-9_]*(?:URL|ENDPOINT)$/, Joi.string().uri().allow(''))
+  .pattern(/^EINVOICE_[A-Z]{2}_(?:TOKEN|USERNAME|PASSWORD|SOAP_ACTION|ENVIRONMENT)$/, Joi.string().allow(''));

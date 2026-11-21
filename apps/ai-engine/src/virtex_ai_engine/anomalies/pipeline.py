@@ -20,7 +20,7 @@ def load(conn: psycopg.Connection, organization_id: str, since) -> dict[str, pd.
     return {
         "bills": frame(
             conn,
-            """SELECT id::text, vendor_id::text, ncf, total::float, date, branch_id::text
+            """SELECT id::text, vendor_id::text, supplier_fiscal_number AS fiscal_number, total::float, date, branch_id::text
                  FROM ai_src_posted_bills
                 WHERE organization_id = %s AND date >= %s""",
             p,

@@ -1,8 +1,8 @@
 import { ValidationError } from 'class-validator';
 import { BadRequestException } from '@nestjs/common';
-import { LanguageCode } from '@virteex/shared/types';
+import { LanguageCode } from '@virtex/shared/types';
 import { I18nService } from './i18n.service';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 
 /**
  * Validation errors, in the reader's language.

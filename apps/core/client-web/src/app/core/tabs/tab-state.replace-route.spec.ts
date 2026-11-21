@@ -70,7 +70,7 @@ describe('TabStateService — a saved draft takes over its own window', () => {
     TestBed.configureTestingModule({
       providers: [
         TabStateService,
-        { provide: TabRegistryService, useValue: { resolve, canOpen: () => true } },
+        { provide: TabRegistryService, useValue: { resolve, canOpen: () => true, denial: () => null } },
         { provide: TabPreferencesService, useValue: { enablePreview, maxTabs: () => 12 } },
         { provide: DialogService, useValue: { confirmClose: () => Promise.resolve('discard') } },
         { provide: NotificationService, useValue: { showWarning: jest.fn(), showInfo: jest.fn() } },

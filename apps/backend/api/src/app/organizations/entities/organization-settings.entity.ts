@@ -1,5 +1,6 @@
 
-import type { RegionalFormat } from '@virteex/shared/types';
+import type { RegionalFormat } from '@virtex/shared/types';
+import { DEFAULT_REMINDER_DAYS, REMINDER_DAY_MAX, REMINDER_DAY_MIN, REMINDER_STEPS_MAX } from '../../contracts/collections/reminder-schedule.contract';
 import {
   Check,
   Entity,
@@ -13,15 +14,24 @@ import {
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { TaxpayerType } from '../../markets';
+import { numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import type { FiscalEmissionMode } from '../contracts/fiscal-emission-mode.contract';
+import type { BudgetControlMode } from '../../contracts/accounting/budget-control.contract';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
 
 @Index('ux_organization_settings_organization_id', ['organizationId'], { unique: true })
 // Declared here as well as in the migration, so the schema-drift check sees it.
 @Check('CK_organization_settings_fiscal_emission_mode', `"fiscal_emission_mode" IN ('BOTH', 'ELECTRONIC', 'TRADITIONAL')`)
+@Check('CHK_organization_settings_po_receipt_over_tolerance', '"po_receipt_over_tolerance_bps" BETWEEN 0 AND 5000')
+@Check('CHK_organization_settings_budget_control_mode', `"budget_control_mode" IN ('block', 'warn', 'none')`)
+@Check('CHK_organization_settings_budget_tolerance', '"budget_tolerance_bps" BETWEEN 0 AND 5000')
+@Check('CHK_organization_settings_max_future_posting_days', '"max_future_posting_days" BETWEEN 0 AND 366')
+@Check(
+  'CHK_organization_settings_reminder_days',
+  `cardinality("collections_reminder_days") BETWEEN 1 AND ${REMINDER_STEPS_MAX} AND ${REMINDER_DAY_MIN} <= ALL ("collections_reminder_days") AND ${REMINDER_DAY_MAX} >= ALL ("collections_reminder_days")`,
+)
 @Entity({ name: 'organization_settings' })
 export class OrganizationSettings {
   constructor(partial?: Partial<OrganizationSettings>) {
@@ -234,8 +244,17 @@ export class OrganizationSettings {
   @Column({ name: 'default_inventory_adjustment_account_id', type: 'uuid', nullable: true })
   defaultInventoryAdjustmentAccountId: string | null = null;
 
+  /** Exchange differences realised on settlement (`AccountRole.FOREX_GAIN_LOSS`). */
   @Column({ name: 'default_forex_gain_loss_account_id', type: 'uuid', nullable: true })
   defaultForexGainLossAccountId: string | null = null;
+
+  /**
+   * Where the period-end revaluation posts the unrealised differences
+   * (`AccountRole.UNREALIZED_FOREX_GAIN_LOSS`). Empty: it posts to the realised account above, as
+   * every company provisioned before the two were separated does.
+   */
+  @Column({ name: 'default_unrealized_forex_gain_loss_account_id', type: 'uuid', nullable: true })
+  defaultUnrealizedForexGainLossAccountId: string | null = null;
 
   /**
    * Where bank charges land.
@@ -260,9 +279,10 @@ export class OrganizationSettings {
   //
   // Derived from the chart's account roles at provisioning, like every default above. A payroll run
   // debits salary expense and the employer's own social cost, and credits a distinct liability for
-  // each thing it owes to a different body — the net wage (to the employee), AFP and SFS (to the
-  // TSS), INFOTEP/SRL, and the ISR withheld (to the DGII) — so each has its own account and none is
-  // netted into another.
+  // each thing it owes to a different body — the net wage (to the employee), the pension and health
+  // funds, the other statutory levies, and the income tax withheld — so each has its own account and
+  // none is netted into another. The columns are named after the kind of fund (audit 2026-11-07,
+  // LOC-02/JUR-01); each country's strategy maps its own institutions onto them.
 
   @Column({ name: 'default_salary_expense_account_id', type: 'uuid', nullable: true })
   defaultSalaryExpenseAccountId: string | null = null;
@@ -273,14 +293,14 @@ export class OrganizationSettings {
   @Column({ name: 'default_payroll_net_payable_account_id', type: 'uuid', nullable: true })
   defaultPayrollNetPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_afp_payable_account_id', type: 'uuid', nullable: true })
-  defaultAfpPayableAccountId: string | null = null;
+  @Column({ name: 'default_pension_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultPensionContributionsPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_sfs_payable_account_id', type: 'uuid', nullable: true })
-  defaultSfsPayableAccountId: string | null = null;
+  @Column({ name: 'default_health_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultHealthContributionsPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_infotep_payable_account_id', type: 'uuid', nullable: true })
-  defaultInfotepPayableAccountId: string | null = null;
+  @Column({ name: 'default_other_payroll_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultOtherPayrollContributionsPayableAccountId: string | null = null;
 
   @Column({ name: 'default_payroll_tax_withholding_payable_account_id', type: 'uuid', nullable: true })
   defaultPayrollTaxWithholdingPayableAccountId: string | null = null;
@@ -309,6 +329,17 @@ export class OrganizationSettings {
 
   @Column({ name: 'fiscal_archive_after_years', type: 'int', default: 5 })
   fiscalArchiveAfterYears!: number;
+
+  /**
+   * How many days ahead of the company's today a posting may be dated (FIN-JE-02).
+   *
+   * There was no limit: an entry dated 2027-03-01, keyed on 2026-11-07, was posted — and opened the
+   * whole 2027 fiscal year and its twelve periods to receive it — so a mistyped year did not just
+   * misdate an entry, it changed the calendar. Never less than the end of the current period, so a
+   * month-end accrual or depreciation can always be dated at the period's end.
+   */
+  @Column({ name: 'max_future_posting_days', type: 'int', default: 31 })
+  maxFuturePostingDays!: number;
 
   // ── Outgoing mail identity ────────────────────────────────────────────────
   //
@@ -353,9 +384,46 @@ export class OrganizationSettings {
     // Quoted: PostgreSQL stores a numeric default as the literal `0.02`, and an unquoted numeric
     // here makes TypeORM compare against `0.02` the number and see a difference that is not one.
     default: 0.02,
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
   })
   fxRateTolerance!: number;
+
+  /**
+   * How far a supplier's unit price may depart from the purchase order before the bill is held,
+   * in basis points (200 = 2 %) (audit 2026-11-07, CMP-01). Integer on purpose: a fractional
+   * numeric default reads as schema drift.
+   */
+  @Column({ name: 'ap_match_price_tolerance_bps', type: 'int', default: 200 })
+  apMatchPriceToleranceBps!: number;
+
+  /** How far a delivery may exceed the ordered quantity, in basis points (CMP-15). 0: never. */
+  @Column({ name: 'po_receipt_over_tolerance_bps', type: 'int', default: 0 })
+  poReceiptOverToleranceBps!: number;
+
+  /**
+   * What a posting past its budget line does (FINB-20): `block` refuses it, `warn` lets it through
+   * and tells whoever looks after budgets, `none` only measures it. It was always a hard block, with
+   * nothing to configure.
+   */
+  @Column({ name: 'budget_control_mode', type: 'varchar', length: 5, default: 'block' })
+  budgetControlMode!: BudgetControlMode;
+
+  /** How far past its line a posting may go before the control acts, in basis points. 0: not at all. */
+  @Column({ name: 'budget_tolerance_bps', type: 'int', default: 0 })
+  budgetToleranceBps!: number;
+
+  /**
+   * Whether payment reminders go out on their own, on `collectionsReminderDays` (TES-13).
+   *
+   * Off until the company turns it on: e-mail to its customers is the company's decision, not a
+   * default the product makes for it.
+   */
+  @Column({ name: 'collections_automatic_reminders', type: 'boolean', default: false })
+  collectionsAutomaticReminders!: boolean;
+
+  /** The days, from an invoice's due date, a reminder goes out on (`reminder-schedule.contract`). */
+  @Column({ name: 'collections_reminder_days', type: 'int', array: true, default: `{${DEFAULT_REMINDER_DAYS.join(',')}}` })
+  collectionsReminderDays!: number[];
 
   /**
    * How stale a quote may be, in days, before a posting that would use it is refused.

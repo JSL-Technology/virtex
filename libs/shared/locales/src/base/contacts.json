@@ -9,6 +9,16 @@
     "en": "Address line",
     "pt": "Logradouro"
   },
+  "contacts.customer_form.automatic_reminders": {
+    "es": "Recibe los recordatorios de pago automáticos",
+    "en": "Receives the automatic payment reminders",
+    "pt": "Recebe os lembretes de pagamento automáticos"
+  },
+  "contacts.customer_form.automatic_reminders_hint": {
+    "es": "Desmárcalo para recordarle solo a mano, desde Cobranza. Los recordatorios automáticos se activan en Configuración › Operaciones › Cobranza.",
+    "en": "Untick it to remind this customer by hand only, from Collections. Automatic reminders are turned on in Settings › Operations › Collections.",
+    "pt": "Desmarque para lembrar este cliente apenas manualmente, em Cobrança. Os lembretes automáticos são ativados em Configurações › Operações › Cobrança."
+  },
   "contacts.customer_form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -164,6 +174,21 @@
     "es": "Código postal",
     "en": "Postal code",
     "pt": "CEP"
+  },
+  "contacts.customer_form.price_list": {
+    "es": "Lista de precios",
+    "en": "Price list",
+    "pt": "Lista de preços"
+  },
+  "contacts.customer_form.price_list_default": {
+    "es": "La predeterminada de la moneda",
+    "en": "The currency’s default",
+    "pt": "A padrão da moeda"
+  },
+  "contacts.customer_form.price_list_hint": {
+    "es": "Los documentos de este cliente toman sus precios de esta lista si está activa, vigente y en la moneda del documento; si no, de la lista predeterminada y luego del catálogo.",
+    "en": "This customer’s documents take their prices from this list when it is active, in force and in the document’s currency; otherwise from the default list, then the catalogue.",
+    "pt": "Os documentos deste cliente usam os preços desta lista quando está ativa, vigente e na moeda do documento; caso contrário, a lista padrão e depois o catálogo."
   },
   "contacts.customer_form.save_customer": {
     "es": "Guardar cliente",

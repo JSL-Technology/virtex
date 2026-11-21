@@ -1,0 +1,243 @@
+<vx-list-shell
+  titleKey="purchasing.rfqs.title"
+  subtitleKey="purchasing.rfqs.subtitle"
+  [count]="rfqs().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="false"
+  (reload)="load()"
+>
+  <section class="form-section" *appHasPermission="'procurement:manage'">
+    <h2 class="form-section__title">{{ 'purchasing.rfqs.new_title' | translate }}</h2>
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="rfq-title">{{ 'purchasing.rfqs.title_label' | translate }}</label>
+        <input id="rfq-title" maxlength="200" [ngModel]="draft().title" (ngModelChange)="patchDraft({ title: $event })" />
+      </div>
+      <div class="form-field">
+        <label for="rfq-requisition">{{ 'purchasing.rfqs.requisition' | translate }}</label>
+        <select id="rfq-requisition" [ngModel]="draft().requisitionId" (ngModelChange)="patchDraft({ requisitionId: $event })">
+          <option value="">{{ 'purchasing.rfqs.no_requisition' | translate }}</option>
+          @for (requisition of requisitions(); track requisition.id) {
+            <option [value]="requisition.id">{{ requisition.number }} · {{ requisition.totalAmount | vxMoney }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="rfq-due">{{ 'purchasing.rfqs.response_due' | translate }}</label>
+        <input id="rfq-due" type="date" [ngModel]="draft().responseDueDate" (ngModelChange)="patchDraft({ responseDueDate: $event })" />
+      </div>
+    </div>
+
+    @if (!draft().requisitionId) {
+      <fieldset class="form-field">
+        <legend>{{ 'purchasing.rfqs.lines' | translate }}</legend>
+        @for (line of draft().lines; track $index; let i = $index) {
+          <div class="form-grid">
+            <div class="form-field">
+              <label [for]="'rfq-line-' + i">{{ 'purchasing.rfqs.description' | translate }}</label>
+              <input [id]="'rfq-line-' + i" maxlength="500" [ngModel]="line.description" (ngModelChange)="patchLine(i, { description: $event })" />
+            </div>
+            <div class="form-field">
+              <label [for]="'rfq-qty-' + i">{{ 'purchasing.rfqs.quantity' | translate }}</label>
+              <input [id]="'rfq-qty-' + i" type="number" min="0" step="any" [ngModel]="line.quantity" (ngModelChange)="patchLine(i, { quantity: $event })" />
+            </div>
+            <div class="form-field">
+              <button type="button" class="link-button" (click)="removeLine(i)">{{ 'purchasing.rfqs.remove' | translate }}</button>
+            </div>
+          </div>
+        }
+        <button type="button" class="secondary-button" (click)="addLine()">{{ 'purchasing.rfqs.add_line' | translate }}</button>
+      </fieldset>
+    } @else {
+      <p class="field-hint">{{ 'purchasing.rfqs.lines_from_requisition' | translate }}</p>
+    }
+
+    <div class="form-field">
+      <label for="rfq-supplier">{{ 'purchasing.rfqs.invite' | translate }}</label>
+      <vx-select
+        inputId="rfq-supplier"
+        [ngModel]="pickedSupplier()"
+        (ngModelChange)="invite($event)"
+        [search]="searchSuppliers"
+        [resolveWith]="resolveSupplier"
+        [displayWith]="supplierLabel"
+        [valueWith]="supplierIdOf"
+      />
+      <ul>
+        @for (id of draft().supplierIds; track id) {
+          <li>
+            {{ nameOf(id) }}
+            <button type="button" class="link-button" (click)="uninvite(id)">{{ 'purchasing.rfqs.remove' | translate }}</button>
+          </li>
+        }
+      </ul>
+    </div>
+    <button type="button" class="primary-button" [disabled]="!canCreate() || busy()" (click)="create()">{{ 'purchasing.rfqs.create' | translate }}</button>
+  </section>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'purchasing.rfqs.number' | translate }}</th>
+          <th>{{ 'purchasing.rfqs.title_label' | translate }}</th>
+          <th>{{ 'purchasing.rfqs.response_due' | translate }}</th>
+          <th>{{ 'purchasing.rfqs.status_label' | translate }}</th>
+          <th>{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rfqs(); track row.id) {
+          <tr>
+            <td>{{ row.number }}</td>
+            <td>{{ row.title }}</td>
+            <td>{{ row.responseDueDate ? (row.responseDueDate | vxDate) : '—' }}</td>
+            <td><vx-badge [tone]="tone(row.status)">{{ 'purchasing.rfqs.status.' + row.status | translate }}</vx-badge></td>
+            <td><button type="button" class="link-button" (click)="open(row)">{{ 'purchasing.rfqs.open' | translate }}</button></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5">{{ 'purchasing.rfqs.empty' | translate }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (selected(); as rfq) {
+    <section class="form-section" [attr.aria-label]="rfq.number">
+      <h2 class="form-section__title">{{ rfq.number }} · {{ rfq.title }}</h2>
+      <p>
+        <vx-badge [tone]="tone(rfq.status)">{{ 'purchasing.rfqs.status.' + rfq.status | translate }}</vx-badge>
+        {{ 'purchasing.rfqs.invited' | translate }}:
+        @for (invite of rfq.suppliers ?? []; track invite.supplierId; let last = $last) {
+          {{ nameOf(invite.supplierId) }}@if (!last) {, }
+        }
+      </p>
+      @if (rfq.awardReason) {
+        <div class="banner-info"><strong>{{ 'purchasing.rfqs.award_reason' | translate }}</strong> <span>{{ rfq.awardReason }}</span></div>
+      }
+      @if (rfq.awardedOrderId) {
+        <p><a class="table-link" [routerLink]="['/purchasing/orders', rfq.awardedOrderId, 'edit']">{{ 'purchasing.rfqs.see_order' | translate }}</a></p>
+      }
+      <div *appHasPermission="'procurement:manage'">
+        @if (rfq.status === 'DRAFT') {
+          <button type="button" class="primary-button" [disabled]="busy()" (click)="send()">{{ 'purchasing.rfqs.send' | translate }}</button>
+        }
+        @if (rfq.status === 'DRAFT' || rfq.status === 'SENT') {
+          <button type="button" class="danger-button" [disabled]="busy()" (click)="cancel()">{{ 'purchasing.rfqs.cancel' | translate }}</button>
+        }
+      </div>
+
+      @if (rfq.status === 'SENT') {
+        <fieldset class="form-field" *appHasPermission="'procurement:manage'">
+          <legend>{{ 'purchasing.rfqs.record_quote' | translate }}</legend>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="q-supplier">{{ 'purchasing.rfqs.supplier' | translate }}</label>
+              <select id="q-supplier" [ngModel]="quote().supplierId" (ngModelChange)="patchQuote({ supplierId: $event })">
+                <option value="">{{ 'purchasing.rfqs.choose_supplier' | translate }}</option>
+                @for (invite of rfq.suppliers ?? []; track invite.supplierId) {
+                  <option [value]="invite.supplierId">{{ nameOf(invite.supplierId) }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="q-valid">{{ 'purchasing.rfqs.valid_until' | translate }}</label>
+              <input id="q-valid" type="date" [ngModel]="quote().validUntil" (ngModelChange)="patchQuote({ validUntil: $event })" />
+            </div>
+            <div class="form-field">
+              <label for="q-lead">{{ 'purchasing.rfqs.lead_time' | translate }}</label>
+              <input id="q-lead" type="number" min="0" step="1" [ngModel]="quote().leadTimeDays" (ngModelChange)="patchQuote({ leadTimeDays: $event })" />
+            </div>
+            <div class="form-field">
+              <label for="q-ref">{{ 'purchasing.rfqs.reference' | translate }}</label>
+              <input id="q-ref" maxlength="60" [ngModel]="quote().reference" (ngModelChange)="patchQuote({ reference: $event })" />
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'purchasing.rfqs.description' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.rfqs.quantity' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.rfqs.unit_price' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.rfqs.tax_percent' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of rfq.lines ?? []; track line.id) {
+                <tr>
+                  <td>{{ line.description }}</td>
+                  <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">
+                    <input type="number" min="0" step="any" [attr.aria-label]="'purchasing.rfqs.unit_price' | translate"
+                      [ngModel]="quote().prices[line.id]?.unitPrice ?? null" (ngModelChange)="patchPrice(line.id, { unitPrice: $event })" />
+                  </td>
+                  <td class="numeric">
+                    <input type="number" min="0" max="100" step="any" [attr.aria-label]="'purchasing.rfqs.tax_percent' | translate"
+                      [ngModel]="quote().prices[line.id]?.taxPercent ?? null" (ngModelChange)="patchPrice(line.id, { taxPercent: $event })" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <button type="button" class="secondary-button" [disabled]="busy()" (click)="recordQuote()">{{ 'purchasing.rfqs.save_quote' | translate }}</button>
+        </fieldset>
+      }
+
+      @if (comparison(); as cmp) {
+        <h3>{{ 'purchasing.rfqs.comparison' | translate }}</h3>
+        <p class="field-hint">{{ 'purchasing.rfqs.comparison_hint' | translate }}</p>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'purchasing.rfqs.supplier' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.rfqs.net' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.rfqs.total' | translate }}</th>
+                <th>{{ 'purchasing.rfqs.valid_until' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.rfqs.lead_time' | translate }}</th>
+                <th>{{ 'purchasing.rfqs.standing' | translate }}</th>
+                <th>{{ 'common.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (q of cmp.quotes; track q.quoteId) {
+                <tr>
+                  <td>{{ q.supplierName ?? nameOf(q.supplierId) }}</td>
+                  <td class="numeric">{{ q.subtotal | vxMoney: cmp.currencyCode }}</td>
+                  <td class="numeric">{{ q.total | vxMoney: cmp.currencyCode }}</td>
+                  <td>{{ q.validUntil | vxDate }}</td>
+                  <td class="numeric">{{ q.leadTimeDays ?? '—' }}</td>
+                  <td>
+                    @if (q.status !== 'RECEIVED') {
+                      <vx-badge [tone]="q.status === 'AWARDED' ? 'ok' : 'neutral'">{{ 'purchasing.rfqs.quote_status.' + q.status | translate }}</vx-badge>
+                    } @else if (q.cheapest) {
+                      <vx-badge tone="ok">{{ 'purchasing.rfqs.cheapest' | translate }}</vx-badge>
+                    } @else if (!q.complete) {
+                      <vx-badge tone="warning">{{ 'purchasing.rfqs.incomplete' | translate }}</vx-badge>
+                    } @else if (!q.current) {
+                      <vx-badge tone="danger">{{ 'purchasing.rfqs.expired' | translate }}</vx-badge>
+                    } @else if (!q.supplierActive) {
+                      <vx-badge tone="danger">{{ 'purchasing.rfqs.blocked' | translate }}</vx-badge>
+                    } @else {
+                      <vx-badge tone="neutral">{{ 'purchasing.rfqs.eligible' | translate }}</vx-badge>
+                    }
+                  </td>
+                  <td>
+                    @if (rfq.status === 'SENT' && q.eligible) {
+                      <button type="button" class="link-button" *appHasPermission="'procurement:approve'" [disabled]="busy()" (click)="award(q.quoteId, q.cheapest)">
+                        {{ 'purchasing.rfqs.award' | translate }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="7">{{ 'purchasing.rfqs.no_quotes' | translate }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</vx-list-shell>

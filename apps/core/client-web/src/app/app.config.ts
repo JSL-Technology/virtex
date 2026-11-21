@@ -1,4 +1,4 @@
-import { VirtexTranslateStore, VirtexMissingTranslationHandler } from '@virteex/shared/ui-i18n';
+import { VirtexTranslateStore, VirtexMissingTranslationHandler } from '@virtex/shared/ui-i18n';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -11,7 +11,7 @@ import {
   TranslateLoader,
   TranslateStore,
 } from '@ngx-translate/core';
-import { DEFAULT_LANGUAGE } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE } from '@virtex/shared/types';
 import { TranslatedTitleStrategy } from './core/i18n/page-title.strategy';
 import { LazyTranslateLoader } from './core/i18n/translate-loader';
 import { RegionalLocaleEffect } from './core/i18n/regional-locale.effect';

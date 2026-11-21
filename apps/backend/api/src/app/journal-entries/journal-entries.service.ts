@@ -32,7 +32,6 @@ import { StorageService } from '../storage/storage.service';
 import { JournalEntryAttachment } from './entities/journal-entry-attachment.entity';
 import { ModuleSlug } from './accounting-posting.port';
 import { resolvePostingPeriod } from '../accounting/period-status';
-import { BudgetControlService } from '../budgets/budget-control.service';
 import { toIsoDate } from '../common/dates';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
@@ -53,12 +52,7 @@ import {
   FastifyFile,
   toUploadableFile,
 } from '../common/interfaces/fastify-file.interface';
-import {
-  BadRequestError,
-  ConflictError,
-  ForbiddenError,
-  NotFoundError,
-} from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import {
   MoneyError,
   convert,
@@ -79,6 +73,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { PostingContext } from './accounting-posting.port';
 import { JOURNAL_ENTRY_LIST_SORT, JournalEntryListSort } from './dto/journal-entry-list-query.dto';
 import { describeEntryOrigin } from './entry-origin';
+import { BudgetControlRegistry, budgetLimitsPosting } from '../contracts/budget-control/budget-control.contract';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -106,7 +101,7 @@ export class JournalEntriesService {
      * absent the budget is simply not consulted, which is the behaviour every path had before.
      */
     @Optional()
-    private readonly budgetControl?: BudgetControlService,
+    private readonly budgetControl?: BudgetControlRegistry,
     /**
      * The narrative on a system-generated entry, in the tenant's books language.
      *
@@ -267,7 +262,6 @@ export class JournalEntriesService {
     createDto: CreateJournalEntryDto,
     organizationId: string,
     context: PostingContext,
-    options: { reversal?: boolean } = {},
   ): Promise<{ entry: JournalEntry; totalDebit: number }> {
     const { lines, date, journalId, currencyCode, exchangeRate, ledgerId: requestedLedgerId, ...entryData } =
       createDto;
@@ -409,7 +403,7 @@ export class JournalEntriesService {
         );
       }
       if (account.isBlockedForPosting) {
-        throw new ForbiddenError(
+        throw new ConflictError(
           'journal_entries.account_code_p2_locked_new_transactions',
           { code: account.code, p2: this.accountLabel(account) },
         );
@@ -438,15 +432,15 @@ export class JournalEntriesService {
       .getOne();
 
     if (locked) {
-      throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
+      throw new ConflictError('accounting.account_code_locked_transactions_period_name', {
         code: locked.account?.code ?? locked.accountId,
         name: period.name,
       });
     }
 
-    // Dimension tags name an active dimension and one of its active values. A reversal carries
-    // the original's tags as they were — a value retired since must not stop a void.
-    if (!options.reversal) {
+    // Dimension tags name an active dimension and one of its active values. Tags copied from the
+    // ledger are carried as they are (`PostingContext.tagsFromLedger`, where the rule is written).
+    if (!context.tagsFromLedger) {
       const tags = await normaliseDimensionTags(manager, organizationId, normalizedLines);
       normalizedLines.forEach((line, index) => {
         line.dimensions = tags[index];
@@ -479,7 +473,7 @@ export class JournalEntriesService {
         currencyCode as string,
         baseCurrency,
         toIsoDate(entryDate),
-        exchangeRate === undefined ? null : this.amount(exchangeRate, 'exchangeRate'),
+        exchangeRate === undefined || exchangeRate === null ? null : this.rate(exchangeRate),
       );
       rate = resolvedRate.rate;
     }
@@ -521,6 +515,7 @@ export class JournalEntriesService {
     const mappingRules = await this.mappingRulesBySource(manager, organizationId);
 
     const finalLines: JournalEntryLine[] = [];
+    const lineRateChecks = new Map<string, Promise<ResolvedRate>>();
     let convertedDebitCents = 0;
     let convertedCreditCents = 0;
 
@@ -558,10 +553,32 @@ export class JournalEntriesService {
         // currencies by construction. Those entries used to store no document amount at all, so
         // `foreignCurrencyBalancesAsOf` — what the period-end revaluation restates — never saw a
         // single bank transfer.
-        line.currencyCode = lineDto.currencyCode.toUpperCase();
-        line.foreignCurrencyDebit = lineDto.foreignCurrencyDebit ?? 0;
-        line.foreignCurrencyCredit = lineDto.foreignCurrencyCredit ?? 0;
-        line.exchangeRate = lineDto.exchangeRate;
+        //
+        // Those document amounts and the rate are checked, never stored as sent (audit 2026-11-07,
+        // FIN-JE-01; pattern SP-04): `{debit: 100, foreignCurrencyDebit: 1, exchangeRate: 999}` was
+        // accepted, and the revaluation then restated a dollar balance that never existed.
+        const checked = await this.checkLineCurrency(manager, organizationId, baseCurrency, toIsoDate(entryDate), lineDto, {
+          system: Boolean(context.systemReason),
+          rateCache: lineRateChecks,
+        });
+        line.currencyCode = checked.currencyCode;
+        line.foreignCurrencyDebit = checked.foreignDebit;
+        line.foreignCurrencyCredit = checked.foreignCredit;
+        line.exchangeRate = checked.rate ?? undefined;
+      }
+
+      // An account with a currency takes lines in that currency only (FIN-AC-03): a peso bank
+      // account's ledger account does not take a dollar entry, nor a dollar one a peso entry. The
+      // audit posted dollars onto a peso account and nothing objected.
+      const account = accountMap.get(lineDto.accountId);
+      const lineCurrency = (line.currencyCode ?? baseCurrency).toUpperCase();
+      if (account?.currency && account.currency.toUpperCase() !== lineCurrency) {
+        throw new BadRequestError('journal_entries.line_currency_differs_from_account', {
+          code: account.code,
+          account: this.accountLabel(account),
+          accountCurrency: account.currency.toUpperCase(),
+          lineCurrency,
+        });
       }
 
       convertedDebitCents += toCents(line.debit);
@@ -755,6 +772,105 @@ export class JournalEntriesService {
     });
   }
 
+  /**
+   * A stated exchange rate, at the six decimals the `exchange_rate` columns keep. It used to go
+   * through `amount()`, which rounds to cents: 58.4567 became 58.46, the tolerance check then
+   * compared the wrong number, and a rate below 0.005 (JPY→USD, COP→USD) rounded to 0 and was
+   * refused as non-positive (audit 2026-11-07, XF-09).
+   */
+  /**
+   * A line that states its own currency (FIN-JE-01). `debit`/`credit` are the ledger amounts and
+   * stay the caller's — only it knows at which of several rates a cross-currency transfer settled —
+   * but what the line says about the document is held to them:
+   *
+   *  - the document amount is on the same side as the ledger amount, and not negative;
+   *  - ledger = document × rate, to the cent; with no rate stated, the rate IS ledger ÷ document;
+   *  - a rate a person typed is within the tenant's tolerance of the published quote for the day,
+   *    exactly as the entry-level rate is. A system posting brings a rate the resolver already gave it;
+   *  - a line in the books' own currency carries the same amount at rate 1;
+   *  - a ledger amount with no document amount is a translation adjustment, which only the
+   *    revaluation writes: a person cannot post one.
+   */
+  private async checkLineCurrency(
+    manager: EntityManager,
+    organizationId: string,
+    baseCurrency: string,
+    date: string,
+    lineDto: CreateJournalEntryLineDto,
+    options: { system: boolean; rateCache: Map<string, Promise<ResolvedRate>> },
+  ): Promise<{ currencyCode: string; foreignDebit: number; foreignCredit: number; rate: number | null }> {
+    const currencyCode = (lineDto.currencyCode as string).toUpperCase();
+    const debitCents = toCents(lineDto.debit ?? 0);
+    const creditCents = toCents(lineDto.credit ?? 0);
+    const foreignDebit = lineDto.foreignCurrencyDebit ?? 0;
+    const foreignCredit = lineDto.foreignCurrencyCredit ?? 0;
+    const foreignCents = toCents(foreignDebit) + toCents(foreignCredit);
+    const ledgerCents = debitCents + creditCents;
+
+    if ((toCents(foreignDebit) > 0 && debitCents === 0) || (toCents(foreignCredit) > 0 && creditCents === 0)) {
+      throw new BadRequestError('journal_entries.line_currency_side_mismatch', { currency: currencyCode });
+    }
+
+    if (currencyCode === baseCurrency.toUpperCase()) {
+      if (toCents(foreignDebit) !== debitCents || toCents(foreignCredit) !== creditCents) {
+        throw new BadRequestError('journal_entries.line_currency_base_amount_mismatch', { currency: currencyCode });
+      }
+      return { currencyCode, foreignDebit, foreignCredit, rate: 1 };
+    }
+
+    if (foreignCents === 0) {
+      if (ledgerCents > 0 && !options.system) {
+        throw new BadRequestError('journal_entries.line_currency_amount_required', { currency: currencyCode });
+      }
+      const rate = lineDto.exchangeRate;
+      if (rate !== undefined && rate !== null && !(rate > 0)) {
+        throw new BadRequestError('journal_entries.positive_exchange_rate_required_foreign_currency');
+      }
+      return { currencyCode, foreignDebit: 0, foreignCredit: 0, rate: rate ?? null };
+    }
+
+    const stated = lineDto.exchangeRate;
+    const rate = stated !== undefined && stated !== null ? Number(stated) : ledgerCents / foreignCents;
+    if (!(rate > 0) || !Number.isFinite(rate)) {
+      throw new BadRequestError('journal_entries.positive_exchange_rate_required_foreign_currency');
+    }
+    // One cent of slack per side: the caller rounded the conversion to the minor unit.
+    const expectedDebit = toCents(convert(foreignDebit, rate));
+    const expectedCredit = toCents(convert(foreignCredit, rate));
+    if (Math.abs(expectedDebit - debitCents) > 1 || Math.abs(expectedCredit - creditCents) > 1) {
+      throw new BadRequestError('journal_entries.line_currency_amount_inconsistent', {
+        currency: currencyCode,
+        foreign: roundAmount(foreignCents / 100),
+        rate: roundAmount(rate, 6),
+        expected: roundAmount((expectedDebit + expectedCredit) / 100),
+        ledger: roundAmount(ledgerCents / 100),
+      });
+    }
+
+    if (!options.system) {
+      // Each distinct rate is checked once per entry, against the quote for the entry's date.
+      const key = `${currencyCode}:${roundAmount(rate, 6)}`;
+      let check = options.rateCache.get(key);
+      if (!check) {
+        check = this.rates.resolveForPosting(manager, organizationId, currencyCode, baseCurrency, date, roundAmount(rate, 6));
+        options.rateCache.set(key, check);
+      }
+      await check;
+    }
+    return { currencyCode, foreignDebit, foreignCredit, rate: roundAmount(rate, 6) };
+  }
+
+  private rate(value: unknown): number {
+    try {
+      return roundAmount(requireFiniteAmount(value, 'exchangeRate'), 6);
+    } catch (error) {
+      if (error instanceof MoneyError) {
+        throw new BadRequestError('journal_entries.amount_field_not_valid_number', { field: 'exchangeRate', detail: error.message });
+      }
+      throw error;
+    }
+  }
+
   private amount(value: unknown, field: string): number {
     try {
       return roundAmount(requireFiniteAmount(value, field));
@@ -908,31 +1024,23 @@ export class JournalEntriesService {
     for (const line of lines) {
       const account = accountMap.get(line.accountId);
       if (!account) continue;
+      // A budget on revenue, a liability or equity is a target, not a limit (FINB-20): it used to
+      // consume «in the account's natural sense», so selling more than budgeted refused the sale.
+      if (!budgetLimitsPosting(account.type)) continue;
 
-      // The movement in the account's natural sense. A credit to an expense account gives budget
-      // back; only the consuming direction is checked.
-      const creditNatured =
-        account.type === AccountType.REVENUE ||
-        account.type === AccountType.LIABILITY ||
-        account.type === AccountType.EQUITY;
-      const consumed = creditNatured ? line.credit - line.debit : line.debit - line.credit;
+      // Spending is a debit to an expense or an asset; a credit to one gives budget back, and only
+      // the consuming direction is checked.
+      const consumed = line.debit - line.credit;
       if (consumed <= 0) continue;
 
-      const check = await this.budgetControl.checkBudget(
-        organizationId,
-        line.accountId,
-        consumed,
-        entryDate,
-        line.dimensions,
+      // Refused, let through with a warning, or only measured — the company's budget control
+      // decides, the same way for the journal and for a supplier bill.
+      await this.budgetControl.enforce(
         manager,
+        organizationId,
+        { accountId: line.accountId, amount: consumed, date: entryDate, dimensions: line.dimensions },
+        { refusalKey: 'journal_entries.entry_exceeds_budget_detail', source: 'journal', actorUserId: context.actorUserId ?? null },
       );
-
-      if (check.isExceeded) {
-        throw new ForbiddenError('journal_entries.entry_exceeds_budget_detail', {
-          detail: check.messageKey,
-          ...(check.messageParams ?? {}),
-        });
-      }
     }
   }
 
@@ -1127,7 +1235,7 @@ export class JournalEntriesService {
       throw new BadRequestError('journal_entries.entry_has_already_reversed');
     }
     if (original.lines.some((line) => line.isReconciled)) {
-      throw new ForbiddenError(
+      throw new ConflictError(
         'journal_entries.entry_containing_reconciled_lines_cannot_reversed',
       );
     }
@@ -1172,8 +1280,8 @@ export class JournalEntriesService {
       manager,
       reversalDto,
       organizationId,
-      { ...context, systemReason: context.systemReason ?? 'reversal' },
-      { reversal: true },
+      // A reversal carries the original's tags as they were.
+      { ...context, systemReason: context.systemReason ?? 'reversal', tagsFromLedger: true },
     );
     prepared.entry.reversesEntryId = original.id;
     const reversal = await this.markPosted(
@@ -1288,12 +1396,12 @@ export class JournalEntriesService {
       // The accounting of a document is corrected from the document (see `entry-origin.ts`).
       const origin = describeEntryOrigin(original);
       if (origin.locked) {
-        throw new ForbiddenError('journal_entries.generated_entry_correct_from_source', {
+        throw new ConflictError('journal_entries.generated_entry_correct_from_source', {
           reason: origin.reason,
         });
       }
       if (original.lines.some((line) => line.isReconciled)) {
-        throw new ForbiddenError(
+        throw new ConflictError(
           'journal_entries.entry_containing_reconciled_lines_cannot_modified',
         );
       }

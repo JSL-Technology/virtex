@@ -9,9 +9,10 @@ import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
+import { DialogService } from '../../../../core/services/dialog.service';
 import {
   PurchaseOrder,
   PurchaseOrderStatus,
@@ -23,7 +24,7 @@ import { Supplier } from '../../../../core/models/supplier.model';
 import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxLifecycleStripComponent } from '../../../../shared/components/lifecycle-strip';
 import { VxAmountComponent } from '../../../../shared/components/amount';
@@ -84,6 +85,7 @@ export class PurchaseOrderFormPage implements OnInit {
   private readonly suppliersApi = inject(SuppliersService);
   private readonly inventory = inject(InventoryService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
   private readonly locale = inject(LocaleStore);
   private readonly currencies = inject(CurrenciesService);
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
@@ -392,6 +394,21 @@ export class PurchaseOrderFormPage implements OnInit {
       next: (receipts) => this.receipts.set(receipts),
       error: () => this.receipts.set([]),
     });
+  }
+
+  /** The order will not be delivered in full: close what is outstanding, keep what arrived (CMP-15). */
+  readonly canClose = computed(() => this.status() === 'SENT' || this.status() === 'PARTIALLY_RECEIVED');
+
+  async closeOrder(): Promise<void> {
+    const reason = await this.dialog.prompt({
+      title: 'purchasing.orders.form.close_title',
+      message: 'purchasing.orders.form.close_message',
+      placeholder: 'purchasing.orders.form.close_reason',
+      minLength: 3,
+      tooShort: 'purchasing.orders.form.close_reason_too_short',
+    });
+    if (!reason) return;
+    this.act(this.purchasing.closeOrder(this.current()!.id, reason.trim()), 'purchasing.orders.form.done.closed');
   }
 
   startCancel(): void { this.cancelling.set(true); }

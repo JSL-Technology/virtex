@@ -1,23 +1,21 @@
 
 import { Injectable } from '@nestjs/common';
-import { In, DataSource } from 'typeorm';
-import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
 import {
   GeneralLedgerReportDto,
   MAX_LEDGER_REPORT_ACCOUNTS,
   MAX_LEDGER_REPORT_DAYS,
 } from '../journal-entries/dto/general-ledger-report.dto';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
-import { Ledger } from '../accounting/entities/ledger.entity';
 import { CustomerPaymentsService } from '../customers/customer-payments.service';
-import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import type { AgingReport } from '../shared/statements/aging-report';
+import type { AgingReportDto } from './dto/aging-report.dto';
+import { BadRequestError } from '../i18n/localized.exception';
 import {
   LedgersService,
   JournalReport,
   JournalReportLine,
   JournalReportEntry,
 } from '../accounting/ledgers.service';
-import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { daysBetween, toIsoDate } from '../common/dates';
 
 // Re-export the canonical types so consumers that already import from here keep compiling.
@@ -27,104 +25,23 @@ export type { JournalReport, JournalReportLine, JournalReportEntry };
 export class ReportsService {
   constructor(
     private readonly ledgersService: LedgersService,
-    private readonly orgSettingsService: OrgSettingsService,
     private readonly customerPayments: CustomerPaymentsService,
-    private readonly dataSource: DataSource,
   ) {}
 
-  async getAgingReport(organizationId: string, ledgerId?: string): Promise<any> {
-    const today = new Date();
-    let targetLedger: Ledger | null;
-
-    if (ledgerId) {
-      // LedgersService.findOne already throws NotFoundError when the ledger is missing.
-      // We rethrow under the reports-specific key so the API response stays backward-compatible.
-      try {
-        targetLedger = await this.ledgersService.findOne(ledgerId, organizationId);
-      } catch {
-        throw new NotFoundError('reports.ledger_ledger_id_not_found', { ledgerId });
-      }
-    } else {
-      targetLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
-    }
-
-    if (!targetLedger) {
-        throw new BadRequestError('reports.ledger_report_could_not_determined_none');
-    }
-
-    const settings = await this.orgSettingsService.getForOrg(organizationId);
-    if (!settings || !settings.defaultAccountsReceivableId) {
-        throw new BadRequestError('reports.default_accounts_receivable_account_not_configured');
-    }
-    const arAccountId = settings.defaultAccountsReceivableId;
-
-    const openInvoices = await this.dataSource.getRepository(Invoice).find({
-      where: {
-        organizationId,
-        status: In([InvoiceStatus.PENDING, InvoiceStatus.PARTIALLY_PAID]),
-      },
-      relations: ['customer'],
+  /**
+   * The receivables ageing, delegated.
+   *
+   * This module had its own ageing — by ledger, in four fixed buckets — and it answered 500 whenever
+   * a tenant had an open invoice: it joined a `payment.journalEntry` relation the payment entity does
+   * not have (IA-B02). The screen had long used the receivables module's report, which ages each
+   * document at the closing rate of the cut-off and respects the reader's branches. One ageing is
+   * the right number; this is the report builder's entry point to it.
+   */
+  receivablesAging(organizationId: string, options: AgingReportDto, actorUserId: string): Promise<AgingReport> {
+    return this.customerPayments.aging(organizationId, options.asOfDate ?? new Date(), {
+      branchId: options.branchId,
+      actorUserId,
     });
-
-    if (openInvoices.length === 0) {
-        return { messageKey: 'reports.no_outstanding_invoices_build_report_from' };
-    }
-
-    // How much has been collected against each open invoice, valued in this ledger at the AR control
-    // account. Owned by the customers module (it owns the receipt→invoice link); read here through
-    // its service contract rather than by querying CustomerPaymentLine, which the reports boundary
-    // forbids.
-    const paymentsByInvoice = await this.customerPayments.paidAmountsByInvoice(
-      openInvoices.map((invoice) => invoice.id),
-      arAccountId,
-      targetLedger.id,
-    );
-
-    const report = {
-      reportDate: today.toISOString(),
-      ledger: { id: targetLedger.id, name: targetLedger.name },
-      buckets: {
-        '0-30': { amount: 0, count: 0, invoices: [] as any[] },
-        '31-60': { amount: 0, count: 0, invoices: [] as any[] },
-        '61-90': { amount: 0, count: 0, invoices: [] as any[] },
-        '91+': { amount: 0, count: 0, invoices: [] as any[] },
-      },
-      total: { amount: 0, count: 0 },
-    };
-
-    openInvoices.forEach(invoice => {
-        const totalInLedger = invoice.totalInBaseCurrency;
-        const paidInLedger = paymentsByInvoice.get(invoice.id) || 0;
-        const recalculatedBalance = totalInLedger - paidInLedger;
-
-        if (recalculatedBalance <= 0.01) return;
-
-        const dueDate = new Date(invoice.dueDate);
-        const daysOverdue = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 3600 * 24));
-        let bucketKey: keyof typeof report.buckets = '0-30';
-
-        if (daysOverdue > 90) bucketKey = '91+';
-        else if (daysOverdue > 60) bucketKey = '61-90';
-        else if (daysOverdue > 30) bucketKey = '31-60';
-        
-        const invoiceData = {
-            id: invoice.id,
-            invoiceNumber: invoice.invoiceNumber,
-            customerName: invoice.customer.companyName,
-            dueDate: invoice.dueDate,
-            balance: recalculatedBalance
-        };
-        
-        const bucket = report.buckets[bucketKey];
-        bucket.amount += recalculatedBalance;
-        bucket.count++;
-        bucket.invoices.push(invoiceData);
-
-        report.total.amount += recalculatedBalance;
-        report.total.count++;
-    });
-
-    return report;
   }
 
   /**

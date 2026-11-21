@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 import { CheckCircle, LucideAngularModule, PlusCircle, RotateCcw, RotateCw, Send, ShoppingCart, XCircle } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of, startWith, switchMap } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import {
   PurchaseRequisition,

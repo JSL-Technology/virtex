@@ -26,7 +26,7 @@ module.exports = async function globalSetup(): Promise<void> {
     '  │                                                                             │',
     '  │     Run them locally with a throwaway database:                             │',
     '  │       docker compose -f docker-compose.test.yml up -d                       │',
-    '  │       DB_HOST=localhost DB_NAME=virteex_test DB_USERNAME=postgres \\         │',
+    '  │       DB_HOST=localhost DB_NAME=virtex_test DB_USERNAME=postgres \\         │',
     '  │         DB_PASSWORD=postgres npx nx test api                                │',
     '  └───────────────────────────────────────────────────────────────────────────┘',
     '',

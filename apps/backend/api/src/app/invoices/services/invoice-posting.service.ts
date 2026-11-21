@@ -21,6 +21,7 @@ import { LedgerLookupService } from '../../accounting/services/ledger-lookup.ser
 import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import type { Ledger } from '../../accounting/entities/ledger.entity';
+import type { SystemJournalCode } from '../../contracts/ledger-posting/system-journals';
 
 /**
  * Turns a sales document into a balanced ledger entry.
@@ -93,6 +94,22 @@ export class InvoicePostingService {
     return invoice;
   }
 
+  /**
+   * Cancel an issued invoice without a credit note (audit 2026-11-07, FAC-INV-05): the mirror of its
+   * revenue and cost entries, dated the day it is cancelled — the period it was issued in may
+   * already be closed or declared — with keys of their own, so a retry does not post them twice
+   * and they are never mistaken for the issue's.
+   */
+  async postCancellation(invoice: Invoice, date: string, manager: EntityManager): Promise<{ revenueEntryId: string | null; costEntryId: string | null }> {
+    const settings = await this.requireSettings(invoice.organizationId, manager);
+    const ledger = await this.requireDefaultLedger(invoice.organizationId, manager);
+    const cancellation = { date };
+    return {
+      revenueEntryId: await this.postRevenue(invoice, settings, ledger, manager, true, cancellation),
+      costEntryId: await this.postCost(invoice, settings, ledger, manager, true, cancellation),
+    };
+  }
+
   // ── Revenue / receivable ───────────────────────────────────────────────────
 
   private async postRevenue(
@@ -101,6 +118,7 @@ export class InvoicePostingService {
     ledger: Ledger,
     manager: EntityManager,
     isCredit: boolean,
+    cancellation?: { date: string },
   ): Promise<string | null> {
     const currency = invoice.currencyCode;
     const debits: PostingLine[] = [];
@@ -220,8 +238,8 @@ export class InvoicePostingService {
 
     const journal = await this.requireJournal(invoice.organizationId, 'VENTAS', manager);
     const dto: CreateJournalEntryDto = {
-      date: new Date(`${invoice.issueDate}T00:00:00.000Z`).toISOString(),
-      description: await this.describe(manager, invoice),
+      date: new Date(`${cancellation?.date ?? invoice.issueDate}T00:00:00.000Z`).toISOString(),
+      description: cancellation ? await this.describeCancellation(manager, invoice) : await this.describe(manager, invoice),
       journalId: journal.id,
       currencyCode: currency,
       exchangeRate: invoice.exchangeRate,
@@ -235,8 +253,8 @@ export class InvoicePostingService {
       {
         actorUserId: null,
         module: ModuleSlug.AR,
-        systemReason: 'invoice-issued',
-        idempotencyKey: `invoice:${invoice.id}:revenue`,
+        systemReason: cancellation ? 'invoice-cancelled' : 'invoice-issued',
+        idempotencyKey: cancellation ? `invoice:${invoice.id}:cancellation-revenue` : `invoice:${invoice.id}:revenue`,
       },
     );
     this.logger.log(
@@ -253,6 +271,7 @@ export class InvoicePostingService {
     ledger: Ledger,
     manager: EntityManager,
     isCredit: boolean,
+    cancellation?: { date: string },
   ): Promise<string | null> {
     const cost = roundToCurrency(invoice.costOfSale, settings.baseCurrency);
     if (cost <= 0) return null;
@@ -279,12 +298,12 @@ export class InvoicePostingService {
     ];
 
     const dto: CreateJournalEntryDto = {
-      date: new Date(`${invoice.issueDate}T00:00:00.000Z`).toISOString(),
+      date: new Date(`${cancellation?.date ?? invoice.issueDate}T00:00:00.000Z`).toISOString(),
       description: await this.narrative.describe(
         manager,
         invoice.organizationId,
         'ledger.sales.cost_of',
-        { document: await this.describe(manager, invoice) },
+        { document: cancellation ? await this.describeCancellation(manager, invoice) : await this.describe(manager, invoice) },
       ),
       journalId: journal.id,
       currencyCode: settings.baseCurrency,
@@ -299,8 +318,8 @@ export class InvoicePostingService {
       {
         actorUserId: null,
         module: ModuleSlug.AR,
-        systemReason: 'invoice-cost-of-sale',
-        idempotencyKey: `invoice:${invoice.id}:cost`,
+        systemReason: cancellation ? 'invoice-cancelled' : 'invoice-cost-of-sale',
+        idempotencyKey: cancellation ? `invoice:${invoice.id}:cancellation-cost` : `invoice:${invoice.id}:cost`,
       },
     );
     return entry.id;
@@ -379,6 +398,14 @@ export class InvoicePostingService {
     });
   }
 
+  private describeCancellation(manager: EntityManager, invoice: Invoice): Promise<string> {
+    return this.narrative.describe(manager, invoice.organizationId, 'ledger.sales.cancellation', {
+      number: invoice.invoiceNumber,
+      fiscal: invoice.fiscalNumber ? ` (${invoice.fiscalNumber})` : '',
+      customer: invoice.customerName,
+    });
+  }
+
   private async requireSettings(
     organizationId: string,
     manager: EntityManager,
@@ -404,7 +431,7 @@ export class InvoicePostingService {
     return ledger;
   }
 
-  private async requireJournal(organizationId: string, code: string, manager: EntityManager) {
+  private async requireJournal(organizationId: string, code: SystemJournalCode, manager: EntityManager) {
     const journal = await this.journalLookup.findByCode(organizationId, code, manager);
     if (!journal) {
       throw new BadRequestError('invoices.no_journal_code_organization_create_under', { code });

@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import {
   ProfitabilityApiService,
   ProfitabilityReport,
@@ -13,7 +13,7 @@ import { StatementExportService } from '../../../core/export/statement-export.se
 import { defaultPeriod } from '../financial-statements/report-period';
 import { VxDateRangeComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * Gross margin by product.

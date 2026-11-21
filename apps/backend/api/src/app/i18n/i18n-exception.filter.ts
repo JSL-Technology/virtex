@@ -10,7 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 import { I18nService } from './i18n.service';
 import { isLocalizedError } from './localized.exception';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { currentLanguage } from './request-locale';
 import { fieldLabel, fieldLabelKey } from './validation-messages';
 

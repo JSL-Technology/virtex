@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { WithholdingRegimesPage } from './withholding-regimes.page';
 import { MarketCoverage, WithholdingRegime } from '../../../../core/api/fiscal-settings.service';
 import { environment } from '../../../../../environments/environment';
@@ -147,6 +146,27 @@ describe('WithholdingRegimesPage', () => {
     component.save();
 
     httpMock.expectNone((r) => r.method === 'POST');
+  });
+
+  it('says «not applicable» where the market has no such obligation, and keeps two lines of one capability apart', () => {
+    // A market's coverage can state one capability twice (returns it files, and returns it does
+    // not), and an obligation the law does not impose is neither a gap nor an achievement.
+    flush([regime()], {
+      countryCode: 'US',
+      capabilities: [
+        { capability: 'withholding', level: 'not-applicable' },
+        { capability: 'periodicReturns', level: 'implemented', detail: 'Formato A' },
+        { capability: 'periodicReturns', level: 'not-implemented', detail: 'Formato B' },
+      ],
+    });
+    const items: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.w-level'));
+    expect(items.map((item) => item.className)).toEqual([
+      'w-level w-level--not-applicable',
+      'w-level w-level--implemented',
+      'w-level w-level--not-implemented',
+    ]);
+    expect(component.levelKey('not-applicable')).toBe('settings.pages.withholding.coverage.not_applicable');
+    expect(fixture.nativeElement.textContent).toContain('Formato B');
   });
 
   it('still lets the tenant configure regimes when the coverage statement fails to load', () => {

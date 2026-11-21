@@ -1,3 +1,5 @@
+import { CreateDatasheetBookDto, CreateDatasheetVersionDto, UpdateDatasheetBookDto } from '../dto/datasheet-book.dto';
+import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 
 import {
   Controller,
@@ -12,7 +14,6 @@ import {
 import { DatasheetsService } from '../services/datasheets.service';
 import { DatasheetVariablesService } from '../services/datasheet-variables.service';
 import { DatasheetImportService } from '../services/datasheet-import.service';
-import { DatasheetBook } from '../entities/datasheet-book.entity';
 import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../../security/principal';
@@ -71,7 +72,7 @@ export class DatasheetsController {
 
   @Post()
   @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
-  create(@Body() data: Partial<DatasheetBook>, @CurrentUser() user: AuthenticatedUser) {
+  create(@Body() data: CreateDatasheetBookDto, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.create(data, user);
   }
 
@@ -83,15 +84,15 @@ export class DatasheetsController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
-  findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.findOne(id, user);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
   update(
-    @Param('id') id: string,
-    @Body() data: Partial<DatasheetBook>,
+    @Param('id', UuidParamPipe) id: string,
+    @Body() data: UpdateDatasheetBookDto,
     @CurrentUser() user: AuthenticatedUser
   ) {
     return this.datasheetsService.update(id, data, user);
@@ -99,23 +100,23 @@ export class DatasheetsController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
-  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.remove(id, user);
   }
 
   @Post(':id/versions')
   @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
   createVersion(
-    @Param('id') id: string,
-    @Body('comment') comment: string,
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: CreateDatasheetVersionDto,
     @CurrentUser() user: AuthenticatedUser
   ) {
-    return this.datasheetsService.createVersion(id, comment, user);
+    return this.datasheetsService.createVersion(id, dto.comment ?? '', user);
   }
 
   @Get(':id/versions')
   @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
-  getVersions(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  getVersions(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.getVersions(id, user);
   }
 }

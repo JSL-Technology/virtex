@@ -2,8 +2,8 @@ import { Component, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Shield, AlertCircle, KeyRound } from 'lucide-angular';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDialogComponent } from '../dialog';
 import { VxSpinnerComponent } from '../feedback';
 

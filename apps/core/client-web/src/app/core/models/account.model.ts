@@ -1,4 +1,5 @@
 // app/core/models/account.model.ts
+import type { FxTreatment } from '@virtex/shared/types';
 
 // --- TIPOS ENUMERADOS (ENUM TYPES) ---
 // Se cambian a 'enum' para que existan en tiempo de ejecución y se puedan iterar.
@@ -37,12 +38,6 @@ export enum CashFlowCategory {
     NONE = 'NONE',
 }
 
-export type HierarchyType = 'LEGAL' | 'MANAGEMENT' | 'FISCAL';
-export type RequiredDimension = 'COST_CENTER' | 'PROJECT' | 'SEGMENT';
-export type BlockedSource = 'MANUAL' | 'SUB_LEDGER_AR' | 'SUB_LEDGER_AP' | 'SUB_LEDGER_INV';
-export type GaapStandard = 'IFRS' | 'LOCAL_GAAP' | 'US_GAAP';
-
-// La interfaz principal de la cuenta se mantiene sin cambios
 export interface Account {
   id: string;
   code: string;
@@ -75,23 +70,19 @@ export interface Account {
   isExpanded?: boolean;
   hasChildren?: boolean;
 
-  // Campos adicionales para el formulario
+  /**
+   * How the account's foreign-currency balances are measured at each period end (IAS 21): restated
+   * at the closing rate, or kept at their historical rate. Only balance-sheet accounts are revalued.
+   */
+  fxTreatment: FxTreatment;
+  /** ISO 4217. Set: every line on the account is in this currency. Null: lines in any currency. */
+  currency?: string | null;
+  effectiveFrom?: string;
+  effectiveTo?: string | null;
+
   statementMapping?: {
-    balanceSheetCategory: string;
-    incomeStatementCategory: string;
-    cashFlowCategory: CashFlowCategory;
-  };
-  rules?: {
-    requiresReconciliation: boolean;
-    isCashOrBank: boolean;
-    allowsIntercompany: boolean;
-    isFxRevaluation: boolean;
-    requiredDimensions: RequiredDimension[];
-  };
-  advanced?: {
-    version: number;
-    hierarchyType: string;
-    effectiveFrom: Date;
-    effectiveTo?: Date;
+    balanceSheetCategory?: string;
+    incomeStatementCategory?: string;
+    cashFlowCategory?: CashFlowCategory;
   };
 }

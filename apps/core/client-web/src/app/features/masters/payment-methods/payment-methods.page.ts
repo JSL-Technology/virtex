@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
@@ -16,7 +16,7 @@ import {
   SETTLEMENT_KINDS,
 } from '../../../core/api/payment-methods.service';
 import type { PaymentMethod as SettlementKind } from '../../../core/services/invoices';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * The company's payment methods.

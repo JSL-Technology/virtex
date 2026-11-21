@@ -15,9 +15,9 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Sparkles, X, Plus, History, Trash2, SendHorizontal, Check, ArrowLeft, Square, ThumbsUp, ThumbsDown, Flag, TriangleAlert } from 'lucide-angular';
 import { Subscription } from 'rxjs';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import {
   CopilotApiService,
   CopilotCapability,

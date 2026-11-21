@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Calculator, LucideAngularModule, RotateCw, UserPlus } from 'lucide-angular';
 import { forkJoin, catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import {
   Department,
   Employee,

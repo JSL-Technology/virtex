@@ -44,6 +44,16 @@ export enum PayrollRunType {
  *
  * `journalEntryId` links the posted accounting entry; the posting is idempotent on `payroll:{id}`.
  */
+/** Something the calculation of a run found unusual (NOM-05). */
+export interface PayrollRunWarning {
+  kind: 'INPUT_ABOVE_MONTHLY_SALARY';
+  employeeId: string;
+  employeeName: string;
+  conceptCode: string;
+  amount: number;
+  monthlyBaseSalary: number;
+}
+
 @Entity('payroll_runs')
 @Index('IDX_payroll_run_org_period', ['organizationId', 'periodYear', 'periodMonth', 'runType'])
 /*
@@ -94,6 +104,14 @@ export class PayrollRun extends BaseEntity {
   status: PayrollRunStatus;
 
   /** Frozen copy of the statutory parameters used, so the run reproduces regardless of later change. */
+  /**
+   * What the calculation found unusual (NOM-05), for the approver to see before money moves:
+   * today, a variable input paying more than the employee's monthly salary. Approving a run that
+   * has any takes an explicit acknowledgement.
+   */
+  @Column({ name: 'calculation_warnings', type: 'jsonb', default: [] })
+  calculationWarnings: PayrollRunWarning[];
+
   @Column({ name: 'parameter_snapshot', type: 'jsonb', nullable: true })
   parameterSnapshot: unknown | null;
 

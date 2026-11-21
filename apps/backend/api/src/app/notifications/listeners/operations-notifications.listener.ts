@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
-import { LanguageCode, matchLanguage } from '@virteex/shared/types';
+import { LanguageCode, matchLanguage } from '@virtex/shared/types';
 import { PERMISSIONS } from '../../shared/permissions';
 import {
   PAYROLL_RUN_APPROVED,

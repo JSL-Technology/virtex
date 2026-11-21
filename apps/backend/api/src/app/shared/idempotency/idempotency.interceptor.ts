@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Observable, from, of, switchMap } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, from, of, switchMap, throwError } from 'rxjs';
+import { catchError, concatMap } from 'rxjs/operators';
 import { createHash } from 'crypto';
 import { IdempotencyRecord } from './idempotency-record.entity';
 import { BadRequestError, ConflictError } from '../../i18n/localized.exception';
-import { AuthenticatedRequest } from '@virteex/shared/util-auth';
+import { AuthenticatedRequest } from '@virtex/shared/util-auth';
 
 /**
  * Makes a retry safe by remembering the first attempt.
@@ -83,10 +83,27 @@ export class IdempotencyInterceptor implements NestInterceptor {
         }
 
         return next.handle().pipe(
-          tap({
-            next: async (body) => {
-              const response = context.switchToHttp().getResponse<{ statusCode?: number }>();
-              await this.records.update(
+          // A failed attempt must not lock the key: the caller is entitled to fix the cause and try
+          // the same logical operation again. Only a COMPLETED attempt is remembered — and the key
+          // is released before the error reaches the caller, who may retry at once.
+          catchError((error: unknown) =>
+            from(
+              this.records.delete({ id: claim.record.id }).catch((e) => {
+                this.logger.error(`Could not release idempotency key after failure: ${e}`);
+              }),
+            ).pipe(switchMap(() => throwError(() => error))),
+          ),
+          // The attempt is recorded as completed BEFORE the response leaves, on the request's own
+          // connection. It used to be an async `tap` nobody awaited: the update ran after the
+          // response, once the tenant connection had been released, and under row-level security
+          // it matched no row — the key stayed «in progress» and every retry of a request that HAD
+          // succeeded was refused with 409, on the routes that move money. A failure to record is
+          // logged and the result still returned: the operation committed, and releasing the key
+          // would let a retry perform it twice.
+          concatMap(async (body) => {
+            const response = context.switchToHttp().getResponse<{ statusCode?: number }>();
+            await this.records
+              .update(
                 { id: claim.record.id },
                 {
                   status: 'completed',
@@ -94,15 +111,9 @@ export class IdempotencyInterceptor implements NestInterceptor {
                   responseBody: body ?? null,
                   completedAt: new Date(),
                 },
-              );
-            },
-            error: async () => {
-              // A failed attempt must not lock the key: the caller is entitled to fix the cause and
-              // try the same logical operation again. Only a COMPLETED attempt is remembered.
-              await this.records.delete({ id: claim.record.id }).catch((e) => {
-                this.logger.error(`Could not release idempotency key after failure: ${e}`);
-              });
-            },
+              )
+              .catch((e) => this.logger.error(`Could not record the completion of idempotency key ${claim.record.id}: ${e}`));
+            return body;
           }),
         );
       }),

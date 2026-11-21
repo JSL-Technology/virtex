@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, LanguageCode } from '@virtex/shared/types';
 import { I18nService } from '../i18n/i18n.service';
 import { Organization } from '../organizations/entities/organization.entity';
 

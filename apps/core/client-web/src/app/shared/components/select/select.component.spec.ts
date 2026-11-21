@@ -2,7 +2,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { Observable, Subject, of, throwError, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VX_SELECT } from './index';

@@ -21,7 +21,7 @@ import {
   CreateWithholdingRegimeDto,
   UpdateWithholdingRegimeDto,
 } from '../dto/withholding-regime.dto';
-import { coverageFor } from '../fiscal/fiscal-coverage';
+import { coverageFor } from '../../markets';
 import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 import { DataSource } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';

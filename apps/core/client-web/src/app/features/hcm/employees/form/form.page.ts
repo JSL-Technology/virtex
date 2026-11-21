@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Eye } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virtex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   Department,
@@ -21,7 +21,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.service';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { refreshWhenStale } from '../../../../core/data/data-version.service';
 

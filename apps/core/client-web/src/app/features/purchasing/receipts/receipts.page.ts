@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 
 import { Ban, LucideAngularModule, PackagePlus, RotateCw } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -21,7 +21,7 @@ import { SuppliersService } from '../../../core/api/suppliers.service';
 import { Supplier } from '../../../core/models/supplier.model';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { GoodsReceiptRow, GoodsReceiptStatus, PurchasingService } from '../data/purchasing.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 'ok', VOID: 'neutral' };
 

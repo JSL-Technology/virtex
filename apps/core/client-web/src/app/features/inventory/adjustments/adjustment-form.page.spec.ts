@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { of, throwError } from 'rxjs';
 import { InventoryAdjustmentFormPage } from './adjustment-form.page';
 import { InventoryAdjustment, StockService } from '../data/stock.service';

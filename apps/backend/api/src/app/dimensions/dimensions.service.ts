@@ -198,7 +198,7 @@ export class DimensionsService {
   /**
    * Make the dimension's values the ones requested: matched by id, else by code; new ones
    * inserted; missing ones deleted (refused when used); codes renamed (refused when used); then
-   * each parent set, which the closure table follows.
+   * each parent set.
    */
   private async writeValues(
     manager: EntityManager,
@@ -206,7 +206,7 @@ export class DimensionsService {
     existing: DimensionValue[],
     requested: DimensionValueDto[],
   ): Promise<void> {
-    const repository = manager.getTreeRepository(DimensionValue);
+    const repository = manager.getRepository(DimensionValue);
     const byId = new Map(existing.map((value) => [value.id, value]));
     const byCode = new Map(existing.map((value) => [value.value, value]));
     const kept = new Set<string>();

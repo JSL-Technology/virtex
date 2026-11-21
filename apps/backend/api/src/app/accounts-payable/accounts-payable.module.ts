@@ -27,7 +27,6 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
 import { WorkflowsModule } from '../workflows/workflows.module';
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
 import { CurrenciesModule } from '../currencies/currencies.module';
-import { BudgetsModule } from '../budgets/budgets.module';
 import { VendorDebitNotesController } from './vendor-debit-notes.controller';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { PeriodLockModule } from '../accounting/period-lock.module';
@@ -63,7 +62,6 @@ import { AuthModule } from '../auth/auth.module';
     InventoryModule,
     WorkflowsModule,
     CurrenciesModule,
-    BudgetsModule,
     ChartOfAccountsModule,
     WithholdingModule,
     PeriodLockModule,

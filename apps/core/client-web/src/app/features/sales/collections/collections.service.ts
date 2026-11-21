@@ -23,6 +23,8 @@ export interface CollectionsWorklistItem {
   customerId: string;
   customerName: string;
   email: string | null;
+  /** Where a reminder may go: the customer's address, then its contacts' (TES-21). */
+  addresses: string[];
   phone: string | null;
   issueDate: string;
   dueDate: string;
@@ -69,6 +71,8 @@ export interface CollectionActivity {
   recipient: string | null;
   message: string | null;
   tone: ReminderTone | null;
+  /** Days from the due date, when the company's schedule sent it; null when a person did. */
+  scheduleStep: number | null;
 }
 
 export interface LogActivityInput {

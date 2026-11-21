@@ -29,6 +29,21 @@
     "en": "Account created successfully.",
     "pt": "Conta criada com sucesso."
   },
+  "accounting.account_form.account_currency": {
+    "es": "Moneda de la cuenta",
+    "en": "Account currency",
+    "pt": "Moeda da conta"
+  },
+  "accounting.account_form.account_currency_any": {
+    "es": "Cualquier moneda",
+    "en": "Any currency",
+    "pt": "Qualquer moeda"
+  },
+  "accounting.account_form.account_currency_help": {
+    "es": "Si eliges una, todos los movimientos de la cuenta deben ser en esa moneda: la de un banco en dólares, solo dólares.",
+    "en": "If you choose one, every line on the account must be in that currency: a dollar bank account's, dollars only.",
+    "pt": "Se escolher uma, todos os lançamentos da conta devem ser nessa moeda: a de um banco em dólares, só dólares."
+  },
   "accounting.account_form.account_name": {
     "es": "Nombre de la cuenta",
     "en": "Account name",
@@ -59,11 +74,6 @@
     "en": "Advanced settings",
     "pt": "Configurações avançadas"
   },
-  "accounting.account_form.allows_intercompany_transactions": {
-    "es": "Permite transacciones intercompañía",
-    "en": "Allows intercompany transactions",
-    "pt": "Permite transações intercompany"
-  },
   "accounting.account_form.balance_sheet_category": {
     "es": "Categoría de balance general",
     "en": "Balance sheet category",
@@ -74,11 +84,6 @@
     "en": "Cancel",
     "pt": "Cancelar"
   },
-  "accounting.account_form.cash_bank_account": {
-    "es": "Es cuenta de caja o banco",
-    "en": "Cash or bank account",
-    "pt": "Conta de caixa ou banco"
-  },
   "accounting.account_form.cash_flow_category": {
     "es": "Categoría de flujo de efectivo",
     "en": "Cash flow category",
@@ -88,11 +93,6 @@
     "es": "Categoría",
     "en": "Category",
     "pt": "Categoria"
-  },
-  "accounting.account_form.chart_version": {
-    "es": "Versión del catálogo",
-    "en": "Chart version",
-    "pt": "Versão do plano"
   },
   "accounting.account_form.configure_segments": {
     "es": "Configurar segmentos",
@@ -108,6 +108,16 @@
     "es": "Para crear cuentas contables, primero debes definir la estructura de niveles (segmentos) de tu organización.",
     "en": "To create accounts you must first define your organization's level (segment) structure.",
     "pt": "Para criar contas contábeis, primeiro defina a estrutura de níveis (segmentos) da sua organização."
+  },
+  "accounting.account_form.currency_and_revaluation": {
+    "es": "Moneda y revaluación",
+    "en": "Currency and revaluation",
+    "pt": "Moeda e reavaliação"
+  },
+  "accounting.account_form.currency_summary_note": {
+    "es": "Una cuenta de agrupación no recibe movimientos: la moneda y el tratamiento cambiario se definen en sus subcuentas.",
+    "en": "A summary account takes no postings: the currency and the foreign-currency treatment are set on its sub-accounts.",
+    "pt": "Uma conta de agrupamento não recebe lançamentos: a moeda e o tratamento cambial são definidos nas suas subcontas."
   },
   "accounting.account_form.current_assets": {
     "es": "Ej: activos circulantes",
@@ -154,15 +164,30 @@
     "en": "Financial statement mapping",
     "pt": "Mapeamento das demonstrações financeiras"
   },
+  "accounting.account_form.fx_treatment": {
+    "es": "Tratamiento de saldos en moneda extranjera",
+    "en": "Treatment of foreign-currency balances",
+    "pt": "Tratamento de saldos em moeda estrangeira"
+  },
+  "accounting.account_form.fx_treatment_help": {
+    "es": "Las partidas monetarias —bancos, cuentas por cobrar y por pagar, préstamos— se revalúan al cierre; inventario, activos fijos, anticipos, ingresos y gastos quedan a la tasa de su día (NIC 21).",
+    "en": "Monetary items — banks, receivables and payables, loans — are revalued at each close; inventory, fixed assets, advances, revenue and expenses stay at the rate of their day (IAS 21).",
+    "pt": "Itens monetários — bancos, contas a receber e a pagar, empréstimos — são reavaliados no fechamento; estoque, imobilizado, adiantamentos, receitas e despesas ficam à taxa do seu dia (IAS 21)."
+  },
+  "accounting.account_form.fx_treatment_option.historical": {
+    "es": "Queda a la tasa histórica",
+    "en": "Kept at the historical rate",
+    "pt": "Mantida à taxa histórica"
+  },
+  "accounting.account_form.fx_treatment_option.revalued": {
+    "es": "Se revalúa a la tasa de cierre",
+    "en": "Revalued at the closing rate",
+    "pt": "Reavaliada à taxa de fechamento"
+  },
   "accounting.account_form.general": {
     "es": "General",
     "en": "General",
     "pt": "Geral"
-  },
-  "accounting.account_form.hierarchy_type": {
-    "es": "Tipo de jerarquía",
-    "en": "Hierarchy type",
-    "pt": "Tipo de hierarquia"
   },
   "accounting.account_form.income_statement_category": {
     "es": "Categoría de estado de resultados",
@@ -204,11 +229,6 @@
     "en": "Postable account (accepts transactions)",
     "pt": "Conta analítica (aceita lançamentos)"
   },
-  "accounting.account_form.posting_rules": {
-    "es": "Reglas de contabilización",
-    "en": "Posting rules",
-    "pt": "Regras de contabilização"
-  },
   "accounting.account_form.reason_for_change": {
     "es": "Motivo del cambio",
     "en": "Reason for the change",
@@ -219,20 +239,10 @@
     "en": "It is recorded in the account history together with the previous and the new value.",
     "pt": "Fica registrado no histórico da conta junto com o valor anterior e o novo."
   },
-  "accounting.account_form.required_dimensions": {
-    "es": "Dimensiones requeridas",
-    "en": "Required dimensions",
-    "pt": "Dimensões obrigatórias"
-  },
-  "accounting.account_form.requires_reconciliation": {
-    "es": "Requiere reconciliación",
-    "en": "Requires reconciliation",
-    "pt": "Exige conciliação"
-  },
-  "accounting.account_form.rules": {
-    "es": "Reglas",
-    "en": "Rules",
-    "pt": "Regras"
+  "accounting.account_form.required_dimensions_elsewhere": {
+    "es": "Las dimensiones obligatorias de la cuenta se definen en Contabilidad › Dimensiones.",
+    "en": "The account's required dimensions are set in Accounting › Dimensions.",
+    "pt": "As dimensões obrigatórias da conta são definidas em Contabilidade › Dimensões."
   },
   "accounting.account_form.save_account": {
     "es": "Guardar cuenta",
@@ -253,16 +263,6 @@
     "es": "Seleccionar tipo...",
     "en": "Select a type...",
     "pt": "Selecionar tipo..."
-  },
-  "accounting.account_form.set_restrictions_specific_behaviour_account": {
-    "es": "Establece restricciones y comportamientos específicos para esta cuenta.",
-    "en": "Set restrictions and specific behaviour for this account.",
-    "pt": "Defina restrições e comportamentos específicos para esta conta."
-  },
-  "accounting.account_form.subject_exchange_rate_revaluation": {
-    "es": "Aplica revaluación por tipo de cambio",
-    "en": "Subject to exchange-rate revaluation",
-    "pt": "Sujeita a reavaliação cambial"
   },
   "accounting.account_form.title_edit": {
     "es": "Editar cuenta contable",
@@ -655,6 +655,11 @@
     "en": "Inactive",
     "pt": "Inativa"
   },
+  "accounting.chart_of_accounts.load_failed": {
+    "es": "No se pudo cargar el plan de cuentas.",
+    "en": "The chart of accounts could not be loaded.",
+    "pt": "Não foi possível carregar o plano de contas."
+  },
   "accounting.chart_of_accounts.new_account": {
     "es": "Nueva cuenta",
     "en": "New account",
@@ -690,15 +695,20 @@
     "en": "Checklist name",
     "pt": "Nome da lista"
   },
-  "accounting.checklist.items.currency_revaluation": {
-    "es": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
-    "en": "Run the foreign-currency revaluation for the period close.",
-    "pt": "Execute a reavaliação cambial para o fechamento do período."
+  "accounting.checklist.historical_fx_note": {
+    "es": "Correcto para inventario, activos fijos o anticipos. Si alguna es dinero por cobrar, pagar o en banco, márcala como revaluable en el plan de cuentas.",
+    "en": "Right for inventory, fixed assets or advances. If any is money held, receivable or payable, mark its account as revalued in the chart of accounts.",
+    "pt": "Correto para estoque, ativo imobilizado ou adiantamentos. Se alguma for dinheiro a receber, a pagar ou em banco, marque-a como reavaliável no plano de contas."
   },
   "accounting.checklist.items.fixed_assets_depreciation": {
     "es": "Ejecutar la depreciación de activos fijos del período.",
     "en": "Run the fixed-asset depreciation for the period.",
     "pt": "Execute a depreciação do ativo imobilizado do período."
+  },
+  "accounting.checklist.items.historical_fx_balances": {
+    "es": "{{count}} saldos en moneda extranjera quedan a la tasa histórica: {{accounts}}.",
+    "en": "{{count}} foreign-currency balances stay at their historical rate: {{accounts}}.",
+    "pt": "{{count}} saldos em moeda estrangeira ficam à taxa histórica: {{accounts}}."
   },
   "accounting.checklist.items.pending_accrual_reversals": {
     "es": "Devengos pendientes de revertir de períodos anteriores: {{count}}",
@@ -724,6 +734,21 @@
     "es": "No se pudo comprobar el módulo «{{provider}}»; revísalo manualmente antes de cerrar.",
     "en": "Could not check the “{{provider}}” module; review it by hand before closing.",
     "pt": "Não foi possível verificar o módulo «{{provider}}»; revise-o manualmente antes de fechar."
+  },
+  "accounting.checklist.items.revaluation_nothing": {
+    "es": "No hay saldos en moneda extranjera que revaluar al cierre.",
+    "en": "There are no foreign-currency balances to revalue at the close.",
+    "pt": "Não há saldos em moeda estrangeira a reavaliar no fechamento."
+  },
+  "accounting.checklist.items.revaluation_rates_missing": {
+    "es": "Falta la tasa de cierre de {{missing}}: sin ella, el cierre no puede revaluar esos saldos.",
+    "en": "The closing rate for {{missing}} is missing: without it, the close cannot revalue those balances.",
+    "pt": "Falta a taxa de fechamento de {{missing}}: sem ela, o fechamento não pode reavaliar esses saldos."
+  },
+  "accounting.checklist.items.revaluation_ready": {
+    "es": "El cierre revalúa {{count}} saldos en moneda extranjera ({{currencies}}) a la tasa de cierre.",
+    "en": "The close revalues {{count}} foreign-currency balances ({{currencies}}) at the closing rate.",
+    "pt": "O fechamento reavalia {{count}} saldos em moeda estrangeira ({{currencies}}) à taxa de fechamento."
   },
   "accounting.checklist.items.unapproved_vendor_bills": {
     "es": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
@@ -1700,6 +1725,11 @@
     "en": "Sales",
     "pt": "Vendas"
   },
+  "accounting.ledger.account_merge_reclassification": {
+    "es": "Reclasificación por fusión de la cuenta {{source}} en {{destination}}",
+    "en": "Reclassification from merging account {{source}} into {{destination}}",
+    "pt": "Reclassificação por fusão da conta {{source}} em {{destination}}"
+  },
   "accounting.ledger_form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -1830,6 +1860,21 @@
     "en": "The mapping between ledger \"{{source}}\" and \"{{target}}\" has been updated.",
     "pt": "O mapeamento entre o livro \"{{source}}\" e \"{{target}}\" foi atualizado."
   },
+  "accounting.ledger_mapping_account_not_found": {
+    "es": "La regla {{line}} nombra una cuenta que no es de esta empresa.",
+    "en": "Rule {{line}} names an account that does not belong to this company.",
+    "pt": "A regra {{line}} indica uma conta que não é desta empresa."
+  },
+  "accounting.ledger_mapping_same_ledger": {
+    "es": "Una regla de mapeo lleva los importes de un libro a otro distinto: el libro de origen y el de destino no pueden ser el mismo.",
+    "en": "A mapping rule carries amounts from one ledger to another: the source and the target ledger cannot be the same.",
+    "pt": "Uma regra de mapeamento leva os valores de um livro a outro: o livro de origem e o de destino não podem ser o mesmo."
+  },
+  "accounting.ledger_mapping_source_repeated": {
+    "es": "La regla {{line}} repite la cuenta de origen de la regla {{first}}: entre dos libros, cada cuenta se mapea una sola vez.",
+    "en": "Rule {{line}} repeats the source account of rule {{first}}: between two ledgers, each account is mapped once.",
+    "pt": "A regra {{line}} repete a conta de origem da regra {{first}}: entre dois livros, cada conta é mapeada uma única vez."
+  },
   "accounting.merge_tool.account": {
     "es": "Cuenta",
     "en": "Account",
@@ -1935,6 +1980,11 @@
     "en": "Posted balance",
     "pt": "Saldo contabilizado"
   },
+  "accounting.merge_tool.posted_lines_kept": {
+    "es": "{{count}} línea(s) ya contabilizada(s) se quedan en la cuenta de origen: no se reescribe historia.",
+    "en": "{{count}} posted line(s) stay on the source account: history is not rewritten.",
+    "pt": "{{count}} linha(s) já contabilizada(s) permanecem na conta de origem: o histórico não é reescrito."
+  },
   "accounting.merge_tool.reason": {
     "es": "Motivo",
     "en": "Reason",
@@ -1944,6 +1994,11 @@
     "es": "Queda en la pista de auditoría de la cuenta.",
     "en": "Recorded in the account's audit trail.",
     "pt": "Fica registrado na trilha de auditoria da conta."
+  },
+  "accounting.merge_tool.reclassification_entry": {
+    "es": "El saldo contabilizado se traslada con un asiento de reclasificación con fecha de hoy.",
+    "en": "The posted balance is moved with a reclassification entry dated today.",
+    "pt": "O saldo contabilizado é transferido com um lançamento de reclassificação datado de hoje."
   },
   "accounting.merge_tool.search_code_name": {
     "es": "Buscar por código o nombre",
@@ -2055,6 +2110,11 @@
     "en": "Accounting period \"{{name}}\" has been closed.",
     "pt": "O período contábil \"{{name}}\" foi encerrado."
   },
+  "accounting.period_has_not_ended_yet": {
+    "es": "{{name}} termina el {{endDate}} y todavía no ha terminado. Cerrarlo ahora impide registrar cualquier operación del resto del período; confirma el cierre anticipado si es lo que quieres.",
+    "en": "{{name}} ends on {{endDate}} and has not ended yet. Closing it now stops every operation in the rest of the period from being recorded; confirm the early close if that is what you want.",
+    "pt": "{{name}} termina em {{endDate}} e ainda não terminou. Fechá-lo agora impede registar qualquer operação no resto do período; confirme o fecho antecipado se é isso que pretende."
+  },
   "accounting.period_not_closed": {
     "es": "El período no está cerrado.",
     "en": "The period is not closed.",
@@ -2099,6 +2159,16 @@
     "es": "¿Cerrar el período?",
     "en": "Close the period?",
     "pt": "Encerrar o período?"
+  },
+  "accounting.periods.close_early_confirm_message": {
+    "es": "{{period}} termina el {{endDate}}. Si lo cierras ahora, no vas a poder registrar ninguna operación del resto del período: ni ventas, ni pagos, ni nómina. Reabrirlo queda auditado.",
+    "en": "{{period}} ends on {{endDate}}. If you close it now, no operation in the rest of the period can be recorded: no sales, no payments, no payroll. Reopening it is audited.",
+    "pt": "{{period}} termina em {{endDate}}. Se o fechar agora, nenhuma operação do resto do período poderá ser registada: nem vendas, nem pagamentos, nem folha. Reabri-lo fica auditado."
+  },
+  "accounting.periods.close_early_confirm_title": {
+    "es": "¿Cerrar un período que no ha terminado?",
+    "en": "Close a period that has not ended?",
+    "pt": "Fechar um período que não terminou?"
   },
   "accounting.periods.close_failed": {
     "es": "No se pudo cerrar {{period}}.",
@@ -2179,6 +2249,11 @@
     "es": "Abierto",
     "en": "Open",
     "pt": "Aberto"
+  },
+  "accounting.posting_date_beyond_horizon": {
+    "es": "La fecha {{date}} queda más allá de lo que la empresa admite contabilizar por adelantado: hasta el {{limit}} ({{days}} días desde hoy, o el fin del período en curso). Si la fecha es correcta, amplía el plazo en Configuración › Cierre.",
+    "en": "The date {{date}} is further ahead than the company allows postings to be dated: up to {{limit}} ({{days}} days from today, or the end of the current period). If the date is right, extend the limit in Settings › Closing.",
+    "pt": "A data {{date}} está além do que a empresa admite lançar antecipadamente: até {{limit}} ({{days}} dias a partir de hoje, ou o fim do período em curso). Se a data estiver certa, amplie o prazo em Configurações › Fechamento."
   },
   "accounting.reconciliation.account_auto_confirm": {
     "es": "Confirmar sin una persona en esta cuenta",
@@ -2659,6 +2734,21 @@
     "es": "La cuenta de Resultados del Ejercicio (Ganancias Retenidas) no está configurada para la organización.",
     "en": "The Retained Earnings account is not configured for the organization.",
     "pt": "A conta de Lucros Acumulados não está configurada para a organização."
+  },
+  "accounting.revaluation.closing_rate_missing": {
+    "es": "No hay tasa de cierre de {{currencies}} a {{ledgerCurrency}} al {{date}}. Regístrala antes de cerrar: hay saldos en esa moneda que revaluar.",
+    "en": "There is no closing rate from {{currencies}} to {{ledgerCurrency}} on {{date}}. Record it before closing: there are balances in that currency to revalue.",
+    "pt": "Não há taxa de fecho de {{currencies}} para {{ledgerCurrency}} em {{date}}. Registe-a antes de fechar: há saldos nessa moeda a reavaliar."
+  },
+  "accounting.revaluation.forex_account_missing": {
+    "es": "Configura la cuenta de diferencia cambiaria antes de cerrar: hay saldos en moneda extranjera que revaluar en {{ledger}}.",
+    "en": "Set the exchange difference account before closing: there are foreign-currency balances to revalue in {{ledger}}.",
+    "pt": "Configure a conta de diferenças cambiais antes de fechar: há saldos em moeda estrangeira a reavaliar em {{ledger}}."
+  },
+  "accounting.revaluation.no_foreign_positions": {
+    "es": "Sin saldos en moneda extranjera que revaluar.",
+    "en": "No foreign-currency balances to revalue.",
+    "pt": "Sem saldos em moeda estrangeira a reavaliar."
   },
   "accounting.segment_configuration.add_level": {
     "es": "Agregar nivel",

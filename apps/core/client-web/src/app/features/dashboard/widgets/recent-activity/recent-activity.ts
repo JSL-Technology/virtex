@@ -6,7 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { ActivityItem, OverviewService } from '../../../overview/overview.service';
-import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virtex/shared/ui-i18n';
 import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 /**

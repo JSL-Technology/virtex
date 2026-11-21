@@ -284,11 +284,6 @@
     "en": "Fixed asset \"{{id}}\" was not found.",
     "pt": "Ativo imobilizado \"{{id}}\" não encontrado."
   },
-  "fixed_assets.fixed_assets_journal_act_fijos_not": {
-    "es": "Diario de Activos Fijos (ACT-FIJOS) no encontrado.",
-    "en": "The Fixed Assets journal (ACT-FIJOS) was not found.",
-    "pt": "O diário de Ativo Imobilizado (ACT-FIJOS) não foi encontrado."
-  },
   "fixed_assets.form.accounts": {
     "es": "Cuentas",
     "en": "Accounts",

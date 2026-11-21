@@ -29,7 +29,7 @@ import { KpiEbitdaComponent } from './widgets/kpi-ebitda/kpi-ebitda';
 import { KpiFcfComponent } from './widgets/kpi-fcf/kpi-fcf';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PinnedChartsComponent } from '../ai/copilot/pinned-charts.component';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 
 /**
  * The business indicators: configurable widgets over the tenant's own figures.

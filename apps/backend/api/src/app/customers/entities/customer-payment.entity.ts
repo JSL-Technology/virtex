@@ -12,10 +12,7 @@ import {
 import { CustomerPaymentLine } from './customer-payment-line.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Customer } from './customer.entity';
-import {
-  numericTransformer,
-  numericTransformerNotNull,
-} from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { BankAccount } from '../../treasury/entities/bank-account.entity';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
@@ -137,7 +134,7 @@ export class CustomerPayment {
     precision: 18,
     scale: 6,
     default: 1,
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
   })
   exchangeRate: number;
 

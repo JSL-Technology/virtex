@@ -6,16 +6,14 @@ import {
   registerDecorator,
 } from 'class-validator';
 import {
-    findCountryProfile,
-    validateFiscalFields,
-    type TaxpayerKindValue,
-} from '../../localization/fiscal/country-profiles';
-import { TaxpayerKind } from '../../localization/fiscal/tax-id-validators';
-import {
-    fiscalIdentifierFor,
-    taxpayerKindAffectsValidation,
-    validateTaxId,
-} from '../../localization/fiscal/identity-document-catalogue';
+  TaxpayerKind,
+  fiscalIdentifierFor,
+  knownMarket,
+  taxpayerKindAffectsValidation,
+  validateFiscalFields,
+  validateTaxId,
+  type TaxpayerKindValue,
+} from '../../markets';
 
 /**
  * Fiscal validation for the registration payload.
@@ -61,7 +59,7 @@ function kindOf(args: ValidationArguments): TaxpayerKind | undefined {
 @ValidatorConstraint({ name: 'isSupportedCountry', async: false })
 export class SupportedCountryConstraint implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
-    return typeof value === 'string' && Boolean(findCountryProfile(value));
+    return typeof value === 'string' && Boolean(knownMarket(value));
   }
 
   defaultMessage(): string {
@@ -86,7 +84,7 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
     if (typeof value !== 'string') return false;
     // An unsupported country is reported by its own constraint; reporting it twice just produces
     // two error messages about the same field.
-    if (!findCountryProfile(countryOf(args))) return true;
+    if (!knownMarket(countryOf(args))) return true;
     // The taxpayer kind is passed through so a country that issues a different identifier to
     // companies and to natural persons — an EIN versus an SSN, a CNPJ versus a CPF, a 12- versus
     // a 13-character RFC — is checked against the right one. Without it the validator has to
@@ -98,8 +96,7 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments): string {
     const country = countryOf(args);
-    const profile = findCountryProfile(country);
-    if (!profile) return message('validation.fiscal.tax_id_invalid');
+    if (!knownMarket(country)) return message('validation.fiscal.tax_id_invalid');
 
     // The identifier's name and example come from the catalogue row — the authority term (RNC, RFC)
     // stays verbatim, and there is one place that holds it (C-01), not a literal on the profile.
@@ -137,25 +134,25 @@ export function IsTaxIdValidForCountry(validationOptions?: ValidationOptions) {
 /**
  * The first-level administrative division, where the country publishes a coded catalogue.
  *
- * Only the United States, Mexico and the Dominican Republic carry `divisions` today; for the rest
+ * Only some markets carry coded `divisions` (the ones whose e-invoicing requires the code); for the rest
  * a free-text division is accepted, because inventing a code list that the tax authority does not
  * publish would reject valid addresses.
  */
 @ValidatorConstraint({ name: 'isStateValidForCountry', async: false })
 export class StateForCountryConstraint implements ValidatorConstraintInterface {
   validate(value: unknown, args: ValidationArguments): boolean {
-    const profile = findCountryProfile(countryOf(args));
-    if (!profile) return true;
+    const address = knownMarket(countryOf(args))?.profile.address;
+    if (!address) return true;
     if (typeof value !== 'string' || !value.trim()) return false;
-    if (!profile.address.divisions) return true;
-    return profile.address.divisions.some((d) => d.code === value.trim().toUpperCase());
+    if (!address.divisions) return true;
+    return address.divisions.some((d) => d.code === value.trim().toUpperCase());
   }
 
   defaultMessage(args: ValidationArguments): string {
-    const profile = findCountryProfile(countryOf(args));
-    return profile
+    const address = knownMarket(countryOf(args))?.profile.address;
+    return address
       ? message('validation.fiscal.division_invalid_for_country', {
-          label: profile.address.divisionLabel,
+          label: address.divisionLabel,
         })
       : message('validation.fiscal.division_invalid');
   }
@@ -183,22 +180,22 @@ export function IsStateValidForCountry(validationOptions?: ValidationOptions) {
 @ValidatorConstraint({ name: 'isPostalCodeValidForCountry', async: false })
 export class PostalCodeForCountryConstraint implements ValidatorConstraintInterface {
   validate(value: unknown, args: ValidationArguments): boolean {
-    const profile = findCountryProfile(countryOf(args));
-    if (!profile) return true;
+    const address = knownMarket(countryOf(args))?.profile.address;
+    if (!address) return true;
 
     const provided = typeof value === 'string' ? value.trim() : '';
-    if (!provided) return !profile.address.postalCodeRequired;
-    if (!profile.address.postalCodePattern) return true;
+    if (!provided) return !address.postalCodeRequired;
+    if (!address.postalCodePattern) return true;
 
-    return new RegExp(profile.address.postalCodePattern).test(provided.toUpperCase());
+    return new RegExp(address.postalCodePattern).test(provided.toUpperCase());
   }
 
   defaultMessage(args: ValidationArguments): string {
-    const profile = findCountryProfile(countryOf(args));
-    if (!profile) return message('validation.fiscal.postal_code_invalid');
+    const market = knownMarket(countryOf(args));
+    if (!market) return message('validation.fiscal.postal_code_invalid');
     return message('validation.fiscal.postal_code_invalid_for_country', {
-      label: profile.address.postalCodeLabel,
-      country: profile.name,
+      label: market.profile.address.postalCodeLabel,
+      country: market.profile.name,
     });
   }
 }
@@ -226,7 +223,7 @@ export function IsPostalCodeValidForCountry(validationOptions?: ValidationOption
 export class FiscalProfileForCountryConstraint implements ValidatorConstraintInterface {
   validate(value: unknown, args: ValidationArguments): boolean {
     const country = countryOf(args);
-    if (!findCountryProfile(country)) return true;
+    if (!knownMarket(country)) return true;
     if (value !== undefined && (typeof value !== 'object' || value === null || Array.isArray(value))) {
       return false;
     }

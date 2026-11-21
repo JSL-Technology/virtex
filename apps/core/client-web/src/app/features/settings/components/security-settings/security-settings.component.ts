@@ -13,8 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { OtpComponent } from '../../../../shared/components/otp/otp.component';
 import { token } from '../../../../core/utils/chart-theme';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 

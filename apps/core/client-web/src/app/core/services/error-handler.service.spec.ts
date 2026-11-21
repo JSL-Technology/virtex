@@ -1,10 +1,10 @@
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService, TranslateStore, provideMissingTranslationHandler } from '@ngx-translate/core';
 
 import { ErrorHandlerService } from './error-handler.service';
-import { TranslateModule, VirtexMissingTranslationHandler, VirtexTranslateStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VirtexMissingTranslationHandler, VirtexTranslateStore } from '@virtex/shared/ui-i18n';
 
 /**
  * The resolution order only works if "can the catalogue render this key?" can answer no.

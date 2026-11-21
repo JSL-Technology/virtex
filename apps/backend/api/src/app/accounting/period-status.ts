@@ -6,8 +6,9 @@ import {
 } from './entities/accounting-period.entity';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import { ensureFiscalYearWithPeriods } from './provisioning/fiscal-calendar';
-import { ForbiddenError } from '../i18n/localized.exception';
+import { ConflictError, UnprocessableEntityError } from '../i18n/localized.exception';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
+import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 
 /**
  * Whether a date may be posted to, and by which subledger.
@@ -65,6 +66,17 @@ export async function resolvePostingPeriod(
 ): Promise<AccountingPeriod> {
   const isoDate = toIsoDate(date);
 
+  // Before anything else, and before a fiscal year can be opened for it: a date past the company's
+  // horizon is refused, whatever periods exist (FIN-JE-02).
+  const horizon = await postingHorizon(manager, organizationId);
+  if (isoDate > horizon.limit) {
+    throw new UnprocessableEntityError('accounting.posting_date_beyond_horizon', {
+      date: isoDate,
+      limit: horizon.limit,
+      days: horizon.days,
+    });
+  }
+
   let period = await findPeriodCovering(manager, organizationId, isoDate);
 
   if (!period && options.createIfMissing) {
@@ -72,7 +84,7 @@ export async function resolvePostingPeriod(
   }
 
   if (!period) {
-    throw new ForbiddenError(
+    throw new UnprocessableEntityError(
       'accounting.transaction_date_p1_does_not_fall',
       { p1: isoDate },
     );
@@ -85,7 +97,7 @@ export async function resolvePostingPeriod(
   period = (await manager.findOneBy(AccountingPeriod, { id: period.id })) ?? period;
 
   if (period.status === PeriodStatus.CLOSED && !options.allowClosedPeriod) {
-    throw new ForbiddenError(
+    throw new ConflictError(
       'accounting.transaction_date_falls_accounting_period_name',
       { name: period.name },
     );
@@ -101,13 +113,52 @@ export async function resolvePostingPeriod(
   // and every proposal failed with «the GL module is closed for Diciembre» (a 500, at that).
   const waived = options.allowClosedPeriod === true && module === ModuleSlug.GL;
   if (!waived && moduleStatusOf(period, module) === PeriodStatus.CLOSED) {
-    throw new ForbiddenError('accounting.module_module_closed_period_name', {
+    throw new ConflictError('accounting.module_module_closed_period_name', {
       name: period.name,
       module,
     });
   }
 
   return period;
+}
+
+/** The horizon when a company's settings have none: the column's own default. */
+export const DEFAULT_MAX_FUTURE_POSTING_DAYS = 31;
+
+/** `YYYY-MM-DD` plus `days`, on the calendar. */
+function addDays(isoDate: string, days: number): string {
+  const date = new Date(`${isoDate}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * The last date a posting may carry for a company (FIN-JE-02): its today, on its own clock, plus
+ * the days its settings allow (`max_future_posting_days`) — and never before the end of the period
+ * today falls in, so a month-end accrual or the month's depreciation can always be dated at the
+ * period's end, whatever the setting.
+ *
+ * There was no limit, and a posting into a year with no calendar opened that year and its twelve
+ * periods to receive it: a year mistyped by one changed the calendar. Exported for the forms that
+ * want to say so before the person saves.
+ */
+export async function postingHorizon(
+  manager: EntityManager,
+  organizationId: string,
+): Promise<{ today: string; limit: string; days: number }> {
+  const [company]: Array<{ country: string | null; timezone: string | null; days: number | null }> = await manager.query(
+    `SELECT o.country, o.timezone, s.max_future_posting_days AS days
+       FROM organizations o
+       LEFT JOIN organization_settings s ON s.organization_id = o.id
+      WHERE o.id = $1`,
+    [organizationId],
+  );
+  const today = fiscalDate(organizationTimeZone(company));
+  const days = company?.days ?? DEFAULT_MAX_FUTURE_POSTING_DAYS;
+  const ahead = addDays(today, days);
+  const current = await findPeriodCovering(manager, organizationId, today);
+  const periodEnd = current ? toIsoDate(current.endDate) : null;
+  return { today, limit: periodEnd && periodEnd > ahead ? periodEnd : ahead, days };
 }
 
 /** The property on the period that carries `module`'s own open/closed state. */

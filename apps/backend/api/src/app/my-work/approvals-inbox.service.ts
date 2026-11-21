@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import {
   ApprovalSource,
   ApprovalViewer,

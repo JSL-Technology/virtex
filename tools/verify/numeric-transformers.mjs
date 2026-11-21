@@ -38,7 +38,9 @@ const walk = (dir, out = []) => {
 };
 
 /** `@Column({ … })` immediately followed by the property it decorates. */
-const COLUMN = /@Column\(\{([\s\S]*?)\}\)\s*\n\s*(?:readonly\s+)?(\w+)\s*[!?]?\s*:\s*([^;]+);/g;
+// Both spellings: `@Column({ type: 'decimal', … })` and `@Column('decimal', { … })` — the second was
+// invisible to this check until 2026-11-08, and half the money columns use it.
+const COLUMN = /@Column\((?:'\w+',\s*)?\{([\s\S]*?)\}\)\s*\n\s*(?:readonly\s+)?(\w+)\s*[!?]?\s*:\s*([^;]+);/g;
 
 const wrong = [];
 let checked = 0;
@@ -50,9 +52,10 @@ for (const file of walk(ROOT)) {
 
   for (const match of source.matchAll(COLUMN)) {
     const [, body, property, type] = match;
-    const nullableTransformer = /transformer:\s*numericTransformer\b(?!NotNull)/.test(body);
+    const nullableTransformer = /transformer:\s*numericTransformer\b(?!NotNull|WithDefault)/.test(body);
     const notNullTransformer = /transformer:\s*numericTransformerNotNull\b/.test(body);
-    if (!nullableTransformer && !notNullTransformer) continue;
+    const defaultedTransformer = /transformer:\s*numericTransformerWithDefault\b/.test(body);
+    if (!nullableTransformer && !notNullTransformer && !defaultedTransformer) continue;
     checked++;
 
     const declaredNullable = /nullable:\s*true/.test(body) || /\|\s*null/.test(type);
@@ -65,6 +68,28 @@ for (const file of walk(ROOT)) {
         property,
         problem: 'NOT NULL column uses numericTransformer — an unset value inserts NULL',
         fix: 'numericTransformerNotNull',
+      });
+    }
+    // A non-zero DEFAULT is overridden by numericTransformerNotNull, which writes an explicit 0 for
+    // an unset value: that is how every tenant ended up with an exchange-rate tolerance of 0 (XF-09).
+    const declaredDefault = body.match(/default:\s*'?(-?[\d.]+)'?/);
+    const nonZeroDefault = declaredDefault !== null && Number(declaredDefault[1]) !== 0;
+    if (notNullTransformer && nonZeroDefault) {
+      wrong.push({
+        rel,
+        line,
+        property,
+        problem: `NOT NULL DEFAULT ${declaredDefault[1]} column uses numericTransformerNotNull — an unset value is written as 0, not as the default`,
+        fix: 'numericTransformerWithDefault',
+      });
+    }
+    if (defaultedTransformer && (declaredNullable || !declaredDefault)) {
+      wrong.push({
+        rel,
+        line,
+        property,
+        problem: 'numericTransformerWithDefault on a column without a NOT NULL DEFAULT — an unset value inserts NULL',
+        fix: declaredNullable ? 'numericTransformer' : 'numericTransformerNotNull',
       });
     }
     if (notNullTransformer && declaredNullable) {

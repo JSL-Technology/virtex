@@ -1,0 +1,9 @@
+{
+  "$locale": "es-CR",
+  "$note": "Costa Rica. Solo las claves cuya redacción difiere del español neutro de América Latina; todo lo demás cae a base/. El nombre de un impuesto no está aquí: lo declara el paquete del mercado (markets/cr/taxes.ts, principalTaxName) y llega a la pantalla y al PDF desde ahí, así que no puede discrepar. Vocabulario a confirmar con un hablante del país.",
+  "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+  "hcm.employees.form.social_security_number": "Número de asegurado (CCSS)",
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica hacienda atv clave numérica certificado",
+  "settings.sections_meta.profile.keywords": "empresa cédula jurídica razón social dirección"
+}

@@ -1,33 +1,59 @@
-
-import { Injectable, Inject, Logger, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import Stripe from 'stripe';
-import { PaymentGateway, CreateCheckoutSessionDto, CreateRegistrationCheckoutDto, CheckoutSessionInfo, CheckoutSessionResult, WebhookResult, BillingOverview, BillingInvoice } from '../interfaces/payment-gateway.interface';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import {
+  BillingInvoice,
+  BillingOverview,
+  CheckoutSessionInfo,
+  CheckoutSessionResult,
+  CreateRegistrationCheckoutDto,
+  PaymentGateway,
+  PlanChangeStart,
+  StartPlanChangeRequest,
+  WebhookResult,
+} from '../payment-gateway.port';
 import { STRIPE_CLIENT } from '../stripe/stripe.provider';
 import { isDevLikeEnvironment } from '../../config/environment';
-import { Repository, DataSource } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+import type { Plan } from '../../saas/entities/plan.entity';
 import { SaasService } from '../../saas/saas.service';
-import { WebhookEvent } from '../entities/webhook-event.entity';
-import { SAAS_CONFIG, SAAS_PLANS, minorUnitFactor } from '../../saas/saas.config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SAAS_PLANS, minorUnitFactor } from '../../saas/saas.config';
+import { PlanChangeReason, SubscriptionStanding } from '../../saas/plan-change';
 import { RegistrationPaymentCompletedEvent } from '../events/registration-payment-completed.event';
-import { BadRequestError, ServiceUnavailableError } from '../../i18n/localized.exception';
+import { BadRequestError, ConflictError, ServiceUnavailableError } from '../../i18n/localized.exception';
 import type { BillingPeriod } from '../../saas/enums/billing-period.enum';
+import { knownMarket } from '../../markets';
+import { BillingStateService, type SubscriptionSnapshot } from '../billing-state.service';
+import { overviewFromRecord } from '../billing-overview';
+
+/** What a webhook leaves to do once its transaction has committed, and only then. */
+interface AfterCommit {
+  /** Organizations whose cached entitlement is stale. */
+  stale: Set<string>;
+  /** Notifications about a change that was actually recorded. */
+  events: Array<{ name: string; payload: object }>;
+}
+
+/** The id of a Stripe reference, whether it arrived expanded or as a bare id. */
+const idOf = (reference: string | { id: string } | null | undefined): string | null =>
+  typeof reference === 'string' ? reference : reference?.id ?? null;
 
 @Injectable()
 export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
   private readonly logger = new Logger(StripePaymentAdapter.name);
 
   constructor(
-    @Inject(STRIPE_CLIENT) private stripe: Stripe,
-    @InjectRepository(Organization) private organizationRepository: Repository<Organization>,
-    @InjectRepository(WebhookEvent) private webhookEventRepository: Repository<WebhookEvent>,
-    private configService: ConfigService,
-    private dataSource: DataSource,
-    private saasService: SaasService,
-    private eventEmitter: EventEmitter2
+    // `null` when STRIPE_SECRET_KEY is not set; every method that needs it goes through `ensureStripe`.
+    @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
+    @InjectRepository(Organization) private readonly organizationRepository: Repository<Organization>,
+    private readonly configService: ConfigService,
+    private readonly dataSource: DataSource,
+    private readonly saasService: SaasService,
+    private readonly billingState: BillingStateService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   priceIdFor(
@@ -73,8 +99,8 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       // Price is monthly-only and the catalogue says so — but where it exists, its amounts must
       // agree with ours exactly as the monthly ones do.
       const periods: Array<{ label: string; priceId?: string; amounts: Readonly<Record<string, number>>; required: boolean }> = [
-        { label: 'monthly', priceId: process.env[plan.monthlyPriceIdVar], amounts: plan.monthlyPrices, required: true },
-        { label: 'annual', priceId: process.env[plan.annualPriceIdVar], amounts: plan.annualPrices, required: false },
+        { label: 'monthly', priceId: this.configService.get<string>(plan.monthlyPriceIdVar), amounts: plan.monthlyPrices, required: true },
+        { label: 'annual', priceId: this.configService.get<string>(plan.annualPriceIdVar), amounts: plan.annualPrices, required: false },
       ];
 
       for (const period of periods) {
@@ -167,82 +193,146 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
    * are turned on in the Stripe dashboard. The explicit lists exist so a market whose method
    * requires opting in is not silently omitted.
    */
-  private paymentMethodsFor(countryCode?: string): Stripe.Checkout.SessionCreateParams.PaymentMethodType[] | undefined {
-    const byCountry: Record<string, Stripe.Checkout.SessionCreateParams.PaymentMethodType[]> = {
-      BR: ['card', 'boleto'],
-      MX: ['card', 'oxxo'],
-      US: ['card', 'us_bank_account'],
-    };
-    return byCountry[(countryCode ?? '').toUpperCase()];
+  private paymentMethodsFor(countryCode?: string | null): Stripe.Checkout.SessionCreateParams.PaymentMethodType[] | undefined {
+    // The market says which methods its companies pay with (`markets/<cc>/payments.ts`); this
+    // adapter used to keep its own table of country codes for it.
+    const methods = knownMarket(countryCode ?? undefined)?.payments.subscriptionCheckout.stripe;
+    return methods?.length ? (methods as Stripe.Checkout.SessionCreateParams.PaymentMethodType[]) : undefined;
   }
 
-  async createCheckoutSession(dto: CreateCheckoutSessionDto): Promise<CheckoutSessionResult> {
-    const { organizationId, userEmail, priceId, successUrl, cancelUrl, metadata } = dto;
+  /**
+   * Tax treatment of a subscription checkout, the same for a signup and for an existing customer.
+   *
+   * Stripe Tax is a property of the Stripe ACCOUNT (a registered origin address + activated
+   * Stripe Tax), not of this code. Where that setup is absent — every local run by default —
+   * `automatic_tax` makes Stripe reject the ENTIRE checkout ("You must have a valid head office
+   * address…"). The flag defaults on in production and off in development (see env.validation.ts).
+   *
+   * Selling software to a Mexican or Colombian company obliges US to issue that company a
+   * compliant invoice with its tax identifier on it — our own compliance, not the customer's.
+   * `billing_address_collection: 'required'` is here because `automatic_tax` derives the rate
+   * from that address, so the three move together; and for a customer that already exists, Stripe
+   * keeps the address and the tax id collected only when told to update it.
+   */
+  private taxCollection(existingCustomer: boolean): Partial<Stripe.Checkout.SessionCreateParams> {
+    if (this.configService.get<boolean>('STRIPE_TAX_ENABLED') !== true) return {};
+    return {
+      automatic_tax: { enabled: true },
+      tax_id_collection: { enabled: true },
+      billing_address_collection: 'required',
+      ...(existingCustomer ? { customer_update: { address: 'auto', name: 'auto' } } : {}),
+    };
+  }
 
+  /**
+   * Change an organization's plan: change the subscription it has, or buy one if it has none.
+   *
+   * Every in-app plan change used to open a Checkout in `subscription` mode — which CREATES a
+   * subscription. For a customer who already had one (every tenant does: signup is payment-first)
+   * that was a second subscription beside the first. Both billed; the organization pointed at the
+   * newer one, so the older one's events matched no organization and it kept charging, unseen, for
+   * as long as the card lasted.
+   *
+   * A subscription in force now has its price changed in place, on the provider's own confirmation
+   * page, where the customer sees the proration before agreeing to it. One that still owes money
+   * is settled first. Only an organization with no subscription in force goes to Checkout.
+   */
+  async startPlanChange(request: StartPlanChangeRequest): Promise<PlanChangeStart> {
     const stripe = this.ensureStripe();
-
-    if (!priceId) {
-      throw new BadRequestError('payment.no_valid_plan_specified_price_id');
-    }
-
-    const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
+    const organization = await this.organizationRepository.findOne({ where: { id: request.organizationId } });
     if (!organization) {
       throw new BadRequestError('payment.organization_not_found');
     }
 
-    let customerId = organization.externalCustomerId;
+    const current = organization.externalSubscriptionId
+      ? await this.retrieveSubscription(organization.externalSubscriptionId)
+      : null;
+    if (current && SubscriptionStanding.UNSETTLED.has(current.status)) {
+      throw new ConflictError('payment.subscription_must_be_settled_first', { status: current.status });
+    }
+    if (current && SubscriptionStanding.IN_FORCE.has(current.status)) {
+      return this.changeSubscriptionPrice(stripe, current, request);
+    }
+    return this.startCheckout(stripe, organization, request);
+  }
 
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: userEmail,
-        name: organization.legalName,
-        metadata: {
-          organizationId: organization.id,
-        },
-      });
-      customerId = customer.id;
-
-      organization.externalCustomerId = customerId;
-      await this.organizationRepository.save(organization);
+  private async changeSubscriptionPrice(
+    stripe: Stripe,
+    subscription: Stripe.Subscription,
+    request: StartPlanChangeRequest,
+  ): Promise<PlanChangeStart> {
+    const item = await this.planItemOf(subscription);
+    if (!item) {
+      // A subscription none of whose prices is a plan was not sold by this product.
+      throw new ConflictError('payment.subscription_bills_no_plan');
+    }
+    if (item.price.id === request.priceId) {
+      throw new ConflictError('payment.plan_already_active');
+    }
+    const customer = idOf(subscription.customer);
+    if (!customer) {
+      throw new ConflictError('payment.subscription_bills_no_plan');
     }
 
-    const plans = await this.saasService.getPlans();
-    const plan = plans.find(p => p.monthlyPriceId === priceId || p.annualPriceId === priceId);
-    const planSlug = plan ? plan.slug : 'unknown';
+    const session = await stripe.billingPortal.sessions.create({
+      customer,
+      return_url: request.cancelUrl,
+      flow_data: {
+        type: 'subscription_update_confirm',
+        subscription_update_confirm: {
+          subscription: subscription.id,
+          items: [{ id: item.id, price: request.priceId, quantity: item.quantity ?? 1 }],
+        },
+        after_completion: { type: 'redirect', redirect: { return_url: request.planChangedUrl } },
+      },
+    });
+    return { flow: 'subscription_update', url: session.url };
+  }
 
-    const methods = this.paymentMethodsFor(organization.country ?? undefined);
+  private async startCheckout(
+    stripe: Stripe,
+    organization: Organization,
+    request: StartPlanChangeRequest,
+  ): Promise<PlanChangeStart> {
+    let customerId = organization.externalCustomerId;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: request.userEmail,
+        name: organization.legalName,
+        metadata: { organizationId: organization.id },
+      });
+      customerId = customer.id;
+      await this.organizationRepository.update({ id: organization.id }, { externalCustomerId: customerId });
+    }
+
+    const plan = await this.saasService.planForPrice(request.priceId);
+    if (!plan) {
+      throw new BadRequestError('payment.no_valid_plan_specified_price_id');
+    }
+    // Who asked travels with the subscription, so its history names them whichever of the
+    // browser's return and the webhook records it first.
+    const metadata = { organizationId: organization.id, planSlug: plan.slug, initiatedBy: request.actorUserId };
+    const methods = this.paymentMethodsFor(organization.country);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       ...(methods ? { payment_method_types: methods } : {}),
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      subscription_data: {
-        metadata: {
-          organizationId: organization.id,
-          planSlug: planSlug,
-          ...metadata
-        },
-      },
-      metadata: {
-          organizationId: organization.id,
-          planSlug: planSlug,
-          ...metadata
-      }
+      line_items: [{ price: request.priceId, quantity: 1 }],
+      success_url: request.successUrl,
+      cancel_url: request.cancelUrl,
+      // Bill in the market's own currency, exactly as the signup does. Without it an existing
+      // customer resubscribing was charged in the Price's default currency, whatever their market.
+      currency: SaasService.currencyForCountry(organization.country ?? undefined).toLowerCase(),
+      ...this.taxCollection(true),
+      subscription_data: { metadata },
+      metadata,
     });
 
     if (!session.url) {
-        throw new BadRequestError('payment.failed_create_stripe_session_url');
+      throw new BadRequestError('payment.failed_create_stripe_session_url');
     }
-
-    return { sessionId: session.id, url: session.url };
+    return { flow: 'checkout', url: session.url };
   }
 
   /**
@@ -266,14 +356,6 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
 
     const methods = this.paymentMethodsFor(dto.countryCode);
 
-    // Stripe Tax is a property of the Stripe ACCOUNT (a registered origin address + activated
-    // Stripe Tax), not of this code. Where that setup is absent — every local run by default —
-    // `automatic_tax` makes Stripe reject the ENTIRE checkout ("You must have a valid head office
-    // address…"), closing the signup funnel. The flag defaults on in production and off in
-    // development (see env.validation.ts), so tax treatment is applied where it can be and the
-    // developer still reaches Checkout.
-    const taxEnabled = this.configService.get<boolean>('STRIPE_TAX_ENABLED') === true;
-
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       // Omitted entirely when the market has no explicit list, so Stripe offers whatever the
@@ -289,20 +371,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       // `currency_options`; without it every customer in all nineteen markets was charged in the
       // Price's default currency, i.e. USD.
       ...(dto.currency ? { currency: dto.currency.toLowerCase() } : {}),
-      // Selling software to a Mexican or Colombian company obliges US to issue that company a
-      // compliant invoice with its tax identifier on it — our own compliance, not the customer's.
-      // None of this was configured, so the subscription was billed with no tax treatment at all
-      // and the buyer's tax id was never recorded against the Stripe customer. Gated on Stripe Tax
-      // being set up on the account: `billing_address_collection: 'required'` is here because
-      // `automatic_tax` requires the address it derives the rate from to be changeable at checkout,
-      // so the three move together.
-      ...(taxEnabled
-        ? {
-            automatic_tax: { enabled: true },
-            tax_id_collection: { enabled: true },
-            billing_address_collection: 'required' as const,
-          }
-        : {}),
+      ...this.taxCollection(false),
       subscription_data: {
         ...(dto.trialPeriodDays && dto.trialPeriodDays > 0
           ? { trial_period_days: dto.trialPeriodDays }
@@ -382,47 +451,64 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       (session.payment_status === 'paid' || session.payment_status === 'no_payment_required');
 
     if (settled) {
-      const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
-      if (!organization) {
-        throw new BadRequestError('payment.organization_not_found');
+      const subscriptionId = idOf(session.subscription as string | Stripe.Subscription | null);
+      const subscription =
+        session.subscription && typeof session.subscription !== 'string'
+          ? (session.subscription as Stripe.Subscription)
+          : subscriptionId
+            ? await this.retrieveSubscription(subscriptionId)
+            : null;
+      if (!subscription) {
+        this.logger.error(
+          { event: 'checkout_confirm_without_subscription', organizationId, sessionId },
+          '[BILLING] A settled subscription checkout carried no subscription.',
+        );
+        return this.getBillingOverview(organizationId);
       }
 
-      const subscription = (session.subscription && typeof session.subscription !== 'string')
-        ? (session.subscription as Stripe.Subscription)
-        : null;
-
-      if (typeof session.customer === 'string') {
-        organization.externalCustomerId = session.customer;
-      }
-      organization.externalSubscriptionId = subscription?.id ?? (typeof session.subscription === 'string' ? session.subscription : organization.externalSubscriptionId);
-      organization.subscriptionStatus = subscription?.status ?? 'active';
-      const periodEnd = subscription ? this.periodEndOf(subscription) : null;
-      if (periodEnd) {
-        organization.subscriptionPeriodEnd = periodEnd;
-      }
-
-      const planSlug = session.metadata?.planSlug;
-      if (planSlug) {
-        const plan = await this.saasService.getPlanBySlug(planSlug);
-        if (plan) {
-          organization.plan = plan;
-          organization.planId = plan.id;
+      const snapshot = await this.snapshotOf(subscription);
+      const stale = await this.dataSource.transaction(async (manager) => {
+        const group = await this.billingState.billedWith(manager, organizationId);
+        if (!group.some((organization) => organization.id === organizationId)) {
+          throw new BadRequestError('payment.organization_not_found');
         }
-      }
-
-      await this.organizationRepository.save(organization);
-      await this.saasService.clearOrganizationCache(organizationId);
+        return this.billingState.record(manager, group, snapshot, {
+          reason: PlanChangeReason.CHECKOUT,
+          changedBy: session.metadata?.initiatedBy ?? null,
+        });
+      });
+      await this.invalidate(stale);
     }
 
     return this.getBillingOverview(organizationId);
   }
 
   /**
-   * Returns the organization's current plan (source of truth: our DB) plus the
-   * live subscription + default payment method from Stripe. When Stripe is not
-   * configured or the org has no customer/subscription yet, we still return the
-   * DB plan so the UI can render the current state without a hard failure.
+   * Record the subscription as Stripe has it now, for the browser coming back from changing it on
+   * Stripe's own page. The webhook says the same thing a moment later — or never, in development —
+   * and recording it twice is a no-op.
    */
+  async reconcileSubscription(organizationId: string): Promise<BillingOverview> {
+    const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
+    if (!organization) {
+      throw new BadRequestError('payment.organization_not_found');
+    }
+    if (this.stripe && organization.externalSubscriptionId) {
+      const subscription = await this.retrieveSubscription(organization.externalSubscriptionId);
+      if (subscription) {
+        const snapshot = await this.snapshotOf(subscription);
+        const stale = await this.dataSource.transaction(async (manager) =>
+          this.billingState.record(manager, await this.billingState.billedWith(manager, organizationId), snapshot, {
+            reason: PlanChangeReason.PROVIDER_UPDATE,
+            changedBy: null,
+          }),
+        );
+        await this.invalidate(stale);
+      }
+    }
+    return this.getBillingOverview(organizationId);
+  }
+
   /**
    * Cancel and refund a subscription whose account was never created.
    *
@@ -480,6 +566,11 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     }
   }
 
+  /**
+   * The organization's plan (source of truth: our records) plus the live subscription and default
+   * payment method from Stripe. With Stripe unconfigured, or no customer yet, the recorded plan and
+   * standing are still returned, so the screen renders the current state without a hard failure.
+   */
   async getBillingOverview(organizationId: string): Promise<BillingOverview> {
     const organization = await this.organizationRepository.findOne({
       where: { id: organizationId },
@@ -489,39 +580,11 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       throw new BadRequestError('payment.organization_not_found');
     }
 
-    // What this tenant is actually billed in, resolved exactly as the signup did — so the
-    // amount on the billing screen is the amount on the invoice. The screen used to print
-    // `$` + amount/100 for every tenant in every market.
-    const currency = SaasService.currencyForCountry(organization.country ?? undefined);
-
-    const overview: BillingOverview = {
-      plan: organization.plan
-        ? {
-            slug: organization.plan.slug,
-            name: organization.plan.name,
-            monthlyPrice:
-              SaasService.priceFor(organization.plan.slug, currency) ??
-              organization.plan.monthlyPrice ??
-              null,
-            currency,
-            minorUnits: minorUnitFactor(currency),
-          }
-        : null,
-      // The platform's own record of the subscription, until the provider says otherwise. It was
-      // left null whenever Stripe had nothing to say, so a tenant with an active plan read
-      // «Enterprise» and «Sin suscripción activa» side by side (QA M-10).
-      subscription: organization.subscriptionStatus
-        ? {
-            status: organization.subscriptionStatus,
-            currentPeriodEnd: organization.subscriptionPeriodEnd
-              ? new Date(organization.subscriptionPeriodEnd).toISOString()
-              : null,
-            cancelAtPeriodEnd: false,
-            managedBy: 'platform',
-          }
-        : null,
-      paymentMethod: null,
-    };
+    // The platform's own record of the subscription, until the provider says otherwise. It was
+    // left null whenever Stripe had nothing to say, so a tenant with an active plan read
+    // «Enterprise» and «Sin suscripción activa» side by side (QA M-10). The amount is quoted in
+    // what the tenant is actually billed in, resolved exactly as the signup did.
+    const overview = overviewFromRecord(organization, 'platform');
 
     // Without Stripe configured or a linked customer there is nothing live to fetch.
     if (!this.stripe || !organization.externalCustomerId) {
@@ -600,9 +663,9 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
         id: inv.id,
         number: inv.number ?? null,
         date: new Date(inv.created * 1000).toISOString(),
-        description:
-          inv.lines?.data?.[0]?.description ||
-          (inv.number ? `Factura ${inv.number}` : 'Suscripción'),
+        // Stripe's own line description, or nothing: the screen words a missing one in the
+        // reader's language. It used to be filled in here, in Spanish, for every reader.
+        description: inv.lines?.data?.[0]?.description || null,
         amount: inv.amount_paid ?? inv.amount_due ?? 0,
         currency: (inv.currency || 'usd').toUpperCase(),
         status: inv.status || 'unknown',
@@ -650,207 +713,284 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
         throw new BadRequestError('payment.webhook_signature_verification_failed');
       }
 
-      // Process safely inside a transaction
+      // What the event is about, read from Stripe BEFORE the transaction opens: a network call
+      // inside it holds a connection — and the organizations' row locks — for as long as Stripe
+      // takes to answer. It is the subscription as it is NOW, not as the event's payload froze it:
+      // Stripe does not deliver events in order, and an older payload applied after a newer one
+      // would put back a status, a period or a plan the customer has already left.
+      const subscription = await this.subscriptionBehind(event);
+      const after: AfterCommit = { stale: new Set(), events: [] };
+
       await this.dataSource.transaction(async (manager) => {
-          const existingEvent = await manager.findOne(WebhookEvent, { where: { id: event.id } });
-          if (existingEvent) {
-              this.logger.log(`Event ${event.id} already processed. Skipping.`);
-              return;
-          }
+        // Claim the event before doing anything with it. Two deliveries of one event used to both
+        // pass a `findOne`, do the work, and the second fail on the primary key at the end — rolled
+        // back, answered with an error and redelivered (IAM-P3). The insert claims it atomically: a
+        // concurrent delivery waits on this row and, once this commits, finds it taken; if this
+        // rolls back, the claim goes with it and the next delivery does the work.
+        const claimed: Array<{ id: string }> = await manager.query(
+          `INSERT INTO "payment_webhook_events" ("id") VALUES ($1) ON CONFLICT ("id") DO NOTHING RETURNING "id"`,
+          [event.id],
+        );
+        if (claimed.length === 0) {
+          this.logger.log(`Event ${event.id} already processed. Skipping.`);
+          return;
+        }
 
-          this.logger.log(`Received Stripe event: ${event.type}`);
+        this.logger.log(`Received Stripe event: ${event.type}`);
 
-          try {
-              switch (event.type) {
-                  case 'checkout.session.completed':
-                      await this.handleCheckoutSessionCompleted(
-                          event.data.object as Stripe.Checkout.Session,
-                          manager,
-                      );
-                      break;
+        switch (event.type) {
+          case 'checkout.session.completed':
+            await this.onCheckoutCompleted(event.data.object as Stripe.Checkout.Session, subscription, manager, after);
+            break;
 
-                  case 'customer.subscription.created':
-                  case 'customer.subscription.updated':
-                  case 'customer.subscription.deleted':
-                      await this.handleSubscriptionUpdated(
-                          event.data.object as Stripe.Subscription,
-                          manager,
-                      );
-                      break;
+          case 'customer.subscription.created':
+          case 'customer.subscription.updated':
+          case 'customer.subscription.deleted':
+            if (subscription) await this.onSubscriptionChanged(subscription, manager, after);
+            break;
 
-                  // Dunning. Without these the product could not tell a paying customer from one
-                  // whose card has been failing for a fortnight: the subscription row only moved
-                  // when Stripe eventually changed the subscription's own status, which happens
-                  // after the whole retry schedule has run out.
-                  case 'invoice.payment_failed':
-                      await this.handleInvoicePaymentFailed(
-                          event.data.object as Stripe.Invoice,
-                          manager,
-                      );
-                      break;
+          // Dunning. Without these the product could not tell a paying customer from one whose
+          // card has been failing for a fortnight: the subscription row only moved when Stripe
+          // eventually changed the subscription's own status, after the whole retry schedule.
+          case 'invoice.payment_failed':
+          case 'invoice.paid':
+            await this.onInvoice(event.data.object as Stripe.Invoice, event.type, subscription, manager, after);
+            break;
 
-                  case 'invoice.paid':
-                      await this.handleInvoicePaid(event.data.object as Stripe.Invoice, manager);
-                      break;
-
-                  default:
-                      this.logger.log(`Unhandled event type: ${event.type}`);
-              }
-
-              // Save processed event
-              await manager.save(WebhookEvent, { id: event.id });
-
-          } catch (error) {
-              this.logger.error(`Error processing event ${event.id}: ${(error as Error).message}`);
-              throw error;
-          }
+          default:
+            this.logger.log(`Unhandled event type: ${event.type}`);
+        }
       });
 
+      await this.runAfterCommit(after);
       return { processed: true, eventId: event.id, type: event.type };
   }
 
-  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session, manager: any) {
-    const subscriptionId = session.subscription as string;
-    const customerId = session.customer as string;
-    const metadata = session.metadata || {};
-    const planSlug = metadata.planSlug;
+  /** The subscription an event is about, as Stripe has it now; `null` for an event about none. */
+  private async subscriptionBehind(event: Stripe.Event): Promise<Stripe.Subscription | null> {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        return this.retrieveSubscription(idOf((event.data.object as Stripe.Checkout.Session).subscription));
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted':
+        return this.retrieveSubscription((event.data.object as Stripe.Subscription).id);
+      case 'invoice.payment_failed':
+      case 'invoice.paid':
+        return this.retrieveSubscription(this.subscriptionIdOf(event.data.object as Stripe.Invoice));
+      default:
+        return null;
+    }
+  }
 
-    // Payment-first signup: no org exists yet. Hand off to the auth side to
-    // materialize the account from the pending registration. Idempotent there.
-    if (metadata.pendingRegistrationId) {
-      let currentPeriodEnd: Date | null = null;
-      let subscriptionStatus = 'active';
-      try {
-        const sub = await this.ensureStripe().subscriptions.retrieve(subscriptionId);
-        subscriptionStatus = sub.status;
-        currentPeriodEnd = this.periodEndOf(sub);
-      } catch (e) {
-        this.logger.warn(`Could not retrieve subscription ${subscriptionId} during signup: ${(e as Error).message}`);
-      }
-
-      await this.eventEmitter.emitAsync(
-        'registration.payment_completed',
-        new RegistrationPaymentCompletedEvent(metadata.pendingRegistrationId, {
-          customerId,
-          subscriptionId,
-          status: subscriptionStatus,
-          currentPeriodEnd,
-        })
+  private async onCheckoutCompleted(
+    session: Stripe.Checkout.Session,
+    subscription: Stripe.Subscription | null,
+    manager: EntityManager,
+    after: AfterCommit,
+  ): Promise<void> {
+    const metadata = session.metadata ?? {};
+    const customerId = idOf(session.customer);
+    if (!subscription || !customerId) {
+      this.logger.error(
+        { event: 'checkout_completed_without_subscription', sessionId: session.id },
+        '[BILLING] A subscription checkout completed without a subscription or a customer.',
       );
       return;
     }
 
-    const organization = await manager.findOne(Organization, { where: { externalCustomerId: customerId } });
-
-    if (organization) {
-        organization.externalSubscriptionId = subscriptionId;
-        organization.subscriptionStatus = 'active';
-
-        if (planSlug) {
-            const plan = await this.saasService.getPlanBySlug(planSlug);
-            if (plan) {
-                organization.plan = plan;
-            } else {
-                this.logger.warn(`Plan slug ${planSlug} from metadata not found.`);
-            }
-        } else {
-             try {
-                // We need to use this.stripe here. Adapter Pattern allows using specific SDK.
-                const sub = await this.ensureStripe().subscriptions.retrieve(subscriptionId);
-                const priceId = sub.items.data[0]?.price.id;
-                if (priceId) {
-                    const plans = await this.saasService.getPlans();
-                    const matchedPlan = plans.find(p => p.monthlyPriceId === priceId || p.annualPriceId === priceId);
-                    if (matchedPlan) {
-                        organization.plan = matchedPlan;
-                    }
-                }
-            } catch (e) {
-                this.logger.error(`Failed to sync plan for org ${organization.id}: ${(e as Error).message}`);
-            }
-        }
-
-        await manager.save(organization);
-        await this.saasService.clearOrganizationCache(organization.id);
-        this.logger.log(`Updated organization ${organization.id} with subscription ${subscriptionId}`);
-    } else {
-        this.logger.error(`Organization not found for customer ${customerId}`);
-    }
-  }
-
-  /**
-   * A renewal charge failed. Stripe will keep retrying on its own schedule, so access is not cut
-   * off here — the organization enters a bounded grace period and the rest of the product decides
-   * what to restrict. Recording it on the first failure (rather than waiting for the subscription
-   * status to change at the end of the retry cycle) is what makes a dunning email possible.
-   */
-  private async handleInvoicePaymentFailed(invoice: Stripe.Invoice, manager: any) {
-    const subscriptionId = this.subscriptionIdOf(invoice);
-    if (!subscriptionId) return;
-
-    const organization = await manager.findOne(Organization, {
-      where: { externalSubscriptionId: subscriptionId },
-    });
-    if (!organization) {
-      this.logger.warn(`invoice.payment_failed for unknown subscription ${subscriptionId}`);
+    // Payment-first signup: no organization exists yet. The auth side materializes the account
+    // from the pending registration, and it is awaited here, before this transaction records the
+    // event: if the account cannot be created the event is not marked processed and Stripe
+    // delivers it again. Idempotent there.
+    if (metadata['pendingRegistrationId']) {
+      await this.eventEmitter.emitAsync(
+        'registration.payment_completed',
+        new RegistrationPaymentCompletedEvent(metadata['pendingRegistrationId'], {
+          customerId,
+          subscriptionId: subscription.id,
+          status: subscription.status,
+          currentPeriodEnd: this.periodEndOf(subscription),
+        }),
+      );
       return;
     }
 
-    // Only extend the grace period; never shorten one already running, or a second failed retry
-    // would silently hand the customer a fresh window.
-    const graceEnd = new Date();
-    graceEnd.setDate(graceEnd.getDate() + SAAS_CONFIG.GRACE_PERIOD_DAYS);
-    if (!organization.gracePeriodEnd || organization.gracePeriodEnd < graceEnd) {
-      organization.gracePeriodEnd = graceEnd;
+    const organizationId = metadata['organizationId'];
+    const group = organizationId ? await this.billingState.billedWith(manager, organizationId) : [];
+    const anchor = group.find((organization) => organization.id === organizationId);
+    if (!anchor) {
+      this.logger.error(
+        { event: 'checkout_completed_unknown_organization', sessionId: session.id, organizationId: organizationId ?? null },
+        '[BILLING] A paid checkout names no organization of ours.',
+      );
+      return;
     }
-    organization.subscriptionStatus = 'past_due';
-    await manager.save(organization);
-    // The entitlement guard reads the subscription status from the CACHED principal, so a status
-    // change that does not invalidate it is a change the product does not act on for a full cache
-    // TTL. Only the paid path used to do this.
-    await this.saasService.clearOrganizationCache(organization.id);
+    // Our own checkout set the customer before the session existed; one naming a different
+    // customer was not created for this organization.
+    if (anchor.externalCustomerId && anchor.externalCustomerId !== customerId) {
+      this.logger.warn(
+        { event: 'checkout_completed_customer_mismatch', organizationId: anchor.id, sessionId: session.id },
+        '[SECURITY] A checkout for this organization was paid by another customer; not applied.',
+      );
+      return;
+    }
 
-    this.eventEmitter.emit('billing.payment_failed', {
-      organizationId: organization.id,
-      invoiceId: invoice.id,
-      amountDue: invoice.amount_due,
-      currency: invoice.currency,
-      attemptCount: invoice.attempt_count ?? 0,
-      nextAttempt: invoice.next_payment_attempt
-        ? new Date(invoice.next_payment_attempt * 1000)
-        : null,
-      gracePeriodEnd: organization.gracePeriodEnd,
+    const stale = await this.billingState.record(manager, group, await this.snapshotOf(subscription), {
+      reason: PlanChangeReason.CHECKOUT,
+      changedBy: metadata['initiatedBy'] ?? null,
     });
-
-    this.logger.warn(
-      `Payment failed for organization ${organization.id}; grace period until ${organization.gracePeriodEnd?.toISOString()}.`,
-    );
+    stale.forEach((id) => after.stale.add(id));
   }
 
   /**
-   * A renewal succeeded. Clears the grace period so a customer who recovers is not left in a
-   * degraded state until the next subscription-level event happens to arrive.
+   * The subscription changed at Stripe — its status, its period, or its PRICE: the in-app plan
+   * change the customer confirmed on Stripe's page, the portal, or an operator in the dashboard.
+   *
+   * The price used to be ignored here, so a customer who moved from Starter to Pro was charged for
+   * Pro and kept Starter's limits; one who moved down kept the higher plan for free.
    */
-  private async handleInvoicePaid(invoice: Stripe.Invoice, manager: any) {
-    const subscriptionId = this.subscriptionIdOf(invoice);
-    if (!subscriptionId) return;
-
-    const organization = await manager.findOne(Organization, {
-      where: { externalSubscriptionId: subscriptionId },
+  private async onSubscriptionChanged(
+    subscription: Stripe.Subscription,
+    manager: EntityManager,
+    after: AfterCommit,
+  ): Promise<void> {
+    const group = await this.billingState.organizationsOn(manager, subscription.id);
+    if (group.length === 0) {
+      // A signup's subscription before its account exists, or a new checkout's before its
+      // completion is recorded: the completion records it, with the state read then.
+      this.logger.log(`Subscription ${subscription.id} bills no organization yet.`);
+      return;
+    }
+    const stale = await this.billingState.record(manager, group, await this.snapshotOf(subscription), {
+      reason: PlanChangeReason.PROVIDER_UPDATE,
+      changedBy: null,
     });
-    if (!organization) return;
+    stale.forEach((id) => after.stale.add(id));
+  }
 
-    organization.subscriptionStatus = 'active';
-    organization.gracePeriodEnd = null;
-    await manager.save(organization);
-    await this.saasService.clearOrganizationCache(organization.id);
-
-    this.eventEmitter.emit('billing.payment_succeeded', {
-      organizationId: organization.id,
-      invoiceId: invoice.id,
-      amountPaid: invoice.amount_paid,
-      currency: invoice.currency,
+  /**
+   * A charge failed, or succeeded. The STATE comes from the subscription as it is now — invoice and
+   * subscription events arrive in no guaranteed order — and the dunning window follows it; the
+   * NOTIFICATION is about this invoice, and goes to the company that pays, not to every company
+   * billed through it.
+   */
+  private async onInvoice(
+    invoice: Stripe.Invoice,
+    type: 'invoice.payment_failed' | 'invoice.paid',
+    subscription: Stripe.Subscription | null,
+    manager: EntityManager,
+    after: AfterCommit,
+  ): Promise<void> {
+    if (!subscription) return;
+    const group = await this.billingState.organizationsOn(manager, subscription.id);
+    if (group.length === 0) {
+      this.logger.warn(`${type} for subscription ${subscription.id}, which bills no organization.`);
+      return;
+    }
+    const stale = await this.billingState.record(manager, group, await this.snapshotOf(subscription), {
+      reason: PlanChangeReason.PROVIDER_UPDATE,
+      changedBy: null,
     });
+    stale.forEach((id) => after.stale.add(id));
+
+    for (const payer of group) {
+      if (await this.billingState.billingParentOf(manager, payer.id)) continue;
+      after.events.push(
+        type === 'invoice.payment_failed'
+          ? {
+              name: 'billing.payment_failed',
+              payload: {
+                organizationId: payer.id,
+                invoiceId: invoice.id,
+                amountDue: invoice.amount_due,
+                currency: invoice.currency,
+                attemptCount: invoice.attempt_count ?? 0,
+                nextAttempt: invoice.next_payment_attempt ? new Date(invoice.next_payment_attempt * 1000) : null,
+                gracePeriodEnd: payer.gracePeriodEnd,
+              },
+            }
+          : {
+              name: 'billing.payment_succeeded',
+              payload: {
+                organizationId: payer.id,
+                invoiceId: invoice.id,
+                amountPaid: invoice.amount_paid,
+                currency: invoice.currency,
+              },
+            },
+      );
+    }
+  }
+
+  /**
+   * Invalidate and notify once the change is committed — never before. Invalidating inside the
+   * transaction let a concurrent request cache the OLD entitlement again before the new one was
+   * visible; a notification sent from inside it announced a change a rollback could still undo.
+   * The database is already right when this runs, so a cache outage is logged, not thrown: the
+   * cached principal expires on its own, and failing would only make Stripe redeliver an event
+   * that is now recorded as processed.
+   */
+  private async runAfterCommit(after: AfterCommit): Promise<void> {
+    await this.invalidate([...after.stale]);
+    for (const { name, payload } of after.events) this.eventEmitter.emit(name, payload);
+  }
+
+  private async invalidate(organizationIds: readonly string[]): Promise<void> {
+    for (const id of organizationIds) {
+      try {
+        await this.saasService.clearOrganizationCache(id);
+      } catch (error) {
+        this.logger.error(
+          { event: 'billing_cache_invalidation_failed', organizationId: id },
+          `[BILLING] Billing changed but the cached entitlement could not be invalidated: ${(error as Error).message}`,
+        );
+      }
+    }
+  }
+
+  /** The subscription by id, or `null` when there is none to read. */
+  private async retrieveSubscription(subscriptionId: string | null): Promise<Stripe.Subscription | null> {
+    if (!subscriptionId) return null;
+    return this.ensureStripe().subscriptions.retrieve(subscriptionId);
+  }
+
+  /** Stripe's view of a subscription, in the shape every adapter records. */
+  private async snapshotOf(subscription: Stripe.Subscription): Promise<SubscriptionSnapshot> {
+    return {
+      subscriptionId: subscription.id,
+      customerId: idOf(subscription.customer),
+      status: subscription.status,
+      periodEnd: this.periodEndOf(subscription),
+      plan: await this.planOf(subscription),
+    };
+  }
+
+  /** The plan a subscription bills: that of its first item whose price is one of ours. */
+  private async planOf(subscription: Stripe.Subscription): Promise<Plan | null> {
+    for (const item of subscription.items?.data ?? []) {
+      const plan = await this.saasService.planForPrice(item.price?.id);
+      if (plan) return plan;
+    }
+    if (subscription.items?.data?.length) {
+      this.logger.error(
+        {
+          event: 'subscription_price_unknown',
+          subscriptionId: subscription.id,
+          prices: subscription.items.data.map((item) => item.price?.id ?? null),
+        },
+        '[BILLING] A subscription bills no plan of ours; the organization keeps the plan it had.',
+      );
+    }
+    return null;
+  }
+
+  /** The subscription item that carries the plan: the one a plan change re-prices. */
+  private async planItemOf(subscription: Stripe.Subscription): Promise<Stripe.SubscriptionItem | null> {
+    for (const item of subscription.items?.data ?? []) {
+      if (await this.saasService.planForPrice(item.price?.id)) return item;
+    }
+    return null;
   }
 
   /**
@@ -886,31 +1026,5 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     ).parent?.subscription_details?.subscription;
     if (typeof parentSubscription === 'string') return parentSubscription;
     return parentSubscription?.id ?? null;
-  }
-
-  private async handleSubscriptionUpdated(subscription: Stripe.Subscription, manager: any) {
-    const organization = await manager.findOne(Organization, { where: { externalSubscriptionId: subscription.id } });
-
-    if (organization) {
-        organization.subscriptionStatus = subscription.status;
-        const periodEnd = this.periodEndOf(subscription);
-        if (periodEnd) {
-          organization.subscriptionPeriodEnd = periodEnd;
-        }
-
-        if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
-             const graceEnd = new Date();
-             graceEnd.setDate(graceEnd.getDate() + SAAS_CONFIG.GRACE_PERIOD_DAYS);
-             organization.gracePeriodEnd = graceEnd;
-
-             this.logger.warn(`Organization ${organization.id} subscription is ${subscription.status}. Grace period set until ${graceEnd.toISOString()}.`);
-        } else if (subscription.status === 'active') {
-             organization.gracePeriodEnd = null;
-        }
-
-        await manager.save(organization);
-        await this.saasService.clearOrganizationCache(organization.id);
-        this.logger.log(`Updated organization ${organization.id} subscription status to ${subscription.status}`);
-    }
   }
 }

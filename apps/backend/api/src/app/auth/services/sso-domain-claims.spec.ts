@@ -107,7 +107,7 @@ describeWithDb('SSO domain claims', () => {
   it('refuses a record that does not carry the organization\'s own token', async () => {
     const domain = aDomain();
     const a = await admin.addDomain(orgA.id, domain);
-    publish('virteex-sso-verification=someone-else');
+    publish('virtex-sso-verification=someone-else');
     await expect(admin.verifyDomain(orgA.id, a.id)).rejects.toThrow();
   });
 

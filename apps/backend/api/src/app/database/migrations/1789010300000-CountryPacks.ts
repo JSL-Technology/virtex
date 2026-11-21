@@ -3,7 +3,7 @@ import es from '../../i18n/messages/es.json';
 import en from '../../i18n/messages/en.json';
 import pt from '../../i18n/messages/pt.json';
 import { SeedLanguage, seedTenantDefaults } from '../seeds/tenant-defaults';
-import { DEFAULT_CUSTOMER_NAME_KEYS, countryPackFor } from '../../contracts/country-pack/country-pack';
+import { DEFAULT_CUSTOMER_NAME_KEYS, marketFor } from '../../markets';
 
 /** The generated API catalogues, read directly: migrations run without the application's DI. */
 const CATALOGUES: Record<SeedLanguage, Record<string, string>> = { es, en, pt };
@@ -141,8 +141,8 @@ export class CountryPacks1789010300000 implements MigrationInterface {
     );
 
     for (const tenant of tenants) {
-      const pack = countryPackFor(tenant.country);
-      const booksLanguage = tenant.books_language ?? pack.booksLanguage;
+      const market = marketFor(tenant.country);
+      const booksLanguage = tenant.books_language ?? market.profile?.booksLanguage ?? null;
       if (!tenant.books_language && booksLanguage) {
         await q.query(`UPDATE "organizations" SET "books_language" = $2 WHERE "id" = $1`, [tenant.id, booksLanguage]);
       }
@@ -154,7 +154,7 @@ export class CountryPacks1789010300000 implements MigrationInterface {
         `UPDATE "customers" SET "companyName" = $2
           WHERE "organization_id" = $1 AND "is_final_consumer" AND "taxId" IS NULL
             AND lower("companyName") = ANY($3) AND "companyName" <> $2`,
-        [tenant.id, translate(pack.defaultCustomer.nameKey, language), seededNames],
+        [tenant.id, translate(market.documents.defaultCustomer.nameKey, language), seededNames],
       );
 
       await seedTenantDefaults(

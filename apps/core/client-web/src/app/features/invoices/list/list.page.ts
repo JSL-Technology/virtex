@@ -14,7 +14,7 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
-import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateService } from '@ngx-translate/core';
 import {
@@ -23,7 +23,7 @@ import {
   reportFilename,
   toCsv,
 } from '../../../core/export/csv-export';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';

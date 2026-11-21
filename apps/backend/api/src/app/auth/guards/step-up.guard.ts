@@ -100,8 +100,8 @@ export class StepUpGuard implements CanActivate {
       // `consumeSingleUse`. The session behind the request was already checked by JwtAuthGuard.
       payload = this.jwtService.verify<StepUpPayload>(token, {
         secret: AuthConfig.JWT_STEP_UP_SECRET,
-        issuer: 'virteex-api',
-        audience: 'virteex-step-up',
+        issuer: 'virtex-api',
+        audience: 'virtex-step-up',
       });
     } catch {
       throw new UnauthorizedError('auth.invalid_or_expired_step_up_token', scopeParams);

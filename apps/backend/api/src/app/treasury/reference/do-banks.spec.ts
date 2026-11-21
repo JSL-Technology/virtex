@@ -1,5 +1,5 @@
 import { isValidBic } from '../../common/validators/bank-identifiers.validator';
-import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contract';
+import { isValidDominicanTaxId } from '../../markets/do/identity';
 import { BANK_KINDS } from '../entities/bank.entity';
 import { DOMINICAN_BANKS } from './do-banks';
 import { REFERENCE_BANKS, RETIRED_BICS, referenceBanksFor, retiredBic } from './index';

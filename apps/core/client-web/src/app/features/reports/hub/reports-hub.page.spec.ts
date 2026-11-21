@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { ReportsHubPage } from './reports-hub.page';
@@ -13,7 +12,7 @@ describe('ReportsHubPage', () => {
       imports: [ReportsHubPage],
       providers: [
         provideRouter([]),
-        { provide: AuthService, useValue: { currentUser: signal(null), hasPermissions: (ps: string[]) => ps.every(granted) } },
+        { provide: AuthService, useValue: { currentUser: signal(null), hasPermissions: (ps: string[]) => ps.every(granted), hasFeature: () => true } },
         { provide: ActiveOrganizationService, useValue: { urlFor: (p: string) => `/acme${p}` } },
       ],
     });

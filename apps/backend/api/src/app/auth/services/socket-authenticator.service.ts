@@ -81,8 +81,8 @@ export class SocketAuthenticator extends SocketAuthenticatorPort {
 
       return jwt.verify(token, publicKey, {
         algorithms: ['RS256'],
-        issuer: 'virteex-api',
-        audience: 'virteex-web',
+        issuer: 'virtex-api',
+        audience: 'virtex-web',
         ignoreExpiration: options.ignoreExpiration ?? false,
       }) as AccessTokenClaims;
     } catch (e) {

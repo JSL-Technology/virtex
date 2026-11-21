@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LanguageService } from '../../../../core/services/language';
 import { LucideAngularModule, Lock, AlertCircle, CheckCircle } from 'lucide-angular';
 
@@ -16,7 +16,7 @@ import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 // H4 FIX: use the shared validator (single source of truth, mirrored from the backend policy)
 // instead of a divergent local copy.
 import { strongPasswordValidator } from '../../../../shared/validators/password.validator';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;

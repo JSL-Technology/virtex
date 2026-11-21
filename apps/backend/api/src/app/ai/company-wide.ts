@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { loadBranchScope } from '../organizations/contracts/branch.contract';
 import { ForbiddenError } from '../i18n/localized.exception';
 import { AuthenticatedUser } from '../security/principal';

@@ -14,7 +14,12 @@ import {
   timeout,
 } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+import {
+  startRegistration,
+  startAuthentication,
+  type PublicKeyCredentialCreationOptionsJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/browser';
 
 import { API_URL } from '../tokens/api-url.token';
 import { RegisterPayload } from '../../shared/interfaces/register-payload.interface';
@@ -28,6 +33,15 @@ import { WebSocketService } from './websocket.service';
 import { DialogService } from './dialog.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
+
+/** What a social sign-in hands the signup form (`GET /auth/social-register-info`). */
+export interface SocialRegisterInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  provider?: string;
+  picture?: string | null;
+}
 
 /** The company half of a signup and its plan; see `addCompanyCheckout`. */
 export interface AddCompanyPayload {
@@ -47,7 +61,8 @@ export interface AddCompanyPayload {
 }
 import { readCsrfCookie } from '../auth/csrf-token';
 import { ReturnUrlService } from '../auth/return-url';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
+import type { SaasFeatureKey } from '@virtex/shared/types';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from './language';
 import { ActivityTrackerService } from './activity-tracker.service';
@@ -268,14 +283,21 @@ export class AuthService {
   }
 
   /**
-   * ✅ NUEVO Y CORREGIDO: Verifica si el usuario actual tiene un conjunto de permisos.
-   * Soporta wildcards (ej: 'sales.*' permite 'sales.create').
-   * @param requiredPermissions Los permisos requeridos para realizar una acción.
-   * @returns `true` si el usuario tiene todos los permisos, `false` de lo contrario.
+   * Whether the current user holds every one of `requiredPermissions`. Wildcards are honoured
+   * (`sales.*` grants `sales.create`, `*` grants everything).
    */
   hasPermissions(requiredPermissions: string[]): boolean {
     const user = this.currentUser();
     return hasPermission(user?.permissions, requiredPermissions);
+  }
+
+  /**
+   * Whether the active company's plan includes `feature`, as the session states it
+   * (`organization.features`). Closed when the session does not say: nothing gated is offered, and
+   * the API decides every request anyway (IA-01, IA-02).
+   */
+  hasFeature(feature: SaasFeatureKey): boolean {
+    return this.currentUser()?.organization?.features?.includes(feature) ?? false;
   }
 
   /**
@@ -438,14 +460,8 @@ export class AuthService {
       .pipe(tap((response) => this.applyAuthenticated(response.user)));
   }
 
-  // Re-authentication travels as the httpOnly step-up cookie, not as a password in the body.
-  enable2fa(token: string): Observable<unknown> {
-      return this.http.post(`${this.apiUrl}/2fa/enable`, { token });
-  }
-
-  disable2fa(): Observable<any> {
-      return this.http.post(`${this.apiUrl}/2fa/disable`, {});
-  }
+  // Turning two-factor authentication on and off is `SecurityService`'s (Settings › Security). A
+  // copy here, untyped and called by nobody, had drifted from it.
 
   // ------------------------------------------------------------------
   // Session lifecycle
@@ -632,8 +648,8 @@ export class AuthService {
 
   // H12 FIX: Token is now read from the httpOnly social_register_token cookie by the backend;
   // do not pass it as a query param (URLs leak to browser history, server logs, Referer).
-  getSocialRegisterInfo(): Observable<any> {
-      return this.http.get(`${this.apiUrl}/social-register-info`, {
+  getSocialRegisterInfo(): Observable<SocialRegisterInfo> {
+      return this.http.get<SocialRegisterInfo>(`${this.apiUrl}/social-register-info`, {
           withCredentials: true,
           context: new HttpContext().set(IS_PUBLIC_API, true)
       });
@@ -784,7 +800,7 @@ export class AuthService {
   async registerPasskey(): Promise<void> {
     try {
       // 1. Get options from backend
-      const options = await firstValueFrom(this.http.get<any>(`${this.apiUrl}/webauthn/register/options`));
+      const options = await firstValueFrom(this.http.get<PublicKeyCredentialCreationOptionsJSON>(`${this.apiUrl}/webauthn/register/options`));
 
       // 2. Pass options to browser
       const credential = await startRegistration({ optionsJSON: options });
@@ -803,7 +819,8 @@ export class AuthService {
   async loginWithPasskey(email?: string): Promise<User | null> {
     try {
       // 1. Get options from backend
-      const options = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/webauthn/login/options`, { email }, {
+      // The options, and the id of the challenge the server holds for them (`challengeId`).
+      const options = await firstValueFrom(this.http.post<PublicKeyCredentialRequestOptionsJSON & { challengeId: string }>(`${this.apiUrl}/webauthn/login/options`, { email }, {
           context: new HttpContext().set(IS_PUBLIC_API, true)
       }));
 

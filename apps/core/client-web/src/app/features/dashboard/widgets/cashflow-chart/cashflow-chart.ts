@@ -25,7 +25,7 @@ import { DashboardApiService, CashFlowWaterfallDto } from '../../../../core/api/
 
 // >>> ÚNICO CAMBIO NECESARIO PARA TRADUCCIÓN EN TS <<<
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 

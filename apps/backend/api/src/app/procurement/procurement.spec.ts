@@ -503,5 +503,114 @@ describeWithDb('purchasing', () => {
       ).rejects.toMatchObject({ messageKey: 'procurement.receipt_already_billed' });
       expect((await receipts.findOne(receipt.id, organizationId)).status).toBe(GoodsReceiptStatus.POSTED);
     });
+    it('returns part of a line: stock goes back out, the order is owed it again, and billed goods need a debit note (CMP-15)', async () => {
+      const order = await sentOrder();
+      goodsReceipts.receiveGoods.mockResolvedValueOnce({ journalEntryId: null, stocked: [false], warehouseId: null });
+      const receipt = await receipts.create(
+        { orderId: order.id, lines: [{ lineId: order.lines[0].id, quantity: 10 }] },
+        organizationId,
+        REQUESTER,
+      );
+
+      const back = await receipts.returnToSupplier(
+        receipt.id,
+        { lines: [{ lineId: order.lines[0].id, quantity: 3 }], reason: 'Resmas mojadas' },
+        organizationId,
+        REQUESTER,
+      );
+      expect(back.number).toMatch(/^DEV-\d{4}-\d{6}$/);
+      expect(back.lines).toEqual([expect.objectContaining({ quantity: 3, unitCost: 230 })]);
+      expect(goodsReceipts.returnGoods).toHaveBeenLastCalledWith(
+        expect.anything(),
+        organizationId,
+        expect.objectContaining({ reference: back.number, sourceType: 'purchase_return' }),
+        REQUESTER,
+      );
+      const after = await orders.findOne(order.id, organizationId);
+      expect(Number(after.lines.find((l) => l.id === order.lines[0].id)?.receivedQuantity)).toBe(7);
+      expect(after.status).toBe(PurchaseOrderStatus.PARTIALLY_RECEIVED);
+      const view = await receipts.findOne(receipt.id, organizationId);
+      expect(view.lines[0]).toMatchObject({ quantity: 10, returnedQuantity: 3 });
+
+      // More than what is left of the receipt is refused…
+      await expect(
+        receipts.returnToSupplier(receipt.id, { lines: [{ lineId: order.lines[0].id, quantity: 8 }], reason: 'Otra' }, organizationId, REQUESTER),
+      ).rejects.toMatchObject({ messageKey: 'procurement.return_exceeds_received' });
+      // …and so is giving back goods the supplier already billed: that is a debit note, not a return.
+      await dataSource.query(`UPDATE "purchase_order_lines" SET "billed_quantity" = 7 WHERE "id" = $1`, [order.lines[0].id]);
+      await expect(
+        receipts.returnToSupplier(receipt.id, { lines: [{ lineId: order.lines[0].id, quantity: 1 }], reason: 'Otra' }, organizationId, REQUESTER),
+      ).rejects.toMatchObject({ messageKey: 'procurement.return_of_billed_goods_needs_debit_note' });
+    });
+
+    it('voids only what is still in after a return', async () => {
+      const order = await sentOrder();
+      const receipt = await receipts.create(
+        { orderId: order.id, lines: [{ lineId: order.lines[0].id, quantity: 5 }] },
+        organizationId,
+        REQUESTER,
+      );
+      await receipts.returnToSupplier(receipt.id, { lines: [{ lineId: order.lines[0].id, quantity: 2 }], reason: 'Dañadas' }, organizationId, REQUESTER);
+      await receipts.voidReceipt(receipt.id, { reason: 'Recepción duplicada' }, organizationId, REQUESTER);
+      const after = await orders.findOne(order.id, organizationId);
+      expect(after.lines.every((line) => Number(line.receivedQuantity) === 0)).toBe(true);
+      expect(after.status).toBe(PurchaseOrderStatus.SENT);
+    });
+  });
+
+  describe('closing an order and receipt tolerance (CMP-15)', () => {
+    const sent = async () => {
+      const order = await orders.create(
+        { supplierId, lines: [{ description: 'Resma de papel A4', quantity: 10, unitPrice: 230 }] },
+        organizationId,
+        REQUESTER,
+      );
+      await orders.submit(order.id, organizationId);
+      await orders.approve(order.id, organizationId, APPROVER);
+      return orders.send(order.id, organizationId);
+    };
+
+    it('closes what will not arrive, keeps what did, and receives nothing more', async () => {
+      const order = await sent();
+      await orders.receive(order.id, { lines: [{ lineId: order.lines[0].id, quantity: 6 }] }, organizationId);
+
+      const closed = await orders.close(order.id, organizationId, 'El proveedor descontinuó el producto');
+      expect(closed.status).toBe(PurchaseOrderStatus.CLOSED);
+      expect(closed.closeReason).toBe('El proveedor descontinuó el producto');
+      expect(closed.closedAt).toBeInstanceOf(Date);
+      expect(Number(closed.lines[0].receivedQuantity)).toBe(6);
+
+      await expect(
+        orders.receive(order.id, { lines: [{ lineId: order.lines[0].id, quantity: 1 }] }, organizationId),
+      ).rejects.toBeDefined();
+    });
+
+    it('cannot close an order that was never sent', async () => {
+      const draft = await orders.create(
+        { supplierId, lines: [{ description: 'Tóner', quantity: 1, unitPrice: 3_400 }] },
+        organizationId,
+        REQUESTER,
+      );
+      await expect(orders.close(draft.id, organizationId, 'No hace falta')).rejects.toBeDefined();
+      expect((await orders.findOne(draft.id, organizationId)).status).toBe(PurchaseOrderStatus.DRAFT);
+    });
+
+    it('accepts an over-delivery only within the tolerance the company set', async () => {
+      const order = await sent();
+      await expect(
+        orders.receive(order.id, { lines: [{ lineId: order.lines[0].id, quantity: 10.5 }] }, organizationId),
+      ).rejects.toBeDefined();
+
+      await dataSource.query(
+        `INSERT INTO "organization_settings" ("organization_id", "po_receipt_over_tolerance_bps") VALUES ($1, 500)
+         ON CONFLICT ("organization_id") DO UPDATE SET "po_receipt_over_tolerance_bps" = 500`,
+        [organizationId],
+      );
+      const received = await orders.receive(order.id, { lines: [{ lineId: order.lines[0].id, quantity: 10.5 }] }, organizationId);
+      expect(received.status).toBe(PurchaseOrderStatus.RECEIVED);
+      await expect(
+        orders.receive(order.id, { lines: [{ lineId: order.lines[0].id, quantity: 0.1 }] }, organizationId),
+      ).rejects.toBeDefined();
+    });
   });
 });

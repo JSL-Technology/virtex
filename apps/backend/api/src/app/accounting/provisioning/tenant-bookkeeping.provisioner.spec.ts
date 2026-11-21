@@ -6,6 +6,7 @@ import { TenantBookkeepingProvisioner } from './tenant-bookkeeping.provisioner';
 import { I18nService } from '../../i18n/i18n.service';
 import { FiscalYear } from '../entities/fiscal-year.entity';
 import { AccountingPeriod } from '../entities/accounting-period.entity';
+import { SYSTEM_JOURNALS } from '../../contracts/ledger-posting/system-journals';
 
 /**
  * What a tenant's own books are named in.
@@ -86,6 +87,10 @@ describeWithDb('tenant bookkeeping provisioning', () => {
 
     // The identifiers, not the labels. Translating these would break every posting path.
     expect(english.journals.map((journal) => journal.code).sort()).toEqual([
+      // Fixed-asset disposals (FINB-10) and the inflation adjustment: looked up by every disposal
+      // and every adjustment, and provisioned by nobody until they joined the catalogue.
+      'ACT-FIJOS',
+      'AJU-INF',
       'BANCOS',
       'CAJA',
       // Period close (QA C-06): depreciation, closing and reconciliation post into journals of
@@ -100,6 +105,17 @@ describeWithDb('tenant bookkeeping provisioning', () => {
       'PAGOS',
       'VENTAS',
     ]);
+  });
+
+  it('provisions exactly the journals the services are typed to look up', async () => {
+    const english = await provision('en');
+
+    // `SYSTEM_JOURNALS` is what `journalCode` and `JournalLookupService` accept: a code outside it
+    // does not compile, and every code in it exists on a new company.
+    expect(english.journals.map((journal) => journal.code).sort()).toEqual(
+      Object.values(SYSTEM_JOURNALS).map((journal) => journal.code).sort(),
+    );
+    expect(nameOf(english.journals, 'ACT-FIJOS')).toBe('Fixed assets journal');
   });
 
   it('still provisions Spanish books in Spanish', async () => {

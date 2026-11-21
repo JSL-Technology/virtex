@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 /**
  * The copilot's tools, contributed by the modules that own the data.
@@ -63,7 +63,7 @@ export interface CopilotRecordRef {
 }
 
 const RECORD_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RECORD_LABELS = ['number', 'invoiceNumber', 'fiscalNumber', 'quoteNumber', 'orderNumber', 'ncf', 'name', 'companyName', 'sku'];
+const RECORD_LABELS = ['number', 'invoiceNumber', 'fiscalNumber', 'supplierFiscalNumber', 'quoteNumber', 'orderNumber', 'name', 'companyName', 'sku'];
 
 /**
  * The records in a tool's result: every object (to a few levels deep) with a uuid `id`, labelled

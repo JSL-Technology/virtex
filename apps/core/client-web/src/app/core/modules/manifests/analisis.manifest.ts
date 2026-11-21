@@ -44,6 +44,8 @@ export const ANALISIS_MODULE: ModuleManifest = {
       path: 'manager-report',
       kind: WindowKind.OVERVIEW,
       permission: 'ai_reports:view',
+      // On the plans that include the manager's report (IA-02).
+      feature: 'ai_manager_reports',
       titleKey: 'page_titles.ai_manager_report',
       icon: 'ScrollText',
       entityKeyFn: () => 'analisis:manager-report',
@@ -55,6 +57,8 @@ export const ANALISIS_MODULE: ModuleManifest = {
       path: 'anomalies',
       kind: WindowKind.LIST,
       permission: 'ai_anomalies:view',
+      // On the plans that include anomaly detection (IA-02).
+      feature: 'ai_anomalies',
       titleKey: 'page_titles.ai_anomalies',
       icon: 'ShieldAlert',
       entityKeyFn: () => 'analisis:ai-anomalies',

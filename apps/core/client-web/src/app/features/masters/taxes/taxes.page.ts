@@ -8,7 +8,7 @@ import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -16,8 +16,8 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { CountryPackService } from '../../../core/api/country-pack.service';
 import { FiscalSettingsService, TaxJurisdiction } from '../../../core/api/fiscal-settings.service';
 import { VxDateFieldComponent } from '../../../shared/components/date';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * The company's taxes.

@@ -293,11 +293,6 @@
     "en": "{{count}} accounts were requested and the maximum per report is {{max}}.",
     "pt": "Foram solicitadas {{count}} contas e o máximo por relatório é {{max}}."
   },
-  "reports.default_accounts_receivable_account_not_configured": {
-    "es": "La cuenta de Cuentas por Cobrar por defecto no está configurada.",
-    "en": "The default Accounts Receivable account is not configured.",
-    "pt": "A conta padrão de Contas a Receber não está configurada."
-  },
   "reports.export.account": {
     "es": "Cuenta",
     "en": "Account",
@@ -646,25 +641,10 @@
     "en": "Total revenue",
     "pt": "Total de receitas"
   },
-  "reports.ledger_ledger_id_not_found": {
-    "es": "Libro contable con ID \"{{ledgerId}}\" no encontrado.",
-    "en": "Ledger \"{{ledgerId}}\" was not found.",
-    "pt": "Livro contábil \"{{ledgerId}}\" não encontrado."
-  },
-  "reports.ledger_report_could_not_determined_none": {
-    "es": "No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto.",
-    "en": "The ledger for the report could not be determined: none was specified and there is no default.",
-    "pt": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão."
-  },
   "reports.no_default_ledger_configured_set_one": {
     "es": "No hay un libro contable por defecto configurado. Defínelo en Ajustes → Contabilidad antes de generar el reporte.",
     "en": "No default ledger is configured. Set one in Settings → Accounting before generating the report.",
     "pt": "Não há um livro contábil padrão configurado. Defina-o em Configurações → Contabilidade antes de gerar o relatório."
-  },
-  "reports.no_outstanding_invoices_build_report_from": {
-    "es": "No hay facturas pendientes de pago para generar el reporte.",
-    "en": "There are no outstanding invoices to build the report from.",
-    "pt": "Não há faturas em aberto para gerar o relatório."
   },
   "reports.profitability_by_customer.customer_name": {
     "es": "Cliente",

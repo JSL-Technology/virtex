@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { CurrenciesService } from './currencies.service';
@@ -9,7 +9,6 @@ import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { ExchangeRate } from './entities/exchange-rate.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
 import { ExchangeRatesController } from './exchange-rates.controller';
-import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { ExchangeRateResolver } from './exchange-rate-resolver.service';
 import { XeRatesProvider } from './xe-rates.provider';
 
@@ -18,12 +17,12 @@ import { XeRatesProvider } from './xe-rates.provider';
 // AccountingModule provides and exports it from there.
 
 @Module({
+  // `ChartOfAccountsModule` was imported here behind a `forwardRef`, and the comment explaining
+  // the `forwardRef` described the cycle that the import itself created: currencies is platform,
+  // chart-of-accounts is the ledger, and nothing in this folder used a single provider from it —
+  // `CurrencyRevaluationService` had already moved to `accounting/`, which is where it belongs.
+  // Removing the import removed the cycle and the workaround together.
   imports: [
-    // `forwardRef` because the graph really is circular: ChartOfAccountsModule reaches
-    // JournalEntriesModule, which reaches back here. Without it the class expression is still
-    // being evaluated when this module is defined, so `imports[0]` is literally `undefined` and
-    // Nest fails to build the container — which is what stopped the application booting at all.
-    forwardRef(() => ChartOfAccountsModule),
     TypeOrmModule.forFeature([Currency, ExchangeRate, TenantExchangeRate]),
     HttpModule,
   ],

@@ -6,7 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { LucideAngularModule, CheckCircle2, Printer } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { DocumentsService } from '../../../core/documents.service';
 import { PosSale } from '../../../core/pos-api.service';
 import { TillStore } from '../../../state/till.store';

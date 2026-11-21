@@ -18,12 +18,12 @@ import {
   TranslateStore,
   provideTranslateService,
 } from '@ngx-translate/core';
-import { DEFAULT_LANGUAGE } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE } from '@virtex/shared/types';
 import {
   LocaleStore,
   VirtexMissingTranslationHandler,
   VirtexTranslateStore,
-} from '@virteex/shared/ui-i18n';
+} from '@virtex/shared/ui-i18n';
 import { APP_ROUTES } from './app.routes';
 import { apiInterceptor } from './core/api.interceptor';
 import { sessionExpiryInterceptor } from './core/session-expiry.interceptor';

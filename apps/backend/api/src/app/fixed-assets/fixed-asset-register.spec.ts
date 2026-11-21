@@ -29,6 +29,7 @@ import {
   dropTestOrganization,
   openTestDataSource,
 } from '../common/database/testing/integration-db';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 /**
  * The fixed-asset register against a real database and the real ledger: registering, the monthly
@@ -86,11 +87,17 @@ describeWithDb('fixed-asset register', () => {
       }),
     );
     ledgerId = ledger.id;
-    await dataSource.getRepository(Journal).save([
-      { organizationId, code: 'GENERAL', name: 'Diario general', type: 'GENERAL' as const },
-      { organizationId, code: 'DEPREC', name: 'Diario de depreciación', type: 'GENERAL' as const },
-      { organizationId, code: 'ACT-FIJOS', name: 'Activos fijos', type: 'GENERAL' as const },
-    ]);
+    // The journals a provisioned company has — taken from the catalogue the provisioner reads, not
+    // picked by hand. Inserting the one journal the code under test needed is how this suite stayed
+    // green while every real company refused to dispose of an asset (FINB-10).
+    await dataSource.getRepository(Journal).save(
+      Object.values(SYSTEM_JOURNALS).map((journal) => ({
+        organizationId,
+        code: journal.code,
+        name: journal.code,
+        type: journal.type,
+      })),
+    );
 
     // Open months to post into, from the earliest asset below to the latest disposal.
     const periods = [];

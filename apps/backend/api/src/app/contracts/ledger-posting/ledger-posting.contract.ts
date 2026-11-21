@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
+import type { SystemJournalCode } from './system-journals';
 
 /**
  * Posting to the general ledger, for modules that must not depend on accounting's insides.
@@ -20,11 +21,13 @@ export interface LedgerPostingLine {
   debit: number;
   credit: number;
   description?: string;
+  /** Analytical tags, by dimension name. Validated like any entry's unless `tagsFromLedger`. */
+  dimensions?: Record<string, string>;
 }
 
 export interface LedgerPostingRequest {
-  /** The journal by its code (`VENTAS`, `GENERAL`); the gateway resolves it for the company. */
-  journalCode: string;
+  /** One of the journals every company has (`SYSTEM_JOURNALS`); the gateway resolves it for the company. */
+  journalCode: SystemJournalCode;
   /** The entry's date, `YYYY-MM-DD`, in the company's calendar. */
   date: string;
   description: string;
@@ -40,6 +43,13 @@ export interface LedgerPostingContext {
   /** The same key posts once, however many times the caller retries. */
   idempotencyKey?: string;
   module?: LedgerPostingModule;
+  /**
+   * The lines' dimension tags were copied from entries already in the ledger — an account merge
+   * reclassifying a balance carries the tags that balance was posted under. They are then carried
+   * as they are: not re-validated against today's catalogue, and not checked against mandatory
+   * rules, which a tag that came out of the ledger satisfies by construction.
+   */
+  tagsFromLedger?: boolean;
 }
 
 /** Words in the books' language, from catalogue keys. */

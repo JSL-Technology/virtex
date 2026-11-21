@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 
 import { Ban, FileMinus, FileText, LucideAngularModule, RotateCw } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -25,7 +25,7 @@ import {
   VendorDebitNoteRow,
   VendorDebitNoteStatus,
 } from '../../../core/services/accounts-payable';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 export const DEBIT_NOTE_TONE: Record<VendorDebitNoteStatus, VxTone> = { POSTED: 'ok', VOIDED: 'neutral' };
 

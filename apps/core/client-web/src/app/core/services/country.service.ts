@@ -83,6 +83,8 @@ export interface CountryConfig {
    * promising a regime it cannot satisfy.
    */
   marketStatus: 'available' | 'preview';
+  /** Whether statutory payroll is computed for this market (JUR-02). */
+  payrollAvailable?: boolean;
 
   /** Whether the form must ask company versus natural person. */
   taxpayerKindRequired: boolean;

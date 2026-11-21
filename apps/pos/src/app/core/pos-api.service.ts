@@ -9,8 +9,15 @@ export interface CatalogueItem {
   name: string;
   sku: string | null;
   barcode: string | null;
-  /** Unit price before tax. */
+  /** Unit price before tax, for one unit (the default price list's, when it carries the item). */
   price: number;
+  /**
+   * The default price list's quantity breaks (FAC-PL-01): a line takes the price of the largest
+   * minimum its quantity reaches, else `cataloguePrice`. Absent from an older server.
+   */
+  cataloguePrice?: number;
+  priceBreaks?: Array<{ minQuantity: number; price: number }>;
+  priceListId?: string | null;
   /** The rate the server will tax a line at, already resolved — the till never re-derives it. */
   taxRate: number;
   /** 'GOOD' is stocked; 'SERVICE' is not, and is never out of stock. */

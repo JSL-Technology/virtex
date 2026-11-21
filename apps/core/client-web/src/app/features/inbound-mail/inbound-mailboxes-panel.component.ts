@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Copy, RefreshCw } from 'lucide-angular';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { DialogService } from '../../core/services/dialog.service';
 import { NotificationService } from '../../core/services/notification';
 import { AuthService } from '../../core/services/auth';

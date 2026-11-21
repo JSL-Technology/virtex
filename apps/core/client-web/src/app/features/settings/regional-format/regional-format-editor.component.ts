@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, LocaleStore, localeDatePattern, localeNumberSymbols } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, localeDatePattern, localeNumberSymbols } from '@virtex/shared/ui-i18n';
 import {
   DATE_ORDERS,
   DATE_SEPARATORS,
@@ -13,7 +13,7 @@ import {
   TimeFormat,
   WEEK_STARTS,
   mergeRegionalFormats,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 /** The day every example is written with: the 14th, so day and month cannot be mistaken. */
 const SAMPLE_DAY = { D: '14', M: '09', Y: '2026' };

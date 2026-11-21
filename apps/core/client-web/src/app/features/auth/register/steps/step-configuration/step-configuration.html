@@ -223,4 +223,8 @@
       {{ 'register.configuration.einvoicing_preview_detail' | translate: { regime: regime } }}
     </ng-template>
   </p>
+  <!-- Payroll is disclosed too (JUR-02): it used to be listed as working in every market. -->
+  <p class="invoicing-notice" *ngIf="config() && config()?.payrollAvailable === false">
+    {{ 'register.configuration.payroll_unavailable' | translate: { country: configCountryName() } }}
+  </p>
 </div>

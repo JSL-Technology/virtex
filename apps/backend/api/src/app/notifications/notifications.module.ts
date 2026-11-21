@@ -9,6 +9,7 @@ import { PushSubscription } from '../push-notifications/entities/push-subscripti
 import { ApprovalNotificationsListener } from './listeners/approval-notifications.listener';
 import { AiNotificationsListener } from './listeners/ai-notifications.listener';
 import { OperationsNotificationsListener } from './listeners/operations-notifications.listener';
+import { BudgetNotificationsListener } from './listeners/budget-notifications.listener';
 import { OverdueInvoicesNotifier } from './overdue-invoices.notifier';
 
 @Module({
@@ -23,6 +24,7 @@ import { OverdueInvoicesNotifier } from './overdue-invoices.notifier';
     ApprovalNotificationsListener,
     AiNotificationsListener,
     OperationsNotificationsListener,
+    BudgetNotificationsListener,
     OverdueInvoicesNotifier,
   ],
   exports: [NotificationsService],

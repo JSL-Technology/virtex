@@ -1,9 +1,11 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
 import { XmlSignatureService } from '../xml-signature.service';
 import { RegimeTransportService } from '../regime-transport.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
+import { modifiedDocumentOf } from '../modified-document';
 import { FiscalRangeSecretKind } from '../../entities/fiscal-document-range.entity';
 import {
   FiscalRegimeAdapter,
@@ -73,9 +75,10 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       countryCode: 'CL',
       documentType,
       number: folio,
+      series: context.invoice.fiscalSeries ?? undefined,
     });
 
-    if (range.secretKind !== FiscalRangeSecretKind.CAF_XML || !range.encryptedSecret) {
+    if (range.secretKind !== FiscalRangeSecretKind.AUTHORISED_FOLIOS || !range.encryptedSecret) {
       throw new RegimeNotConfigured(this.regime, 'el archivo CAF que autoriza este folio');
     }
 
@@ -84,6 +87,8 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       invoice: context.invoice,
       organization,
       customer,
+      // On a nota de crédito/débito: the DTE it refers to, with the SII's CodRef for why.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'CL'),
       caf: {
         folio,
         rangeFrom: Number(range.startsAt),
@@ -165,10 +170,10 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('CL', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       trackingKeys: ['TRACKID', 'trackid', 'TrackId'],
     });
 
@@ -179,10 +184,10 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.transport.send('CL', `<getEstUp><TRACKID>${trackingId}</TRACKID></getEstUp>`, {
-      contentType: 'application/xml',
+    return this.transport.send('CL', `<getEstUp><TRACKID>${escapeXmlText(trackingId)}</TRACKID></getEstUp>`, {
+      organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml',
       trackingKeys: ['ESTADO', 'estado'],
     });
   }

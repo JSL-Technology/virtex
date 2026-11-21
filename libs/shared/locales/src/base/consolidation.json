@@ -4,10 +4,80 @@
     "en": "One or more of the accounts given do not belong to the corresponding company.",
     "pt": "Uma ou mais das contas indicadas não pertencem à empresa correspondente."
   },
+  "consolidation.elimination.intercompany_funding": {
+    "es": "Financiamiento intragrupo de {{from}} a {{to}} ({{count}} movimientos)",
+    "en": "Intragroup funding from {{from}} to {{to}} ({{count}} movements)",
+    "pt": "Financiamento intragrupo de {{from}} para {{to}} ({{count}} movimentos)"
+  },
+  "consolidation.elimination.intragroup_trade": {
+    "es": "Ventas de {{seller}} a {{buyer}}",
+    "en": "Sales from {{seller}} to {{buyer}}",
+    "pt": "Vendas de {{seller}} a {{buyer}}"
+  },
   "consolidation.elimination.investment_in_subsidiary": {
     "es": "Inversión en {{member}} contra su patrimonio a la fecha de adquisición ({{date}}).",
     "en": "Investment in {{member}} against its equity at the acquisition date ({{date}}).",
     "pt": "Investimento em {{member}} contra o seu património à data de aquisição ({{date}})."
+  },
+  "consolidation.line.bargain_purchase_gain": {
+    "es": "Ganancia por compra en condiciones ventajosas",
+    "en": "Gain on a bargain purchase",
+    "pt": "Ganho em compra vantajosa"
+  },
+  "consolidation.line.goodwill": {
+    "es": "Plusvalía (al tipo histórico)",
+    "en": "Goodwill (at the historical rate)",
+    "pt": "Goodwill (à taxa histórica)"
+  },
+  "consolidation.line.intercompany_payable_eliminated": {
+    "es": "Cuentas por pagar intragrupo (eliminadas)",
+    "en": "Intragroup payables (eliminated)",
+    "pt": "Contas a pagar intragrupo (eliminadas)"
+  },
+  "consolidation.line.intercompany_receivable_eliminated": {
+    "es": "Cuentas por cobrar intragrupo (eliminadas)",
+    "en": "Intragroup receivables (eliminated)",
+    "pt": "Contas a receber intragrupo (eliminadas)"
+  },
+  "consolidation.line.intragroup_cost_eliminated": {
+    "es": "Costo de ventas intragrupo (eliminado)",
+    "en": "Intragroup cost of sales (eliminated)",
+    "pt": "Custo das vendas intragrupo (eliminado)"
+  },
+  "consolidation.line.intragroup_sales_eliminated": {
+    "es": "Ventas intragrupo (eliminadas)",
+    "en": "Intragroup sales (eliminated)",
+    "pt": "Vendas intragrupo (eliminadas)"
+  },
+  "consolidation.line.investment_eliminated": {
+    "es": "Inversión en subsidiarias (eliminada)",
+    "en": "Investment in subsidiaries (eliminated)",
+    "pt": "Investimento em subsidiárias (eliminado)"
+  },
+  "consolidation.line.non_controlling_interest": {
+    "es": "Participación no controladora",
+    "en": "Non-controlling interest",
+    "pt": "Participação de não controladores"
+  },
+  "consolidation.line.post_acquisition_reserves": {
+    "es": "Reservas posteriores a la adquisición (controladora)",
+    "en": "Post-acquisition reserves (parent)",
+    "pt": "Reservas posteriores à aquisição (controladora)"
+  },
+  "consolidation.line.pre_acquisition_equity": {
+    "es": "Patrimonio de la subsidiaria a la adquisición (parte de la controladora)",
+    "en": "Subsidiary equity at acquisition (parent's share)",
+    "pt": "Património da subsidiária na aquisição (parte da controladora)"
+  },
+  "consolidation.line.translation_reserve": {
+    "es": "Diferencia de conversión acumulada (ORI)",
+    "en": "Cumulative translation reserve (OCI)",
+    "pt": "Diferença de conversão acumulada (ORA)"
+  },
+  "consolidation.line.unclosed_result": {
+    "es": "Resultado del ejercicio no cerrado",
+    "en": "Result of the year not yet closed",
+    "pt": "Resultado do exercício por encerrar"
   },
   "consolidation.mapping_updated_with_count_correspondences": {
     "es": "Mapeo actualizado con {{count}} correspondencias.",
@@ -24,6 +94,221 @@
     "en": "Organization not found.",
     "pt": "Organização não encontrada."
   },
+  "consolidation.page.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "consolidation.page.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Montante"
+  },
+  "consolidation.page.attributable_nci": {
+    "es": "Atribuible a la participación no controladora",
+    "en": "Attributable to non-controlling interest",
+    "pt": "Atribuível a não controladores"
+  },
+  "consolidation.page.attributable_parent": {
+    "es": "Atribuible a la controladora",
+    "en": "Attributable to the parent",
+    "pt": "Atribuível à controladora"
+  },
+  "consolidation.page.balance_check": {
+    "es": "Cuadre",
+    "en": "Balance check",
+    "pt": "Verificação"
+  },
+  "consolidation.page.balance_sheet": {
+    "es": "Estado de situación consolidado",
+    "en": "Consolidated statement of financial position",
+    "pt": "Balanço consolidado"
+  },
+  "consolidation.page.balanced": {
+    "es": "Cuadra",
+    "en": "Balances",
+    "pt": "Equilibrado"
+  },
+  "consolidation.page.balanced_short": {
+    "es": "Cuadra",
+    "en": "Balanced",
+    "pt": "Equilibrado"
+  },
+  "consolidation.page.closing_rate": {
+    "es": "Tipo de cierre",
+    "en": "Closing rate",
+    "pt": "Taxa de fecho"
+  },
+  "consolidation.page.credit": {
+    "es": "Haber",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "consolidation.page.currency": {
+    "es": "Moneda funcional",
+    "en": "Functional currency",
+    "pt": "Moeda funcional"
+  },
+  "consolidation.page.debit": {
+    "es": "Debe",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "consolidation.page.elimination": {
+    "es": "Eliminación",
+    "en": "Elimination",
+    "pt": "Eliminação"
+  },
+  "consolidation.page.eliminations": {
+    "es": "Eliminaciones",
+    "en": "Eliminations",
+    "pt": "Eliminações"
+  },
+  "consolidation.page.entities": {
+    "es": "Empresas del grupo",
+    "en": "Group companies",
+    "pt": "Empresas do grupo"
+  },
+  "consolidation.page.entity": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "consolidation.page.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "consolidation.page.equity": {
+    "es": "Patrimonio convertido",
+    "en": "Translated equity",
+    "pt": "Património convertido"
+  },
+  "consolidation.page.equity_parent": {
+    "es": "Patrimonio de la controladora",
+    "en": "Equity attributable to the parent",
+    "pt": "Património da controladora"
+  },
+  "consolidation.page.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "consolidation.page.goodwill": {
+    "es": "Plusvalía",
+    "en": "Goodwill",
+    "pt": "Goodwill"
+  },
+  "consolidation.page.income_statement": {
+    "es": "Estado de resultados consolidado",
+    "en": "Consolidated income statement",
+    "pt": "Demonstração de resultados consolidada"
+  },
+  "consolidation.page.nci": {
+    "es": "Participación no controladora",
+    "en": "Non-controlling interest",
+    "pt": "Participação de não controladores"
+  },
+  "consolidation.page.net_income": {
+    "es": "Resultado del período",
+    "en": "Result for the period",
+    "pt": "Resultado do período"
+  },
+  "consolidation.page.no_runs": {
+    "es": "Todavía no hay consolidaciones.",
+    "en": "No consolidations yet.",
+    "pt": "Ainda não há consolidações."
+  },
+  "consolidation.page.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "consolidation.page.out_of_balance": {
+    "es": "Descuadre de {{amount}}",
+    "en": "Out of balance by {{amount}}",
+    "pt": "Desequilíbrio de {{amount}}"
+  },
+  "consolidation.page.out_of_balance_short": {
+    "es": "Descuadrada",
+    "en": "Out of balance",
+    "pt": "Desequilibrado"
+  },
+  "consolidation.page.ownership": {
+    "es": "Participación",
+    "en": "Ownership",
+    "pt": "Participação"
+  },
+  "consolidation.page.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "consolidation.page.period_backwards": {
+    "es": "El inicio del período es posterior a su cierre.",
+    "en": "The period starts after it ends.",
+    "pt": "O início do período é posterior ao fim."
+  },
+  "consolidation.page.run": {
+    "es": "Consolidar",
+    "en": "Consolidate",
+    "pt": "Consolidar"
+  },
+  "consolidation.page.run_at": {
+    "es": "Calculada",
+    "en": "Computed",
+    "pt": "Calculada"
+  },
+  "consolidation.page.run_failed": {
+    "es": "No se pudo consolidar el grupo.",
+    "en": "The group could not be consolidated.",
+    "pt": "Não foi possível consolidar o grupo."
+  },
+  "consolidation.page.running": {
+    "es": "Consolidando…",
+    "en": "Consolidating…",
+    "pt": "A consolidar…"
+  },
+  "consolidation.page.runs": {
+    "es": "Consolidaciones guardadas",
+    "en": "Saved consolidations",
+    "pt": "Consolidações guardadas"
+  },
+  "consolidation.page.subtitle": {
+    "es": "Estados consolidados (NIIF 10 / NIC 21) con cada eliminación como asiento. Cada corrida se guarda.",
+    "en": "Consolidated statements (IFRS 10 / IAS 21) with every elimination as an entry. Every run is kept.",
+    "pt": "Demonstrações consolidadas (IFRS 10 / IAS 21) com cada eliminação como lançamento. Cada execução é guardada."
+  },
+  "consolidation.page.title": {
+    "es": "Consolidación del grupo",
+    "en": "Group consolidation",
+    "pt": "Consolidação do grupo"
+  },
+  "consolidation.page.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "consolidation.page.total_assets": {
+    "es": "Activos totales",
+    "en": "Total assets",
+    "pt": "Ativos totais"
+  },
+  "consolidation.page.total_liabilities_equity": {
+    "es": "Pasivo y patrimonio",
+    "en": "Liabilities and equity",
+    "pt": "Passivo e património"
+  },
+  "consolidation.page.translation_reserve": {
+    "es": "Diferencia de conversión",
+    "en": "Translation reserve",
+    "pt": "Diferença de conversão"
+  },
+  "consolidation.page.warnings": {
+    "es": "Avisos",
+    "en": "Warnings",
+    "pt": "Avisos"
+  },
   "consolidation.parent_organization_not_found": {
     "es": "Organización matriz no encontrada.",
     "en": "The parent organization was not found.",
@@ -33,6 +318,11 @@
     "es": "El inicio del período ({{startDate}}) es posterior a la fecha de corte ({{asOfDate}}).",
     "en": "The period start ({{startDate}}) is later than the reporting date ({{asOfDate}}).",
     "pt": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}})."
+  },
+  "consolidation.run_not_found": {
+    "es": "No se encontró la consolidación.",
+    "en": "The consolidation was not found.",
+    "pt": "A consolidação não foi encontrada."
   },
   "consolidation.settings_parent_organization_parent_organization_id": {
     "es": "Configuraciones para la organización matriz {{parentOrganizationId}} no encontradas.",
@@ -54,25 +344,35 @@
     "en": "The group stopped controlling {{member}} on {{date}}, within the period: its result is included in full and should only be included up to that date.",
     "pt": "O grupo deixou de controlar {{member}} em {{date}}, dentro do período: o seu resultado é incluído por inteiro e deveria ser incluído apenas até essa data."
   },
-  "consolidation.warning.intercompany_accounts_missing": {
-    "es": "La operación intercompañía {{transaction}} no encontró ambas cuentas en los estados consolidados; la eliminación puede estar incompleta.",
-    "en": "Intercompany transaction {{transaction}} did not find both accounts in the consolidated statements; the elimination may be incomplete.",
-    "pt": "A operação intercompanhia {{transaction}} não encontrou ambas as contas nas demonstrações consolidadas; a eliminação pode estar incompleta."
-  },
-  "consolidation.warning.intercompany_no_rate": {
-    "es": "Sin tasa de {{from}} a {{to}} al {{date}}; la operación intercompañía {{transaction}} no se eliminó.",
-    "en": "No {{from}} to {{to}} rate on {{date}}; intercompany transaction {{transaction}} was not eliminated.",
-    "pt": "Sem taxa de {{from}} para {{to}} em {{date}}; a operação intercompanhia {{transaction}} não foi eliminada."
-  },
   "consolidation.warning.intercompany_transaction_transaction_status_only_one": {
     "es": "La operación intercompañía {{transaction}} está en estado {{status}}: solo una de sus dos mitades está registrada, por lo que no se elimina.",
     "en": "Intercompany transaction {{transaction}} is {{status}}: only one of its two halves is recorded, so it is not eliminated.",
     "pt": "A operação intercompanhia {{transaction}} está em estado {{status}}: apenas uma das duas metades está registada, pelo que não é eliminada."
   },
+  "consolidation.warning.intragroup_balance_mismatch": {
+    "es": "Los saldos entre {{left}} y {{right}} no coinciden (por cobrar {{receivable}}, por pagar {{payable}}): la diferencia se presentó en la diferencia de conversión. Concílialos.",
+    "en": "The balances between {{left}} and {{right}} do not agree (receivable {{receivable}}, payable {{payable}}): the difference was shown in the translation reserve. Reconcile them.",
+    "pt": "Os saldos entre {{left}} e {{right}} não coincidem (a receber {{receivable}}, a pagar {{payable}}): a diferença foi apresentada na diferença de conversão. Concilie-os."
+  },
+  "consolidation.warning.intragroup_sales_mismatch": {
+    "es": "{{seller}} vendió {{sold}} a {{buyer}}, que registró compras por {{bought}}: concilia la diferencia (documentos pendientes de registrar o conversión).",
+    "en": "{{seller}} sold {{sold}} to {{buyer}}, which recorded purchases of {{bought}}: reconcile the difference (documents not yet recorded, or translation).",
+    "pt": "{{seller}} vendeu {{sold}} a {{buyer}}, que registou compras de {{bought}}: concilie a diferença (documentos por registar ou conversão)."
+  },
+  "consolidation.warning.investment_account_missing": {
+    "es": "No se encontró la cuenta de inversión en {{member}} entre los activos de la controladora: la eliminación se presenta en una línea propia. Revisa la cuenta indicada en la subsidiaria.",
+    "en": "The investment account in {{member}} was not found among the parent's assets: the elimination is shown on its own line. Check the account set on the subsidiary.",
+    "pt": "A conta de investimento em {{member}} não foi encontrada nos ativos da controladora: a eliminação é apresentada numa linha própria. Verifique a conta indicada na subsidiária."
+  },
   "consolidation.warning.member_out_of_balance": {
     "es": "El balance individual de {{member}} está descuadrado por {{amount}}.",
     "en": "{{member}}'s own balance sheet is out of balance by {{amount}}.",
     "pt": "O balanço individual de {{member}} está desequilibrado em {{amount}}."
+  },
+  "consolidation.warning.no_acquisition_cost": {
+    "es": "{{member}} no tiene costo de adquisición: la inversión no se elimina y el patrimonio a la adquisición queda en el patrimonio del grupo. Registra el costo en Ajustes › Subsidiarias.",
+    "en": "{{member}} has no acquisition cost: the investment is not eliminated and the equity at acquisition stays in group equity. Record the cost in Settings › Subsidiaries.",
+    "pt": "{{member}} não tem custo de aquisição: o investimento não é eliminado e o património na aquisição fica no património do grupo. Registe o custo em Ajustes › Subsidiárias."
   },
   "consolidation.warning.no_acquisition_date": {
     "es": "Sin fecha de adquisición registrada: el patrimonio se convirtió a la tasa de cierre en lugar de la histórica (NIC 21.39(b)).",
@@ -93,5 +393,10 @@
     "es": "Sin mapa de consolidación para {{member}}: sus cuentas se presentan con su propia codificación.",
     "en": "No consolidation map for {{member}}: its accounts are presented under its own coding.",
     "pt": "Sem mapa de consolidação para {{member}}: as suas contas são apresentadas com a codificação própria."
+  },
+  "consolidation.warning.unrealised_profit_not_eliminated": {
+    "es": "{{buyer}} compró mercancía a {{seller}}: el margen no realizado en su inventario al cierre no se elimina automáticamente (verificar con el contador).",
+    "en": "{{buyer}} bought goods from {{seller}}: the unrealised profit in its closing inventory is not eliminated automatically (check with your accountant).",
+    "pt": "{{buyer}} comprou mercadoria a {{seller}}: a margem não realizada no seu inventário de fecho não é eliminada automaticamente (verifique com o contabilista)."
   }
 }

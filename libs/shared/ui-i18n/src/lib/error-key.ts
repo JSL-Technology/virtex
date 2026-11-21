@@ -26,7 +26,7 @@
  * Shared rather than written twice because the order IS the contract: two applications resolving it
  * differently is the same class of defect as two catalogues wording one key differently.
  */
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 
 /** The body of an error response, as far as this cares. */
 export interface ApiErrorBody {

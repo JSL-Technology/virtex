@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
-import { resolveErrorKey } from '@virteex/shared/ui-i18n';
+import { resolveErrorKey } from '@virtex/shared/ui-i18n';
 import {
   Observable,
   catchError,

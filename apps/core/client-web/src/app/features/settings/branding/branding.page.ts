@@ -9,8 +9,8 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 import { RegionalFormatPage } from '../regional-format/regional-format.page';
 

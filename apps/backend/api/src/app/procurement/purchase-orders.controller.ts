@@ -160,6 +160,18 @@ export class PurchaseOrdersController {
     return this.orders.receipts(id, user.organizationId);
   }
 
+  /** Close the outstanding balance of a partly delivered order (CMP-15). */
+  @Post(':id/close')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
+  close(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: RejectDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.orders.close(id, user.organizationId, dto.reason);
+  }
+
   @Post(':id/cancel')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, injec
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, CalendarDays } from 'lucide-angular';
-import { FormatService, TranslateModule } from '@virteex/shared/ui-i18n';
+import { FormatService, TranslateModule } from '@virtex/shared/ui-i18n';
 
 let nextId = 0;
 

@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { CalendarClock, LucideAngularModule, PackageX, Pencil, PlusCircle, RotateCw, Trash2 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -17,7 +17,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { FixedAsset, FixedAssetStatus, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok', SOLD: 'neutral', DISPOSED: 'neutral' };
 

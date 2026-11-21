@@ -4,7 +4,7 @@ import { PERMISSIONS_KEY } from '../decorators/permissions.constants';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { AUTHENTICATED_ONLY_KEY } from '../decorators/authenticated-only.decorator';
 import { Permission } from '../../shared/permissions';
-import { AuthenticatedRequest, hasPermission } from '@virteex/shared/util-auth';
+import { AuthenticatedRequest, hasPermission } from '@virtex/shared/util-auth';
 // Interface for a Policy (Context-Aware Check)
 export interface IPolicy {
   can(user: any, request: any): boolean | Promise<boolean>;

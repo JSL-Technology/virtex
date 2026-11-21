@@ -86,7 +86,7 @@
               @for (line of doc.payments ?? []; track line.id) {
                 <tr>
                   <td>
-                    <a [routerLink]="['/accounts-payable', line.vendorBillId]">{{ line.vendorBill?.ncf || (line.vendorBill?.date | vxDate: 'date' : true) }}</a>
+                    <a [routerLink]="['/accounts-payable', line.vendorBillId]">{{ line.vendorBill?.supplierFiscalNumber || (line.vendorBill?.date | vxDate: 'date' : true) }}</a>
                   </td>
                   <td>{{ line.vendorBill?.vendor?.name ?? '—' }}</td>
                   <td class="numeric">{{ line.amountPaid | vxNumber: '1.2-2' }}</td>

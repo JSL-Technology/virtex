@@ -34,9 +34,14 @@ export class QuoteLineDto {
   @Min(0.000001)
   quantity: number;
 
+  /**
+   * Omitted: the customer's price list, the default list for the currency, then the catalogue
+   * (FAC-PL-01). Sent: that price, and the line records the list price it was typed over.
+   */
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 6 })
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
-  unitPrice: number;
+  unitPrice?: number;
 
   @IsNumber({ maxDecimalPlaces: 6 })
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })

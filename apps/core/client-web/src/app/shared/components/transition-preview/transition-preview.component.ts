@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { LucideAngularModule, Check, X, AlertTriangle } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './transition-preview.model';
 
 /**

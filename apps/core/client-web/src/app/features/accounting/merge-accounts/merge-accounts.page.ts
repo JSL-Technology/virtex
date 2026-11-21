@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { LucideAngularModule, AlertTriangle, ArrowRight, Ban, GitMerge } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VX_SELECT } from '../../../shared/components/select';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { Account } from '../../../core/models/account.model';

@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertCircle, CheckCircle, DownloadCloud, Loader, LucideAngularModule } from 'lucide-angular';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import {
   DataTransferDataset,
   DataTransferFormat,

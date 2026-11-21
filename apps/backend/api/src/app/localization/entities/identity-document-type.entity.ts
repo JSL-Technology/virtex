@@ -4,7 +4,7 @@ import type {
   DocumentAppliesTo,
   DocumentContext,
   DocumentRequirement,
-} from '../fiscal/identity-document-catalogue';
+} from '../../markets';
 
 /**
  * One identity document a jurisdiction issues.

@@ -4,10 +4,85 @@
     "en": "The account for “{{description}}” is not configured.",
     "pt": "Falta a conta contábil para “{{description}}”."
   },
+  "invoices.adjustment_reason.additional_charges": {
+    "es": "Cargos adicionales (flete, gastos)",
+    "en": "Additional charges (freight, expenses)",
+    "pt": "Encargos adicionais (frete, despesas)"
+  },
+  "invoices.adjustment_reason.annulment": {
+    "es": "Anulación de la operación",
+    "en": "The operation is annulled",
+    "pt": "Anulação da operação"
+  },
+  "invoices.adjustment_reason.detail_correction": {
+    "es": "Corrección de datos, sin cambio de importes",
+    "en": "Details corrected, amounts unchanged",
+    "pt": "Correção de dados, sem alterar os valores"
+  },
+  "invoices.adjustment_reason.goods_return": {
+    "es": "Devolución de mercancía",
+    "en": "Goods returned",
+    "pt": "Devolução de mercadoria"
+  },
+  "invoices.adjustment_reason.late_payment_interest": {
+    "es": "Intereses por mora",
+    "en": "Interest for paying late",
+    "pt": "Juros por atraso"
+  },
+  "invoices.adjustment_reason.other": {
+    "es": "Otro motivo",
+    "en": "Another reason",
+    "pt": "Outro motivo"
+  },
+  "invoices.adjustment_reason.penalty": {
+    "es": "Penalidad",
+    "en": "Penalty",
+    "pt": "Penalidade"
+  },
+  "invoices.adjustment_reason.price_increase": {
+    "es": "Aumento del valor de la operación",
+    "en": "The agreed value goes up",
+    "pt": "Aumento do valor da operação"
+  },
+  "invoices.adjustment_reason.price_reduction": {
+    "es": "Rebaja o descuento posterior",
+    "en": "Price reduction or discount granted afterwards",
+    "pt": "Redução ou desconto posterior"
+  },
   "invoices.amount_credit_amount_exceeds_creditable_balance": {
     "es": "El importe a acreditar ({{amount}}) excede el saldo acreditable de la factura {{invoiceNumber}} ({{remaining}}).",
     "en": "The amount to credit ({{amount}}) exceeds the creditable balance of invoice {{invoiceNumber}} ({{remaining}}).",
     "pt": "O valor a creditar ({{amount}}) excede o saldo creditável da fatura {{invoiceNumber}} ({{remaining}})."
+  },
+  "invoices.cancellation_authority_event_not_available": {
+    "es": "La anulación ante {{authority}} todavía no está disponible en el producto. Para revertir la factura, emite una nota de crédito.",
+    "en": "Cancelling with {{authority}} is not yet available in the product. To reverse the invoice, issue a credit note.",
+    "pt": "A anulação perante {{authority}} ainda não está disponível no produto. Para reverter a fatura, emita uma nota de crédito."
+  },
+  "invoices.cancellation_credit_note_only": {
+    "es": "Ante {{authority}}, un documento fiscal emitido no se anula: se revierte con una nota de crédito.",
+    "en": "With {{authority}}, an issued fiscal document is not cancelled: it is reversed with a credit note.",
+    "pt": "Perante {{authority}}, um documento fiscal emitido não se anula: reverte-se com uma nota de crédito."
+  },
+  "invoices.cancellation_only_untouched": {
+    "es": "Solo se anula una factura emitida que no se ha cobrado, acreditado ni modificado con una nota. Para esta, emite una nota de crédito.",
+    "en": "Only an issued invoice that has not been collected, credited or modified by a note is cancelled. For this one, issue a credit note.",
+    "pt": "Só se anula uma fatura emitida que não foi cobrada, creditada nem modificada por uma nota. Para esta, emita uma nota de crédito."
+  },
+  "invoices.cancellation_reason_code_not_applicable": {
+    "es": "Esta anulación no lleva código de motivo: basta con explicar el motivo.",
+    "en": "This cancellation takes no reason code: explaining the reason is enough.",
+    "pt": "Esta anulação não leva código de motivo: basta explicar o motivo."
+  },
+  "invoices.cancellation_reason_code_not_in_catalogue": {
+    "es": "El motivo {{code}} no está en el catálogo vigente de {{authority}}.",
+    "en": "Reason {{code}} is not in the current {{authority}} catalogue.",
+    "pt": "O motivo {{code}} não está no catálogo vigente de {{authority}}."
+  },
+  "invoices.cancellation_reason_code_required": {
+    "es": "Elige el motivo de la anulación de la lista de la autoridad.",
+    "en": "Choose the cancellation reason from the authority list.",
+    "pt": "Escolha o motivo da anulação da lista da autoridade."
   },
   "invoices.cost_accounts_not_configured": {
     "es": "No se puede emitir {{invoice}}: la empresa no tiene configuradas las cuentas de inventario y de costo de ventas. Configúralas en Ajustes › Cuentas predeterminadas; sin ellas, la salida de mercancía no tendría su asiento.",
@@ -19,11 +94,6 @@
     "en": "Cannot credit {{quantity}} of “{{description}}”: {{available}} of {{invoiced}} invoiced remain to be credited.",
     "pt": "Não é possível creditar {{quantity}} de «{{description}}»: restam {{available}} de {{invoiced}} faturadas."
   },
-  "invoices.credit_invoice_requires_buyer_tax_id": {
-    "es": "Una factura con crédito fiscal necesita la identificación fiscal válida del comprador. Revísala, o emite una factura de consumo.",
-    "en": "A tax-credit invoice needs the buyer's valid tax identifier. Check it, or issue a consumer invoice instead.",
-    "pt": "Uma fatura com crédito fiscal precisa da identificação fiscal válida do comprador. Verifica-a, ou emite uma fatura de consumo."
-  },
   "invoices.credit_note_must_reference_invoice_modifies": {
     "es": "Una nota de crédito debe referenciar la factura que modifica.",
     "en": "A credit note must reference the invoice it modifies.",
@@ -33,6 +103,16 @@
     "es": "El cliente no tiene correo registrado. Escribe la dirección a la que enviarlo.",
     "en": "The customer has no e-mail on file. Enter the address to send it to.",
     "pt": "O cliente não tem e-mail cadastrado. Informe o endereço para envio."
+  },
+  "invoices.debit_note_not_supported_in_market": {
+    "es": "El producto todavía no emite notas de débito ante {{authority}}.",
+    "en": "The product does not yet issue debit notes with {{authority}}.",
+    "pt": "O produto ainda não emite notas de débito perante {{authority}}."
+  },
+  "invoices.debit_note_type_not_valid": {
+    "es": "El tipo {{type}} no es un tipo de nota de débito de este mercado.",
+    "en": "Type {{type}} is not a debit note type in this market.",
+    "pt": "O tipo {{type}} não é um tipo de nota de débito deste mercado."
   },
   "invoices.detail.authority_status": {
     "es": "Estado ante {{authority}}",
@@ -49,10 +129,40 @@
     "en": "BILL TO",
     "pt": "FATURADO PARA"
   },
-  "invoices.detail.cf_resubmitted_dgii": {
-    "es": "e-CF reenviado a la DGII.",
-    "en": "e-CF resubmitted to the DGII.",
-    "pt": "e-CF reenviado à DGII."
+  "invoices.detail.cancel_choose_reason": {
+    "es": "Elige el motivo",
+    "en": "Choose the reason",
+    "pt": "Escolha o motivo"
+  },
+  "invoices.detail.cancel_failed": {
+    "es": "No se pudo anular la factura.",
+    "en": "The invoice could not be cancelled.",
+    "pt": "Não foi possível anular a fatura."
+  },
+  "invoices.detail.cancel_message_report": {
+    "es": "La factura queda anulada y se declara ante {{authority}} con el motivo que elijas. Se revierten sus asientos y su mercancía vuelve al almacén.",
+    "en": "The invoice is cancelled and declared to {{authority}} with the reason you choose. Its entries are reversed and its goods return to stock.",
+    "pt": "A fatura fica anulada e é declarada perante {{authority}} com o motivo que escolher. Os lançamentos são revertidos e a mercadoria volta ao armazém."
+  },
+  "invoices.detail.cancel_message_void": {
+    "es": "La factura queda anulada: se revierten sus asientos y su mercancía vuelve al almacén. Explica el motivo.",
+    "en": "The invoice is cancelled: its entries are reversed and its goods return to stock. Explain the reason.",
+    "pt": "A fatura fica anulada: os seus lançamentos são revertidos e a mercadoria volta ao armazém. Explique o motivo."
+  },
+  "invoices.detail.cancel_reason_code": {
+    "es": "Motivo según la autoridad",
+    "en": "Reason, as the authority codes it",
+    "pt": "Motivo segundo a autoridade"
+  },
+  "invoices.detail.cancel_title": {
+    "es": "Anular la factura",
+    "en": "Cancel the invoice",
+    "pt": "Anular a fatura"
+  },
+  "invoices.detail.cancelled": {
+    "es": "Factura {{number}} anulada.",
+    "en": "Invoice {{number}} cancelled.",
+    "pt": "Fatura {{number}} anulada."
   },
   "invoices.detail.contact_person": {
     "es": "Persona de contacto",
@@ -119,6 +229,11 @@
     "en": "Reason",
     "pt": "Motivo"
   },
+  "invoices.detail.credit_note_reason_kind": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
   "invoices.detail.credit_note_reason_too_short": {
     "es": "Describe el motivo en al menos 5 caracteres.",
     "en": "Describe the reason in at least 5 characters.",
@@ -149,6 +264,96 @@
     "en": "Date",
     "pt": "Data"
   },
+  "invoices.detail.debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "invoices.detail.debit_note_add_line": {
+    "es": "Agregar cargo",
+    "en": "Add charge",
+    "pt": "Adicionar encargo"
+  },
+  "invoices.detail.debit_note_description": {
+    "es": "Descripción para el cliente",
+    "en": "Description for the customer",
+    "pt": "Descrição para o cliente"
+  },
+  "invoices.detail.debit_note_exempt": {
+    "es": "Exento",
+    "en": "Exempt",
+    "pt": "Isento"
+  },
+  "invoices.detail.debit_note_failed": {
+    "es": "No se pudo emitir la nota de débito.",
+    "en": "The debit note could not be issued.",
+    "pt": "Não foi possível emitir a nota de débito."
+  },
+  "invoices.detail.debit_note_incomplete": {
+    "es": "Escribe la descripción y al menos un cargo con cantidad y precio.",
+    "en": "Write the description and at least one charge with quantity and price.",
+    "pt": "Escreva a descrição e pelo menos um encargo com quantidade e preço."
+  },
+  "invoices.detail.debit_note_is_service": {
+    "es": "Servicio",
+    "en": "Service",
+    "pt": "Serviço"
+  },
+  "invoices.detail.debit_note_issue": {
+    "es": "Emitir nota de débito",
+    "en": "Issue debit note",
+    "pt": "Emitir nota de débito"
+  },
+  "invoices.detail.debit_note_issued": {
+    "es": "Nota de débito {{number}} emitida.",
+    "en": "Debit note {{number}} issued.",
+    "pt": "Nota de débito {{number}} emitida."
+  },
+  "invoices.detail.debit_note_message": {
+    "es": "Agrega un cargo a esta factura: intereses, gastos o un valor mayor. Se emite con su propio número y se cobra como una factura.",
+    "en": "Add a charge to this invoice: interest, expenses or a higher value. It is issued with its own number and collected like an invoice.",
+    "pt": "Acrescente um encargo a esta fatura: juros, despesas ou um valor maior. É emitida com o seu próprio número e cobrada como uma fatura."
+  },
+  "invoices.detail.debit_note_quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "invoices.detail.debit_note_reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "invoices.detail.debit_note_remove_line": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "invoices.detail.debit_note_tax_treatment": {
+    "es": "Tratamiento fiscal",
+    "en": "Tax treatment",
+    "pt": "Tratamento fiscal"
+  },
+  "invoices.detail.debit_note_taxed": {
+    "es": "Gravado",
+    "en": "Taxed",
+    "pt": "Tributado"
+  },
+  "invoices.detail.debit_note_title": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "invoices.detail.debit_note_unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "invoices.detail.debit_note_zero_rated": {
+    "es": "Tasa cero",
+    "en": "Zero-rated",
+    "pt": "Taxa zero"
+  },
   "invoices.detail.delete_draft": {
     "es": "Eliminar borrador",
     "en": "Delete draft",
@@ -174,6 +379,11 @@
     "en": "Document issued with number {{number}}.",
     "pt": "Documento emitido com o número {{number}}."
   },
+  "invoices.detail.document_resent_to_authority": {
+    "es": "Documento reenviado a la autoridad.",
+    "en": "Document resent to the authority.",
+    "pt": "Documento reenviado à autoridade."
+  },
   "invoices.detail.download_signed_xml": {
     "es": "Descargar XML firmado",
     "en": "Download the signed XML",
@@ -188,11 +398,6 @@
     "es": "Vencimiento",
     "en": "Due",
     "pt": "Vencimento"
-  },
-  "invoices.detail.electronic_fiscal_document_cf": {
-    "es": "Comprobante fiscal electrónico",
-    "en": "Electronic fiscal document",
-    "pt": "Comprovante fiscal eletrônico"
   },
   "invoices.detail.email_failed": {
     "es": "No se pudo enviar la factura.",
@@ -243,6 +448,11 @@
     "es": "Información financiera",
     "en": "Financial information",
     "pt": "Informações financeiras"
+  },
+  "invoices.detail.fiscal_number": {
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
   },
   "invoices.detail.grand_total_label": {
     "literal": "TOTAL:"
@@ -296,11 +506,6 @@
     "es": "Mensajes de {{authority}}",
     "en": "Messages from {{authority}}",
     "pt": "Mensagens de {{authority}}"
-  },
-  "invoices.detail.ncf": {
-    "en": "Fiscal document no.",
-    "es": "N.º de comprobante fiscal",
-    "pt": "N.º do documento fiscal"
   },
   "invoices.detail.no_signed_xml_available": {
     "es": "No hay XML firmado disponible.",
@@ -357,6 +562,106 @@
     "en": "Qty",
     "pt": "Qtd."
   },
+  "invoices.detail.regime.document_key": {
+    "es": "Clave del documento",
+    "en": "Document key",
+    "pt": "Chave do documento"
+  },
+  "invoices.detail.regime.hint.accepted": {
+    "es": "El documento tiene validez fiscal.",
+    "en": "The document has fiscal validity.",
+    "pt": "O documento tem validade fiscal."
+  },
+  "invoices.detail.regime.hint.accepted_with_observations": {
+    "es": "Es válido, pero la autoridad dejó observaciones: revísalas abajo para corregirlas en los próximos documentos.",
+    "en": "It is valid, but the authority left observations: read them below and correct them on the next documents.",
+    "pt": "É válido, mas a autoridade deixou observações: leia-as abaixo para corrigi-las nos próximos documentos."
+  },
+  "invoices.detail.regime.hint.contingency": {
+    "es": "La autoridad no respondía; el documento es válido y se enviará en cuanto esté disponible.",
+    "en": "The authority could not be reached; the document is valid and will be sent as soon as it is.",
+    "pt": "A autoridade não respondia; o documento é válido e será enviado assim que estiver disponível."
+  },
+  "invoices.detail.regime.hint.error": {
+    "es": "Se reintenta automáticamente; el detalle está en el registro del envío.",
+    "en": "It is retried automatically; the detail is in the submission record.",
+    "pt": "É reenviado automaticamente; o detalhe está no registo do envio."
+  },
+  "invoices.detail.regime.hint.not_configured": {
+    "es": "Revisa el certificado y la transmisión en Ajustes › Facturación electrónica; al guardarlos se reintenta solo.",
+    "en": "Check the certificate and transmission in Settings › E-invoicing; it is retried as soon as they are saved.",
+    "pt": "Verifique o certificado e a transmissão em Ajustes › Faturação eletrónica; é reenviado assim que forem guardados."
+  },
+  "invoices.detail.regime.hint.pending": {
+    "es": "Se enviará en unos instantes.",
+    "en": "It will be sent in a moment.",
+    "pt": "Será enviado dentro de instantes."
+  },
+  "invoices.detail.regime.hint.rejected": {
+    "es": "Corrige la causa indicada por la autoridad y emite una nota de crédito o un documento nuevo, según tu normativa (verificar con tu contador).",
+    "en": "Fix the cause the authority gave and issue a credit note or a new document, as your rules require (check with your accountant).",
+    "pt": "Corrija a causa indicada pela autoridade e emita uma nota de crédito ou um documento novo, conforme as suas regras (verifique com o seu contabilista)."
+  },
+  "invoices.detail.regime.hint.sent": {
+    "es": "La autoridad lo recibió; se consulta su veredicto periódicamente. No se reenvía para no duplicarlo.",
+    "en": "The authority received it; its verdict is checked periodically. It is not resent, so it cannot be duplicated.",
+    "pt": "A autoridade recebeu-o; o veredicto é consultado periodicamente. Não é reenviado, para não o duplicar."
+  },
+  "invoices.detail.regime.retry_failed": {
+    "es": "No se pudo reintentar el envío.",
+    "en": "The submission could not be retried.",
+    "pt": "Não foi possível tentar novamente o envio."
+  },
+  "invoices.detail.regime.status.accepted": {
+    "es": "Aceptado",
+    "en": "Accepted",
+    "pt": "Aceite"
+  },
+  "invoices.detail.regime.status.accepted_with_observations": {
+    "es": "Aceptado con observaciones",
+    "en": "Accepted with observations",
+    "pt": "Aceito com observações"
+  },
+  "invoices.detail.regime.status.contingency": {
+    "es": "En contingencia",
+    "en": "Issued under contingency",
+    "pt": "Emitido em contingência"
+  },
+  "invoices.detail.regime.status.error": {
+    "es": "Error al preparar el envío",
+    "en": "Could not prepare the submission",
+    "pt": "Erro ao preparar o envio"
+  },
+  "invoices.detail.regime.status.not_configured": {
+    "es": "Sin enviar: falta configuración",
+    "en": "Not sent: setup missing",
+    "pt": "Não enviado: falta configuração"
+  },
+  "invoices.detail.regime.status.pending": {
+    "es": "Pendiente de envío",
+    "en": "Waiting to be sent",
+    "pt": "Pendente de envio"
+  },
+  "invoices.detail.regime.status.rejected": {
+    "es": "Rechazado",
+    "en": "Rejected",
+    "pt": "Rejeitado"
+  },
+  "invoices.detail.regime.status.sent": {
+    "es": "Enviado, esperando respuesta",
+    "en": "Sent, awaiting a verdict",
+    "pt": "Enviado, a aguardar resposta"
+  },
+  "invoices.detail.regime.title": {
+    "es": "Documento electrónico ({{regime}})",
+    "en": "Electronic document ({{regime}})",
+    "pt": "Documento eletrónico ({{regime}})"
+  },
+  "invoices.detail.regime.tracking": {
+    "es": "Identificador de la autoridad",
+    "en": "Authority identifier",
+    "pt": "Identificador da autoridade"
+  },
   "invoices.detail.resend_to_authority": {
     "es": "Reenviar a {{authority}}",
     "en": "Resend to {{authority}}",
@@ -376,11 +681,6 @@
     "es": "Buscar en líneas...",
     "en": "Search within the lines...",
     "pt": "Buscar nas linhas..."
-  },
-  "invoices.detail.security_code": {
-    "es": "Código de seguridad",
-    "en": "Security code",
-    "pt": "Código de segurança"
   },
   "invoices.detail.shipping_address": {
     "es": "Dirección de envío",
@@ -443,25 +743,20 @@
   "invoices.detail.total_label": {
     "literal": "Total"
   },
-  "invoices.detail.trackid": {
-    "en": "Tracking ID",
-    "es": "Id. de seguimiento",
-    "pt": "ID de rastreio"
-  },
   "invoices.detail.void_invoice": {
     "es": "Anular",
     "en": "Void",
     "pt": "Anular"
   },
-  "invoices.detail.void_message": {
-    "es": "Se emitirá una nota de crédito por el total pendiente de {{number}} con el código de anulación. ¿Por qué se anula?",
-    "en": "A credit note for the whole outstanding amount of {{number}} will be issued with the annulment code. Why is it being voided?",
-    "pt": "Será emitida uma nota de crédito pelo total pendente de {{number}} com o código de anulação. Por que está sendo anulado?"
-  },
   "invoices.detail.void_title": {
     "es": "Anular el comprobante",
     "en": "Void the document",
     "pt": "Anular o documento"
+  },
+  "invoices.detail.void_with_credit_note": {
+    "es": "Emitir nota de crédito total",
+    "en": "Issue a full credit note",
+    "pt": "Emitir nota de crédito total"
   },
   "invoices.document_discount_must_between_100_exclusive": {
     "es": "El descuento del documento debe estar entre 0 % y 100 % (exclusivo).",
@@ -483,6 +778,11 @@
     "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Fiscal documents or Electronic invoicing, depending on your country.",
     "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país."
   },
+  "invoices.document_type_requires_buyer_tax_id": {
+    "es": "El tipo de comprobante {{type}} exige el identificador fiscal válido del comprador. Regístralo en el cliente o emite el tipo que corresponde a un consumidor final.",
+    "en": "Document type {{type}} requires the buyer's valid tax identifier. Record it on the customer, or issue the type that applies to a final consumer.",
+    "pt": "O tipo de documento {{type}} exige o identificador fiscal válido do comprador. Registre-o no cliente ou emita o tipo que corresponde a um consumidor final."
+  },
   "invoices.document_type_type_does_not_exist": {
     "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
     "en": "Document type {{type}} does not exist in the {{country}} regime.",
@@ -492,6 +792,16 @@
     "es": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
     "en": "Document type {{type}} is not a sales document.",
     "pt": "O tipo de documento {{type}} não corresponde a um documento de venda."
+  },
+  "invoices.document_type_undetermined": {
+    "es": "No se puede determinar el tipo de comprobante: falta un dato fiscal de la empresa que {{authority}} exige (por ejemplo, su condición frente al impuesto). Complétalo en Ajustes › Empresa.",
+    "en": "The document type cannot be determined: the company is missing a fiscal detail {{authority}} requires (for instance, its tax condition). Complete it in Settings › Company.",
+    "pt": "Não é possível determinar o tipo de documento: falta um dado fiscal da empresa que {{authority}} exige (por exemplo, sua condição perante o imposto). Complete-o em Configurações › Empresa."
+  },
+  "invoices.draft_cannot_be_debited": {
+    "es": "Un borrador no admite nota de débito: edítalo directamente.",
+    "en": "A draft takes no debit note: edit it directly.",
+    "pt": "Um rascunho não admite nota de débito: edite-o diretamente."
   },
   "invoices.draft_cannot_be_sent": {
     "es": "Un borrador no tiene número fiscal: emítelo antes de enviarlo al cliente.",
@@ -507,86 +817,6 @@
     "es": "La fecha de vencimiento no puede ser anterior a la fecha de emisión.",
     "en": "The due date cannot be earlier than the issue date.",
     "pt": "A data de vencimento não pode ser anterior à data de emissão."
-  },
-  "invoices.ecf_status.accepted": {
-    "es": "Aceptado por la DGII",
-    "en": "Accepted by the DGII",
-    "pt": "Aceito pela DGII"
-  },
-  "invoices.ecf_status.accepted_hint": {
-    "es": "Comprobante válido. No hace falta hacer nada más.",
-    "en": "Valid document. Nothing else to do.",
-    "pt": "Comprovante válido. Nada mais a fazer."
-  },
-  "invoices.ecf_status.accepted_with_observations": {
-    "es": "Aceptado con observaciones",
-    "en": "Accepted with observations",
-    "pt": "Aceito com observações"
-  },
-  "invoices.ecf_status.accepted_with_observations_hint": {
-    "es": "Es válido, pero la DGII dejó observaciones: revísalas abajo para corregirlas en los próximos.",
-    "en": "It is valid, but the DGII left observations: review them below to correct future documents.",
-    "pt": "É válido, mas a DGII deixou observações: revise-as abaixo para corrigir os próximos."
-  },
-  "invoices.ecf_status.contingency": {
-    "es": "En contingencia",
-    "en": "In contingency",
-    "pt": "Em contingência"
-  },
-  "invoices.ecf_status.contingency_hint": {
-    "es": "La DGII no respondía; el comprobante es válido y se enviará en cuanto esté disponible.",
-    "en": "The DGII was not responding; the document is valid and will be sent as soon as it is available.",
-    "pt": "A DGII não respondia; o comprovante é válido e será enviado assim que estiver disponível."
-  },
-  "invoices.ecf_status.error": {
-    "es": "Error al enviar",
-    "en": "Sending failed",
-    "pt": "Erro no envio"
-  },
-  "invoices.ecf_status.error_hint": {
-    "es": "No se pudo enviar. Revisa el mensaje abajo y pulsa «Reenviar a la DGII».",
-    "en": "It could not be sent. Check the message below and press «Resend to DGII».",
-    "pt": "Não foi possível enviar. Verifique a mensagem abaixo e clique em «Reenviar à DGII»."
-  },
-  "invoices.ecf_status.pending": {
-    "es": "Pendiente de firma",
-    "en": "Awaiting signature",
-    "pt": "Aguardando assinatura"
-  },
-  "invoices.ecf_status.pending_hint": {
-    "es": "El comprobante se firmará y enviará a la DGII en unos instantes.",
-    "en": "The document will be signed and sent to the DGII in a moment.",
-    "pt": "O comprovante será assinado e enviado à DGII em instantes."
-  },
-  "invoices.ecf_status.rejected": {
-    "es": "Rechazado por la DGII",
-    "en": "Rejected by the DGII",
-    "pt": "Rejeitado pela DGII"
-  },
-  "invoices.ecf_status.rejected_hint": {
-    "es": "No es válido. Lee el motivo abajo, corrige y emite una nota de crédito o un comprobante nuevo.",
-    "en": "It is not valid. Read the reason below, correct it and issue a credit note or a new document.",
-    "pt": "Não é válido. Leia o motivo abaixo, corrija e emita uma nota de crédito ou um novo comprovante."
-  },
-  "invoices.ecf_status.sent": {
-    "es": "Enviado, en revisión",
-    "en": "Sent, under review",
-    "pt": "Enviado, em revisão"
-  },
-  "invoices.ecf_status.sent_hint": {
-    "es": "La DGII lo recibió y está validándolo. El resultado aparece aquí solo.",
-    "en": "The DGII received it and is validating it. The result appears here on its own.",
-    "pt": "A DGII o recebeu e está validando. O resultado aparece aqui automaticamente."
-  },
-  "invoices.ecf_status.signed": {
-    "es": "Firmado, sin enviar",
-    "en": "Signed, not sent",
-    "pt": "Assinado, não enviado"
-  },
-  "invoices.ecf_status.signed_hint": {
-    "es": "Está firmado pero aún no llegó a la DGII. Se reintenta solo; si no cambia, revisa la conexión con la DGII o pulsa «Reenviar a la DGII».",
-    "en": "It is signed but has not reached the DGII yet. It is retried automatically; if it does not change, check the DGII connection or press «Resend to DGII».",
-    "pt": "Está assinado, mas ainda não chegou à DGII. É reenviado automaticamente; se não mudar, verifique a conexão com a DGII ou clique em «Reenviar à DGII»."
   },
   "invoices.effect.cost_entry": {
     "es": "Asiento de costo de venta",
@@ -751,6 +981,26 @@
   "invoices.export.total": {
     "literal": "Total"
   },
+  "invoices.fixed_tax_amount_invalid": {
+    "es": "El impuesto fijo por unidad debe ser un monto positivo.",
+    "en": "The fixed tax per unit must be a positive amount.",
+    "pt": "O imposto fixo por unidade deve ser um valor positivo."
+  },
+  "invoices.fixed_tax_not_fixed": {
+    "es": "El impuesto «{{tax}}» del producto no es de monto fijo.",
+    "en": "The product tax «{{tax}}» is not a fixed amount.",
+    "pt": "O imposto «{{tax}}» do produto não é de valor fixo."
+  },
+  "invoices.fixed_tax_not_found": {
+    "es": "Un producto apunta a un impuesto fijo que ya no existe en el catálogo.",
+    "en": "A product points at a fixed tax that no longer exists in the catalogue.",
+    "pt": "Um produto aponta para um imposto fixo que já não existe no catálogo."
+  },
+  "invoices.fixed_tax_not_in_force": {
+    "es": "El impuesto fijo «{{tax}}» no está vigente el {{date}}. Revisa su vigencia en el catálogo de impuestos.",
+    "en": "The fixed tax «{{tax}}» is not in force on {{date}}. Check its validity in the tax catalogue.",
+    "pt": "O imposto fixo «{{tax}}» não está em vigor em {{date}}. Verifique a vigência no catálogo de impostos."
+  },
   "invoices.gaps.accounting_settings": {
     "es": "la configuración contable de la organización",
     "en": "the organization's accounting settings",
@@ -767,19 +1017,19 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
-    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
+    "es": "un rango de numeración fiscal vigente autorizado por la autoridad tributaria (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current fiscal numbering range authorised by the tax authority (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de numeração fiscal vigente autorizada pela autoridade tributária (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_electronic": {
-    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
-    "en": "a current electronic document range (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
+    "es": "un rango de numeración electrónica vigente autorizado por la autoridad tributaria (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current electronic numbering range authorised by the tax authority (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de numeração eletrônica vigente autorizada pela autoridade tributária (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_traditional": {
-    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
-    "en": "a current traditional document range (B series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
+    "es": "un rango de numeración tradicional (impresa) vigente autorizado por la autoridad tributaria (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current traditional (printed) numbering range authorised by the tax authority (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de numeração tradicional (impressa) vigente autorizada pela autoridade tributária (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_year": {
     "es": "un año fiscal con sus períodos contables",
@@ -798,7 +1048,7 @@
   },
   "invoices.gaps.issuer_tax_id": {
     "en": "your company’s tax id (Settings › Company profile)",
-    "es": "el RNC (identificación fiscal) de tu empresa (Ajustes › Perfil de la empresa)",
+    "es": "la identificación fiscal de tu empresa (Ajustes › Perfil de la empresa)",
     "pt": "a identificação fiscal da sua empresa (Configurações › Perfil da empresa)"
   },
   "invoices.gaps.open_period": {
@@ -1011,8 +1261,13 @@
   },
   "invoices.issuer_tax_id_required": {
     "en": "A fiscal document cannot be issued without your company’s tax id: the document and the tax returns require it. Record it in Settings › Company profile.",
-    "es": "No se puede emitir un comprobante fiscal sin el RNC de tu empresa: el documento y el 607 lo exigen. Regístralo en Ajustes › Perfil de la empresa.",
+    "es": "No se puede emitir un comprobante fiscal sin la identificación fiscal de tu empresa: el documento y las declaraciones la exigen. Regístrala en Ajustes › Perfil de la empresa.",
     "pt": "Não é possível emitir um comprovante fiscal sem a identificação fiscal da sua empresa. Registre-a em Configurações › Perfil da empresa."
+  },
+  "invoices.issuing_point_missing": {
+    "es": "{{authority}} numera por establecimiento y punto de emisión, y no están indicados. Configúralos en la sucursal o en Ajustes › Facturación electrónica.",
+    "en": "{{authority}} numbers by establishment and emission point, and they are not set. Configure them on the branch or in Settings › E-invoicing.",
+    "pt": "{{authority}} numera por estabelecimento e ponto de emissão, e eles não estão informados. Configure-os na filial ou em Configurações › Faturamento eletrônico."
   },
   "invoices.label_must_expressed_fraction_between": {
     "es": "{{label}} debe expresarse como fracción entre 0 y 1.",
@@ -1075,7 +1330,7 @@
     "pt": "Vencimento"
   },
   "invoices.list.fiscal_number": {
-    "es": "e-NCF / NCF",
+    "es": "N.º fiscal",
     "en": "Fiscal no.",
     "pt": "N.º fiscal"
   },
@@ -1207,6 +1462,11 @@
     "es": "Cheque",
     "pt": "Cheque"
   },
+  "invoices.new.configure_taxes": {
+    "es": "Configurar impuestos",
+    "en": "Configure taxes",
+    "pt": "Configurar impostos"
+  },
   "invoices.new.content": {
     "es": "Contenido",
     "en": "Content",
@@ -1328,14 +1588,14 @@
     "pt": "Documento fiscal"
   },
   "invoices.new.fiscal_group_electronic": {
-    "es": "Electrónicos (e-CF, serie E)",
-    "en": "Electronic (e-CF, E series)",
-    "pt": "Eletrônicos (e-CF, série E)"
+    "es": "Electrónicos",
+    "en": "Electronic",
+    "pt": "Eletrônicos"
   },
   "invoices.new.fiscal_group_traditional": {
-    "es": "Tradicionales (NCF, serie B)",
-    "en": "Traditional (NCF, B series)",
-    "pt": "Tradicionais (NCF, série B)"
+    "es": "Tradicionales",
+    "en": "Traditional",
+    "pt": "Tradicionais"
   },
   "invoices.new.free_text_line": {
     "es": "— Concepto libre —",
@@ -1398,14 +1658,19 @@
     "pt": "Valor"
   },
   "invoices.new.market_has_no_electronic_invoicing_regime": {
-    "es": "Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El\n                documento se numera internamente y se contabiliza, pero no se sella ante ninguna\n                autoridad.",
-    "en": "This market has no electronic invoicing regime implemented yet. The document is numbered internally and posted, but it is not stamped by any authority.",
-    "pt": "Este mercado ainda não tem regime de documentos fiscais eletrônicos implementado. O documento é numerado internamente e contabilizado, mas não é autorizado por nenhuma autoridade."
+    "es": "En este mercado todavía no emitimos comprobantes ante la autoridad tributaria: el documento se numera internamente y se contabiliza, pero no se sella. Si la ley de tu país lo exige, emite el comprobante con tu proveedor autorizado (verificar con contador local).",
+    "en": "In this market we do not issue fiscal documents with the tax authority yet: the document is numbered internally and posted, but not stamped. If your country’s law requires one, issue it through your authorised provider (check with a local accountant).",
+    "pt": "Neste mercado ainda não emitimos documentos fiscais perante a autoridade tributária: o documento é numerado internamente e contabilizado, mas não é autorizado. Se a lei do seu país o exigir, emita-o pelo seu fornecedor autorizado (confirmar com um contabilista local)."
   },
   "invoices.new.net_receivable": {
     "es": "Neto a cobrar",
     "en": "Net receivable",
     "pt": "Líquido a receber"
+  },
+  "invoices.new.not_a_fiscal_document": {
+    "es": "Este documento no es un comprobante fiscal.",
+    "en": "This document is not a fiscal document.",
+    "pt": "Este documento não é um documento fiscal."
   },
   "invoices.new.notes": {
     "es": "Notas",
@@ -1436,6 +1701,11 @@
     "es": "Precio",
     "en": "Price",
     "pt": "Preço"
+  },
+  "invoices.new.price_from_list": {
+    "es": "Precio de la lista «{{list}}»",
+    "en": "Price from the «{{list}}» list",
+    "pt": "Preço da lista «{{list}}»"
   },
   "invoices.new.quantity": {
     "es": "Cantidad",
@@ -1509,10 +1779,15 @@
     "es": "Impuesto",
     "en": "Tax",
     "pt": "Imposto",
-    "note": "The column header for the line's tax. It was the literal 'ITBIS', which is the Dominican sales tax; regional/ names it ITBIS in es-DO, IVA in Mexico and Colombia, and IGV in Peru."
+    "note": "The column header for the line's tax. It was one market's tax name as a literal; the regional patches give each market the name its own authority prints."
+  },
+  "invoices.new.tax_not_configured_blocks_issue": {
+    "es": "Todavía no has configurado {{tax}}: no podrás emitir la factura hasta que lo configures.",
+    "en": "You have not configured {{tax}} yet: the invoice cannot be issued until you do.",
+    "pt": "Ainda não configurou {{tax}}: a fatura não poderá ser emitida até configurá-lo."
   },
   "invoices.new.tax_withheld_fraction_tax": {
-    "es": "ITBIS retenido (% del impuesto)",
+    "es": "Impuesto retenido (% del impuesto)",
     "en": "Tax withheld (% of the tax)",
     "pt": "Imposto retido (% do imposto)"
   },
@@ -1579,10 +1854,25 @@
     "en": "There is no journal \"{{code}}\" for this organization. Create it under Settings → Accounting.",
     "pt": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Configurações → Contabilidade."
   },
+  "invoices.no_tax_rate_in_force_on_date": {
+    "es": "No hay ninguna tasa de impuesto registrada para {{countryCode}} en la fecha {{date}}. Registra la tasa vigente en esa fecha en Ajustes › Impuestos, indicando desde cuándo aplica.",
+    "en": "No tax rate is recorded for {{countryCode}} on {{date}}. Record the rate in force on that date in Settings › Taxes, stating when it applies from.",
+    "pt": "Não há nenhuma taxa de imposto registada para {{countryCode}} na data {{date}}. Registe a taxa vigente nessa data em Configurações › Impostos, indicando desde quando se aplica."
+  },
   "invoices.only_draft_can_edited_issued_document": {
     "es": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
     "en": "Only a draft can be edited. An issued document is corrected with a credit note.",
     "pt": "Somente um rascunho pode ser editado. Um documento emitido é corrigido com uma nota de crédito."
+  },
+  "invoices.only_invoice_can_be_cancelled": {
+    "es": "Solo se anula una factura; una nota se corrige con otra nota.",
+    "en": "Only an invoice is cancelled; a note is corrected with another note.",
+    "pt": "Só se anula uma fatura; uma nota corrige-se com outra nota."
+  },
+  "invoices.only_invoice_can_be_debited": {
+    "es": "Solo se emite una nota de débito sobre una factura.",
+    "en": "A debit note is only issued against an invoice.",
+    "pt": "Só se emite uma nota de débito sobre uma fatura."
   },
   "invoices.only_invoice_can_credited": {
     "es": "Solo una factura puede ser acreditada.",
@@ -1734,6 +2024,11 @@
     "en": "The tax rate {{rate}} is not valid for {{countryCode}}. Permitted rates: {{allowed}}.",
     "pt": "A alíquota {{rate}} não é válida para {{countryCode}}. Alíquotas permitidas: {{allowed}}."
   },
+  "invoices.transmission_not_configured": {
+    "es": "Configura la transmisión a la autoridad fiscal ({{country}}) en Ajustes › Facturación electrónica antes de emitir un documento electrónico: sin ella el número se gastaría en un documento que la autoridad nunca recibiría.",
+    "en": "Set up transmission to the tax authority ({{country}}) in Settings › E-invoicing before issuing an electronic document: without it the number would be spent on a document the authority never receives.",
+    "pt": "Configure a transmissão à autoridade fiscal ({{country}}) em Ajustes › Faturação eletrónica antes de emitir um documento eletrónico: sem ela o número seria gasto num documento que a autoridade nunca receberia."
+  },
   "invoices.type_blocked.no_certificate": {
     "es": "falta el certificado digital",
     "en": "digital certificate missing",
@@ -1743,6 +2038,11 @@
     "es": "sin rango vigente",
     "en": "no current range",
     "pt": "sem faixa vigente"
+  },
+  "invoices.type_blocked.no_transmission": {
+    "es": "Falta configurar la transmisión a la autoridad fiscal",
+    "en": "Transmission to the tax authority is not set up",
+    "pt": "Falta configurar a transmissão à autoridade fiscal"
   },
   "invoices.type_type_not_valid_credit_note": {
     "es": "El tipo {{type}} no es un comprobante de nota de crédito válido.",

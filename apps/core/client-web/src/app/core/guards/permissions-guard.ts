@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { AuthService } from '../services/auth';
+import type { SaasFeatureKey } from '@virtex/shared/types';
 
 /** Where a refused navigation is sent. Declared at the top level, outside the guarded shell. */
 const DENIED_ROUTE = '/unauthorized';
@@ -11,7 +12,10 @@ export const permissionsGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   const required = route.data['permissions'] as string[] | undefined;
-  if (!required?.length) return true;
+  // The plan capability the window needs (`ModuleRoute.feature`): an address typed or bookmarked
+  // does not open what the menu does not offer (IA-02).
+  const feature = route.data['feature'] as SaasFeatureKey | undefined;
+  if (!required?.length && !feature) return true;
 
   // Permissions live on the principal, so the session has to be resolved before they can be
   // judged — evaluating early reports "no permissions" for a user who simply has not loaded yet
@@ -19,7 +23,9 @@ export const permissionsGuard: CanActivateFn = (route, state) => {
   // `resolveSession()` is memoised, so this is a replayed value rather than a request.
   return authService.resolveSession().pipe(
     map(() => {
-      if (authService.hasPermissions(required)) return true;
+      const permitted = !required?.length || authService.hasPermissions(required);
+      const inPlan = !feature || authService.hasFeature(feature);
+      if (permitted && inPlan) return true;
 
       // Never redirect to the page we are already on.
       //
@@ -31,7 +37,10 @@ export const permissionsGuard: CanActivateFn = (route, state) => {
       // navigation instead of a hung browser.
       if (state.url.split('?')[0] === DENIED_ROUTE) return false;
 
-      return router.createUrlTree([DENIED_ROUTE], { queryParams: { url: state.url } });
+      // A missing permission is said first: who may not open it learns nothing about the plan.
+      return router.createUrlTree([DENIED_ROUTE], {
+        queryParams: { url: state.url, ...(permitted && feature ? { feature } : {}) },
+      });
     }),
   );
 };

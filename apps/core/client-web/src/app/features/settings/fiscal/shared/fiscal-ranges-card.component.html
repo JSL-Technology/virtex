@@ -1,0 +1,135 @@
+<section class="card" aria-labelledby="fiscal-ranges-title">
+  <div class="card__head ranges__head">
+    <div>
+      <h2 id="fiscal-ranges-title" class="card__title">{{ 'settings.pages.einvoicing.ranges_title' | translate }}</h2>
+      <p class="card__subtitle">{{ 'settings.pages.einvoicing.ranges_note' | translate }}</p>
+    </div>
+    <!-- Registering a range is `taxes:edit`; without it the ranges are read, not added to (CG-17). -->
+    @if (!readonly()) {
+      <button class="primary-button" type="button" (click)="toggleForm()">
+        {{ (showForm() ? 'settings.pages.einvoicing.cancel' : 'settings.pages.einvoicing.add_range') | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="card__body">
+    @if (showForm() && !readonly()) {
+      <form class="ranges__form" [formGroup]="form" (ngSubmit)="register()">
+        <div class="ranges__grid">
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.document_type' | translate }} *</span>
+            <select formControlName="documentType">
+              <option value="" disabled>{{ 'settings.pages.einvoicing.choose_document_type' | translate }}</option>
+              @for (type of rangeDocumentTypes(); track type.code) {
+                <option [value]="type.code">{{ type.code }} · {{ (type.labelKey ?? type.name) | translate }}</option>
+              }
+            </select>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.series' | translate }}</span>
+            <input formControlName="series" maxlength="16" />
+            <small class="field-hint">{{ 'settings.fiscal.range_series_hint' | translate }}</small>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.from' | translate }} *</span>
+            <input type="number" min="1" inputmode="numeric" formControlName="startsAt" />
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.ends_at' | translate }} *</span>
+            <input type="number" min="1" inputmode="numeric" formControlName="endsAt" />
+          </label>
+          <label class="form-field" for="fiscal-range-valid-until">
+            <span>{{ 'settings.pages.einvoicing.valid_until' | translate }}{{ expiryRequired() ? ' *' : '' }}</span>
+            <vx-date-field inputId="fiscal-range-valid-until" formControlName="validUntil" />
+            <small class="field-hint">{{ 'settings.fiscal.range_expiry_hint' | translate }}</small>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.authorization' | translate }}</span>
+            <input formControlName="authorizationCode" maxlength="128" />
+          </label>
+        </div>
+
+        @if (secretKind()) {
+          <!--
+            The CAF holds the RSA key that seals this taxpayer's folios, and a technical key is what
+            makes a CUFE theirs. It goes in and never comes back out: the list says only whether one
+            is on file.
+          -->
+          <label class="form-field ranges__secret">
+            <span>{{ 'settings.pages.einvoicing.secret' | translate }}</span>
+            <textarea formControlName="secret" rows="5"></textarea>
+            <small class="field-hint">{{ 'settings.pages.einvoicing.whole_caf_file_chile_technical_key' | translate }}</small>
+          </label>
+        }
+
+        <div class="ranges__actions">
+          <button class="primary-button" type="submit" [disabled]="saving()">
+            {{ (saving() ? 'settings.fiscal.registering' : 'settings.pages.einvoicing.register') | translate }}
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (loading()) {
+      <p class="ranges__empty">{{ 'common.loading' | translate }}</p>
+    } @else if (ranges().length === 0) {
+      <p class="ranges__empty">{{ 'settings.pages.einvoicing.no_ranges' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table [appSort]="table.sort" class="data-table">
+          <thead>
+            <tr>
+              <th appSortHeader="documentType">{{ 'settings.pages.einvoicing.document_type' | translate }}</th>
+              <th appSortHeader="series">{{ 'settings.pages.einvoicing.series' | translate }}</th>
+              <th appSortHeader="startsAt" class="num">{{ 'settings.pages.einvoicing.range' | translate }}</th>
+              <th appSortHeader="currentSequence" class="num">{{ 'settings.fiscal.current' | translate }}</th>
+              <th appSortHeader="remaining" class="num">{{ 'settings.pages.einvoicing.remaining' | translate }}</th>
+              <th appSortHeader="validUntil" class="nowrap">{{ 'settings.pages.einvoicing.valid_until' | translate }}</th>
+              <th appSortHeader="authorizationCode">{{ 'settings.pages.einvoicing.authorization' | translate }}</th>
+              <th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th>
+              @if (!readonly()) {
+                <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (range of table.rows(); track range.id) {
+              <!-- A retired range stays in the table: past documents were issued under it. -->
+              <tr [class.ranges__inactive]="!range.isActive">
+                <td>{{ range.documentType }} · {{ documentTypeLabel(range.documentType) | translate }}</td>
+                <td>{{ range.series || '—' }}</td>
+                <td class="num">{{ range.startsAt | vxNumber: '1.0-0' }}–{{ range.endsAt | vxNumber: '1.0-0' }}</td>
+                <td class="num">{{ range.currentSequence | vxNumber: '1.0-0' }}</td>
+                <td class="num">{{ range.remaining | vxNumber: '1.0-0' }}</td>
+                <td class="nowrap">{{ range.validUntil ? (range.validUntil | vxDate: 'date') : '—' }}</td>
+                <td>
+                  {{ range.authorizationCode ?? '—' }}
+                  @if (range.hasSecret) {
+                    <vx-badge tone="neutral" size="sm">{{ 'settings.pages.einvoicing.has_secret' | translate }}</vx-badge>
+                  }
+                </td>
+                <td>
+                  @let status = statusKey(range);
+                  <vx-badge [tone]="status.tone">{{ status.key | translate }}</vx-badge>
+                </td>
+                @if (!readonly()) {
+                  <td class="nowrap">
+                    @if (range.isActive) {
+                      <button class="link-button" type="button" (click)="setActive(range, false)">
+                        {{ 'settings.pages.einvoicing.retire' | translate }}
+                      </button>
+                    } @else if (!range.expired && range.remaining > 0) {
+                      <button class="link-button" type="button" (click)="setActive(range, true)">
+                        {{ 'settings.fiscal.reactivate_range' | translate }}
+                      </button>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

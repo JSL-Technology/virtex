@@ -5,16 +5,28 @@ import { PayrollRun } from './payroll-run.entity';
 import { PayslipLine } from './payslip-line.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
+/** One statutory contribution on a payslip, as the jurisdiction strategy computed it. */
+export interface PayslipContribution {
+  code: string;
+  bucket: 'PENSION' | 'HEALTH' | 'OTHER';
+  appliedBase: number;
+  employeeRate: number;
+  employerRate: number;
+  employeeAmount: number;
+  employerAmount: number;
+}
+
 /**
  * One employee's result for one run — the volante de pago.
  *
  * ## The split is stored, not derived
  *
- * AFP and SFS each have an employee share (withheld) and an employer share (an added cost). The
- * audit's non-negotiable is that both are recorded separately, never as a combined number, because
- * the TSS declares them separately, the ledger books them to different accounts, and "how much did
- * the company pay in social security" and "how much was taken from the employee" are different
- * questions a combined figure cannot answer. So every share has its own column here.
+ * Each statutory contribution (AFP and SFS in DO, IMSS in MX…) has an employee share (withheld)
+ * and an employer share (an added cost). The audit's non-negotiable is that both are recorded
+ * separately, never as a combined number, because the authority declares them separately, the
+ * ledger books them to different accounts, and "how much did the company pay in social security"
+ * and "how much was taken from the employee" are different questions a combined figure cannot
+ * answer. So every share is kept, per contribution, in `statutoryContributions`.
  *
  * ## Identity is snapshotted
  *
@@ -56,8 +68,8 @@ export class Payslip extends BaseEntity {
   @Column({ name: 'employee_identity_masked', type: 'varchar', nullable: true })
   employeeIdentityMasked: string | null;
 
-  @Column({ name: 'employee_tss_nss', type: 'varchar', nullable: true })
-  employeeTssNss: string | null;
+  @Column({ name: 'employee_social_security_number', type: 'varchar', nullable: true })
+  employeeSocialSecurityNumber: string | null;
 
   // ── Proration ────────────────────────────────────────────────────────────────
 
@@ -75,40 +87,29 @@ export class Payslip extends BaseEntity {
   @Column({ name: 'gross_earnings', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   grossEarnings: number;
 
-  /** The base AFP/SFS were applied to (gross of contributory concepts, capped where the law caps). */
-  @Column({ name: 'tss_base', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  tssBase: number;
+  /** The contributory base: earnings of concepts that contribute to social security, before caps. */
+  @Column({ name: 'contributory_base', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  contributoryBase: number;
 
-  /** The base ISR was applied to (taxable earnings net of the employee's AFP+SFS). */
+  /** The base income tax was applied to (taxable earnings net of the pre-tax employee contributions). */
   @Column({ name: 'taxable_base', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   taxableBase: number;
 
-  // Statutory — employee side (withheld)
-  @Column({ name: 'afp_employee', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  afpEmployee: number;
+  // Statutory — every contribution the country's law levies, by its catalogue code (audit
+  // 2026-11-07, JUR-01). These were eight columns named after the Dominican funds (afp_employee,
+  // sfs_employer, srl_employer, infotep_employee…), so a second country's payroll had nowhere to
+  // go. The list is the record; the two totals beside it are what the ledger and the lists sum.
+  @Column({ name: 'statutory_contributions', type: 'jsonb', default: [] })
+  statutoryContributions: PayslipContribution[];
 
-  @Column({ name: 'sfs_employee', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  sfsEmployee: number;
+  @Column({ name: 'statutory_employee_contributions', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  statutoryEmployeeContributions: number;
+
+  @Column({ name: 'statutory_employer_contributions', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  statutoryEmployerContributions: number;
 
   @Column({ name: 'income_tax', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   incomeTax: number;
-
-  /** Employee INFOTEP levy — only on a year-end bonus run; zero on an ordinary run. */
-  @Column({ name: 'infotep_employee', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  infotepEmployee: number;
-
-  // Statutory — employer side (added cost)
-  @Column({ name: 'afp_employer', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  afpEmployer: number;
-
-  @Column({ name: 'sfs_employer', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  sfsEmployer: number;
-
-  @Column({ name: 'srl_employer', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  srlEmployer: number;
-
-  @Column({ name: 'infotep_employer', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
-  infotepEmployer: number;
 
   // Totals
   @Column({ name: 'other_deductions', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })

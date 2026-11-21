@@ -2,7 +2,7 @@ import type {
   AuthUserContract,
   OrganizationContract,
   RoleContract,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 /**
  * The user model consumed by the app.

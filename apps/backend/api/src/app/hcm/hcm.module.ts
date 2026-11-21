@@ -11,7 +11,6 @@ import { AuditModule } from '../audit/audit.module';
 // Dominican algorithms because it had nowhere to ask what a country actually issues.
 import { LocalizationProvisioningModule } from '../localization/localization-provisioning.module';
 // Only the jurisdiction registry, as a leaf — not the whole payroll module.
-import { JurisdictionsModule } from '../jurisdictions/jurisdictions.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { JurisdictionsModule } from '../jurisdictions/jurisdictions.module';
     AuthModule,
     AuditModule,
     LocalizationProvisioningModule,
-    JurisdictionsModule,
   ],
   controllers: [HcmController],
   providers: [HcmService],

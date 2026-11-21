@@ -41,18 +41,34 @@ export async function findSellableProduct(
 }
 
 /**
- * The tenant's standard consumption-tax rate, as a fraction: the highest percentage rate in its
- * tax list (ITBIS 18 % in the Dominican Republic, IVA 16 % in Mexico). Zero where none is set up.
+ * The tenant's standard consumption-tax rate today, as a fraction (ITBIS 18 % in the Dominican
+ * Republic, IVA 16 % in Mexico). Zero where none is set up.
  *
- * Read from the tenant's own `taxes`, which provisioning fills from the country's scheme and the
- * tenant may edit, so the answer is the one the rest of the product shows them.
+ * It was `MAX(rate)` of the tenant's list (audit 2026-11-07, FAC-TX-02), so registering any higher
+ * rate — a luxury or excise rate — silently became the default tax of every taxed product. It is now
+ * the country's GENERAL rate in force today, from `statutory_tax_rates` (the row whose code is the
+ * general or basic rate). Only a market with no national table (the United States, Brazil) falls
+ * back to the tenant's own highest percentage rate in force, since there the tenant's list is all
+ * there is.
  */
 export async function standardSalesTaxRate(
   manager: EntityManager,
   organizationId: string,
 ): Promise<number> {
   const rows: Array<{ rate: string | number | null }> = await manager.query(
-    `SELECT MAX(rate) AS rate FROM taxes WHERE organization_id = $1 AND type = 'Porcentaje'`,
+    `WITH org AS (SELECT "country" FROM "organizations" WHERE "id" = $1),
+          national AS (
+            SELECT s."rate" FROM "statutory_tax_rates" s, org
+             WHERE s."country_code" = UPPER(org."country")
+               AND (s."tax_code" LIKE '%\\_GENERAL' OR s."tax_code" LIKE '%\\_BASIC')
+               AND s."effective_from" <= CURRENT_DATE AND (s."effective_to" IS NULL OR s."effective_to" >= CURRENT_DATE)
+             LIMIT 1),
+          own AS (
+            SELECT MAX(t."rate") AS "rate" FROM "taxes" t
+             WHERE t."organization_id" = $1 AND t."type" = 'Porcentaje'
+               AND (t."effective_from" IS NULL OR t."effective_from" <= CURRENT_DATE)
+               AND (t."effective_to" IS NULL OR t."effective_to" >= CURRENT_DATE))
+     SELECT COALESCE((SELECT "rate" FROM national), (SELECT "rate" FROM own)) AS "rate"`,
     [organizationId],
   );
   const percent = Number(rows[0]?.rate ?? 0);

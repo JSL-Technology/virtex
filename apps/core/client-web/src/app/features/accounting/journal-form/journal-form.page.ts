@@ -4,10 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JournalsService } from '../../../core/api/journals.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Journal } from '../../../core/models/journal.model';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 @Component({
   selector: 'app-journal-form',

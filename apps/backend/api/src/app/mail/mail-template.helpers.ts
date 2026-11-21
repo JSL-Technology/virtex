@@ -8,7 +8,7 @@ import {
   resolveLocale,
   normaliseRegionalFormat,
   withNumberSymbols,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 import { I18nService } from '../i18n/i18n.service';
 import { MAIL_BRAND, MailBrandKey } from './mail-brand';
 

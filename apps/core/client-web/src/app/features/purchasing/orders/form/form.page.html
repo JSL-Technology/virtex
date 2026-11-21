@@ -203,6 +203,11 @@
             {{ 'purchasing.orders.form.create_bill' | translate }}
           </button>
         }
+        @if (canClose()) {
+          <button class="secondary-button" type="button" [disabled]="saving()" (click)="closeOrder()">
+            {{ 'purchasing.orders.form.close_order' | translate }}
+          </button>
+        }
         @if (canCancel()) {
           <button class="danger-button" type="button" [disabled]="saving()" (click)="startCancel()">
             {{ 'purchasing.orders.form.cancel_order' | translate }}

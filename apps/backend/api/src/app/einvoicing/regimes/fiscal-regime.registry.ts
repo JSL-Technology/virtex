@@ -9,6 +9,7 @@ import { SriRegimeAdapter } from './ec/sri.adapter';
 import { SiiRegimeAdapter } from './cl/sii.adapter';
 import { NfeRegimeAdapter } from './br/nfe.adapter';
 import { AfipRegimeAdapter } from './ar/afip.adapter';
+import { DgiiRegimeAdapter } from './do/dgii.adapter';
 
 /**
  * Which electronic-invoicing regime applies to a tenant, if any.
@@ -20,16 +21,19 @@ import { AfipRegimeAdapter } from './ar/afip.adapter';
  * is not a gap. Returning `null` for those says so, and the caller issues the document without
  * transmitting anything.
  *
- * The Dominican Republic is deliberately absent from this table. Its regime predates this
- * interface, runs through `EcfSubmissionService` and has been in production longest; rewriting a
- * working implementation to share a shape with six that are not yet proven would put the one
- * market that works at risk for the tidiness of the six that do not.
+ * The Dominican Republic was deliberately absent from this table while the six others were
+ * unproven: its regime predates the interface and had been in production longest, and rewriting
+ * the one implementation that worked to share a shape with six that did not would have put the
+ * working market at risk. They are proven now, so DO is an adapter like the others
+ * (`do/dgii.adapter.ts`) and there is one pipeline, one table and one answer to «where does this
+ * document stand with its authority» for every market.
  */
 @Injectable()
 export class FiscalRegimeRegistry {
   private readonly byCountry: ReadonlyMap<string, FiscalRegimeAdapter>;
 
   constructor(
+    dgii: DgiiRegimeAdapter,
     cfdi: CfdiRegimeAdapter,
     dian: DianRegimeAdapter,
     sunat: SunatRegimeAdapter,
@@ -39,6 +43,7 @@ export class FiscalRegimeRegistry {
     afip: AfipRegimeAdapter,
   ) {
     this.byCountry = new Map<string, FiscalRegimeAdapter>([
+      ['DO', dgii],
       ['MX', cfdi],
       ['CO', dian],
       ['PE', sunat],

@@ -1,3 +1,4 @@
+import { UploadDocumentFieldsDto } from './dto/upload-document.dto';
 import {
   Body,
   Controller,
@@ -104,7 +105,7 @@ export class DocumentsController {
   @UseInterceptors(FastifyFileInterceptor('file', { limits: { fileSize: MAX_UPLOAD_BYTES } }))
   async upload(
     @UploadedFile() file: FastifyFile,
-    @Body() body: { parentId?: string; templateType?: DocumentTemplateType; description?: string },
+    @Body() body: UploadDocumentFieldsDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (!file) throw new BadRequestError('documents.file_required');

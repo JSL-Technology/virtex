@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IdentityDocumentType } from '../entities/identity-document-type.entity';
 import {
-  DocumentAppliesTo,
-  DocumentContext,
   IDENTITY_DOCUMENT_TYPES,
-  IdentityDocumentTypeSpec,
   SUPRANATIONAL_COUNTRY,
   canonicalize,
-} from '../fiscal/identity-document-catalogue';
-import { resolveChecksum } from '../fiscal/document-checksums';
+  resolveChecksum,
+  type DocumentAppliesTo,
+  type DocumentContext,
+  type IdentityDocumentTypeSpec,
+} from '../../markets';
 
 /**
  * The one place that answers "what identifies a person or a company in this country, and is this
@@ -259,11 +259,11 @@ export class IdentityDocumentService implements OnModuleInit {
       return { ok: true, value: null, typeCode: null, countryCode: null };
     }
 
-    // Where the caller named no type, the catalogue's own default for this country decides — the
-    // cédula in Santo Domingo, the CURP in Mexico City, the CC in Bogotá. Never a constant.
-    const code =
-      input.typeCode?.trim().toUpperCase() ||
-      (await this.defaultFor(country, input.appliesTo, input.usedFor))?.code;
+    // Where the caller named no type, the document is recognised by its shape among the types the
+    // country issues for this context, and only an ambiguous or unrecognisable value falls back to
+    // the catalogue's default (audit 2026-11-07, CMP-16): a valid nine-digit Dominican RNC sent
+    // without a type was checked as an eleven-digit cédula and refused. Never a constant.
+    const code = input.typeCode?.trim().toUpperCase() || (await this.inferType(country, raw, input))?.code;
 
     if (!code) return { ok: false, reason: 'type_required', country };
 
@@ -291,6 +291,32 @@ export class IdentityDocumentService implements OnModuleInit {
       // The entry's OWN country, so a passport stores as `XX` rather than as the tenant's.
       countryCode: entry.countryCode,
     };
+  }
+
+  /**
+   * The document type a value with no declared type is, judged by the catalogue alone.
+   *
+   * Among the types the country issues for the context, the ones whose pattern AND check digit
+   * accept the value are candidates. One candidate is the answer; several (a shape two documents
+   * share) are decided by the default when it is among them, else by catalogue order; none means
+   * the value is not a valid document of any type, and the default is returned so the rejection
+   * names the document a reader would expect.
+   */
+  private async inferType(
+    country: string,
+    raw: string,
+    input: Pick<PartyDocumentInput, 'appliesTo' | 'usedFor'>,
+  ): Promise<IdentityDocumentType | null> {
+    const candidates = (await this.listForCountry(country, { appliesTo: input.appliesTo, usedFor: input.usedFor }))
+      // Supranational entries (passport) accept almost any shape; they are never inferred.
+      .filter((row) => row.countryCode === country);
+    const fallback = candidates.find((row) => row.isDefault) ?? candidates[0] ?? null;
+    const accepted: IdentityDocumentType[] = [];
+    for (const row of candidates) {
+      if ((await this.validate(country, row.code, raw)).valid) accepted.push(row);
+    }
+    if (accepted.length === 0) return fallback;
+    return accepted.find((row) => row.isDefault) ?? accepted[0];
   }
 
   /** The pre-selected option for a context, or null when the country names none. */

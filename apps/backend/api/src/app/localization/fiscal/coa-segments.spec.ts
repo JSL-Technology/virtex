@@ -5,7 +5,7 @@ import {
   coaSegmentsFor,
   splitCoaCode,
 } from './coa-builder';
-import { supportedCountryCodes } from './country-profiles';
+import { marketCodes } from '../../markets';
 
 /**
  * The account CODE and the account-code STRUCTURE must describe the same thing.
@@ -27,7 +27,7 @@ function flatten(template: AccountTemplateDto[]): AccountTemplateDto[] {
 }
 
 describe('chart-of-accounts segment structure', () => {
-  const countries = supportedCountryCodes();
+  const countries = [...marketCodes()];
 
   it('covers every supported market (guards against a silently empty sweep)', () => {
     expect(countries.length).toBeGreaterThanOrEqual(19);

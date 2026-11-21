@@ -34,6 +34,7 @@ import { FiscalCalendarService } from '../accounting/fiscal-calendar.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -153,6 +154,7 @@ export class TreasuryService {
       if (glAccount.type !== 'ASSET' || (role !== null && !MONEY_ROLES.has(role))) {
         throw new BadRequestError('treasury.ledger_account_not_money_account');
       }
+      await this.claimLedgerAccount(manager, organizationId, glAccount, dto.currencyCode.toUpperCase());
 
       const openingBalance = roundAmount(dto.openingBalance ?? 0);
       const opening = await this.validateOpeningBalance(
@@ -197,6 +199,52 @@ export class TreasuryService {
       account.openingJournalEntryId = entry.id;
       return manager.save(account);
     });
+  }
+
+  /**
+   * A bank account's ledger account is money, in the bank's currency (FIN-AC-03).
+   *
+   * It is marked as a monetary item — its foreign-currency balance is restated at each period end —
+   * and given the bank's currency, so every line on it is in that currency: a dollar bank account's
+   * ledger account takes dollars only, a peso one pesos only (`JournalEntriesService` refuses the
+   * rest). Refused, with the reason, when the account already has another currency, belongs to a
+   * bank account in another currency, or holds lines in one: one ledger account mixing currencies
+   * cannot be reconciled against either bank, nor restated as either.
+   */
+  private async claimLedgerAccount(manager: EntityManager, organizationId: string, glAccount: Account, currency: string): Promise<void> {
+    if (glAccount.currency && glAccount.currency.toUpperCase() !== currency) {
+      throw new BadRequestError('treasury.ledger_account_currency_differs', {
+        code: glAccount.code,
+        accountCurrency: glAccount.currency.toUpperCase(),
+        currency,
+      });
+    }
+    const [other] = await manager.query(
+      `SELECT upper(currency_code) AS currency FROM bank_accounts
+        WHERE organization_id = $1 AND gl_account_id = $2 AND upper(currency_code) <> $3 LIMIT 1`,
+      [organizationId, glAccount.id, currency],
+    );
+    if (other) {
+      throw new BadRequestError('treasury.ledger_account_shared_across_currencies', { code: glAccount.code, currency: other.currency });
+    }
+    if (!glAccount.currency) {
+      const [mixed] = await manager.query(
+        `SELECT 1 FROM journal_entry_lines l
+          WHERE l.account_id = $1
+            AND upper(coalesce(l.currency_code,
+                  (SELECT s.base_currency FROM organization_settings s WHERE s.organization_id = $2))) <> $3
+          LIMIT 1`,
+        [glAccount.id, organizationId, currency],
+      );
+      if (mixed) {
+        throw new BadRequestError('treasury.ledger_account_holds_other_currencies', { code: glAccount.code, currency });
+      }
+    }
+    if (glAccount.currency !== currency || glAccount.fxTreatment !== 'REVALUED') {
+      await manager.update(Account, { id: glAccount.id, organizationId }, { currency, fxTreatment: 'REVALUED' });
+      glAccount.currency = currency;
+      glAccount.fxTreatment = 'REVALUED';
+    }
   }
 
   /**
@@ -256,7 +304,7 @@ export class TreasuryService {
       throw new BadRequestError('treasury.no_default_ledger_has_configured_organization');
     }
 
-    const journal = await manager.findOneBy(Journal, { organizationId, code: 'BANCOS' });
+    const journal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.banks.code });
     if (!journal) {
       throw new BadRequestError('treasury.banks_journal_bancos_not_found');
     }
@@ -532,7 +580,7 @@ export class TreasuryService {
 
       const bankJournal = await manager.findOneBy(Journal, {
         organizationId,
-        code: 'BANCOS',
+        code: SYSTEM_JOURNALS.banks.code,
       });
       if (!bankJournal) {
         throw new BadRequestError('treasury.banks_journal_bancos_not_found');

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { FormatService, LocaleStore, VxNumberPipe, VxParamsPipe, parseLocalizedDate, parseLocalizedNumber } from '@virteex/shared/ui-i18n';
-import { LocaleContextContract, RegionalFormat } from '@virteex/shared/types';
+import { FormatService, LocaleStore, VxNumberPipe, VxParamsPipe, parseLocalizedDate, parseLocalizedNumber } from '@virtex/shared/ui-i18n';
+import { LocaleContextContract, RegionalFormat } from '@virtex/shared/types';
 
 /**
  * Dates, numbers and times as the company or the person chose them (CG-29 / CG-30, and the

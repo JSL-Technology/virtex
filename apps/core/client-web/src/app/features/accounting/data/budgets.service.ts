@@ -41,10 +41,14 @@ export interface VarianceLine {
   accountType: string | null;
   dimensions: Record<string, string> | null;
   budgetedAmount: number;
+  /** Posted in the months the line has a budget for: what the budget is compared with. */
   actualAmount: number;
   difference: number;
   consumedRatio: number | null;
-  months?: Record<string, number>;
+  /** Posted in months of the range with no budget for the line: spending nobody planned. */
+  unbudgetedActual: number;
+  /** Month by month: what was budgeted (`null` where nothing was) and what was posted. */
+  months: Record<string, { budgeted: number | null; actual: number }>;
 }
 
 export interface VarianceReport {
@@ -52,7 +56,7 @@ export interface VarianceReport {
   ledger: { id: string; name: string; currency: string } | null;
   budgets?: Array<{ id: string; name: string; period: string }>;
   lines: VarianceLine[];
-  totals: { budgeted: number; actual: number; difference: number };
+  totals: { budgeted: number; actual: number; difference: number; unbudgetedActual: number };
 }
 
 /** Budgets (audit H-16): the monthly targets, and how actuals measure against them. */

@@ -6,6 +6,8 @@
 // packaged build refuses to run with.
 'use strict';
 
+const crypto = require('node:crypto');
+
 /**
  * Schemes the operating system may be asked to open.
  *
@@ -107,6 +109,81 @@ function mayGrantPermission(permission, requestingUrl, allowedOrigins) {
   return GRANTABLE_PERMISSIONS.has(permission) && isTrustedUrl(requestingUrl, allowedOrigins);
 }
 
+
+/**
+ * A Content-Security-Policy the shell adds to every trusted page, on top of the server's own.
+ *
+ * Browsers enforce every CSP a response carries and a resource must satisfy all of them, so an extra
+ * policy can only tighten, never loosen: it cannot break a directive the server set, and it keeps
+ * these guarantees even if a deployment is served without the headers `serve.json` declares.
+ * The directives are the ones an Angular single-page application never needs relaxed:
+ *
+ *   object-src 'none'       no plugins — the oldest route to code execution in a page
+ *   base-uri 'self'         an injected <base> cannot redirect every relative script URL
+ *   frame-ancestors 'none'  the portal cannot be framed (clickjacking) by anything
+ *
+ * `script-src` is deliberately left to the server: tightening it here without the server's nonces
+ * would break the application, and a half-applied script policy protects nothing.
+ */
+const BASELINE_CSP = "object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
+
+/**
+ * Add the baseline policy to a response's headers, without disturbing the server's own.
+ *
+ * Header names arrive in whatever case the server used; a second header is added under its own key
+ * so both policies are enforced.
+ */
+function withBaselineCsp(responseHeaders) {
+  const headers = { ...(responseHeaders || {}) };
+  const existing = Object.keys(headers).find((name) => name.toLowerCase() === 'content-security-policy');
+  const values = existing ? [].concat(headers[existing]) : [];
+  if (existing) delete headers[existing];
+  headers['Content-Security-Policy'] = [...values, BASELINE_CSP];
+  return headers;
+}
+
+/** base64 SHA-256 of a certificate's SubjectPublicKeyInfo — the value an HPKP-style pin holds. */
+function spkiSha256(certificatePem) {
+  const certificate = new crypto.X509Certificate(certificatePem);
+  const spki = certificate.publicKey.export({ type: 'spki', format: 'der' });
+  return crypto.createHash('sha256').update(spki).digest('base64');
+}
+
+/**
+ * Whether a certificate chain satisfies the configured pins.
+ *
+ * Pinning is optional (no pins → every chain the operating system trusts passes). With pins, at
+ * least one certificate in the presented chain — the leaf, or an intermediate the operator chose to
+ * pin so certificates can be renewed without a client release — must carry a pinned key. A chain
+ * that cannot be parsed fails closed.
+ *
+ * @param {string[]} chainPems  leaf first
+ * @param {readonly string[]} pins
+ */
+function chainMatchesPins(chainPems, pins) {
+  if (!pins || pins.length === 0) return true;
+  try {
+    return chainPems.some((pem) => pins.includes(spkiSha256(pem)));
+  } catch {
+    return false;
+  }
+}
+
+/** Hosts the pins apply to: the configured origins, and nothing else the shell might contact. */
+function pinnedHosts(allowedOrigins) {
+  return new Set(
+    allowedOrigins
+      .map((origin) => {
+        try {
+          return new URL(origin).hostname;
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean),
+  );
+}
+
 module.exports = {
   EXTERNAL_SCHEMES,
   GRANTABLE_PERMISSIONS,
@@ -116,4 +193,9 @@ module.exports = {
   isTrustedUrl,
   isTrustedSender,
   mayGrantPermission,
+  BASELINE_CSP,
+  withBaselineCsp,
+  spkiSha256,
+  chainMatchesPins,
+  pinnedHosts,
 };

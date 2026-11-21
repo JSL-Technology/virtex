@@ -33,7 +33,7 @@ describe('AiAgentsPanelComponent', () => {
         provideRouter([]),
         { provide: AgentsApiService, useValue: api },
         { provide: NotificationService, useValue: { showHttpError: jest.fn(), showSuccess: jest.fn() } },
-        { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of(['procurement:manage']), hasPermissions: () => true } },
+        { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of(['procurement:manage']), hasPermissions: () => true, hasFeature: () => true } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(AiAgentsPanelComponent);
@@ -61,5 +61,32 @@ describe('AiAgentsPanelComponent', () => {
     fixture.componentInstance.runNow();
     expect(api['runReplenishment']).toHaveBeenCalled();
     expect(api['runs']).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('AiAgentsPanelComponent on a plan without agents', () => {
+  it('asks nothing of the replenishment agent; the log of runs still shows', async () => {
+    const api: Record<string, jest.Mock> = {
+      replenishmentSettings: jest.fn().mockReturnValue(of({ enabled: false, warehouseIds: [], submitForApproval: false, maxOrderAmount: null })),
+      runs: jest.fn().mockReturnValue(of([])),
+      copilotProposals: jest.fn().mockReturnValue(of([])),
+      copilotFeedback: jest.fn().mockReturnValue(of({ last30Days: { up: 0, down: 0, reported: 0 }, items: [] })),
+    };
+    await TestBed.configureTestingModule({
+      imports: [AiAgentsPanelComponent],
+      providers: [
+        provideRouter([]),
+        { provide: AgentsApiService, useValue: api },
+        { provide: NotificationService, useValue: { showHttpError: jest.fn(), showSuccess: jest.fn() } },
+        { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of([]), hasPermissions: () => true, hasFeature: () => false } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(AiAgentsPanelComponent);
+    fixture.detectChanges();
+
+    // The API refuses `procurement/replenishment-agent/*` without `ai_agents`: not asked at all.
+    expect(api['replenishmentSettings']).not.toHaveBeenCalled();
+    expect(api['runs']).toHaveBeenCalled();
+    fixture.destroy();
   });
 });

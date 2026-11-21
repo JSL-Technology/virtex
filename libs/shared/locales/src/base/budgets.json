@@ -289,6 +289,11 @@
     "en": "The period must have the form YYYY-MM.",
     "pt": "O período deve ter a forma AAAA-MM."
   },
+  "budgets.target_not_a_limit": {
+    "es": "Este presupuesto es una meta, no un límite: se mide, pero no detiene ningún asiento.",
+    "en": "This budget is a target, not a limit: it is measured, but it stops no entry.",
+    "pt": "Este orçamento é uma meta, não um limite: é medido, mas não impede nenhum lançamento."
+  },
   "budgets.variance.account": {
     "es": "Cuenta",
     "en": "Account",
@@ -343,6 +348,16 @@
     "es": "No se pudo calcular la variación.",
     "en": "Could not compute the variance.",
     "pt": "Não foi possível calcular a variação."
+  },
+  "budgets.variance.outside_budget": {
+    "es": "Fuera de los meses presupuestados",
+    "en": "Outside budgeted months",
+    "pt": "Fora dos meses orçados"
+  },
+  "budgets.variance.outside_budget_hint": {
+    "es": "Lo contabilizado en meses del rango que no tienen presupuesto para la cuenta: no entra en la comparación, pero es gasto que nadie planificó.",
+    "en": "What was posted in months of the range with no budget for the account: not part of the comparison, but spending nobody planned.",
+    "pt": "O que foi lançado em meses do período sem orçamento para a conta: não entra na comparação, mas é um gasto que ninguém planejou."
   },
   "budgets.variance.subtitle": {
     "es": "Lo presupuestado contra lo contabilizado, por cuenta, en los meses elegidos.",

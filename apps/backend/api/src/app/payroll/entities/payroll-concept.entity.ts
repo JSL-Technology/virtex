@@ -82,8 +82,8 @@ export class PayrollConcept extends BaseEntity {
   taxable: boolean;
 
   /** Whether this earning forms part of the TSS contributory (SFS/AFP) base. */
-  @Column({ name: 'contributes_to_tss', type: 'boolean', default: true })
-  contributesToTss: boolean;
+  @Column({ name: 'contributes_to_social_security', type: 'boolean', default: true })
+  contributesToSocialSecurity: boolean;
 
   /** The account this concept posts to. Falls back to the settings default for its kind when null. */
   @Column({ name: 'account_id', type: 'uuid', nullable: true })

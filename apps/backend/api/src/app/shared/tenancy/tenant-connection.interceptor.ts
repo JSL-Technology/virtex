@@ -5,7 +5,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, QueryRunner } from 'typeorm';
 import { Observable, defer, from, switchMap } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { AuthenticatedRequest } from '@virteex/shared/util-auth';
+import { AuthenticatedRequest } from '@virtex/shared/util-auth';
 import { runInTenantContext } from './tenant-context';
 import { SHORT_LIVED_CONNECTIONS } from './short-lived-connections.decorator';
 

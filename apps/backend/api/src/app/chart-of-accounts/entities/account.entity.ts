@@ -7,13 +7,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  Tree,
-  TreeChildren,
-  TreeParent,
+  Check,
   Index,
   VersionColumn,
   OneToMany,
 } from 'typeorm';
+import type { FxTreatment } from '@virtex/shared/types';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import {
@@ -29,8 +28,14 @@ import { AccountHierarchyVersion } from './account-hierarchy-version.entity';
 export * from '../enums/account-enums';
 
 @Entity({ name: 'accounts' })
-@Tree('closure-table')
 @Index(['organizationId'])
+@Index('IDX_accounts_parent', ['parentId'], { where: '"parent_id" IS NOT NULL' })
+@Check('CHK_accounts_fx_treatment', `"fx_treatment" IN ('REVALUED', 'HISTORICAL')`)
+// Only money held or owed is restated (IAS 21.23): see `fx-treatment.contract.ts`.
+@Check('CHK_accounts_revalued_balance_sheet', `"fx_treatment" = 'HISTORICAL' OR "type" IN ('ASSET', 'LIABILITY')`)
+@Check('CHK_accounts_currency_code', `"currency" IS NULL OR "currency" ~ '^[A-Z]{3}$'`)
+// A summary account takes no lines: it has no currency of its own and nothing to revalue.
+@Check('CHK_accounts_summary_has_no_currency', `"isPostable" OR ("fx_treatment" = 'HISTORICAL' AND "currency" IS NULL)`)
 // One account per operational role per tenant: the automatic postings resolve a role to exactly one
 // account, and two candidates would make the choice arbitrary.
 /**
@@ -116,14 +121,24 @@ export class Account {
   isSystemAccount: boolean;
 
 
-  @TreeParent({ onDelete: 'SET NULL' })
+  /**
+   * The hierarchy is this column and nothing else: the parent is a summary account of the same type
+   * (`ChartOfAccountsService`, and the `accounts_hierarchy_rules` trigger for every other writer),
+   * and subtrees are read with recursive queries.
+   *
+   * It used to be a TypeORM closure table as well, which TypeORM fills only when the `parent`
+   * RELATION is set on save. Every writer set `parent_id`, so `accounts_closure` held each account
+   * as its own only ancestor (1,126 rows, none linking two accounts) and `GET tree/children/:id`
+   * answered with the account itself (FIN-COA-04). Two copies of one fact had drifted completely.
+   */
+  @ManyToOne(() => Account, (account) => account.children, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'parent_id' })
   parent: Account | null;
 
   @Column({ name: 'parent_id', type: 'uuid', nullable: true })
   parentId: string | null;
 
-  @TreeChildren()
+  @OneToMany(() => Account, (account) => account.parent)
   children: Account[];
 
   /**
@@ -150,11 +165,29 @@ export class Account {
   history: AccountHierarchyVersion[];
 
 
-  @Column({ default: false, name: 'is_multi_currency' })
-  isMultiCurrency: boolean;
+  /**
+   * How the account's foreign-currency balances are measured at a period end: restated at the
+   * closing rate (a monetary item) or kept at their historical rate (`fx-treatment.contract.ts`).
+   * The one thing the revaluation reads. Defaulted from the account's role and type when it is
+   * created, and shown on the account form.
+   */
+  @Column({ name: 'fx_treatment', type: 'varchar', length: 10, default: 'HISTORICAL' })
+  fxTreatment: FxTreatment;
 
-  @Column({ length: 3, nullable: true, comment: 'Código de moneda ISO 4217 si la cuenta es de moneda única extranjera.' })
-  currency?: string;
+  /**
+   * The account's currency, when it has one: every line on it is in this currency, and any other is
+   * refused at posting (FIN-AC-03). A dollar bank account's ledger account takes only dollars; a
+   * peso one, only pesos — the audit posted dollar entries onto a peso account and nothing objected.
+   * Null: lines in any currency. Set when a bank account is created on the account, or by hand
+   * while the account has no lines in another currency.
+   */
+  @Column({
+    type: 'varchar',
+    length: 3,
+    nullable: true,
+    comment: 'Moneda ISO 4217 de la cuenta: todo movimiento en ella va en esta moneda. Nula: cualquier moneda.',
+  })
+  currency?: string | null;
 
   @Column({ default: false, name: 'is_inflation_adjustable' })
   isInflationAdjustable: boolean;

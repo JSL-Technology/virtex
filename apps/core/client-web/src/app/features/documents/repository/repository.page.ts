@@ -15,7 +15,7 @@ import {
   CornerLeftUp,
 } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { DocumentNode, DocumentsService, DocumentTemplateType } from '../data/documents.service';

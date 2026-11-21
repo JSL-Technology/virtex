@@ -21,7 +21,7 @@ describe('SaaS usage report', () => {
       ],
     },
   };
-  const query = jest.fn(async (sql: string, _params?: unknown[]) => [{ n: sql.includes('FROM customers') ? 42 : 7 }]);
+  const query = jest.fn(async (...[sql]: [string, unknown[]?]) => [{ n: sql.includes('FROM customers') ? 42 : 7 }]);
   const usageRepository = {
     createQueryBuilder: () => ({
       where: () => ({ andWhere: () => ({ getMany: async () => [{ resource: 'invoices', period: new Date().toISOString().slice(0, 7), count: 9 }] }) }),
@@ -31,12 +31,12 @@ describe('SaaS usage report', () => {
     {} as never, {} as never, {} as never,
     { findOne: jest.fn(async () => org) } as never,
     usageRepository as never,
-    {} as never, { get: jest.fn() } as never, { emit: jest.fn() } as never, {} as never,
+    { get: jest.fn() } as never, { emit: jest.fn() } as never, {} as never,
     { query } as never,
     {} as never, {} as never, {} as never,
   );
 
-  it('counts lifetime resources from the rows, not from a counter only the night job fixes', async () => {
+  it('counts lifetime resources from the rows: there is no counter for them', async () => {
     const usage = await service.getUsage('org-1');
     expect(usage.find((u) => u.resource === 'customers')).toMatchObject({ used: 42, limit: 500, isUnlimited: false });
   });
@@ -45,8 +45,8 @@ describe('SaaS usage report', () => {
     const usage = await service.getUsage('org-1');
     // Counter 9, rows 7: the counter is what enforcement reads, so it is not hidden.
     expect(usage.find((u) => u.resource === 'invoices')).toMatchObject({ used: 9, isUnlimited: true });
-    const [, params] = query.mock.calls.find(([sql]) => sql.includes('FROM invoices'))!;
-    expect(params?.[0]).toBe('org-1');
+    const call = query.mock.calls.find(([sql]) => sql.includes('FROM invoices'));
+    expect(call?.[1]?.[0]).toBe('org-1');
   });
 
   it('reports a feature as included or not', async () => {

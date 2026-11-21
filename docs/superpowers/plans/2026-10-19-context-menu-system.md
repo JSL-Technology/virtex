@@ -272,7 +272,7 @@ function coordsOf(event: MouseEvent | KeyboardEvent): { x: number; y: number } {
 
 ```ts
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Check, ChevronRight } from 'lucide-angular';
 import { VxKbdComponent } from '../kbd';
 import { MenuContext, MenuItem } from './context-menu.types';

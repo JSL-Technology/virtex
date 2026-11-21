@@ -7,7 +7,7 @@ import {
   marketBrief,
   parseExtractedBill,
 } from '../app/accounts-payable/bill-capture.service';
-import { purchaseCaptureProfile } from '../app/localization/contracts/purchase-capture.contract';
+import { purchaseCaptureProfile } from '../app/markets';
 import { ANOMALY_NARRATIVE_SYSTEM, withoutPeople } from '../app/ai/anomalies/anomalies.service';
 import { REMINDER_SYSTEM, REMINDER_TONES } from '../app/collections/reminder-prompt';
 import { booksLanguageName } from '../app/ai/language';

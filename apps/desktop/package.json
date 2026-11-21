@@ -1,0 +1,17 @@
+{
+  "name": "virtex-desktop",
+  "productName": "Virtex Desktop",
+  "version": "1.0.0",
+  "description": "Virtex ERP desktop shell: the web portal and the point-of-sale terminal in a hardened Electron window.",
+  "main": "src/main.js",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": {
+    "name": "JSL Technology",
+    "email": "desktop@virtex.io"
+  },
+  "homepage": "https://virtex.io",
+  "dependencies": {
+    "electron-updater": "6.8.11"
+  }
+}

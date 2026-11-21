@@ -1,5 +1,5 @@
 import { SettingsActionsDirective } from '../shell';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
   Component,
@@ -71,8 +71,8 @@ import { WebSocketService } from '../../../core/services/websocket.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
-import { composeKey } from '@virteex/shared/types';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { composeKey } from '@virtex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';

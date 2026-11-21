@@ -32,7 +32,7 @@ import {
   Share2,
   X,
 } from 'lucide-angular';
-import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virtex/shared/ui-i18n';
 import { FlowCanvasComponent, FlowCanvasEdge, FlowCanvasNode, layeredLayout } from '../../shared/flow';
 import { relationshipMapPath } from '../../shared/components/relationship-map-link';
 import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';

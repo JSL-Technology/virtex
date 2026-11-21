@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { LucideAngularModule, Printer, Ban, Search } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../core/auth.service';
 import { DocumentsService } from '../../../core/documents.service';
 import { PosSale } from '../../../core/pos-api.service';

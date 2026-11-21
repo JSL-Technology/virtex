@@ -16,7 +16,7 @@ import {
   XCircle,
 } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
   AccountReconciliationSettings,
@@ -30,7 +30,7 @@ import {
   SuggestionConfidence,
   TransactionSuggestion,
 } from '../../data/reconciliation.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { NotificationService } from '../../../../core/services/notification';

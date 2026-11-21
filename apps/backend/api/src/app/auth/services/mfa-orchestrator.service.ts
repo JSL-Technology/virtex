@@ -22,7 +22,7 @@ import { SmsAbuseGuardService } from './sms-abuse.guard.service';
 import { AuthConfig } from '../auth.config';
 import { BadRequestError, InternalServerError, ServiceUnavailableError, UnauthorizedError, isLocalizedError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
-import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, matchLanguage } from '@virtex/shared/types';
 import { currentLanguage } from '../../i18n/request-locale';
 
 /** A stable, non-identifying handle for a verification destination, for logs. */

@@ -192,7 +192,11 @@ export class AuthStepUpController {
     try {
       const query = (req.query ?? {}) as Record<string, string>;
       if (query.error) {
-        throw new UnauthorizedException(query.error_description || query.error);
+        // The provider's own text is NOT forwarded: it is written by a third party, in a language
+        // nobody chose, and it lands in a browser. It goes to the log; the reader gets a sentence
+        // of ours, with the provider's machine code as the one piece worth showing.
+        this.logger.warn(`Verificación: el proveedor rechazó la autenticación (${query.error}): ${query.error_description ?? '—'}`);
+        throw new UnauthorizedError('auth.verification_provider_refused', { reason: String(query.error) });
       }
 
       const tx = this.oauthStateService.readTransaction(req);

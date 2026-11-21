@@ -160,7 +160,7 @@
                   <th scope="col" class="text-right">{{ 'invoices.new.price' | translate }}</th>
                   <th scope="col" class="text-right">{{ 'invoices.new.disc' | translate }}</th>
                   <th scope="col">{{ 'invoices.new.treatment' | translate }}</th>
-                  <th scope="col">{{ (taxByDestination() ? taxNameKey() : 'invoices.new.tax_column_header') | translate }}</th>
+                  <th scope="col">{{ taxColumnHeader() ?? ('invoices.new.tax_column_header' | translate) }}</th>
                   <th scope="col" class="text-right">{{ 'invoices.new.line_amount' | translate }}</th>
                   <th scope="col"><span class="sr-only">{{ 'invoices.new.remove_line' | translate }}</span></th>
                 </tr>
@@ -200,7 +200,10 @@
                     </td>
                     <td>
                       <input type="number" step="0.000001" min="0" formControlName="unitPrice"
-                             class="form-control text-right" />
+                             class="form-control text-right" (input)="onUnitPriceTyped(i)" />
+                      @if (line.get('priceListName')?.value; as listName) {
+                        <small class="field-hint">{{ 'invoices.new.price_from_list' | translate: { list: listName } }}</small>
+                      }
                     </td>
                     <td>
                       <input type="number" appPercent step="0.01" min="0" max="99" formControlName="discountRate"
@@ -277,9 +280,12 @@
                   @for (state of registeredJurisdictions(); track state.stateCode; let last = $last) {
                     <strong>{{ state.stateCode }} {{ state.rate | vxPercent: '1.0-3' }}</strong>@if (!last) {, }
                   }
-                } @else {
+                } @else if (untaxedWithoutRegistration()) {
                   {{ 'invoices.new.sales_tax_no_states' | translate }}
                   <a routerLink="/masters/taxes">{{ 'invoices.new.sales_tax_register_states' | translate }}</a>
+                } @else {
+                  {{ 'invoices.new.tax_not_configured_blocks_issue' | translate: { tax: taxColumnHeader() ?? ('invoices.new.tax_column_header' | translate) } }}
+                  <a routerLink="/masters/taxes">{{ 'invoices.new.configure_taxes' | translate }}</a>
                 }
               </p>
             }
@@ -366,7 +372,10 @@
                 </select>
               </div>
             } @else {
-              <p class="hint">
+              <!-- LOC-03 / FAC-INV-03: said as a warning, not a footnote — what is issued here is not
+                   a fiscal document, in a market whose law may require one. -->
+              <p class="not-fiscal-banner" role="alert">
+                <strong>{{ 'invoices.new.not_a_fiscal_document' | translate }}</strong>
                 {{ 'invoices.new.market_has_no_electronic_invoicing_regime' | translate }}
               </p>
             }

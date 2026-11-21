@@ -23,6 +23,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { chargesDue, ScheduledCharge } from './depreciation-schedule';
 import { resolvePostingPeriod } from '../accounting/period-status';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 /** Why an asset due a charge was left out of a run. */
 export type DepreciationSkipReason = 'missing_accounts';
@@ -194,7 +195,7 @@ export class DepreciationService extends DepreciationPort {
     // or a journal it will never post to (QA C-06).
     const defaultLedger = await em.findOneBy(Ledger, { organizationId, isDefault: true });
     if (!defaultLedger) throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
-    const journal = await this.journalLookup.findByCode(organizationId, 'DEPREC', em);
+    const journal = await this.journalLookup.findByCode(organizationId, SYSTEM_JOURNALS.depreciation.code, em);
     if (!journal) throw new BadRequestError('fixed_assets.depreciation_journal_deprec_not_found_create');
 
     // One entry per month, dated on that month's last day (QA R3-M14: a run that caught up August

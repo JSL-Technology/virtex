@@ -62,6 +62,11 @@ import { previousDay, toIsoDate } from '../common/dates';
 /** A signed balance per account: `debit − credit`. */
 export type SignedBalances = Map<string, number>;
 
+/** An {@link AccountMovement} and the dimension combination it was posted under. */
+export interface TaggedAccountMovement extends AccountMovement {
+  dimensions: Record<string, string> | null;
+}
+
 export interface AccountMovement {
   accountId: string;
   debit: number;
@@ -223,6 +228,45 @@ export class AccountBalancesService {
 
     return rows.map((row) => ({
       accountId: row.accountId,
+      debit: Number(row.debit),
+      credit: Number(row.credit),
+    }));
+  }
+
+  /**
+   * The same movements, split by the dimension combination each one was posted under.
+   *
+   * The year-end close needs this. It used to close one line per ACCOUNT, with no tags, which was
+   * wrong twice over: a mandatory dimension rule on a result account refused the closing entry
+   * outright — `readiness` said `canClose: true` and the close answered 400 — and, where it did
+   * post, the profit and loss by cost centre did not go to zero, because a single untagged line
+   * of 100 does not cancel 60 on one centre and 40 on another (FIN-AC-01).
+   *
+   * A tenant with no dimensions gets exactly what `movements` gives it: `dimensions` is null on
+   * every line, so the grouping collapses to one row per account. There is no branch.
+   *
+   * `jsonb` normalises key order, so `{a,b}` and `{b,a}` are the same group.
+   */
+  async movementsByDimension(
+    scope: BalanceScope & { from: Date | string; to: Date | string },
+    manager?: EntityManager,
+  ): Promise<TaggedAccountMovement[]> {
+    const rows = await this.baseQuery(this.manager(manager), scope)
+      .andWhere('entry.date BETWEEN :from AND :to', {
+        from: toIsoDate(scope.from),
+        to: toIsoDate(scope.to),
+      })
+      .select('line.accountId', 'accountId')
+      .addSelect('line.dimensions', 'dimensions')
+      .addSelect('COALESCE(SUM(valuation.debit), 0)', 'debit')
+      .addSelect('COALESCE(SUM(valuation.credit), 0)', 'credit')
+      .groupBy('line.accountId')
+      .addGroupBy('line.dimensions')
+      .getRawMany<{ accountId: string; dimensions: Record<string, string> | null; debit: string; credit: string }>();
+
+    return rows.map((row) => ({
+      accountId: row.accountId,
+      dimensions: row.dimensions ?? null,
       debit: Number(row.debit),
       credit: Number(row.credit),
     }));
@@ -417,6 +461,39 @@ export class AccountBalancesService {
       .getRawMany<{ accountId: string; balance: string }>();
 
     return new Map(rows.map((row) => [row.accountId, Number(row.balance)]));
+  }
+
+  /**
+   * Open foreign-currency positions as at a date, per (account, currency).
+   *
+   * For every line that states its own currency: the balance in that currency (`foreign debit −
+   * foreign credit`) and what the ledger carries it at (`debit − credit`). A revaluation entry is
+   * tagged with the currency and no foreign amount, so it moves the carrying amount alone and the
+   * next revaluation restates only what has changed since.
+   *
+   * By (account, currency) rather than by account: a receivable holds peso and dollar invoices at
+   * once, and adding their document amounts together is a number in no currency at all.
+   */
+  async foreignPositionsAsOf(
+    scope: BalanceScope & { asOf: Date | string },
+    manager?: EntityManager,
+  ): Promise<Array<{ accountId: string; currencyCode: string; documentBalance: number; carryingAmount: number }>> {
+    const rows = await this.baseQuery(this.manager(manager), scope)
+      .andWhere('entry.date <= :asOf', { asOf: toIsoDate(scope.asOf) })
+      .andWhere('line.currencyCode IS NOT NULL')
+      .select('line.accountId', 'accountId')
+      .addSelect('UPPER(line.currencyCode)', 'currencyCode')
+      .addSelect('COALESCE(SUM(COALESCE(line.foreignCurrencyDebit, 0) - COALESCE(line.foreignCurrencyCredit, 0)), 0)', 'documentBalance')
+      .addSelect('COALESCE(SUM(valuation.debit - valuation.credit), 0)', 'carryingAmount')
+      .groupBy('line.accountId')
+      .addGroupBy('UPPER(line.currencyCode)')
+      .getRawMany<{ accountId: string; currencyCode: string; documentBalance: string; carryingAmount: string }>();
+    return rows.map((row) => ({
+      accountId: row.accountId,
+      currencyCode: row.currencyCode,
+      documentBalance: Number(row.documentBalance),
+      carryingAmount: Number(row.carryingAmount),
+    }));
   }
 
   /**

@@ -1,18 +1,8 @@
 {
-  "payment.cancel.back_to_plans": {
-    "es": "Volver a los planes",
-    "en": "Back to the plans",
-    "pt": "Voltar aos planos"
-  },
-  "payment.cancel.body": {
-    "es": "No se realizó ningún cargo. Puedes elegir un plan cuando quieras.",
-    "en": "You were not charged. You can choose a plan whenever you like.",
-    "pt": "Não foste cobrado. Podes escolher um plano quando quiseres."
-  },
-  "payment.cancel.title": {
-    "es": "Pago cancelado",
-    "en": "Payment canceled",
-    "pt": "Pagamento cancelado"
+  "payment.billing_managed_by_parent": {
+    "es": "La facturación de esta empresa la gestiona {{name}}.",
+    "en": "This company's billing is managed by {{name}}.",
+    "pt": "O faturamento desta empresa é gerenciado por {{name}}."
   },
   "payment.failed_create_stripe_session_url": {
     "es": "No se pudo crear la sesión de pago.",
@@ -49,6 +39,11 @@
     "en": "The payment session does not belong to this organization.",
     "pt": "A sessão de pagamento não pertence a esta organização."
   },
+  "payment.plan_already_active": {
+    "es": "Ya estás en este plan.",
+    "en": "You are already on this plan.",
+    "pt": "Você já está neste plano."
+  },
   "payment.plan_annual_billing_unavailable": {
     "es": "Este plan no admite facturación anual en este momento. Elige la facturación mensual.",
     "en": "This plan does not offer annual billing right now. Choose monthly billing.",
@@ -64,60 +59,6 @@
     "en": "This plan cannot be purchased right now. Choose another plan or try again later.",
     "pt": "Este plano não pode ser contratado no momento. Escolha outro plano ou tente novamente mais tarde."
   },
-  "payment.plans.checkout_error": {
-    "es": "No pudimos iniciar el pago.",
-    "en": "We could not start the checkout.",
-    "pt": "Não foi possível iniciar o pagamento."
-  },
-  "payment.plans.choose": {
-    "es": "Elegir {{plan}}",
-    "en": "Choose {{plan}}",
-    "pt": "Escolher {{plan}}"
-  },
-  "payment.plans.load_error": {
-    "es": "No pudimos cargar los planes.",
-    "en": "We could not load the plans.",
-    "pt": "Não foi possível carregar os planos."
-  },
-  "payment.plans.loading": {
-    "es": "Cargando los planes…",
-    "en": "Loading the plans…",
-    "pt": "A carregar os planos…"
-  },
-  "payment.plans.none_available": {
-    "es": "No hay planes disponibles para tu país todavía.",
-    "en": "There are no plans available for your country yet.",
-    "pt": "Ainda não há planos disponíveis para o teu país."
-  },
-  "payment.plans.per_month": {
-    "es": "/mes",
-    "en": "/month",
-    "pt": "/mês"
-  },
-  "payment.plans.popular": {
-    "literal": "Popular"
-  },
-  "payment.plans.processing": {
-    "es": "Procesando…",
-    "en": "Processing…",
-    "pt": "A processar…"
-  },
-  "payment.plans.subtitle": {
-    "es": "Empieza tu prueba o suscríbete ahora.",
-    "en": "Start your trial or subscribe now.",
-    "pt": "Começa o teu período de teste ou subscreve agora."
-  },
-  "payment.plans.tax_note": {
-    "es": "Los precios están en {{currency}}. Pueden aplicarse impuestos según tu país.",
-    "en": "Prices are in {{currency}}. Taxes may apply depending on your country.",
-    "pt": "Os preços estão em {{currency}}. Podem aplicar-se impostos conforme o teu país.",
-    "note": "The currency is named from the catalogue rather than assumed: the previous copy said 'USD' while the amounts were whatever the market's plan was quoted in."
-  },
-  "payment.plans.title": {
-    "es": "Elige tu plan",
-    "en": "Choose your plan",
-    "pt": "Escolhe o teu plano"
-  },
   "payment.raw_request_body_unavailable_webhook_signature_cannot": {
     "es": "No se pudo verificar la firma del webhook porque el cuerpo original de la solicitud no está disponible.",
     "en": "The webhook signature could not be verified because the raw request body is unavailable.",
@@ -128,20 +69,15 @@
     "en": "The simulated payment provider only works in development and test.",
     "pt": "O provedor de pagamentos simulado só funciona em desenvolvimento e testes."
   },
-  "payment.success.body": {
-    "es": "Tu suscripción quedó activada.",
-    "en": "Your subscription is now active.",
-    "pt": "A tua subscrição está agora ativa."
+  "payment.subscription_bills_no_plan": {
+    "es": "Tu suscripción no factura ninguno de nuestros planes, así que no se puede cambiar desde aquí. Escríbenos a soporte.",
+    "en": "Your subscription bills none of our plans, so it cannot be changed from here. Contact support.",
+    "pt": "Sua assinatura não cobra nenhum dos nossos planos, então não pode ser alterada por aqui. Fale com o suporte."
   },
-  "payment.success.go_to_dashboard": {
-    "es": "Ir al panel",
-    "en": "Go to the dashboard",
-    "pt": "Ir para o painel"
-  },
-  "payment.success.title": {
-    "es": "¡Pago exitoso!",
-    "en": "Payment successful",
-    "pt": "Pagamento bem-sucedido"
+  "payment.subscription_must_be_settled_first": {
+    "es": "Tu suscripción tiene un pago pendiente. Regulariza el pago antes de cambiar de plan.",
+    "en": "Your subscription has a payment outstanding. Settle it before changing plan.",
+    "pt": "Sua assinatura tem um pagamento pendente. Regularize-o antes de mudar de plano."
   },
   "payment.user_does_not_belong_organization": {
     "es": "El usuario no pertenece a ninguna organización.",

@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { RouterLink } from '@angular/router';
 import { Ban, HandCoins, LucideAngularModule, PlusCircle, RotateCw, ScrollText } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virtex/shared/ui-i18n';
 import {
   CustomerReceipt,
   CustomerReceiptsService,
@@ -22,7 +22,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * Collections received from customers.

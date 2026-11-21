@@ -6,7 +6,6 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  Matches,
   MaxLength,
   Min,
   MinLength,
@@ -51,10 +50,14 @@ export class CreateVendorDebitNoteDto {
   @IsOptional()
   date?: string;
 
-  /** The supplier's document for it — in the Dominican Republic the NCF of its credit note. */
+  /**
+   * The number on the supplier's own document for it — the credit note they issued — checked by the
+   * market's rule in the service. The border used to demand 11 to 19 letters and digits, the shape
+   * of a Dominican comprobante, from a tenant of any market.
+   */
   @Transform(trim)
   @IsString()
-  @Matches(/^[A-Z0-9]{11,19}$/, { message: 'accounts_payable.debit_note_ncf_invalid' })
+  @MaxLength(40, { message: 'validation.constraints.max_length|{"max":40}' })
   @IsOptional()
-  ncf?: string;
+  supplierFiscalNumber?: string;
 }

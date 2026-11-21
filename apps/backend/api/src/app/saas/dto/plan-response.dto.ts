@@ -70,5 +70,5 @@ export class PlanResponseDto {
   @Type(() => PlanFeatureResponseDto)
   features!: PlanFeatureResponseDto[];
 
-  // Deliberately absent: externalProductId, monthlyPriceId, annualPriceId, isActive.
+  // Deliberately absent: monthlyPriceId, annualPriceId, isActive.
 }

@@ -58,6 +58,7 @@ export enum CostingMethod {
 })
 // Filing the register by category is the first thing anybody does with one.
 @Index('IDX_products_category_id', ['categoryId'])
+@Index('IDX_products_excise_tax', ['exciseTaxId'], { where: '"excise_tax_id" IS NOT NULL' })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -191,6 +192,19 @@ export class Product {
     transformer: numericTransformerNotNull,
   })
   exciseRate: number;
+
+  /**
+   * A fixed-amount tax of the tenant's catalogue the item carries per unit (audit 2026-11-07,
+   * FAC-TX-01): a specific excise per bottle, per litre, per pack. Charged as excise, quantity ×
+   * amount, inside the consumption-tax base. Named by target string, not by import: the catalogue
+   * belongs to configuration, and inventory only points at a row of it.
+   */
+  @Column({ name: 'excise_tax_id', type: 'uuid', nullable: true })
+  exciseTaxId?: string | null;
+
+  @ManyToOne('Tax', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'excise_tax_id', foreignKeyConstraintName: 'FK_products_excise_tax' })
+  exciseTax?: unknown;
 
   /** Item code as declared to the fiscal authority, where a catalogue applies (CFDI ClaveProdServ). */
   @Column({ name: 'fiscal_item_code', type: 'varchar', length: 32, nullable: true })

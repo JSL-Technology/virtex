@@ -219,6 +219,35 @@ describe('sales-tax engine', () => {
       expect(doc.tax).toBe(198);
       expect(doc.total).toBe(1298);
     });
+
+    // FAC-TX-01: a fixed tax is an amount per unit, not a rate.
+    it('charges a fixed tax per unit as excise, inside the consumption-tax base', () => {
+      const doc = computeDocument({
+        countryCode: 'DO',
+        currencyCode: 'DOP',
+        // 6 bottles at 1,000 with 50 per bottle of specific excise: 300, never 50 %.
+        lines: [{ ...taxedGood, quantity: 6, exciseUnitAmount: 50 }],
+      });
+      expect(doc.excise).toBe(300);
+      expect(doc.tax).toBe(roundToCurrency((6_000 + 300) * 0.18, 'DOP'));
+      expect(doc.total).toBe(6_000 + 300 + 1_134);
+    });
+
+    it('is not reduced by a price discount, and adds to an ad-valorem excise', () => {
+      const doc = computeDocument({
+        countryCode: 'DO',
+        currencyCode: 'DOP',
+        lines: [{ ...taxedGood, quantity: 2, discountRate: 0.5, exciseRate: 0.1, exciseUnitAmount: 25 }],
+      });
+      // Base 1,000 after the discount: 100 ad valorem + 2 × 25 specific.
+      expect(doc.excise).toBe(150);
+    });
+
+    it('refuses a negative amount per unit', () => {
+      expect(() =>
+        computeDocument({ countryCode: 'DO', currencyCode: 'DOP', lines: [{ ...taxedGood, exciseUnitAmount: -5 }] }),
+      ).toThrow(expect.objectContaining({ messageKey: 'invoices.fixed_tax_amount_invalid' }));
+    });
   });
 
   describe('rate validation', () => {

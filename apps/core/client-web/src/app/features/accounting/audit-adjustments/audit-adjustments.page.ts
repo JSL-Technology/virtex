@@ -1,4 +1,4 @@
-import { TranslateModule, VxDatePipe, VxMoneyPipe, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxDatePipe, VxMoneyPipe, FORMAT_PIPES, FormatService } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';

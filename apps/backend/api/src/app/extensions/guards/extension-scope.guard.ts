@@ -7,7 +7,7 @@ import {
   EXTENSION_REQUEST_HEADER,
   extensionMayRead,
   normalizeExtensionApiPath,
-} from '@virteex/shared/util-auth';
+} from '@virtex/shared/util-auth';
 import { AuthenticatedUser } from '../../security/principal';
 import { ForbiddenError } from '../../i18n/localized.exception';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
@@ -31,7 +31,7 @@ interface ExtensionRequest {
  * browser fetched it normalised, so `/sales/%2e%2e/users` passed as a sales read and returned the
  * member list.
  *
- * Here the same rule (`@virteex/shared/util-auth`, one definition for both sides) is applied to
+ * Here the same rule (`@virtex/shared/util-auth`, one definition for both sides) is applied to
  * the request as it actually arrived, against the capabilities the tenant granted the named
  * extension in the database — not against what the browser claims. A request that names an
  * extension the tenant has not enabled, or that reaches outside what it was granted, is refused.

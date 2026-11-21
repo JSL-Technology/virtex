@@ -1,9 +1,8 @@
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index, Tree, TreeChildren, TreeParent } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, Index } from 'typeorm';
 import type { Dimension } from './dimension.entity';
 
 @Entity({ name: 'dimension_values' })
-@Tree('closure-table')
 @Index(['dimension', 'value'], { unique: true })
 export class DimensionValue {
   @PrimaryGeneratedColumn('uuid')
@@ -28,13 +27,17 @@ export class DimensionValue {
   @Column({ name: 'dimension_id' })
   dimensionId: string;
 
-  @TreeParent({ onDelete: 'CASCADE' })
+  /**
+   * The hierarchy is this column, as it is for accounts: a closure table kept beside it was never
+   * read, and a second copy of a fact is one more thing that drifts (FIN-COA-04).
+   */
+  @ManyToOne(() => DimensionValue, (value) => value.children, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'parent_id' })
   parent: DimensionValue | null;
 
   @Column({ name: 'parent_id', type: 'uuid', nullable: true })
   parentId: string | null;
 
-  @TreeChildren()
+  @OneToMany(() => DimensionValue, (value) => value.parent)
   children: DimensionValue[];
 }

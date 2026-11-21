@@ -3,14 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { LucideAngularModule, AlertCircle, CheckCircle, Info } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { FiscalYear, FiscalYearsService, YearEndCheckId, YearEndReadiness } from '../../data/fiscal-years.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The copy and the place to fix each check. Literal keys, so the catalogue check sees them. */
 const CHECKS: Record<YearEndCheckId, { label: string; failing: string; link?: string; fragment?: string }> = {

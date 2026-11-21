@@ -23,10 +23,10 @@
     // which is why the `typecheck` target had never passed. Nothing in this workspace resolves
     // through package export conditions; the libraries are referenced by path.
     "paths": {
-      "@virteex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
-      "@virteex/shared/types": ["libs/shared/types/src/index.ts"],
-      "@virteex/shared/ui-i18n": ["libs/shared/ui-i18n/src/index.ts"],
-      "@virteex/shared/ui-a11y": ["libs/shared/ui-a11y/src/index.ts"]
+      "@virtex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
+      "@virtex/shared/types": ["libs/shared/types/src/index.ts"],
+      "@virtex/shared/ui-i18n": ["libs/shared/ui-i18n/src/index.ts"],
+      "@virtex/shared/ui-a11y": ["libs/shared/ui-a11y/src/index.ts"]
     }
   }
 }

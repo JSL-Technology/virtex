@@ -1,7 +1,7 @@
 {
   "pos.accounting_setup_incomplete": {
     "en": "The till cannot post this sale: configure the cash, bank, sales revenue and output tax accounts in Settings › Accounting.",
-    "es": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e ITBIS en Ajustes › Contabilidad.",
+    "es": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e impuesto por pagar en Ajustes › Contabilidad.",
     "pt": "O caixa não pode contabilizar esta venda: configure as contas de caixa, banco, receita de vendas e imposto em Configurações › Contabilidade."
   },
   "pos.actions": {
@@ -908,9 +908,9 @@
     "pt": "Já existe um turno aberto neste terminal."
   },
   "pos.ticket.fiscal_number": {
-    "en": "NCF: {{number}}",
-    "es": "NCF: {{number}}",
-    "pt": "NCF: {{number}}"
+    "en": "Fiscal no.: {{number}}",
+    "es": "N.º fiscal: {{number}}",
+    "pt": "N.º fiscal: {{number}}"
   },
   "pos.ticket.not_fiscal": {
     "en": "Not a fiscal receipt: the company has no authorised range in force.",
@@ -933,9 +933,9 @@
     "pt": "Imprimir cupom"
   },
   "pos.ticket.tax_id": {
-    "es": "RNC/NIF: {{taxId}}",
+    "es": "ID fiscal: {{taxId}}",
     "en": "Tax ID: {{taxId}}",
-    "pt": "NIF: {{taxId}}"
+    "pt": "ID fiscal: {{taxId}}"
   },
   "pos.ticket.terminal_cashier": {
     "es": "Caja {{terminal}} · {{cashier}}",

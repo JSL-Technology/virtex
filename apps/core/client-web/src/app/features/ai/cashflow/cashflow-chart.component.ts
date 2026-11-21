@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { HighchartsChartComponent } from 'highcharts-angular';
 import type * as Highcharts from 'highcharts';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { baseChartOptions, categoricalPalette, token } from '../../../core/utils/chart-theme';
 import { CashflowDay } from './cashflow.service';
 

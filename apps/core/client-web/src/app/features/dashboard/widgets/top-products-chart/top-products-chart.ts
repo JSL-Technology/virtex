@@ -20,7 +20,7 @@ import {
 } from 'lucide-angular';
 
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';

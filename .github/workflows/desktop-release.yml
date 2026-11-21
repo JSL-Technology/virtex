@@ -1,0 +1,341 @@
+name: Desktop release
+
+# Builds, signs, verifies and publishes Virtex Desktop. This is the ONLY path by which an installer
+# or an update reaches a customer; a laptop cannot produce one (electron-builder.config.cjs refuses to
+# sign or publish outside VIRTEX_DESKTOP_RELEASE=true, and only this workflow sets it).
+#
+#   prepare   the tag matches apps/desktop/package.json, the channel matches the version, every
+#             desktop test and the supply-chain gate pass
+#   build     one job per OS in the protected `desktop-release` environment (required reviewers;
+#             the signing secrets exist only there). macOS: Developer ID + hardened runtime +
+#             notarisation. Windows: Azure Trusted Signing (HSM-held key). Then the job VERIFIES what
+#             it signed — codesign/spctl/stapler, Authenticode — and that the Electron fuses are set
+#             in the shipped binary, before anything is uploaded
+#   publish   signs one release statement per update manifest (Ed25519, DSSE), records SLSA build
+#             provenance and an SBOM, uploads to the update feed in an order that never exposes a
+#             manifest before the files it names, and drafts the GitHub release
+#   refresh   weekly: re-signs the published statements with a new expiry, so clients that are
+#             behind a channel whose newest release is old keep updating
+#
+# Repository configuration this workflow needs is listed in docs/desktop-release.md.
+
+on:
+  push:
+    tags: ['desktop-v*']
+  workflow_dispatch:
+    inputs:
+      minimum_supported_version:
+        description: 'Builds below this version are told to update before continuing (mandatory update). Leave empty for none.'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Build, sign and verify, but publish nothing.'
+        type: boolean
+        default: true
+  schedule:
+    # Statement freshness (see `refresh`). Mondays 05:43 UTC.
+    - cron: '43 5 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      channel: ${{ steps.version.outputs.channel }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Version and channel
+        id: version
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          version=$(node -p "require('./apps/desktop/package.json').version")
+          if [ "$EVENT" = "push" ] && [ "$REF_NAME" != "desktop-v$version" ]; then
+            echo "::error::Tag $REF_NAME does not match apps/desktop/package.json version $version"
+            exit 1
+          fi
+          case "$version" in
+            *-beta.*) channel=beta ;;
+            *-*) echo "::error::Only beta pre-releases are published (got $version)"; exit 1 ;;
+            *) channel=latest ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
+          echo "Releasing $version on channel $channel"
+      - run: npm ci
+      - run: npm ci --prefix apps/desktop --ignore-scripts
+      - run: npm run verify:desktop-policy
+      - run: npm run verify:desktop-supply-chain
+
+  build:
+    needs: prepare
+    environment: desktop-release
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: macos-15
+            platform: mac
+          - os: windows-2025
+            platform: win
+          - os: ubuntu-24.04
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    env:
+      VIRTEX_DESKTOP_RELEASE: 'true'
+      DESKTOP_PORTAL_URL: ${{ vars.DESKTOP_PORTAL_URL }}
+      DESKTOP_POS_URL: ${{ vars.DESKTOP_POS_URL }}
+      DESKTOP_UPDATE_FEED_URL: ${{ vars.DESKTOP_UPDATE_FEED_URL }}
+      DESKTOP_UPDATE_CHANNEL: ${{ needs.prepare.outputs.channel }}
+      DESKTOP_UPDATE_TRUSTED_KEYS: ${{ vars.DESKTOP_UPDATE_TRUSTED_KEYS }}
+      DESKTOP_TLS_PINS: ${{ vars.DESKTOP_TLS_PINS }}
+      DESKTOP_CRASH_SUBMIT_URL: ${{ vars.DESKTOP_CRASH_SUBMIT_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix apps/desktop --ignore-scripts
+      - name: Built-in configuration
+        run: node tools/desktop/write-app-config.mjs
+
+      - name: Apple notarisation key
+        if: matrix.platform == 'mac'
+        env:
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+        run: |
+          key="$RUNNER_TEMP/apple-api-key.p8"
+          printf '%s' "$APPLE_API_KEY_P8" > "$key"
+          chmod 600 "$key"
+          echo "APPLE_API_KEY=$key" >> "$GITHUB_ENV"
+
+      - name: Package and sign
+        env:
+          # macOS: Developer ID Application certificate (base64 .p12) and notarytool API key.
+          CSC_LINK: ${{ matrix.platform == 'mac' && secrets.MAC_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.platform == 'mac' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          # Windows: Azure Trusted Signing (the key never leaves Microsoft's HSM).
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TRUSTED_SIGNING_ENDPOINT: ${{ vars.AZURE_TRUSTED_SIGNING_ENDPOINT }}
+          AZURE_TRUSTED_SIGNING_ACCOUNT: ${{ vars.AZURE_TRUSTED_SIGNING_ACCOUNT }}
+          AZURE_TRUSTED_SIGNING_PROFILE: ${{ vars.AZURE_TRUSTED_SIGNING_PROFILE }}
+          WINDOWS_PUBLISHER_NAME: ${{ vars.WINDOWS_PUBLISHER_NAME }}
+        run: npx electron-builder --config apps/desktop/electron-builder.config.cjs --${{ matrix.platform }} --publish never
+
+      # ── Verify what was just signed. A signature that exists but does not validate is worse than
+      #    none: it gets shipped. ───────────────────────────────────────────────────────────────────
+      - name: Verify macOS signature, notarisation and Gatekeeper
+        if: matrix.platform == 'mac'
+        run: |
+          set -euo pipefail
+          for app in dist/apps/desktop-package/mac*/*.app; do
+            codesign --verify --deep --strict --verbose=2 "$app"
+            codesign --display --verbose=2 "$app" 2>&1 | grep -q 'flags=0x10000(runtime)' || { echo "::error::$app lacks the hardened runtime"; exit 1; }
+            spctl --assess --type execute --verbose=4 "$app"
+            xcrun stapler validate "$app"
+            npx --no-install @electron/fuses read --app "$app" | tee /dev/stderr | grep -q 'RunAsNode is Disabled'
+          done
+          for dmg in dist/apps/desktop-package/*.dmg; do
+            codesign --verify --verbose=2 "$dmg"
+            xcrun stapler validate "$dmg"
+          done
+
+      - name: Verify Authenticode signatures
+        if: matrix.platform == 'win'
+        shell: pwsh
+        env:
+          WINDOWS_PUBLISHER_NAME: ${{ vars.WINDOWS_PUBLISHER_NAME }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(Get-ChildItem dist/apps/desktop-package -Recurse -Include *.exe | Where-Object { $_.FullName -notmatch '\\\.?__uninstaller' })
+          if ($files.Count -eq 0) { throw 'No executables to verify' }
+          foreach ($file in $files) {
+            $sig = Get-AuthenticodeSignature $file.FullName
+            if ($sig.Status -ne 'Valid') { throw "$($file.Name): signature $($sig.Status)" }
+            if ($sig.SignerCertificate.Subject -notmatch [regex]::Escape($env:WINDOWS_PUBLISHER_NAME)) { throw "$($file.Name): signed by $($sig.SignerCertificate.Subject)" }
+            if (-not $sig.TimeStamperCertificate) { throw "$($file.Name): no RFC 3161 timestamp" }
+            Write-Host "OK $($file.Name) — $($sig.SignerCertificate.Subject)"
+          }
+          $unpacked = Get-ChildItem dist/apps/desktop-package -Directory -Filter 'win*-unpacked' | Select-Object -First 1
+          npx --no-install @electron/fuses read --app (Join-Path $unpacked.FullName 'Virtex Desktop.exe')
+
+      - name: Verify Linux fuses
+        if: matrix.platform == 'linux'
+        run: npx --no-install @electron/fuses read --app dist/apps/desktop-package/linux-unpacked/virtex-desktop | tee /dev/stderr | grep -q 'OnlyLoadAppFromAsar is Enabled'
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: desktop-${{ matrix.platform }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            dist/apps/desktop-package/*.dmg
+            dist/apps/desktop-package/*.zip
+            dist/apps/desktop-package/*.exe
+            dist/apps/desktop-package/*.AppImage
+            dist/apps/desktop-package/*.deb
+            dist/apps/desktop-package/*.rpm
+            dist/apps/desktop-package/*.blockmap
+            dist/apps/desktop-package/*.yml
+
+  publish:
+    needs: [prepare, build]
+    environment: desktop-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write # the draft GitHub release
+      id-token: write # OIDC: provenance attestation and the update bucket role
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --prefix apps/desktop --ignore-scripts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: desktop-*
+          merge-multiple: true
+          path: release
+
+      - name: Sign release statements
+        env:
+          DESKTOP_UPDATE_SIGNING_KEY: ${{ secrets.DESKTOP_UPDATE_SIGNING_KEY }}
+          DESKTOP_UPDATE_SIGNING_KEY_ID: ${{ vars.DESKTOP_UPDATE_SIGNING_KEY_ID }}
+          DESKTOP_UPDATE_TRUSTED_KEYS: ${{ vars.DESKTOP_UPDATE_TRUSTED_KEYS }}
+          MINIMUM: ${{ github.event.inputs.minimum_supported_version }}
+          CHANNEL: ${{ needs.prepare.outputs.channel }}
+        run: |
+          args=(--dir release --channel "$CHANNEL")
+          if [ -n "$MINIMUM" ]; then args+=(--minimum-supported-version "$MINIMUM"); fi
+          node tools/desktop/sign-release-statements.mjs "${args[@]}"
+
+      - name: Checksums and SBOM
+        run: |
+          set -euo pipefail
+          (cd release && sha256sum -- *.dmg *.zip *.exe *.AppImage *.deb *.rpm 2>/dev/null > SHA256SUMS)
+          npm sbom --prefix apps/desktop --sbom-format cyclonedx --omit dev > release/virtex-desktop-${{ needs.prepare.outputs.version }}.cdx.json
+
+      - name: Build provenance (SLSA)
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+            release/*.AppImage
+            release/*.deb
+            release/*.rpm
+
+      - name: Configure access to the update bucket
+        if: github.event_name == 'push' || github.event.inputs.dry_run == 'false'
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DESKTOP_RELEASE_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Publish to the update feed
+        if: github.event_name == 'push' || github.event.inputs.dry_run == 'false'
+        env:
+          BUCKET: ${{ vars.DESKTOP_UPDATE_BUCKET }}
+          PREFIX: ${{ vars.DESKTOP_UPDATE_BUCKET_PREFIX }}
+          DISTRIBUTION: ${{ vars.DESKTOP_UPDATE_CLOUDFRONT_ID }}
+        run: |
+          set -euo pipefail
+          dest="s3://$BUCKET/${PREFIX:+$PREFIX/}"
+          # 1. Files, immutable (their names carry the version).
+          aws s3 cp release "$dest" --recursive --exclude '*.yml' --exclude '*.release.dsse.json' \
+            --cache-control 'public, max-age=31536000, immutable'
+          # 2. Statements, then 3. manifests: a client can only see a manifest once the files and the
+          #    statement it depends on are already in place.
+          aws s3 cp release "$dest" --recursive --exclude '*' --include '*.release.dsse.json' --cache-control 'no-cache'
+          aws s3 cp release "$dest" --recursive --exclude '*' --include '*.yml' --cache-control 'no-cache'
+          if [ -n "$DISTRIBUTION" ]; then
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION" --paths "/${PREFIX:+$PREFIX/}*.yml" "/${PREFIX:+$PREFIX/}*.release.dsse.json"
+          fi
+
+      - name: Draft GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          CHANNEL: ${{ needs.prepare.outputs.channel }}
+        run: |
+          flags=(--draft --title "Virtex Desktop $VERSION" --notes "Channel: $CHANNEL. Verify downloads with SHA256SUMS and \`gh attestation verify <file> --repo $GITHUB_REPOSITORY\`.")
+          if [ "$CHANNEL" = "beta" ]; then flags+=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}" release/*
+
+  refresh:
+    if: github.event_name == 'schedule'
+    environment: desktop-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --prefix apps/desktop --ignore-scripts
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DESKTOP_RELEASE_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Re-sign the published statements with a fresh expiry
+        env:
+          BUCKET: ${{ vars.DESKTOP_UPDATE_BUCKET }}
+          PREFIX: ${{ vars.DESKTOP_UPDATE_BUCKET_PREFIX }}
+          DISTRIBUTION: ${{ vars.DESKTOP_UPDATE_CLOUDFRONT_ID }}
+          DESKTOP_UPDATE_SIGNING_KEY: ${{ secrets.DESKTOP_UPDATE_SIGNING_KEY }}
+          DESKTOP_UPDATE_SIGNING_KEY_ID: ${{ vars.DESKTOP_UPDATE_SIGNING_KEY_ID }}
+          DESKTOP_UPDATE_TRUSTED_KEYS: ${{ vars.DESKTOP_UPDATE_TRUSTED_KEYS }}
+        run: |
+          set -euo pipefail
+          src="s3://$BUCKET/${PREFIX:+$PREFIX/}"
+          mkdir -p feed
+          aws s3 cp "$src" feed --recursive --exclude '*' --include '*.yml' --include '*.release.dsse.json'
+          for channel in latest beta; do
+            if ls feed/"$channel"*.yml >/dev/null 2>&1; then
+              node tools/desktop/sign-release-statements.mjs --dir feed --channel "$channel" --preserve
+            fi
+          done
+          aws s3 cp feed "$src" --recursive --exclude '*' --include '*.release.dsse.json' --cache-control 'no-cache'
+          if [ -n "$DISTRIBUTION" ]; then
+            aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION" --paths "/${PREFIX:+$PREFIX/}*.release.dsse.json"
+          fi

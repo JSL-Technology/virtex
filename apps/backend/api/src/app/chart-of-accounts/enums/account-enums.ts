@@ -78,15 +78,4 @@ export enum CashFlowCategory {
     NONE = 'NONE',
 }
 
-export enum RequiredDimension {
-    COST_CENTER = 'COST_CENTER',
-    PROJECT = 'PROJECT',
-    SEGMENT = 'SEGMENT',
-}
-
-export enum HierarchyType {
-    LEGAL = 'LEGAL',
-    MANAGEMENT = 'MANAGEMENT',
-    FISCAL = 'FISCAL',
-}
 export { AccountRole } from '../../contracts/accounting/account-role.contract';

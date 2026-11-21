@@ -20,7 +20,7 @@ export function makeTestCertificate(commonName = 'SONDA e-CF', days = 30, holder
   // the upload can tie the certificate to the company — one that names nobody is refused (QA V01).
   const id = holderId?.toUpperCase().replace(/[^0-9A-Z]/g, '');
   const subject = `/CN=${commonName}${id ? `/serialNumber=${id}` : ''}`;
-  const dir = mkdtempSync(join(tmpdir(), 'virteex-cert-'));
+  const dir = mkdtempSync(join(tmpdir(), 'virtex-cert-'));
   try {
     const password = 'sonda-ecf';
     const key = join(dir, 'key.pem');

@@ -79,10 +79,11 @@ export const VENTAS_MODULE: ModuleManifest = {
     },
     {
       //  Cobranza: las facturas abiertas en el orden en que conviene cobrarlas, la acción sugerida y
-      //  por qué, y el recordatorio (redactado por el asistente si se pide) que la persona envía.
+      //  por qué, y el recordatorio que la persona envía. En todos los planes (TES-13): solo la nota
+      //  redactada por el asistente es del plan que la incluye, y la página lo pregunta aparte.
       path: 'collections',
       kind: WindowKind.LIST,
-      permission: 'ai_collections:view',
+      permission: 'collections:view',
       titleKey: 'page_titles.collections',
       icon: 'PhoneCall',
       entityKeyFn: () => 'ventas:collections',

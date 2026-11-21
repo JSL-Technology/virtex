@@ -13,6 +13,7 @@ import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, toCents } from '../common/money';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
+import { SYSTEM_JOURNALS, type SystemJournalCode } from '../contracts/ledger-posting/system-journals';
 
 /** What an item was worth on the books at a point in time. */
 interface Valuation {
@@ -425,7 +426,7 @@ export class InventoryPostingService {
   private async context(
     manager: EntityManager,
     organizationId: string,
-    journalCode = 'GENERAL',
+    journalCode: SystemJournalCode = SYSTEM_JOURNALS.general.code,
   ): Promise<{ settings: OrganizationSettings; journal: Journal }> {
     const settings = await this.orgSettings.requireForOrg(organizationId, manager);
     const journal = await this.journalLookup.requireByCode(organizationId, journalCode, manager);

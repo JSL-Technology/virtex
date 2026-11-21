@@ -18,6 +18,7 @@ export type PurchaseOrderStatus =
   | 'SENT'
   | 'PARTIALLY_RECEIVED'
   | 'RECEIVED'
+  | 'CLOSED'
   | 'CANCELLED';
 
 export interface PurchaseRequisitionLine {
@@ -127,10 +128,35 @@ export interface GoodsReceipt {
     unitCost: number;
     value: number;
     stocked: boolean;
+    returnedQuantity?: number;
     ordered: number | null;
     receivedOnOrder: number | null;
     billedOnOrder: number | null;
   }>;
+}
+
+export type LandedCostMethod = 'VALUE' | 'QUANTITY' | 'WEIGHT' | 'VOLUME';
+
+/** A kind of landed cost — freight, customs — with how it is prorated and the account it credits. */
+export interface LandedCostType {
+  id: string;
+  name: string;
+  allocationMethod: LandedCostMethod;
+  glAccountId: string | null;
+  isActive: boolean;
+}
+
+/** A landed cost applied to receipts (CMP-21). */
+export interface LandedCostApplication {
+  id: string;
+  landedCostId: string;
+  date: string;
+  amount: string;
+  allocationMethod: LandedCostMethod;
+  receiptIds: string[];
+  reference: string | null;
+  status: 'POSTED' | 'VOID';
+  lines: Array<{ description: string; quantity: number; share: number; absorbed: number; toCostOfSales: number }>;
 }
 
 export interface GoodsReceiptQuery {
@@ -193,6 +219,88 @@ export interface Paged<T> {
   pageSize: number;
   total: number;
   hasMore: boolean;
+}
+
+
+// ── Requests for quotation and agreements (audit 2026-11-07, CMP-15) ─────────────────────────────
+
+export type RfqStatus = 'DRAFT' | 'SENT' | 'AWARDED' | 'CANCELLED';
+
+export interface RfqLine { id: string; productId: string | null; description: string; quantity: number; unitOfMeasure: string; sortOrder: number }
+
+export interface SupplierQuote {
+  id: string;
+  supplierId: string;
+  reference: string | null;
+  receivedOn: string;
+  validUntil: string;
+  leadTimeDays: number | null;
+  status: 'RECEIVED' | 'AWARDED' | 'DECLINED';
+  subtotal: number;
+  taxTotal: number;
+  total: number;
+  lines: Array<{ rfqLineId: string; unitPrice: number; taxRate: number }>;
+}
+
+export interface Rfq {
+  id: string;
+  number: string;
+  title: string;
+  status: RfqStatus;
+  requisitionId: string | null;
+  currencyCode: string;
+  responseDueDate: string | null;
+  notes: string | null;
+  awardedOrderId: string | null;
+  awardReason: string | null;
+  cancellationReason: string | null;
+  lines?: RfqLine[];
+  suppliers?: Array<{ supplierId: string }>;
+  quotes?: SupplierQuote[];
+}
+
+export interface QuoteStanding {
+  quoteId: string;
+  supplierId: string;
+  supplierName: string | null;
+  total: number;
+  subtotal: number;
+  validUntil: string;
+  leadTimeDays: number | null;
+  status: SupplierQuote['status'];
+  complete: boolean;
+  current: boolean;
+  supplierActive: boolean;
+  eligible: boolean;
+  cheapest: boolean;
+}
+
+export interface RfqComparison {
+  rfqId: string;
+  currencyCode: string;
+  asOf: string;
+  quotes: QuoteStanding[];
+  lines: Array<{ rfqLineId: string; description: string; quantity: number; offers: Array<{ quoteId: string; supplierId: string; unitPrice: number; amount: number; lowest: boolean }> }>;
+}
+
+export type AgreementStatus = 'DRAFT' | 'ACTIVE' | 'CLOSED' | 'CANCELLED';
+
+export interface PurchaseAgreement {
+  id: string;
+  number: string;
+  title: string;
+  supplierId: string;
+  status: AgreementStatus;
+  validFrom: string;
+  validTo: string;
+  currencyCode: string;
+  maxAmount: number | null;
+  closeReason: string | null;
+  lines?: Array<{ id: string; description: string; unitPrice: number; taxRate: number; maxQuantity: number | null; unitOfMeasure: string }>;
+  usage?: Array<{ agreementLineId: string; description: string; unitPrice: number; maxQuantity: number | null; usedQuantity: number; remainingQuantity: number | null }>;
+  usedAmount?: number;
+  remainingAmount?: number | null;
+  releases?: Array<{ id: string; number: string; status: PurchaseOrderStatus; total: number; orderDate: string }>;
 }
 
 /**
@@ -355,6 +463,28 @@ export class PurchasingService {
     return this.http.get<ReceiptsPage<GoodsReceiptRow>>(this.receiptsUrl, { params });
   }
 
+  // ── Landed costs (audit 2026-11-07, CMP-21) ───────────────────────────────
+
+  landedCostTypes(): Observable<LandedCostType[]> {
+    return this.http.get<LandedCostType[]>(`${environment.apiUrl}/wms/landed-costs`);
+  }
+
+  createLandedCostType(body: { name: string; allocationMethod: LandedCostMethod; glAccountId: string }): Observable<LandedCostType> {
+    return this.http.post<LandedCostType>(`${environment.apiUrl}/wms/landed-costs`, body);
+  }
+
+  landedCosts(): Observable<LandedCostApplication[]> {
+    return this.http.get<LandedCostApplication[]>(`${environment.apiUrl}/procurement/landed-costs`);
+  }
+
+  applyLandedCost(body: { landedCostId: string; receiptIds: string[]; amount: number; reference?: string; date?: string }): Observable<LandedCostApplication> {
+    return this.http.post<LandedCostApplication>(`${environment.apiUrl}/procurement/landed-costs`, body);
+  }
+
+  voidLandedCost(id: string, reason: string): Observable<LandedCostApplication> {
+    return this.http.post<LandedCostApplication>(`${environment.apiUrl}/procurement/landed-costs/${id}/void`, { reason });
+  }
+
   receipt(id: string): Observable<GoodsReceipt> {
     return this.http.get<GoodsReceipt>(`${this.receiptsUrl}/${id}`);
   }
@@ -369,11 +499,81 @@ export class PurchasingService {
     return this.http.post<GoodsReceipt>(`${this.receiptsUrl}/${id}/void`, { reason, reversalDate });
   }
 
+  /** Close the outstanding balance of a partly delivered order (CMP-15). */
+  closeOrder(id: string, reason: string): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/close`, { reason });
+  }
+
+  /** Send part of a receipt back to the supplier (CMP-15). */
+  returnGoods(id: string, lines: Array<{ lineId: string; quantity: number }>, reason: string): Observable<unknown> {
+    return this.http.post(`${this.receiptsUrl}/${id}/return`, { lines, reason });
+  }
+
   cancelOrder(id: string, reason: string): Observable<PurchaseOrder> {
     return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/cancel`, { reason });
   }
 
   deleteOrder(id: string): Observable<void> {
     return this.http.delete<void>(`${this.ordersUrl}/${id}`);
+  }
+
+  // ── Requests for quotation (CMP-15) ──────────────────────────────────────────
+
+  rfqs(): Observable<Rfq[]> {
+    return this.http.get<Rfq[]>(`${environment.apiUrl}/procurement/rfqs`);
+  }
+
+  rfq(id: string): Observable<Rfq> {
+    return this.http.get<Rfq>(`${environment.apiUrl}/procurement/rfqs/${id}`);
+  }
+
+  createRfq(body: { title: string; requisitionId?: string; responseDueDate?: string; notes?: string; supplierIds: string[]; lines?: Array<{ description: string; quantity: number }> }): Observable<Rfq> {
+    return this.http.post<Rfq>(`${environment.apiUrl}/procurement/rfqs`, body);
+  }
+
+  sendRfq(id: string): Observable<Rfq> {
+    return this.http.post<Rfq>(`${environment.apiUrl}/procurement/rfqs/${id}/send`, {});
+  }
+
+  cancelRfq(id: string, reason: string): Observable<Rfq> {
+    return this.http.post<Rfq>(`${environment.apiUrl}/procurement/rfqs/${id}/cancel`, { reason });
+  }
+
+  recordQuote(rfqId: string, body: { supplierId: string; reference?: string; validUntil: string; leadTimeDays?: number; lines: Array<{ rfqLineId: string; unitPrice: number; taxRate?: number }> }): Observable<SupplierQuote> {
+    return this.http.post<SupplierQuote>(`${environment.apiUrl}/procurement/rfqs/${rfqId}/quotes`, body);
+  }
+
+  rfqComparison(id: string): Observable<RfqComparison> {
+    return this.http.get<RfqComparison>(`${environment.apiUrl}/procurement/rfqs/${id}/comparison`);
+  }
+
+  awardQuote(rfqId: string, quoteId: string, reason?: string): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${environment.apiUrl}/procurement/rfqs/${rfqId}/award`, { quoteId, ...(reason ? { reason } : {}) });
+  }
+
+  // ── Purchase agreements (CMP-15) ─────────────────────────────────────────────
+
+  agreements(): Observable<PurchaseAgreement[]> {
+    return this.http.get<PurchaseAgreement[]>(`${environment.apiUrl}/procurement/agreements`);
+  }
+
+  agreement(id: string): Observable<PurchaseAgreement> {
+    return this.http.get<PurchaseAgreement>(`${environment.apiUrl}/procurement/agreements/${id}`);
+  }
+
+  createAgreement(body: { title: string; supplierId: string; validFrom: string; validTo: string; maxAmount?: number; lines: Array<{ description: string; unitPrice: number; taxRate?: number; maxQuantity?: number }> }): Observable<PurchaseAgreement> {
+    return this.http.post<PurchaseAgreement>(`${environment.apiUrl}/procurement/agreements`, body);
+  }
+
+  activateAgreement(id: string): Observable<PurchaseAgreement> {
+    return this.http.post<PurchaseAgreement>(`${environment.apiUrl}/procurement/agreements/${id}/activate`, {});
+  }
+
+  closeAgreement(id: string, reason: string): Observable<PurchaseAgreement> {
+    return this.http.post<PurchaseAgreement>(`${environment.apiUrl}/procurement/agreements/${id}/close`, { reason });
+  }
+
+  releaseAgreement(id: string, lines: Array<{ agreementLineId: string; quantity: number }>): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${environment.apiUrl}/procurement/agreements/${id}/release`, { lines });
   }
 }

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Upload } from 'lucide-angular';
-import { TranslateModule, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
@@ -14,7 +14,7 @@ import {
   ReconciliationApiService,
 } from '../../data/reconciliation.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
 

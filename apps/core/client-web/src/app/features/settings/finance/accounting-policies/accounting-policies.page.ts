@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { SettingsSectionComponent } from '../../shared/settings-section.component';
 import { SettingsSaveBarComponent } from '../../shell';
 import { SECTION_DECLARATIONS } from '../settings-declarations';
