@@ -17,6 +17,7 @@ import {
   toNaturalAmount,
 } from '../chart-of-accounts/account-balances.service';
 import { roundAmount, sumAmounts, toCents } from '../common/money';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export type DimensionFilters = Record<string, string>;
 
@@ -38,7 +39,9 @@ export interface ReportSection {
 
 export interface LedgerRef {
   id: string;
+  /** The ledger's name as the books keep it; `nameTranslations` for a reader in another language. */
   name: string;
+  nameTranslations: LocalizedName;
   currency: string;
 }
 
@@ -287,7 +290,7 @@ export class FinancialReportingService {
   }
 
   private ledgerRef(ledger: Ledger): LedgerRef {
-    return { id: ledger.id, name: ledger.name, currency: ledger.currency };
+    return { id: ledger.id, name: ledger.name, nameTranslations: ledger.nameTranslations ?? {}, currency: ledger.currency };
   }
 
   private async accountsOf(

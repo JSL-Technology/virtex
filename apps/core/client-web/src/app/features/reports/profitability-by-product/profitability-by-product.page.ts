@@ -14,6 +14,9 @@ import { defaultPeriod } from '../financial-statements/report-period';
 import { VxDateRangeComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { ExportLanguagePreference } from '../../../core/export/export-language';
+import { VxExportLanguageComponent } from '../../../shared/components/export-language';
+import { NotificationService } from '../../../core/services/notification';
 
 /**
  * Gross margin by product.
@@ -32,7 +35,7 @@ import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 @Component({
   selector: 'app-profitability-by-product-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
+  imports: [VxExportLanguageComponent, ...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
   templateUrl: './profitability-by-product.page.html',
   styleUrls: ['./profitability-by-product.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +45,9 @@ export class ProfitabilityByProductPage {
   readonly table = sortable(() => this.report()?.rows);
   private readonly api = inject(ProfitabilityApiService);
   private readonly exporter = inject(StatementExportService);
+  /** The language this person exports statements in: theirs, the books', or both. */
+  protected readonly exportLanguage = inject(ExportLanguagePreference);
+  private readonly exportFailed = inject(NotificationService);
 
   protected readonly ExportIcon = FileDown;
   protected readonly RefreshIcon = RefreshCw;
@@ -100,6 +106,8 @@ export class ProfitabilityByProductPage {
   exportCsv(): void {
     const data = this.report();
     if (!data) return;
-    this.exporter.exportProfitability(data, 'product');
+    this.exporter.exportProfitability(data, 'product', this.exportLanguage.language())
+      // An export that could not be prepared — the books language's words did not load — says so.
+      .catch(() => this.exportFailed.showError('reports.export.failed'));
   }
 }

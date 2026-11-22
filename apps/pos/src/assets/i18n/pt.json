@@ -107,6 +107,8 @@
   "common.idempotency_requires_session": "Esta operação precisa de uma sessão iniciada.",
   "common.load_failed": "Não foi possível carregar os dados. Tente novamente.",
   "common.loading": "Carregando",
+  "common.name_translations.hint": "O nome acima é o oficial, em {{language}}: o que os livros, as exportações e as declarações leem. Estes são para quem lê em outro idioma; vazios, aparece o oficial.",
+  "common.name_translations.legend": "Nome em outros idiomas",
   "common.named_file_too_large": "O ficheiro «{{filename}}» é demasiado grande.",
   "common.next": "Avançar",
   "common.next_page": "Próxima página",

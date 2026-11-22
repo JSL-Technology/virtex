@@ -386,7 +386,7 @@
                 <!-- The company's own methods (ACH, Zelle…), from Treasury › Payment methods. -->
                 <select id="paymentMethod" formControlName="paymentMethodCode" class="form-control">
                   @for (method of paymentMethods(); track method.id) {
-                    <option [value]="method.code">{{ method.name }}</option>
+                    <option [value]="method.code">{{ method.name | vxName: method.nameTranslations }}</option>
                   }
                 </select>
               } @else {

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, output, signal } from '@angular/core';
-import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { LocaleStore, TranslateModule, VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 import { Dimension, DimensionsService, valueLabel, valueTree } from '../data/dimensions.service';
 
 /**
@@ -13,7 +13,7 @@ import { Dimension, DimensionsService, valueLabel, valueTree } from '../data/dim
 @Component({
   selector: 'vx-dimension-filter',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, VxLocalizedNamePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (dimensions().length) {
@@ -23,7 +23,7 @@ import { Dimension, DimensionsService, valueLabel, valueTree } from '../data/dim
           <select [value]="dimension()" (change)="chooseDimension($any($event.target).value)">
             <option value="">{{ 'dimensions.filter.all' | translate }}</option>
             @for (option of dimensions(); track option.id) {
-              <option [value]="option.name" [selected]="option.name === dimension()">{{ option.name }}</option>
+              <option [value]="option.name" [selected]="option.name === dimension()">{{ option.name | vxName: option.nameTranslations }}</option>
             }
           </select>
         </label>
@@ -53,6 +53,7 @@ import { Dimension, DimensionsService, valueLabel, valueTree } from '../data/dim
 })
 export class VxDimensionFilterComponent implements OnInit {
   private readonly service = inject(DimensionsService);
+  private readonly locale = inject(LocaleStore);
 
   /** `{}` for no filter, or `{ name: code }`. */
   readonly filterChange = output<Record<string, string>>();
@@ -63,7 +64,9 @@ export class VxDimensionFilterComponent implements OnInit {
   readonly selected = computed(() => this.dimensions().find((dimension) => dimension.name === this.dimension()) ?? null);
   /** Every value, retired ones included: the history a report reads still carries them. */
   readonly values = computed(() => valueTree(this.selected()?.values ?? []));
-  protected readonly label = valueLabel;
+  /** A value's label in the language the company's data is shown in. */
+  protected readonly label = (value: Dimension['values'][number]): string =>
+    valueLabel(value, (name, translations) => this.locale.nameOf(name, translations));
 
   ngOnInit(): void {
     this.service.forTagging().subscribe({

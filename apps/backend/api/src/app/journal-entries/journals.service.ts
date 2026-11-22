@@ -5,6 +5,7 @@ import { Journal } from './entities/journal.entity';
 import { CreateJournalDto, UpdateJournalDto } from './dto/journal.dto';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
+import { translationsAfterEdit } from '../organizations/contracts/books-language.contract';
 
 /**
  * The journals the product's own services look up by code (see `TenantBookkeepingProvisioner`).
@@ -34,7 +35,13 @@ export class JournalsService {
   async create(dto: CreateJournalDto, organizationId: string): Promise<Journal> {
     const code = normaliseCode(dto.code);
     await this.assertCodeFree(organizationId, code);
-    const journal = this.journalRepository.create({ ...dto, code, name: dto.name.trim(), organizationId });
+    const journal = this.journalRepository.create({
+      ...dto,
+      code,
+      name: dto.name.trim(),
+      nameTranslations: await translationsAfterEdit(this.dataSource.manager, organizationId, {}, dto.nameTranslations),
+      organizationId,
+    });
     return this.journalRepository.save(journal);
   }
 
@@ -78,6 +85,10 @@ export class JournalsService {
         code,
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
         ...(dto.type !== undefined ? { type: dto.type } : {}),
+        // A system journal's name is the company's to word, in the books and in any other language.
+        ...(dto.nameTranslations !== undefined
+          ? { nameTranslations: await translationsAfterEdit(this.dataSource.manager, organizationId, journal.nameTranslations, dto.nameTranslations) }
+          : {}),
       },
     );
     return this.findOne(id, organizationId);

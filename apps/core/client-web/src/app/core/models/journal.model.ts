@@ -1,4 +1,4 @@
-// app/core/models/journal.model.ts
+import type { LocalizedName } from '@virtex/shared/types';
 export enum JournalType {
   SALES = 'SALES',
   PURCHASES = 'PURCHASES',
@@ -10,6 +10,8 @@ export enum JournalType {
 export interface Journal {
   id: string;
   name: string;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   code: string;
   type: JournalType;
   organizationId: string;

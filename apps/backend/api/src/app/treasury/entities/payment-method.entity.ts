@@ -10,6 +10,8 @@ import {
 import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import type { PaymentSettlementKind } from '../../markets';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * A way the company is paid or pays: cash, ACH, Zelle, a DGII «forma de pago».
@@ -40,6 +42,7 @@ import type { PaymentSettlementKind } from '../../markets';
  * consumer that does not know what Zelle is.
  */
 @Entity({ name: 'payment_methods' })
+@NameTranslationsCheck('payment_methods')
 @Index('UQ_payment_methods_org_code', ['organizationId', 'code'], { unique: true })
 @Check(
   'CHK_payment_methods_kind',
@@ -62,6 +65,10 @@ export class PaymentMethod {
 
   @Column({ length: 120 })
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ name: 'kind', type: 'varchar', length: 20 })
   kind: PaymentSettlementKind;

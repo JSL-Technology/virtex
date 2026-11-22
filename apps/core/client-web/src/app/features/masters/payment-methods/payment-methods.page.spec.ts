@@ -78,9 +78,15 @@ describe('PaymentMethodsPage', () => {
     expect(text).toContain('masters.payment_methods.edit');
 
     page.startNew();
-    page.form.setValue({ code: 'paypal', name: 'PayPal', kind: 'BANK_TRANSFER', fiscalCode: '' });
+    page.form.setValue({ code: 'paypal', name: 'PayPal', kind: 'BANK_TRANSFER', fiscalCode: '', nameTranslations: { es: 'PayPal' } });
     page.save();
-    expect(api.create).toHaveBeenCalledWith({ code: 'PAYPAL', name: 'PayPal', kind: 'BANK_TRANSFER', fiscalCode: null });
+    expect(api.create).toHaveBeenCalledWith({
+      code: 'PAYPAL',
+      name: 'PayPal',
+      kind: 'BANK_TRANSFER',
+      fiscalCode: null,
+      nameTranslations: { es: 'PayPal' },
+    });
   });
 
   it('edits without offering to change the code, and retires a method', () => {
@@ -89,7 +95,7 @@ describe('PaymentMethodsPage', () => {
     expect(page.form.controls.code.disabled).toBe(true);
     page.form.patchValue({ name: 'ACH (same day)' });
     page.save();
-    expect(api.update).toHaveBeenCalledWith('pm-1', { name: 'ACH (same day)', kind: 'BANK_TRANSFER', fiscalCode: null });
+    expect(api.update).toHaveBeenCalledWith('pm-1', { name: 'ACH (same day)', kind: 'BANK_TRANSFER', fiscalCode: null, nameTranslations: {} });
 
     page.toggleActive(row({}));
     expect(api.update).toHaveBeenLastCalledWith('pm-1', { isActive: false });
@@ -102,5 +108,18 @@ describe('PaymentMethodsPage', () => {
     expect(text).toContain('masters.payment_methods.fixed_by_authority');
     expect(text).not.toContain('masters.payment_methods.new_method');
     expect(text).not.toContain('masters.payment_methods.retire');
+  });
+
+  it('lets a method the DGII fixed be read in other languages, and sends nothing else of it', () => {
+    const efectivo = row({ code: '01', name: 'Efectivo', isSystem: true, fiscalCode: '01' });
+    const text = create('AUTHORITY_FIXED', [efectivo]);
+    expect(text).toContain('masters.payment_methods.translate');
+
+    page.startTranslate(efectivo);
+    expect(page.form.controls.name.disabled).toBe(true);
+    expect(page.form.controls.kind.disabled).toBe(true);
+    page.form.controls.nameTranslations.setValue({ en: 'Cash' });
+    page.save();
+    expect(api.update).toHaveBeenLastCalledWith('pm-1', { nameTranslations: { en: 'Cash' } });
   });
 });

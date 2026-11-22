@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { TranslateModule, VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
@@ -17,6 +17,8 @@ import {
 } from '../../../core/api/payment-methods.service';
 import type { PaymentMethod as SettlementKind } from '../../../core/services/invoices';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { VxNameTranslationsComponent } from '../../../shared/components/name-translations';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * The company's payment methods.
@@ -41,8 +43,9 @@ import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
     ...VX_SORT,
     ReactiveFormsModule, ...VX_FORM_A11Y,
     LucideAngularModule,
-    TranslateModule,
+    TranslateModule, VxLocalizedNamePipe,
     ListShellComponent,
+    VxNameTranslationsComponent,
     VxBadgeComponent,
     HasPermissionDirective,
   ],
@@ -84,7 +87,15 @@ export class PaymentMethodsPage implements OnInit {
     name: ['', [Validators.required, Validators.maxLength(120)]],
     kind: ['BANK_TRANSFER' as SettlementKind, Validators.required],
     fiscalCode: ['', Validators.maxLength(10)],
+    nameTranslations: [{} as LocalizedName],
   });
+
+  /**
+   * Editing only how a method reads in other languages. A method an authority's catalogue seeded
+   * is the authority's — its code, its name in the books, its kind — but how it reads for someone
+   * in another language changes nothing the authority or a past document recorded.
+   */
+  readonly translating = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -110,8 +121,9 @@ export class PaymentMethodsPage implements OnInit {
   }
 
   startNew(): void {
-    this.form.reset({ code: '', name: '', kind: 'BANK_TRANSFER', fiscalCode: '' });
-    this.form.controls.code.enable();
+    this.form.reset({ code: '', name: '', kind: 'BANK_TRANSFER', fiscalCode: '', nameTranslations: {} });
+    this.form.enable();
+    this.translating.set(false);
     this.editing.set('new');
   }
 
@@ -121,10 +133,20 @@ export class PaymentMethodsPage implements OnInit {
       name: method.name,
       kind: method.kind,
       fiscalCode: method.fiscalCode ?? '',
+      nameTranslations: { ...(method.nameTranslations ?? {}) },
     });
+    this.form.enable();
     // The code is what past documents recorded; the server refuses to change it, so it is not offered.
     this.form.controls.code.disable();
+    this.translating.set(false);
     this.editing.set(method.id);
+  }
+
+  /** How a method reads in other languages — all that can change on one an authority fixed. */
+  startTranslate(method: PaymentMethodRow): void {
+    this.startEdit(method);
+    for (const name of ['code', 'name', 'kind', 'fiscalCode'] as const) this.form.controls[name].disable();
+    this.translating.set(true);
   }
 
   cancel(): void {
@@ -142,12 +164,15 @@ export class PaymentMethodsPage implements OnInit {
       name: value.name.trim(),
       kind: value.kind,
       fiscalCode: value.fiscalCode.trim() || null,
+      nameTranslations: value.nameTranslations,
     };
     this.busy.set(true);
     const request =
       editing === 'new'
         ? this.api.create({ ...input, code: value.code.trim().toUpperCase() })
-        : this.api.update(editing ?? '', input);
+        : this.translating()
+          ? this.api.update(editing ?? '', { nameTranslations: value.nameTranslations })
+          : this.api.update(editing ?? '', input);
     request.subscribe({
       next: () => {
         this.busy.set(false);

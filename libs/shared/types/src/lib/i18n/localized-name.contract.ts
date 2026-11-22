@@ -53,6 +53,50 @@ export function localizedNameIn(
 }
 
 /**
+ * A name's translations after a person edits them — the rule every master that keeps its name in
+ * several languages follows, accounts included.
+ *
+ * - The books language is never among them: that name is the record, kept and edited as the name.
+ * - A language the person sent with text sets it; sent empty, removes it («no translation in that
+ *   language», never a blank name); not sent at all, leaves it as it was — an edit says what it
+ *   changes.
+ * - Only the languages the product speaks are kept.
+ */
+export function mergeTranslations(
+  current: LocalizedName | Record<string, string> | null | undefined,
+  incoming: Record<string, unknown> | null | undefined,
+  booksLanguage: string,
+): LocalizedName {
+  const next: LocalizedName = {};
+  for (const language of SUPPORTED_LANGUAGES) {
+    if (language === booksLanguage) continue;
+    const kept = (current as Record<string, string> | null | undefined)?.[language];
+    if (incoming && Object.prototype.hasOwnProperty.call(incoming, language)) {
+      const value = incoming[language];
+      const text = typeof value === 'string' ? value.trim() : '';
+      if (text) next[language] = text;
+    } else if (typeof kept === 'string' && kept.trim()) {
+      next[language] = kept;
+    }
+  }
+  return next;
+}
+
+/**
+ * Every language a master's name reads in: its translations, and the record — the name it keeps in
+ * the books language — which no translation overrides.
+ */
+export function namesOf(
+  name: string | null | undefined,
+  translations: LocalizedName | Record<string, string> | null | undefined,
+  booksLanguage: string,
+): LocalizedName {
+  const names: Record<string, string> = { ...((translations as Record<string, string> | null | undefined) ?? {}) };
+  if (name) names[booksLanguage] = name;
+  return names as LocalizedName;
+}
+
+/**
  * The translations a person sent, cleaned: supported languages only, trimmed, the empty ones
  * dropped — an empty field means «no translation in that language», not a blank name.
  */

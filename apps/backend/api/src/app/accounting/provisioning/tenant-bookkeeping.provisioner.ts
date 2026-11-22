@@ -135,6 +135,7 @@ export class TenantBookkeepingProvisioner {
       },
       (key, lang) => this.i18n.translate(key, lang),
     );
+    await this.translateSeededPaymentMethods(organizationId, organization.country ?? null, language, manager);
 
     this.logger.log(`Contabilidad operativa provisionada para la organización ${organizationId}.`);
   }
@@ -190,6 +191,7 @@ export class TenantBookkeepingProvisioner {
       manager.create(warehouse, {
         organizationId,
         name: this.i18n.translate('ledger.provisioning.warehouse.main', language),
+        nameTranslations: this.i18n.translationsOf('ledger.provisioning.warehouse.main', language),
         code: 'PRINCIPAL',
         isActive: true,
         isDefault: true,
@@ -316,6 +318,7 @@ export class TenantBookkeepingProvisioner {
       repo.create({
         organizationId,
         name: this.i18n.translate('ledger.provisioning.default_ledger_name', language),
+        nameTranslations: this.i18n.translationsOf('ledger.provisioning.default_ledger_name', language),
         description: this.i18n.translate(
           'ledger.provisioning.default_ledger_description',
           language,
@@ -348,9 +351,36 @@ export class TenantBookkeepingProvisioner {
           code: j.code,
           type: j.type,
           name: this.i18n.translate(j.nameKey, language),
+          // The name in the books language is the record; a reader in another language reads it in
+          // theirs.
+          nameTranslations: this.i18n.translationsOf(j.nameKey, language),
         }),
       ),
     );
+  }
+
+  /**
+   * The payment methods the market seeds, in every language but the books'.
+   *
+   * The seed writes them — in the books language — with the rest of a company's working data, and
+   * the same seed backfills older companies from migrations that run before this column exists; so
+   * the translations are added here, after it, to the methods the seed wrote and nobody renamed.
+   */
+  private async translateSeededPaymentMethods(
+    organizationId: string,
+    country: string | null,
+    language: LanguageCode,
+    manager: EntityManager,
+  ): Promise<void> {
+    for (const method of marketFor(country).payments.defaults) {
+      const translations = this.i18n.translationsOf(method.nameKey, language);
+      if (Object.keys(translations).length === 0) continue;
+      await manager.query(
+        `UPDATE "payment_methods" SET "name_translations" = $4::jsonb
+          WHERE "organization_id" = $1 AND "code" = $2 AND "name" = $3 AND "name_translations" = '{}'::jsonb`,
+        [organizationId, method.code, this.i18n.translate(method.nameKey, language), JSON.stringify(translations)],
+      );
+    }
   }
 
   // ── Document sequences ─────────────────────────────────────────────────────

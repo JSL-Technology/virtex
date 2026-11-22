@@ -1,6 +1,8 @@
 import { IsBoolean, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 import { PAYMENT_SETTLEMENT_KINDS, type PaymentSettlementKind } from '../../markets';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export class CreatePaymentMethodDto {
   /** What documents record. Letters, digits, `_` and `-`; stored upper case. */
@@ -14,6 +16,15 @@ export class CreatePaymentMethodDto {
   @MinLength(1, { message: 'validation.constraints.min_length|{"min":1}' })
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   name: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsIn(PAYMENT_SETTLEMENT_KINDS as PaymentSettlementKind[])
   kind: PaymentSettlementKind;

@@ -364,6 +364,16 @@
     "en": "How you get paid and how you pay. Add the ones you use, rename them or retire them; documents that already used one keep its code.",
     "pt": "Como você recebe e como paga. Adicione as que usa, renomeie ou desative; os documentos que já as usaram mantêm o código."
   },
+  "masters.payment_methods.translate": {
+    "es": "Traducir nombre",
+    "en": "Translate name",
+    "pt": "Traduzir nome"
+  },
+  "masters.payment_methods.translate_method": {
+    "es": "Nombre en otros idiomas",
+    "en": "Name in other languages",
+    "pt": "Nome em outros idiomas"
+  },
   "masters.payment_methods.updated": {
     "es": "Forma de pago guardada.",
     "en": "Payment method saved.",
@@ -1353,6 +1363,16 @@
     "es": "Nuevo almacén",
     "en": "New warehouse",
     "pt": "Novo depósito"
+  },
+  "masters.warehouses.rename": {
+    "es": "Renombrar",
+    "en": "Rename",
+    "pt": "Renomear"
+  },
+  "masters.warehouses.renamed": {
+    "es": "Almacén «{{name}}» actualizado.",
+    "en": "Warehouse «{{name}}» updated.",
+    "pt": "Armazém «{{name}}» atualizado."
   },
   "masters.warehouses.reopen": {
     "es": "Reabrir",

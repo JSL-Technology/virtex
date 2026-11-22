@@ -109,7 +109,7 @@
             <span>{{ 'entry_templates.use.journal' | translate }} *</span>
             <select id="et-use-journal" [ngModel]="useJournal()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="useJournal.set($event)">
               @for (journal of journals(); track journal.id) {
-                <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+                <option [value]="journal.id">{{ journal.code }} — {{ journal.name | vxName: journal.nameTranslations }}</option>
               }
             </select>
           </label>

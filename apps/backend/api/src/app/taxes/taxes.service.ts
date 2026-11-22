@@ -5,6 +5,7 @@ import { Tax } from './entities/tax.entity';
 import { CreateTaxDto } from './dto/create-tax.dto';
 import { UpdateTaxDto } from './dto/update-tax.dto';
 import { NotFoundError } from '../i18n/localized.exception';
+import { translationsAfterEdit } from '../organizations/contracts/books-language.contract';
 
 @Injectable()
 export class TaxesService {
@@ -18,13 +19,10 @@ export class TaxesService {
     return this.taxRepository.manager;
   }
 
-  create(createTaxDto: CreateTaxDto, organizationId: string, manager?: EntityManager): Promise<Tax> {
-    if (manager) {
-        const tax = manager.create(Tax, { ...createTaxDto, organizationId });
-        return manager.save(tax);
-    }
-    const tax = this.taxRepository.create({ ...createTaxDto, organizationId });
-    return this.taxRepository.save(tax);
+  async create(createTaxDto: CreateTaxDto, organizationId: string, manager?: EntityManager): Promise<Tax> {
+    const writer = manager ?? this.taxRepository.manager;
+    const nameTranslations = await translationsAfterEdit(writer, organizationId, {}, createTaxDto.nameTranslations);
+    return writer.save(writer.create(Tax, { ...createTaxDto, nameTranslations, organizationId }));
   }
 
   findAll(organizationId: string): Promise<Tax[]> {
@@ -41,7 +39,12 @@ export class TaxesService {
 
   async update(id: string, updateTaxDto: UpdateTaxDto, organizationId: string): Promise<Tax> {
     const tax = await this.findOne(id, organizationId);
-    const updatedTax = this.taxRepository.merge(tax, updateTaxDto);
+    const { nameTranslations, ...changes } = updateTaxDto;
+    const translations = await translationsAfterEdit(this.taxRepository.manager, organizationId, tax.nameTranslations, nameTranslations);
+    // Assigned after the merge: `merge` deep-merges an object column, so a language sent empty to
+    // remove it would survive inside it.
+    const updatedTax = this.taxRepository.merge(tax, changes);
+    updatedTax.nameTranslations = translations;
     return this.taxRepository.save(updatedTax);
   }
 

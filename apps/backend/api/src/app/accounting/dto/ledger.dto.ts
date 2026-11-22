@@ -6,6 +6,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * The fields a caller may set on a ledger.
@@ -27,6 +29,15 @@ export class CreateLedgerDto {
   @MinLength(1, { message: 'validation.constraints.min_length|{"min":1}' })
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   name: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsString()
   @IsOptional()
@@ -53,6 +64,15 @@ export class UpdateLedgerDto {
   @MinLength(1, { message: 'validation.constraints.min_length|{"min":1}' })
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   name?: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsString()
   @IsOptional()

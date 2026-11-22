@@ -2,12 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export interface DimensionValue {
   id?: string;
   /** The code a journal line carries. */
   value: string;
   name: string | null;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   isActive: boolean;
   /** The code of the value it rolls up into. */
   parent: string | null;
@@ -18,6 +21,8 @@ export interface Dimension {
   id: string;
   /** What a journal line is tagged with. */
   name: string;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   description: string | null;
   isActive: boolean;
   inUse: boolean;
@@ -26,9 +31,10 @@ export interface Dimension {
 
 export interface DimensionInput {
   name: string;
+  nameTranslations?: LocalizedName;
   description?: string | null;
   isActive?: boolean;
-  values: Array<Pick<DimensionValue, 'id' | 'value' | 'name' | 'isActive' | 'parent'>>;
+  values: Array<Pick<DimensionValue, 'id' | 'value' | 'name' | 'nameTranslations' | 'isActive' | 'parent'>>;
 }
 
 export interface DimensionRule {
@@ -45,9 +51,17 @@ export const DIMENSION_NAME_PATTERN = /^[a-zA-Z0-9_ ]+$/;
 /** A value's code — the server's `DIMENSION_VALUE_PATTERN`. */
 export const DIMENSION_VALUE_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} ._-]*$/u;
 
-/** `VENTAS · Departamento de ventas`, or the code alone. */
-export function valueLabel(value: Pick<DimensionValue, 'value' | 'name'>): string {
-  return value.name ? `${value.value} · ${value.name}` : value.value;
+/**
+ * `VENTAS · Departamento de ventas`, or the code alone. `nameOf` reads the label in the language the
+ * company's data is shown in (`LocaleStore.nameOf`); without it, the label as the books keep it.
+ */
+export function valueLabel(
+  value: Pick<DimensionValue, 'value' | 'name' | 'nameTranslations'>,
+  nameOf?: (name: string, translations: Record<string, string> | null) => string,
+): string {
+  if (!value.name) return value.value;
+  const label = nameOf ? nameOf(value.name, (value.nameTranslations as Record<string, string> | undefined) ?? null) : value.name;
+  return `${value.value} · ${label}`;
 }
 
 /**

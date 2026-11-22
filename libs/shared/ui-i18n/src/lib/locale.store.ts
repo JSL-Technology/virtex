@@ -12,6 +12,7 @@ import {
   matchLanguage,
   isLocaleTag,
   localizedNameIn,
+  namesOf,
   resolveLocale,
   RegionalFormat,
   mergeRegionalFormats,
@@ -225,9 +226,21 @@ export class LocaleStore {
   /**
    * A name kept in several languages (`{ es: 'Bancos', en: 'Banks' }`), in the data language:
    * the reader's, or the books' in the books view; the books one where it has no translation.
+   *
+   * A master that keeps its name as text — the record, in the books language — and its other
+   * languages beside it (a journal, a tax, a warehouse) passes both: `nameOf(journal.name,
+   * journal.nameTranslations)`.
    */
-  nameOf(name: Record<string, string> | string | null | undefined): string {
-    return localizedNameIn(name, this.dataLanguage(), this.booksLanguage());
+  nameOf(
+    name: Record<string, string> | string | null | undefined,
+    translations?: Record<string, string> | null,
+  ): string {
+    const books = this.booksLanguage();
+    if (translations && (typeof name === 'string' || name == null)) {
+      const record: string | null = typeof name === 'string' ? name : null;
+      return localizedNameIn(namesOf(record, translations, books), this.dataLanguage(), books);
+    }
+    return localizedNameIn(name, this.dataLanguage(), books);
   }
 
   /** Change the interface language. Returns false when the code is not one this build has. */

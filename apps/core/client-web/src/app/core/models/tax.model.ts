@@ -1,3 +1,4 @@
+import type { LocalizedName } from '@virtex/shared/types';
 export enum TaxType {
   PERCENTAGE = 'Porcentaje',
   FIXED = 'Fijo',
@@ -6,6 +7,8 @@ export enum TaxType {
 export interface Tax {
   id: string;
   name: string;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   rate: number;
   type: TaxType;
   countryCode?: string;

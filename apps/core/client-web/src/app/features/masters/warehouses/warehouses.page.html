@@ -32,10 +32,30 @@
       <!-- A store's own stock room, or none: a central warehouse serves every branch. -->
       <vx-branch-picker class="field" inputId="warehouse-branch" [optional]="true"
         [ngModel]="draftBranch()" (ngModelChange)="draftBranch.set($event)" />
+      <vx-name-translations class="inline-row__wide" idPrefix="warehouse-name"
+        [ngModel]="draftTranslations()" (ngModelChange)="draftTranslations.set($event)" />
       <button type="button" class="primary-button" [disabled]="saving()" (click)="save()">
         {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="toggleCreate()">
+        {{ 'common.cancel' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (renaming(); as warehouse) {
+    <div listCreate class="inline-row card" role="group" [attr.aria-label]="'masters.warehouses.rename' | translate">
+      <label class="field">
+        <span>{{ 'masters.warehouses.name' | translate }}</span>
+        <input id="warehouse-rename" type="text" maxlength="120" required
+          [ngModel]="renameName()" (ngModelChange)="renameName.set($event)" />
+      </label>
+      <vx-name-translations class="inline-row__wide" idPrefix="warehouse-rename-name"
+        [ngModel]="renameTranslations()" (ngModelChange)="renameTranslations.set($event)" />
+      <button type="button" class="primary-button" [disabled]="saving()" (click)="saveRename()">
+        {{ 'common.save' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="cancelRename()">
         {{ 'common.cancel' | translate }}
       </button>
     </div>
@@ -64,7 +84,7 @@
         @for (warehouse of table.rows(); track warehouse.id) {
           <tr>
             <td>
-              <a class="table-link" routerLink="/inventory/stock" [queryParams]="{ warehouseId: warehouse.id }">{{ warehouse.name }}</a>
+              <a class="table-link" routerLink="/inventory/stock" [queryParams]="{ warehouseId: warehouse.id }">{{ warehouse.name | vxName: warehouse.nameTranslations }}</a>
               @if (warehouse.isDefault) {
                 <vx-badge tone="accent" size="sm">{{ 'masters.warehouses.default' | translate }}</vx-badge>
               }
@@ -80,6 +100,7 @@
               </vx-badge>
             </td>
             <td class="row-actions" *appHasPermission="'wms:manage'">
+              <button type="button" class="link-button" (click)="startRename(warehouse)">{{ 'masters.warehouses.rename' | translate }}</button>
               @if (warehouse.isActive && !warehouse.isDefault) {
                 <button type="button" class="link-button" (click)="makeDefault(warehouse)">{{ 'masters.warehouses.make_default' | translate }}</button>
                 <button type="button" class="link-button" (click)="setActive(warehouse, false)">{{ 'masters.warehouses.close' | translate }}</button>

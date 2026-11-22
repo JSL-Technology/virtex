@@ -13,7 +13,10 @@
  *  - a narrative the system writes is recorded in Spanish and kept with the message it came from,
  *    which the screen renders in English with the catalogue the browser receives — a reversal with
  *    the narrative it reverses, a reclassification with the accounts it names; what a person
- *    typed has no message; and the API refuses a message sent from outside.
+ *    typed has no message; and the API refuses a message sent from outside;
+ *  - the masters the system names — the journals, the main ledger and warehouse, the payment
+ *    methods the DGII fixes — carry their name in the books and its translations; a method the
+ *    authority fixed can still be worded in English, and nothing else of it can change.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -270,6 +273,109 @@ async function main() {
     booksExport.statusCode === 200 && booksExport.body.includes('Reversión: QA depósito') && !booksExport.body.includes('Reversal: QA'),
     `HTTP ${booksExport.statusCode}`,
   );
+
+  // ── The masters the system names: the record in Spanish, their translations beside it ────────
+  type Master = { id: string; code?: string; name: string; nameTranslations?: Names; isDefault?: boolean; isSystem?: boolean };
+  const journalsList = (await company.call('GET', '/api/v1/journals', undefined, ENGLISH)).json<Master[]>();
+  const sales = journalsList.find((journal) => journal.code === 'VENTAS');
+  check(
+    'a journal the system provisions is named in the books and translated: «Diario de ventas» / «Sales journal»',
+    sales?.name === 'Diario de ventas' && sales.nameTranslations?.['en'] === 'Sales journal' && sales.nameTranslations?.['pt'] === 'Diário de vendas',
+    JSON.stringify({ name: sales?.name, translations: sales?.nameTranslations }),
+  );
+  const ledgers = (await company.call('GET', '/api/v1/accounting/ledgers', undefined, ENGLISH)).json<Master[]>();
+  const mainLedger = ledgers.find((entry) => entry.isDefault);
+  check(
+    'and so is the main ledger',
+    mainLedger?.name === 'Libro principal' && mainLedger.nameTranslations?.['en'] === 'Main ledger',
+    JSON.stringify({ name: mainLedger?.name, translations: mainLedger?.nameTranslations }),
+  );
+  const warehouses = (await company.call('GET', '/api/v1/wms/warehouses', undefined, ENGLISH)).json<Master[]>();
+  const mainWarehouse = warehouses.find((entry) => entry.isDefault);
+  check(
+    'and the main warehouse',
+    mainWarehouse?.name === 'Almacén principal' && mainWarehouse.nameTranslations?.['en'] === 'Main warehouse',
+    JSON.stringify({ name: mainWarehouse?.name, translations: mainWarehouse?.nameTranslations }),
+  );
+  const paymentMethods = (await company.call('GET', '/api/v1/treasury/payment-methods', undefined, ENGLISH)).json<Master[]>();
+  const cashMethod = paymentMethods.find((method) => method.name === 'Efectivo');
+  check(
+    'and the payment methods the DGII fixes',
+    !!cashMethod?.isSystem && cashMethod.nameTranslations?.['en'] === 'Cash',
+    JSON.stringify({ name: cashMethod?.name, system: cashMethod?.isSystem, translations: cashMethod?.nameTranslations }),
+  );
+  const translatedMethod = await company.call(
+    'PATCH',
+    `/api/v1/treasury/payment-methods/${cashMethod?.id}`,
+    { nameTranslations: { en: 'Cash (notes and coins)' } },
+    { ...ENGLISH, ...freshKey() },
+  );
+  const renamedMethod = await company.call('PATCH', `/api/v1/treasury/payment-methods/${cashMethod?.id}`, { name: 'Contado' }, { ...ENGLISH, ...freshKey() });
+  check(
+    'a method the DGII fixed reads as the company words it in English — and keeps its name in the books',
+    translatedMethod.statusCode === 200 &&
+      translatedMethod.json<Master>().nameTranslations?.['en'] === 'Cash (notes and coins)' &&
+      translatedMethod.json<Master>().name === 'Efectivo' &&
+      renamedMethod.statusCode === 403,
+    `PATCH translations HTTP ${translatedMethod.statusCode}; PATCH name HTTP ${renamedMethod.statusCode}`,
+  );
+  const tax = await company.call(
+    'POST',
+    '/api/v1/taxes',
+    { name: 'Exento QA', rate: 0, type: 'Porcentaje', nameTranslations: { en: 'QA exempt', fr: 'Exonéré' } },
+    { ...ENGLISH, ...freshKey() },
+  );
+  check('a translation in a language the product does not speak is refused on any master', tax.statusCode === 400, `HTTP ${tax.statusCode}`);
+  const taxCreated = await company.call(
+    'POST',
+    '/api/v1/taxes',
+    { name: 'Exento QA', rate: 0, type: 'Porcentaje', nameTranslations: { en: 'QA exempt', pt: 'Isento QA' } },
+    { ...ENGLISH, ...freshKey() },
+  );
+  const taxCleared = await company.call(
+    'PATCH',
+    `/api/v1/taxes/${taxCreated.json<Master>().id}`,
+    { nameTranslations: { pt: '' } },
+    { ...ENGLISH, ...freshKey() },
+  );
+  check(
+    'a tax is created with its translations, and one emptied is removed',
+    taxCreated.statusCode === 201 && JSON.stringify(taxCleared.json<Master>().nameTranslations) === JSON.stringify({ en: 'QA exempt' }),
+    `HTTP ${taxCreated.statusCode}/${taxCleared.statusCode} ${JSON.stringify(taxCleared.json<Master>().nameTranslations)}`,
+  );
+
+  // ── What the law fixes does not change with the reader ─────────────────────────────────────
+  // A filing reads the books as they are kept and in the format its authority fixes: the same
+  // file, byte for byte, whoever asks for it and in whatever language they read.
+  const SPANISH = { 'accept-language': 'es-DO,es;q=0.9' };
+  const [{ year, month }] = await company.query<{ year: number; month: number }>(
+    `SELECT extract(year FROM (now() AT TIME ZONE 'America/Santo_Domingo'))::int AS year, extract(month FROM (now() AT TIME ZONE 'America/Santo_Domingo'))::int AS month`,
+  );
+  const returnsOffered = (await company.call('GET', '/api/v1/compliance/returns', undefined, ENGLISH)).json<Array<{ code: string }>>();
+  for (const code of ['606', '607'].filter((candidate) => returnsOffered.some((offered) => offered.code === candidate))) {
+    const inEnglish = await company.call('GET', `/api/v1/compliance/returns/${code}?year=${year}&month=${month}`, undefined, ENGLISH);
+    const inSpanish = await company.call('GET', `/api/v1/compliance/returns/${code}?year=${year}&month=${month}`, undefined, SPANISH);
+    check(
+      `the DGII's ${code} is the same file for a reader in English and one in Spanish`,
+      inEnglish.statusCode === 200 &&
+        inSpanish.statusCode === 200 &&
+        inEnglish.body === inSpanish.body &&
+        inEnglish.headers['content-disposition'] === inSpanish.headers['content-disposition'],
+      `HTTP ${inEnglish.statusCode}/${inSpanish.statusCode}, ${inEnglish.body.length} bytes, ${String(inEnglish.headers['content-disposition'])}`,
+    );
+  }
+  // The books themselves — every line of the journal, with the entries above in it — say the same
+  // thing to both readers. Only the CSV's dialect follows the reader (a comma or a semicolon, as their
+  // spreadsheet expects, declared on the `sep=` line): every cell is the same.
+  const booksInEnglish = await company.call('POST', '/api/v1/data-transfer/exports', { dataset: 'journal_entry_lines', format: 'csv' }, ENGLISH);
+  const booksInSpanish = await company.call('POST', '/api/v1/data-transfer/exports', { dataset: 'journal_entry_lines', format: 'csv' }, SPANISH);
+  const englishCells = csvRows(booksInEnglish.body);
+  check(
+    'the journal\'s export says the same, cell for cell, to a reader in English and one in Spanish',
+    booksInEnglish.statusCode === 200 && englishCells.length > 4 && JSON.stringify(englishCells) === JSON.stringify(csvRows(booksInSpanish.body)),
+    `HTTP ${booksInEnglish.statusCode}/${booksInSpanish.statusCode}, ${englishCells.length} rows`,
+  );
+  check('the market offers the DGII\'s 606 and 607 to check', ['606', '607'].every((code) => returnsOffered.some((offered) => offered.code === code)), returnsOffered.map((offered) => offered.code).join(', '));
 
   await app.close();
   if (failures.length) {

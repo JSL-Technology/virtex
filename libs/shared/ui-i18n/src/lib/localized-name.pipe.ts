@@ -18,7 +18,11 @@ import { LocaleStore } from './locale.store';
 export class VxLocalizedNamePipe implements PipeTransform {
   private readonly store = inject(LocaleStore);
 
-  transform(value: Record<string, string> | string | null | undefined): string {
-    return this.store.nameOf(value);
+  /**
+   * `translations` for a master that keeps its name as text in the books language and its other
+   * languages beside it: `{{ journal.name | vxName: journal.nameTranslations }}`.
+   */
+  transform(value: Record<string, string> | string | null | undefined, translations?: Record<string, string> | null): string {
+    return this.store.nameOf(value, translations);
   }
 }

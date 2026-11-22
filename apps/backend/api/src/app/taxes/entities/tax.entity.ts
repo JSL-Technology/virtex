@@ -11,6 +11,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export enum TaxType {
   PERCENTAGE = 'Porcentaje',
@@ -18,6 +20,7 @@ export enum TaxType {
 }
 
 @Entity({ name: 'taxes' })
+@NameTranslationsCheck('taxes')
 @Check('CHK_taxes_period', `"effective_to" IS NULL OR "effective_from" IS NULL OR "effective_to" >= "effective_from"`)
 export class Tax {
   @PrimaryGeneratedColumn('uuid')
@@ -25,6 +28,10 @@ export class Tax {
 
   @Column()
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ type: 'decimal', precision: 10, scale: 4, transformer: numericTransformerNotNull })
   rate: number;

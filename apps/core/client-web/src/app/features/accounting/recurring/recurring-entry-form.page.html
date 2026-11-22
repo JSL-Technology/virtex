@@ -30,7 +30,7 @@
           <select id="re-journal" formControlName="journalId">
             <option value="">{{ 'recurring_entries.form.choose_journal' | translate }}</option>
             @for (journal of journals(); track journal.id) {
-              <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+              <option [value]="journal.id">{{ journal.code }} — {{ journal.name | vxName: journal.nameTranslations }}</option>
             }
           </select>
         </label>

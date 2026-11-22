@@ -11,11 +11,12 @@ import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { VxNameTranslationsComponent } from '../../../shared/components/name-translations';
 
 @Component({
   selector: 'app-ledger-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, VxNameTranslationsComponent],
   templateUrl: './app-ledger-form-page.html',
   styleUrls: ['./app-ledger-form-page.scss']
 })
@@ -38,6 +39,7 @@ export class LedgerFormPage implements OnInit {
   ngOnInit(): void {
     this.ledgerForm = this.fb.group({
       name: ['', Validators.required],
+      nameTranslations: [{}],
       description: [''],
       isDefault: [false, Validators.required]
     });

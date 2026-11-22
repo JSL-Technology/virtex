@@ -10,6 +10,8 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * El juego de caracteres que puede llevar el nombre de una dimensión.
@@ -52,6 +54,15 @@ export class DimensionValueDto {
   @MaxLength(200)
   name?: string | null;
 
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
+
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
@@ -71,6 +82,15 @@ export class CreateDimensionDto {
     message: 'validation.constraints.dimension_name',
   })
   name: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsString()
   @IsOptional()
@@ -100,6 +120,15 @@ export class UpdateDimensionDto {
   })
   @IsOptional()
   name?: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsString()
   @IsOptional()

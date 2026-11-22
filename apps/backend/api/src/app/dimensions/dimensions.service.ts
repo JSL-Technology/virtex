@@ -8,12 +8,16 @@ import { CreateDimensionDto, DimensionValueDto, UpdateDimensionDto } from './dto
 import { CreateDimensionRuleDto } from './dto/dimension-rule.dto';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
+import { mergeTranslations, type LanguageCode, type LocalizedName } from '@virtex/shared/types';
+import { organizationBooksLanguage } from '../organizations/contracts/books-language.contract';
 
 /** A value as the screens read it: its parent by code, and whether lines carry it. */
 export interface DimensionValueView {
   id: string;
   value: string;
   name: string | null;
+  /** The name in the languages other than the books' (books bilingual). */
+  nameTranslations: LocalizedName;
   isActive: boolean;
   parent: string | null;
   inUse: boolean;
@@ -22,6 +26,8 @@ export interface DimensionValueView {
 export interface DimensionView {
   id: string;
   name: string;
+  /** The name in the languages other than the books' (books bilingual). */
+  nameTranslations: LocalizedName;
   description: string | null;
   isActive: boolean;
   /** Lines carry it: its name can no longer change, nor can it be deleted. */
@@ -77,15 +83,17 @@ export class DimensionsService {
     const id = await this.dataSource.transaction(async (manager) => {
       const taken = await manager.findOne(Dimension, { where: { organizationId, name: dto.name.trim() } });
       if (taken) throw new ConflictError('dimensions.dimension_name_taken', { name: dto.name.trim() });
+      const books = await organizationBooksLanguage(manager, organizationId);
       const dimension = await manager.save(
         manager.create(Dimension, {
           organizationId,
           name: dto.name.trim(),
+          nameTranslations: mergeTranslations({}, dto.nameTranslations, books),
           description: dto.description?.trim() || null,
           isActive: dto.isActive ?? true,
         }),
       );
-      await this.writeValues(manager, dimension, [], dto.values);
+      await this.writeValues(manager, dimension, [], dto.values, books);
       return dimension.id;
     });
     return this.findOne(id, organizationId);
@@ -102,12 +110,24 @@ export class DimensionsService {
         if (taken) throw new ConflictError('dimensions.dimension_name_taken', { name });
         dimension.name = name;
       }
+      const books = await organizationBooksLanguage(manager, organizationId);
+      // A translation is how the name reads, not the name lines carry: it changes even in use.
+      if (dto.nameTranslations !== undefined) {
+        dimension.nameTranslations = mergeTranslations(dimension.nameTranslations, dto.nameTranslations, books);
+      }
       if (dto.description !== undefined) dimension.description = dto.description?.trim() || null;
       if (dto.isActive !== undefined) dimension.isActive = dto.isActive;
       const existing = dimension.values ?? [];
       // Saved without the relation, so the cascade does not rewrite the values behind our back.
-      await manager.save(Dimension, { id: dimension.id, name: dimension.name, description: dimension.description, isActive: dimension.isActive, organizationId });
-      if (dto.values) await this.writeValues(manager, dimension, existing, dto.values);
+      await manager.save(Dimension, {
+        id: dimension.id,
+        name: dimension.name,
+        nameTranslations: dimension.nameTranslations,
+        description: dimension.description,
+        isActive: dimension.isActive,
+        organizationId,
+      });
+      if (dto.values) await this.writeValues(manager, dimension, existing, dto.values, books);
     });
     return this.findOne(id, organizationId);
   }
@@ -205,6 +225,7 @@ export class DimensionsService {
     dimension: Dimension,
     existing: DimensionValue[],
     requested: DimensionValueDto[],
+    books: LanguageCode,
   ): Promise<void> {
     const repository = manager.getRepository(DimensionValue);
     const byId = new Map(existing.map((value) => [value.id, value]));
@@ -224,6 +245,9 @@ export class DimensionsService {
         }
         current.value = code;
         current.name = dto.name?.trim() || null;
+        if (dto.nameTranslations !== undefined) {
+          current.nameTranslations = mergeTranslations(current.nameTranslations, dto.nameTranslations, books);
+        }
         current.isActive = dto.isActive ?? current.isActive;
         kept.add(current.id);
         saved.set(code, current);
@@ -231,6 +255,7 @@ export class DimensionsService {
         const created = repository.create({
           value: code,
           name: dto.name?.trim() || null,
+          nameTranslations: mergeTranslations({}, dto.nameTranslations, books),
           isActive: dto.isActive ?? true,
           dimension,
           dimensionId: dimension.id,
@@ -353,6 +378,7 @@ function toView(dimension: Dimension, usage: Map<string, Set<string>>): Dimensio
   return {
     id: dimension.id,
     name: dimension.name,
+    nameTranslations: dimension.nameTranslations ?? {},
     description: dimension.description ?? null,
     isActive: dimension.isActive,
     inUse: used.size > 0,
@@ -360,6 +386,7 @@ function toView(dimension: Dimension, usage: Map<string, Set<string>>): Dimensio
       id: value.id,
       value: value.value,
       name: value.name ?? null,
+      nameTranslations: value.nameTranslations ?? {},
       isActive: value.isActive,
       parent: value.parentId ? (codeById.get(value.parentId) ?? null) : null,
       inUse: used.has(value.value),

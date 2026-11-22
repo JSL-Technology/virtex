@@ -1,0 +1,25 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.name-translations {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+
+  legend {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--content-primary);
+    margin-bottom: var(--space-2);
+  }
+}
+
+.name-translations__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-3);
+}

@@ -32,7 +32,7 @@
         <select id="ledgerId" formControlName="ledgerId">
           <option value="" disabled>{{ 'accounting.journal_entry_form.select_ledger' | translate }}</option>
           @for (ledger of ledgers(); track ledger.id) {
-            <option [value]="ledger.id">{{ ledger.name }}</option>
+            <option [value]="ledger.id">{{ ledger.name | vxName: ledger.nameTranslations }}</option>
           }
         </select>
       </div>
@@ -41,7 +41,7 @@
         <select id="journalId" formControlName="journalId">
           <option value="" disabled>{{ 'accounting.journal_entry_form.select_journal' | translate }}</option>
           @for (journal of journals(); track journal.id) {
-            <option [value]="journal.id">{{ journal.name }}</option>
+            <option [value]="journal.id">{{ journal.name | vxName: journal.nameTranslations }}</option>
           }
         </select>
       </div>
@@ -174,7 +174,7 @@
                        [attr.aria-label]="'accounting.journal_entry_form.line_dimensions' | translate: { line: lineIndex + 1 }">
                     @for (dimension of tagDimensions(); track dimension.id) {
                       <label class="line-tags__field">
-                        <span>{{ dimension.name }}@if (required.includes(dimension.name)) { * }</span>
+                        <span>{{ dimension.name | vxName: dimension.nameTranslations }}@if (required.includes(dimension.name)) { * }</span>
                         <select [value]="lineTag(lineIndex, dimension.name)" [disabled]="readOnly()"
                                 [class.line-tags__missing]="required.includes(dimension.name) && !lineTag(lineIndex, dimension.name) && entryForm.touched"
                                 (change)="setLineTag(lineIndex, dimension.name, $any($event.target).value)">

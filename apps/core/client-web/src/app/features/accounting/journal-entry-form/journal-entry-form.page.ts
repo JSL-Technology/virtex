@@ -150,7 +150,9 @@ export class JournalEntryFormPage implements OnInit {
   /** Whether the tagging row under each line is open. Opens itself when there is something to say. */
   readonly showDimensions = signal(false);
   readonly hasDimensions = computed(() => this.tagDimensions().length > 0);
-  protected readonly valueLabel = valueLabel;
+  /** A value's label in the language the company's data is shown in. */
+  protected readonly valueLabel = (value: DimensionValue): string =>
+    valueLabel(value, (name, translations) => this.locale.nameOf(name, translations));
 
   ngOnInit(): void {
     const today = tenantToday();

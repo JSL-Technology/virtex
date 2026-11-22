@@ -13,6 +13,9 @@ import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDimensionFilterComponent } from '../../../accounting/dimensions/dimension-filter.component';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
+import { ExportLanguagePreference } from '../../../../core/export/export-language';
+import { VxExportLanguageComponent } from '../../../../shared/components/export-language';
+import { NotificationService } from '../../../../core/services/notification';
 
 /**
  * The balance sheet.
@@ -34,7 +37,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-balance-sheet-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDimensionFilterComponent, VxDateFieldComponent],
+  imports: [VxExportLanguageComponent, CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDimensionFilterComponent, VxDateFieldComponent],
   templateUrl: './balance-sheet.page.html',
   styleUrls: ['./balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +45,9 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 export class BalanceSheetPage {
   private readonly reports = inject(FinancialReportingService);
   private readonly exporter = inject(StatementExportService);
+  /** The language this person exports statements in: theirs, the books', or both. */
+  protected readonly exportLanguage = inject(ExportLanguagePreference);
+  private readonly exportFailed = inject(NotificationService);
 
   protected readonly ExportIcon = FileDown;
   protected readonly RefreshIcon = RefreshCw;
@@ -104,7 +110,9 @@ export class BalanceSheetPage {
   exportCsv(): void {
     const data = this.report();
     if (!data) return;
-    this.exporter.exportBalanceSheet(data);
+    this.exporter.exportBalanceSheet(data, this.exportLanguage.language())
+      // An export that could not be prepared — the books language's words did not load — says so.
+      .catch(() => this.exportFailed.showError('reports.export.failed'));
   }
 }
 

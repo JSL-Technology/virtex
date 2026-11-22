@@ -26,7 +26,8 @@ export interface GeneralLedgerLine {
 }
 
 export interface GeneralLedger {
-  ledger: { id: string; name: string; currency: string };
+  /** The ledger's name as the books keep it, and in the other languages. */
+  ledger: { id: string; name: string; nameTranslations: Record<string, string>; currency: string };
   account: {
     id: string;
     code: string;

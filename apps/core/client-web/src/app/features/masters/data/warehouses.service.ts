@@ -2,10 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export interface Warehouse {
   id: string;
   name: string;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   code?: string | null;
   isActive: boolean;
   /** Where stock goes when a document names no warehouse. Exactly one per company. */
@@ -19,6 +22,7 @@ export interface Warehouse {
 
 export interface WarehouseInput {
   name: string;
+  nameTranslations?: LocalizedName;
   code?: string;
   isActive?: boolean;
   isDefault?: boolean;

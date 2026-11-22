@@ -14,6 +14,9 @@ import { defaultPeriod } from '../report-period';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateRangeComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
+import { ExportLanguagePreference } from '../../../../core/export/export-language';
+import { VxExportLanguageComponent } from '../../../../shared/components/export-language';
+import { NotificationService } from '../../../../core/services/notification';
 
 /**
  * The balanza de comprobación.
@@ -29,7 +32,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-trial-balance-page',
   standalone: true,
-  imports: [...VX_SORT, AppLinkPipe, RouterLink, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [VxExportLanguageComponent, ...VX_SORT, AppLinkPipe, RouterLink, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './trial-balance.page.html',
   styleUrls: ['./trial-balance.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +42,9 @@ export class TrialBalancePage {
   readonly table = sortable(() => this.report()?.rows);
   private readonly reports = inject(FinancialReportingService);
   private readonly exporter = inject(StatementExportService);
+  /** The language this person exports statements in: theirs, the books', or both. */
+  protected readonly exportLanguage = inject(ExportLanguagePreference);
+  private readonly exportFailed = inject(NotificationService);
 
   protected readonly CalendarIcon = Calendar;
   protected readonly ExportIcon = FileDown;
@@ -98,6 +104,8 @@ export class TrialBalancePage {
   exportCsv(): void {
     const data = this.report();
     if (!data) return;
-    this.exporter.exportTrialBalance(data);
+    this.exporter.exportTrialBalance(data, this.exportLanguage.language())
+      // An export that could not be prepared — the books language's words did not load — says so.
+      .catch(() => this.exportFailed.showError('reports.export.failed'));
   }
 }

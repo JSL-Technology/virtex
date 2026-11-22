@@ -161,7 +161,7 @@
             <label for="paymentMethodCode">{{ 'accounts_payable.form.payment_form' | translate }}</label>
             <select id="paymentMethodCode" formControlName="paymentMethodCode">
               @for (method of paymentMethods(); track method.code) {
-                <option [value]="method.code">{{ method.code }} — {{ method.name }}</option>
+                <option [value]="method.code">{{ method.code }} — {{ method.name | vxName: method.nameTranslations }}</option>
               }
             </select>
           </div>

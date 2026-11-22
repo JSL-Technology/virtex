@@ -8,6 +8,7 @@
   (reload)="loadLedgerData()"
 >
   <vx-books-view-toggle listActions />
+  <vx-export-language listActions />
   <button listActions class="primary-button" type="button" [disabled]="loading() || !selectedAccount()" (click)="export()">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.general_ledger.export' | translate }}</span>

@@ -107,6 +107,8 @@
   "common.idempotency_requires_session": "This operation needs a signed-in session.",
   "common.load_failed": "The data could not be loaded. Try again.",
   "common.loading": "Loading",
+  "common.name_translations.hint": "The name above is the official one, in {{language}}: what the books, the exports and the filings read. These are for whoever reads in another language; left empty, the official one is shown.",
+  "common.name_translations.legend": "Name in other languages",
   "common.named_file_too_large": "The file “{{filename}}” is too large.",
   "common.next": "Next",
   "common.next_page": "Next page",

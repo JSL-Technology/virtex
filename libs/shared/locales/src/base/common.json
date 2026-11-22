@@ -404,6 +404,16 @@
     "en": "Loading",
     "pt": "Carregando"
   },
+  "common.name_translations.hint": {
+    "es": "El nombre de arriba es el oficial, en {{language}}: el que leen los libros, las exportaciones y las declaraciones. Estos son para quien lee en otro idioma; vacíos, se muestra el oficial.",
+    "en": "The name above is the official one, in {{language}}: what the books, the exports and the filings read. These are for whoever reads in another language; left empty, the official one is shown.",
+    "pt": "O nome acima é o oficial, em {{language}}: o que os livros, as exportações e as declarações leem. Estes são para quem lê em outro idioma; vazios, aparece o oficial."
+  },
+  "common.name_translations.legend": {
+    "es": "Nombre en otros idiomas",
+    "en": "Name in other languages",
+    "pt": "Nome em outros idiomas"
+  },
   "common.named_file_too_large": {
     "en": "The file “{{filename}}” is too large.",
     "es": "El archivo «{{filename}}» es demasiado grande.",

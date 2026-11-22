@@ -41,6 +41,7 @@ import {
   isCategoryAllowedForType,
   isFxTreatmentAllowedForType,
   isRestatableAccount,
+  mergeTranslations,
   summaryAccountFxSettingsFit,
   type FxTreatment,
   type RestatableAccountFacts,
@@ -1046,13 +1047,8 @@ function withTranslations(
   booksName: string | undefined,
   translations: Record<string, string | null | undefined> | null | undefined,
 ): Record<string, string> {
-  const next: Record<string, string> = { ...current };
-  for (const [language, text] of Object.entries(translations ?? {})) {
-    if (language === booksLanguage) continue;
-    const trimmed = typeof text === 'string' ? text.trim() : '';
-    if (trimmed) next[language] = trimmed;
-    else delete next[language];
-  }
-  if (booksName) next[booksLanguage] = booksName.trim();
-  return next;
+  // The translations follow the rule every master shares (`mergeTranslations`); the account keeps
+  // them beside its books name, in the one column.
+  const name = booksName?.trim() || current[booksLanguage];
+  return { ...mergeTranslations(current, translations, booksLanguage), ...(name ? { [booksLanguage]: name } : {}) } as Record<string, string>;
 }

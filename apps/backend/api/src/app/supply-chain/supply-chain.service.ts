@@ -14,6 +14,7 @@ import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
 import { assertBranchUsable } from '../organizations/contracts/branch.contract';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
+import { translationsAfterEdit } from '../organizations/contracts/books-language.contract';
 
 /**
  * Warehouse management master data: warehouses, bin locations and landed-cost schemes.
@@ -62,6 +63,7 @@ export class SupplyChainService {
       return manager.save(
         manager.create(Warehouse, {
           ...dto,
+          nameTranslations: await translationsAfterEdit(manager, organizationId, {}, dto.nameTranslations),
           branchId: dto.branchId ?? null,
           organizationId,
           isActive: makeDefault ? true : (dto.isActive ?? true),
@@ -109,8 +111,11 @@ export class SupplyChainService {
         }
         await this.clearDefault(manager, organizationId);
       }
-      const { isDefault, ...changes } = dto;
+      const { isDefault, nameTranslations, ...changes } = dto;
+      const translations = await translationsAfterEdit(manager, organizationId, warehouse.nameTranslations, nameTranslations);
       const merged = manager.merge(Warehouse, warehouse, changes);
+      // After the merge, which deep-merges an object column and would keep a language sent empty.
+      merged.nameTranslations = translations;
       if (isDefault === true) merged.isDefault = true;
       return manager.save(Warehouse, merged);
     });

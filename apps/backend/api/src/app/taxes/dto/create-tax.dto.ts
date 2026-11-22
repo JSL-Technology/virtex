@@ -14,6 +14,8 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { TaxType } from '../entities/tax.entity';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * A percentage rate is at most 100 (QA M-04: a 150 % tax was accepted, and every invoice line
@@ -48,6 +50,15 @@ export class CreateTaxDto {
   @IsNotEmpty()
   @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   name: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsNumber()
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })

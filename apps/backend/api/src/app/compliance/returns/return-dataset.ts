@@ -311,7 +311,7 @@ export class ReturnDatasetFactory {
     const manager = this.dataSource.manager;
     const organizationId = scope.organization.id;
     const ledgerId = await this.ledgerOf(scope);
-    const language = booksLanguageOf(scope.organization.country);
+    const language = booksLanguageOf(scope.organization);
 
     const [accounts, rows] = await Promise.all([
       manager.find(Account, { where: { organizationId }, order: { code: 'ASC' } }),
@@ -337,7 +337,7 @@ export class ReturnDatasetFactory {
   private async journals(scope: ReturnDatasetScope, period: ReturnPeriod): Promise<ReturnJournalRecord[]> {
     const manager = this.dataSource.manager;
     const ledgerId = await this.ledgerOf(scope);
-    const language = booksLanguageOf(scope.organization.country);
+    const language = booksLanguageOf(scope.organization);
 
     const entries = await manager
       .createQueryBuilder(JournalEntry, 'entry')
@@ -469,13 +469,16 @@ function purchaseRecord(document: PurchaseFiscalDocument): ReturnPurchaseRecord 
 }
 
 /**
- * The language the company keeps its books in, as its market declares it.
+ * The language the company keeps its books in: the one fixed for it at provisioning, else the one
+ * its market declares — never the language of whoever asks for the filing. A filing reads the
+ * books as they are kept (`LanguageAxis.Books`): a Dominican company's accounts go to the DGII in
+ * Spanish when the person exporting reads English.
  *
- * Null for a country no package declares: the neutral market has no books language, and an account
- * name then falls back the same way any other missing translation does.
+ * Null for a company with neither: an account name then falls back the same way any other missing
+ * translation does.
  */
-function booksLanguageOf(countryCode: string | null | undefined): string | null {
-  return marketFor(countryCode).profile?.booksLanguage ?? null;
+function booksLanguageOf(organization: Organization): string | null {
+  return organization.booksLanguage ?? marketFor(organization.country).profile?.booksLanguage ?? null;
 }
 
 /**

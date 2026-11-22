@@ -21,11 +21,13 @@ import { AccountingService } from '../../../core/api/accounting.service';
 import { Account } from '../../../core/models/account.model';
 import { ChartOfAccountsApiService } from '../data/chart-of-accounts.service';
 import { StatementExportService } from '../../../core/export/statement-export.service';
+import { ExportLanguagePreference } from '../../../core/export/export-language';
+import { VxExportLanguageComponent } from '../../../shared/components/export-language';
 
 @Component({
   selector: 'app-general-ledger-page',
   standalone: true,
-  imports: [LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT, VxBooksViewToggleComponent],
+  imports: [VxExportLanguageComponent, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT, VxBooksViewToggleComponent],
   templateUrl: './general-ledger.page.html',
   styleUrls: ['./general-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +49,9 @@ export class GeneralLedgerPage implements OnInit {
   private readonly accounting = inject(AccountingService);
   private readonly chartOfAccounts = inject(ChartOfAccountsApiService);
   private readonly exporter = inject(StatementExportService);
+  /** The language this person exports statements in: theirs, the books', or both. */
+  protected readonly exportLanguage = inject(ExportLanguagePreference);
+  private readonly exportFailed = inject(NotificationService);
 
   /**
    * The account whose ledger is shown (QA A-13).
@@ -153,7 +158,9 @@ export class GeneralLedgerPage implements OnInit {
   export(): void {
     const ledger = this.ledger();
     if (!ledger) return;
-    this.exporter.exportGeneralLedger(ledger, this.startDate, this.endDate);
+    this.exporter.exportGeneralLedger(ledger, this.startDate, this.endDate, this.exportLanguage.language())
+      // An export that could not be prepared — the books language's words did not load — says so.
+      .catch(() => this.exportFailed.showError('reports.export.failed'));
   }
 
   private formatDate(date: Date): string {

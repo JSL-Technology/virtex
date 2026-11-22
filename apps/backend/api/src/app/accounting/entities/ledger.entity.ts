@@ -10,8 +10,11 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 @Entity({ name: 'ledgers' })
+@NameTranslationsCheck('ledgers')
 @Index(['organizationId', 'name'], { unique: true })
 export class Ledger {
   @PrimaryGeneratedColumn('uuid')
@@ -26,6 +29,10 @@ export class Ledger {
 
   @Column({ length: 100 })
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ type: 'text', nullable: true })
   description?: string;

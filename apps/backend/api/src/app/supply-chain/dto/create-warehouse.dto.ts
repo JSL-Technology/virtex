@@ -5,6 +5,8 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export class CreateWarehouseDto {
   /** The branch this warehouse serves. Omitted: none, which is right for a company without branches. */
@@ -15,6 +17,15 @@ export class CreateWarehouseDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsString()
   @IsOptional()

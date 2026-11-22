@@ -97,13 +97,17 @@ describe('analytic dimensions', () => {
       page.patchValue(0, { value: 'COMERCIAL' });
       expect(page.draft()!.values[1].parent).toBe('COMERCIAL');
 
+      // A label translated into one language; every other one this editor shows goes too, empty —
+      // so the server removes what a person cleared.
+      page.patchValueTranslation(0, 'pt', 'Vendas');
+
       page.save();
       expect(api['update']).toHaveBeenCalledWith('d-1', expect.objectContaining({
         name: 'Centro de Costo',
         values: [
-          { id: 'v-1', value: 'COMERCIAL', name: 'Ventas', isActive: true, parent: null },
-          { id: 'v-2', value: 'TIENDA1', name: 'Tienda 1', isActive: true, parent: 'COMERCIAL' },
-          { id: 'v-3', value: 'ADMIN', name: null, isActive: false, parent: null },
+          { id: 'v-1', value: 'COMERCIAL', name: 'Ventas', nameTranslations: { es: '', pt: 'Vendas' }, isActive: true, parent: null },
+          { id: 'v-2', value: 'TIENDA1', name: 'Tienda 1', nameTranslations: { es: '', pt: '' }, isActive: true, parent: 'COMERCIAL' },
+          { id: 'v-3', value: 'ADMIN', name: null, nameTranslations: { es: '', pt: '' }, isActive: false, parent: null },
         ],
       }));
       expect(api['invalidate']).toHaveBeenCalled();

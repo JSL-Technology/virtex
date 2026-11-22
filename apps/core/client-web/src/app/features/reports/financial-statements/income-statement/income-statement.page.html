@@ -22,6 +22,7 @@
         The balance sheet carried the download icon on a button whose handler is `load()`, so the
         one affordance in the whole reports section that looked like a download refreshed the page.
       -->
+      <vx-export-language />
       <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
         <span>{{ 'reports.common.export' | translate }}</span>
@@ -48,7 +49,7 @@
         <h2>{{ 'reports.income_statement.income_statement' | translate }}</h2>
         <p>
           {{ data.period.startDate | vxDate: 'long' }} — {{ data.period.endDate | vxDate: 'long' }}
-          · {{ data.ledger.name }} ({{ data.ledger.currency }})
+          · {{ data.ledger.name | vxName: data.ledger.nameTranslations }} ({{ data.ledger.currency }})
         </p>
       </div>
 

@@ -58,7 +58,7 @@
           <select id="aa-journal" formControlName="journalId">
             <option value="" disabled>{{ 'audit_adjustments.choose_journal' | translate }}</option>
             @for (journal of journalOptions(); track journal.id) {
-              <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+              <option [value]="journal.id">{{ journal.code }} — {{ journal.name | vxName: journal.nameTranslations }}</option>
             }
           </select>
           <vx-field-error [control]="form.get('journalId')" fieldId="aa-journal" labelKey="audit_adjustments.journal" />

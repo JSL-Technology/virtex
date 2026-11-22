@@ -63,6 +63,16 @@ describe('the books language and the reader\'s', () => {
     expect(pipe.transform({ es: 'Bancos', en: 'Bank Accounts', pt: 'Bancos' })).toBe('Bancos');
   });
 
+  it('reads a master that keeps its name as text by its translations — the record where it has none', () => {
+    expect(store.nameOf('Diario de ventas', { en: 'Sales journal', pt: 'Diário de vendas' })).toBe('Sales journal');
+    expect(store.nameOf('Diario de caja', {})).toBe('Diario de caja');
+    store.setBooksView(true);
+    expect(store.nameOf('Diario de ventas', { en: 'Sales journal' })).toBe('Diario de ventas');
+    // A translation filed under the books language does not replace the record.
+    store.setBooksView(false);
+    expect(store.nameOf('Diario de ventas', { es: 'otro', en: 'Sales journal' })).toBe('Sales journal');
+  });
+
   it('there is no choice to make where the books are in the reader\'s own language', () => {
     store.setTenantContext({ ...dominican, booksLanguage: 'en', countryCode: 'US' });
     expect(store.booksLanguageDiffers()).toBe(false);

@@ -10,6 +10,7 @@ import {
   localizedNameIn,
   MESSAGE_KEY_SHAPE,
   normalizeKey,
+  type LocalizedName,
 } from '@virtex/shared/types';
 import { currentLanguage, currentLocaleContext } from './request-locale';
 import es from './messages/es.json';
@@ -201,6 +202,24 @@ export class I18nService {
     return this.translate(key, currentLanguage(), params, {
       locale: currentLocaleContext()?.locale,
     });
+  }
+
+  /**
+   * A catalogue entry in every language but the books' — the translations a name the system writes
+   * (a journal, a payment method, the main warehouse) is provisioned with, beside the record it
+   * writes in the books language. A language whose catalogue lacks the entry is left out rather
+   * than filled with the key.
+   */
+  translationsOf(key: string, booksLanguage: LanguageCode, params: Record<string, unknown> = {}): LocalizedName {
+    const translations: LocalizedName = {};
+    const canonical = this.canonical(key);
+    for (const language of SUPPORTED_LANGUAGES) {
+      // Asked of each language's own table: `translate` falls back to the default language, and a
+      // Spanish text filed as the English translation is worse than none.
+      if (language === booksLanguage || !this.tables[language]?.has(canonical)) continue;
+      translations[language] = this.translate(key, language, params);
+    }
+    return translations;
   }
 
   /** True when the key exists in any catalogue — used by the exception filter to tell a key from a sentence. */
