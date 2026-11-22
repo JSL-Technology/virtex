@@ -81,6 +81,10 @@
             <dd>{{ 'fixed_assets.methods.' + doc.depreciationMethod | translate }}</dd>
           </div>
           <div>
+            <dt>{{ 'fixed_assets.form.convention' | translate }}</dt>
+            <dd>{{ 'fixed_assets.conventions.' + doc.depreciationConvention | translate }}</dd>
+          </div>
+          <div>
             <dt>{{ 'fixed_assets.page.depreciated_through' | translate }}</dt>
             <dd>{{ doc.depreciatedThrough ? (doc.depreciatedThrough | vxDate: 'monthYear' : true) : '—' }}</dd>
           </div>

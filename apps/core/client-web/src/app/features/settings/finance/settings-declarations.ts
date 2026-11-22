@@ -1,6 +1,6 @@
 import { AccountGroup, PolicyField } from '../shared/settings-section.component';
 import { SettingsSectionId } from '../data/organization-settings.service';
-import { INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
+import { DEPRECIATION_CONVENTIONS, INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
 
 /**
  * What each settings row section holds: its default accounts and its policies.
@@ -114,6 +114,15 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
         kind: 'integer',
         min: 0,
         max: 365
+      },
+      // How a new asset's first and last months are charged (FINB-12); each asset may name its own.
+      {
+        field: 'defaultDepreciationConvention',
+        labelKey: 'settings.sections.fields.depreciation_convention',
+        helpKey: 'settings.sections.fields.depreciation_convention_help',
+        kind: 'select',
+        options: [...DEPRECIATION_CONVENTIONS],
+        optionPrefix: 'fixed_assets.conventions.'
       }
     ],
   },

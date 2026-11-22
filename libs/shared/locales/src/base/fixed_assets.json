@@ -34,6 +34,26 @@
     "en": "The branch named does not exist or is inactive.",
     "pt": "A filial indicada não existe ou está inativa."
   },
+  "fixed_assets.conventions.daily": {
+    "es": "Por días en servicio",
+    "en": "By days in service",
+    "pt": "Por dias em serviço"
+  },
+  "fixed_assets.conventions.full_month": {
+    "es": "Mes completo",
+    "en": "Full month",
+    "pt": "Mês completo"
+  },
+  "fixed_assets.conventions.mid_month": {
+    "es": "Medio mes",
+    "en": "Mid-month",
+    "pt": "Meio mês"
+  },
+  "fixed_assets.conventions.next_month": {
+    "es": "Desde el mes siguiente",
+    "en": "From the following month",
+    "pt": "A partir do mês seguinte"
+  },
   "fixed_assets.depreciation_journal_deprec_not_found_create": {
     "es": "Diario de Depreciación (DEPREC) no encontrado. Crea un diario con este código para continuar.",
     "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
@@ -58,6 +78,11 @@
     "es": "El activo {{number}} ya se depreció hasta el {{through}}: la baja debe ser posterior a ese mes, o anula antes esa depreciación.",
     "en": "Asset {{number}} has been depreciated through {{through}}: the disposal must fall after that month, or that depreciation must be reversed first.",
     "pt": "O ativo {{number}} já foi depreciado até {{through}}: a baixa deve ser posterior a esse mês, ou essa depreciação deve ser estornada antes."
+  },
+  "fixed_assets.disposal_depreciation_accounts_missing": {
+    "es": "El activo {{number}} tiene depreciación pendiente hasta su baja y ni él ni la empresa tienen cuenta de gasto por depreciación: indícala antes de darlo de baja.",
+    "en": "Asset {{number}} still has depreciation due up to its disposal, and neither it nor the company has a depreciation expense account: set one before disposing of it.",
+    "pt": "O ativo {{number}} ainda tem depreciação a lançar até a baixa e nem ele nem a empresa têm conta de despesa de depreciação: informe-a antes de baixá-lo."
   },
   "fixed_assets.dispose.before_acquisition": {
     "es": "La baja no puede ser anterior a la adquisición.",
@@ -323,6 +348,21 @@
     "es": "La predeterminada de la empresa",
     "en": "The company's default",
     "pt": "A padrão da empresa"
+  },
+  "fixed_assets.form.convention": {
+    "es": "Convención de prorrata",
+    "en": "Proration convention",
+    "pt": "Convenção de rateio"
+  },
+  "fixed_assets.form.convention_company": {
+    "es": "La de la empresa",
+    "en": "The company's",
+    "pt": "A da empresa"
+  },
+  "fixed_assets.form.convention_help": {
+    "es": "Cuánto se deprecia del mes en que entra en servicio y del mes en que se da de baja: mes completo (todo el primero, nada el de la baja), desde el mes siguiente (nada el primero, todo el de la baja), medio mes (la mitad de cada uno) o por días. Queda fija tras la primera depreciación.",
+    "en": "How much of the month it enters service in, and of the month it is disposed of in, is depreciated: full month (all of the first, none of the last), from the following month (none of the first, all of the last), mid-month (half of each) or by days. It is fixed once the asset has been depreciated.",
+    "pt": "Quanto se deprecia do mês em que entra em serviço e do mês em que é baixado: mês completo (todo o primeiro, nada o da baixa), a partir do mês seguinte (nada o primeiro, todo o da baixa), meio mês (metade de cada um) ou por dias. Fica fixa após a primeira depreciação."
   },
   "fixed_assets.form.cost": {
     "es": "Costo",

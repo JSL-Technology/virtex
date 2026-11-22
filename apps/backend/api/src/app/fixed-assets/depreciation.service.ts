@@ -25,7 +25,8 @@ import { roundAmount, toCents } from '../common/money';
 import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, toIsoMonth, type IsoDate } from '../common/dates';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
-import { chargesDue, ScheduledCharge } from './depreciation-schedule';
+import { chargesDue, disposalMonthCharge, ScheduledCharge } from './depreciation-schedule';
+import { DEFAULT_DEPRECIATION_CONVENTION, type DepreciationConvention } from '@virtex/shared/types';
 import { closingThrough, resolvePostingPeriod } from '../accounting/period-status';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
@@ -88,6 +89,23 @@ export interface DepreciationRunDetail extends DepreciationRunSummary {
     journalEntryId: string;
   }>;
   entries: Array<{ id: string; entryNumber: string | null; date: IsoDate; total: number }>;
+}
+
+/** What set a run going, as its record says it. */
+interface RunOrigin {
+  trigger: DepreciationRunTrigger;
+  ranByUserId: string | null;
+  fixedAssetId: string | null;
+}
+
+/**
+ * What a disposal is charged for depreciation: the run that charged the months still due before
+ * the disposal month, and that month's own charge — through the day the asset leaves — with the
+ * accounts it goes to, for the disposal's entry to carry. Both null when nothing was due.
+ */
+export interface DisposalDepreciation {
+  runId: string | null;
+  stub: (ScheduledCharge & { expenseAccountId: string; accumulatedAccountId: string }) | null;
 }
 
 /** A charge planned for an asset, before it is posted. */
@@ -224,25 +242,6 @@ export class DepreciationService extends DepreciationPort {
     return manager ? execute(manager) : this.dataSource.transaction(execute);
   }
 
-  /**
-   * Charge one asset everything it is due through `through`, on the caller's transaction — what a
-   * disposal does first, so the asset leaves the books at its carrying amount on the day. The run
-   * is the disposal's: it names the asset and who disposed of it.
-   */
-  async chargeAsset(
-    manager: EntityManager,
-    asset: FixedAsset,
-    through: IsoDate,
-    disposedByUserId: string | null,
-  ): Promise<DepreciationRunResult> {
-    await this.lockTenant(manager, asset.organizationId);
-    return this.charge(manager, asset.organizationId, [asset], endOfMonthIso(through), {
-      trigger: DepreciationRunTrigger.DISPOSAL,
-      ranByUserId: disposedByUserId,
-      fixedAssetId: asset.id,
-    });
-  }
-
   /** What a run for the month would charge, without posting anything. */
   async preview(organizationId: string, depreciationDate: Date | string): Promise<DepreciationRunResult> {
     const periodEnd = endOfMonthIso(toIsoDate(depreciationDate));
@@ -279,7 +278,7 @@ export class DepreciationService extends DepreciationPort {
     organizationId: string,
     assets: FixedAsset[],
     periodEnd: IsoDate,
-    origin: { trigger: DepreciationRunTrigger; ranByUserId: string | null; fixedAssetId: string | null },
+    origin: RunOrigin,
   ): Promise<DepreciationRunResult> {
     const { planned, skipped } = await this.plan(em, organizationId, assets, periodEnd);
     for (const skip of skipped) {
@@ -287,27 +286,132 @@ export class DepreciationService extends DepreciationPort {
     }
     if (planned.length === 0) return summarise(periodEnd, null, null, [], skipped);
 
-    // Only now that something is due: a company with no assets to charge must not need a ledger
-    // or a journal it will never post to (QA C-06).
-    const defaultLedger = await em.findOneBy(Ledger, { organizationId, isDefault: true });
-    if (!defaultLedger) throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
-    const journal = await this.journalLookup.findByCode(organizationId, SYSTEM_JOURNALS.depreciation.code, em);
-    if (!journal) throw new BadRequestError('fixed_assets.depreciation_journal_deprec_not_found_create');
-
-    // The run's record first: its entries name it, and each month it charges points to it.
     const totals = summarise(periodEnd, null, null, planned, skipped);
-    const run = await em.save(
+    const run = await this.openRun(em, organizationId, periodEnd, origin, {
+      assetCount: planned.length,
+      chargeCount: planned.reduce((count, item) => count + item.charges.length, 0),
+      total: totals.total,
+    });
+    const runEntryId = await this.post(em, organizationId, run, planned, periodEnd, origin);
+
+    // The latest entry: the run's own month whenever anything was due in it.
+    const result = summarise(periodEnd, run.id, runEntryId, planned, skipped);
+    this.logger.log(
+      `Depreciación hasta ${toIsoMonth(periodEnd)} registrada en ${organizationId}: ${planned.length} activos, ${result.total}.`,
+    );
+    return result;
+  }
+
+  /**
+   * Before an asset leaves the books on `disposalDate`: every month it is still due before the
+   * disposal month is charged, each in its own entry, and the disposal month's own charge — through
+   * the day it leaves, by its convention (FINB-12) — is worked out for the disposal's entry to
+   * carry. One run, the disposal's, records both; `recordDisposalCharge` books the second once that
+   * entry exists.
+   *
+   * A month due that cannot be charged — no expense account on the asset nor on the company — stops
+   * the disposal: the asset would leave the books above its carrying amount, and the loss on it
+   * would be overstated by the depreciation nobody charged.
+   */
+  async prepareDisposal(
+    manager: EntityManager,
+    asset: FixedAsset,
+    disposalDate: IsoDate,
+    disposedByUserId: string | null,
+  ): Promise<DisposalDepreciation> {
+    const organizationId = asset.organizationId;
+    await this.lockTenant(manager, organizationId);
+    const lastMonthBefore = previousDay(startOfMonthIso(disposalDate));
+    const { planned, skipped } = await this.plan(manager, organizationId, [asset], lastMonthBefore);
+
+    // The disposal month, on the asset as the months before it leave it.
+    const catchUp = planned[0]?.charges ?? [];
+    const caughtUp = catchUp.at(-1);
+    const stub = disposalMonthCharge(
+      caughtUp
+        ? { ...asset, accumulatedDepreciation: caughtUp.accumulatedAfter, depreciatedThrough: caughtUp.periodEnd }
+        : asset,
+      disposalDate,
+    );
+    if (skipped.length === 0 && catchUp.length === 0 && !stub) return { runId: null, stub: null };
+    const accounts = await this.accountsFor(manager, organizationId, asset);
+    if (skipped.length > 0 || !accounts) {
+      throw new BadRequestError('fixed_assets.disposal_depreciation_accounts_missing', { number: asset.number });
+    }
+
+    const origin: RunOrigin = { trigger: DepreciationRunTrigger.DISPOSAL, ranByUserId: disposedByUserId, fixedAssetId: asset.id };
+    const total = roundAmount((catchUp.reduce((sum, charge) => sum + toCents(charge.amount), 0) + (stub ? toCents(stub.amount) : 0)) / 100);
+    const run = await this.openRun(manager, organizationId, stub?.periodEnd ?? catchUp.at(-1)!.periodEnd, origin, {
+      assetCount: 1,
+      chargeCount: catchUp.length + (stub ? 1 : 0),
+      total,
+    });
+    if (catchUp.length > 0) await this.post(manager, organizationId, run, planned, lastMonthBefore, origin);
+    return { runId: run.id, stub: stub ? { ...stub, ...accounts } : null };
+  }
+
+  /** Books the disposal month's charge, carried by the disposal's own entry `journalEntryId`. */
+  async recordDisposalCharge(
+    manager: EntityManager,
+    asset: FixedAsset,
+    disposal: DisposalDepreciation,
+    journalEntryId: string,
+  ): Promise<void> {
+    const { stub, runId } = disposal;
+    if (!stub || !runId) return;
+    await manager.insert(FixedAssetDepreciation, {
+      organizationId: asset.organizationId,
+      fixedAssetId: asset.id,
+      periodEnd: stub.periodEnd,
+      amount: stub.amount,
+      accumulatedAfter: stub.accumulatedAfter,
+      bookValueAfter: stub.bookValueAfter,
+      journalEntryId,
+      runId,
+    });
+    asset.accumulatedDepreciation = stub.accumulatedAfter;
+    asset.bookValue = stub.bookValueAfter;
+    asset.depreciatedThrough = stub.periodEnd;
+  }
+
+  /** The run's record, written before anything it posts: its entries name it. */
+  private async openRun(
+    em: EntityManager,
+    organizationId: string,
+    periodEnd: IsoDate,
+    origin: RunOrigin,
+    totals: { assetCount: number; chargeCount: number; total: number },
+  ): Promise<FixedAssetDepreciationRun> {
+    return em.save(
       em.create(FixedAssetDepreciationRun, {
         organizationId,
         periodEnd,
         trigger: origin.trigger,
         fixedAssetId: origin.fixedAssetId,
         ranByUserId: origin.ranByUserId,
-        assetCount: planned.length,
-        chargeCount: planned.reduce((count, item) => count + item.charges.length, 0),
-        total: totals.total,
+        ...totals,
       }),
     );
+  }
+
+  /**
+   * Posts what `planned` charges — one entry per month, dated on its last day — records every
+   * asset-month under `run`, and moves each asset on. Returns the latest entry.
+   */
+  private async post(
+    em: EntityManager,
+    organizationId: string,
+    run: FixedAssetDepreciationRun,
+    planned: PlannedAsset[],
+    periodEnd: IsoDate,
+    origin: RunOrigin,
+  ): Promise<string | null> {
+    // Only now that something is due: a company with no assets to charge must not need a ledger
+    // or a journal it will never post to (QA C-06).
+    const defaultLedger = await em.findOneBy(Ledger, { organizationId, isDefault: true });
+    if (!defaultLedger) throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
+    const journal = await this.journalLookup.findByCode(organizationId, SYSTEM_JOURNALS.depreciation.code, em);
+    if (!journal) throw new BadRequestError('fixed_assets.depreciation_journal_deprec_not_found_create');
     // What posted the entries: a disposal's catch-up, or a run of the register.
     const systemReason = origin.trigger === DepreciationRunTrigger.DISPOSAL ? 'asset-disposal' : 'depreciation-run';
 
@@ -335,33 +439,8 @@ export class DepreciationService extends DepreciationPort {
         const postOn = postingDates.get(charge.periodEnd) ?? periodEnd;
         const group = groups.get(postOn) ?? { lines: [], rows: [] };
         groups.set(postOn, group);
-        const month = toIsoMonth(charge.periodEnd);
-        const amount = roundAmount(charge.amount);
-        const words = await this.narrative.describeAll(em, organizationId, {
-          expense: { key: 'ledger.depreciation.expense', params: { month, asset: `${asset.number} ${asset.name}` } },
-          accumulated: { key: 'ledger.depreciation.accumulated', params: { month, asset: `${asset.number} ${asset.name}` } },
-        });
-        // A depreciation charge consumes cost that originated when the asset was acquired: the
-        // restatement for inflation restates the charge and the accumulated depreciation from then,
-        // as it does the cost (IAS 29.15; FIN-AC-04), not from the month it was booked.
-        const originDate = toIsoDate(asset.acquisitionDate);
         group.lines.push(
-          {
-            accountId: expenseAccountId,
-            debit: amount,
-            credit: 0,
-            description: words.expense,
-            originDate,
-            valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
-          },
-          {
-            accountId: accumulatedAccountId,
-            debit: 0,
-            credit: amount,
-            description: words.accumulated,
-            originDate,
-            valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
-          },
+          ...(await this.chargeLines(em, organizationId, asset, charge, { expenseAccountId, accumulatedAccountId }, defaultLedger.id)),
         );
         group.rows.push({ asset, charge });
       }
@@ -414,14 +493,75 @@ export class DepreciationService extends DepreciationPort {
       asset.bookValue = last.bookValueAfter;
       asset.depreciatedThrough = last.periodEnd;
     }
+    return runEntryId;
+  }
 
-    const month = toIsoMonth(periodEnd);
-    // The latest entry: the run's own month whenever anything was due in it.
-    const result = summarise(periodEnd, run.id, runEntryId, planned, skipped);
-    this.logger.log(
-      `Depreciación hasta ${month} registrada en ${organizationId}: ${planned.length} activos, ${result.total}.`,
-    );
-    return result;
+  /**
+   * The two lines that charge `charge` to `asset`: the expense, and the accumulated depreciation.
+   * The disposal's entry carries the same two for the month the asset leaves in.
+   */
+  async chargeLines(
+    em: EntityManager,
+    organizationId: string,
+    asset: FixedAsset,
+    charge: Pick<ScheduledCharge, 'periodEnd' | 'amount'>,
+    accounts: { expenseAccountId: string; accumulatedAccountId: string },
+    ledgerId: string,
+  ): Promise<CreateJournalEntryLineDto[]> {
+    const month = toIsoMonth(charge.periodEnd);
+    const amount = roundAmount(charge.amount);
+    const words = await this.narrative.describeAll(em, organizationId, {
+      expense: { key: 'ledger.depreciation.expense', params: { month, asset: `${asset.number} ${asset.name}` } },
+      accumulated: { key: 'ledger.depreciation.accumulated', params: { month, asset: `${asset.number} ${asset.name}` } },
+    });
+    // A depreciation charge consumes cost that originated when the asset was acquired: the
+    // restatement for inflation restates the charge and the accumulated depreciation from then,
+    // as it does the cost (IAS 29.15; FIN-AC-04), not from the month it was booked.
+    const originDate = toIsoDate(asset.acquisitionDate);
+    return [
+      {
+        accountId: accounts.expenseAccountId,
+        debit: amount,
+        credit: 0,
+        description: words.expense,
+        originDate,
+        valuations: [{ ledgerId, debit: amount, credit: 0 }],
+      },
+      {
+        accountId: accounts.accumulatedAccountId,
+        debit: 0,
+        credit: amount,
+        description: words.accumulated,
+        originDate,
+        valuations: [{ ledgerId, debit: 0, credit: amount }],
+      },
+    ];
+  }
+
+  /** The asset's own accounts, the company's where it names none; null when one is missing. */
+  private async accountsFor(
+    em: EntityManager,
+    organizationId: string,
+    asset: FixedAsset,
+  ): Promise<{ expenseAccountId: string; accumulatedAccountId: string } | null> {
+    if (asset.depreciationExpenseAccountId && asset.accumulatedDepreciationAccountId) {
+      return { expenseAccountId: asset.depreciationExpenseAccountId, accumulatedAccountId: asset.accumulatedDepreciationAccountId };
+    }
+    const settings = await this.settingsOf(em, organizationId);
+    const expenseAccountId = asset.depreciationExpenseAccountId ?? settings?.defaultDepreciationExpenseAccountId ?? null;
+    const accumulatedAccountId = asset.accumulatedDepreciationAccountId ?? settings?.defaultAccumulatedDepreciationAccountId ?? null;
+    return expenseAccountId && accumulatedAccountId ? { expenseAccountId, accumulatedAccountId } : null;
+  }
+
+  /** The convention a new asset of the company follows unless it says otherwise (FINB-12). */
+  async defaultConvention(manager: EntityManager, organizationId: string): Promise<DepreciationConvention> {
+    const settings = await this.settingsOf(manager, organizationId);
+    return settings?.defaultDepreciationConvention ?? DEFAULT_DEPRECIATION_CONVENTION;
+  }
+
+  /** The company's settings, on the caller's transaction: its default accounts and convention. */
+  private settingsOf(em: EntityManager, organizationId: string): ReturnType<OrgSettingsService['getForOrg']> {
+    return this.orgSettings.getForOrg(organizationId, em);
   }
 
   /** Which assets are due what, and to which accounts. */
@@ -439,7 +579,7 @@ export class DepreciationService extends DepreciationPort {
       const charges = chargesDue(asset, periodEnd);
       if (charges.length === 0) continue;
 
-      if (settings === undefined) settings = await this.orgSettings.getForOrg(organizationId, em);
+      if (settings === undefined) settings = await this.settingsOf(em, organizationId);
       const expenseAccountId = asset.depreciationExpenseAccountId ?? settings?.defaultDepreciationExpenseAccountId ?? null;
       const accumulatedAccountId =
         asset.accumulatedDepreciationAccountId ?? settings?.defaultAccumulatedDepreciationAccountId ?? null;

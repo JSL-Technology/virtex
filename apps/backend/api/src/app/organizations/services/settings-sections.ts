@@ -4,7 +4,7 @@ import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
 import { BUDGET_CONTROL_MODES } from '../../contracts/accounting/budget-control.contract';
 import { normalizeReminderDays } from '../../contracts/collections/reminder-schedule.contract';
-import { INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
+import { DEPRECIATION_CONVENTIONS, INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
 import { PRICE_INDEX_SERIES_CODES } from '../../markets';
 
 /**
@@ -85,7 +85,11 @@ export const SETTINGS_SECTIONS = {
       defaultAccumulatedDepreciationAccountId: 'ASSET',
       defaultInflationAdjustmentAccountId: null,
     },
-    fields: { defaultPaymentTermDays: intField(0, 365) },
+    fields: {
+      defaultPaymentTermDays: intField(0, 365),
+      // How a new asset's first and last months are charged (FINB-12).
+      defaultDepreciationConvention: enumField(DEPRECIATION_CONVENTIONS),
+    },
   },
   currencies: {
     // Realised on settlement, and unrealised at a period end (IAS 21): kept apart.

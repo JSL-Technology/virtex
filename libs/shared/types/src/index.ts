@@ -8,6 +8,7 @@ export * from './lib/i18n/key.contract';
 export * from './lib/accounting/account-classification.contract';
 export * from './lib/accounting/fx-treatment.contract';
 export * from './lib/accounting/inflation-restatement.contract';
+export * from './lib/accounting/depreciation-convention.contract';
 export * from './lib/contracts/country-pack.contract';
 export * from './lib/contracts/plan-features.contract';
 export * from './lib/contracts/request-notices.contract';

@@ -463,4 +463,92 @@ describeWithDb('fixed-asset register', () => {
     const closeRun = await dataSource.getRepository(FixedAssetDepreciationRun).findOneByOrFail({ id: charged[0].runId! });
     expect(closeRun).toMatchObject({ trigger: DepreciationRunTrigger.PERIOD_CLOSE, ranByUserId: ACTOR, periodEnd: '2026-06-30' });
   });
+
+  /**
+   * Where the life sits on the calendar (FINB-12): a whole first month and no disposal month was
+   * the only convention. The company chooses what a new asset follows; each asset keeps its own,
+   * fixed once a month is charged; and the month an asset leaves in is charged through the day it
+   * leaves, in the disposal's own entry.
+   */
+  it('follows the company\'s convention unless the asset names one, and keeps it once charged', async () => {
+    const settings = await dataSource.getRepository(OrganizationSettings).findOneByOrFail({ organizationId });
+    settings.defaultDepreciationConvention = 'MID_MONTH';
+    await dataSource.getRepository(OrganizationSettings).save(settings);
+    try {
+      const defaulted = await register({ name: 'Convención de la empresa', acquisitionDate: '2026-02-10' });
+      const named = await register({ name: 'Convención propia', acquisitionDate: '2026-02-10', depreciationConvention: 'DAILY' });
+      expect(defaulted.depreciationConvention).toBe('MID_MONTH');
+      expect(named.depreciationConvention).toBe('DAILY');
+
+      // February: half a month of 2 000, and 19 days of its 28.
+      const preview = await depreciation.preview(organizationId, '2026-02-28');
+      expect(preview.assets.find((row) => row.id === defaulted.id)).toMatchObject({ months: 1, amount: 1_000 });
+      expect(preview.assets.find((row) => row.id === named.id)).toMatchObject({ months: 1, amount: 1_357.14 });
+
+      await depreciation.runMonthlyDepreciation(organizationId, '2026-02-28', MANUAL);
+      await expect(assets.update(named.id, { depreciationConvention: 'FULL_MONTH' }, organizationId)).rejects.toMatchObject({
+        messageKey: 'fixed_assets.valuation_locked_after_depreciation',
+      });
+    } finally {
+      settings.defaultDepreciationConvention = 'FULL_MONTH';
+      await dataSource.getRepository(OrganizationSettings).save(settings);
+    }
+  });
+
+  it('charges the month of a disposal through the day the asset leaves, in the disposal\'s own entry', async () => {
+    // 2 000 a month from the 1st of January; sold on the 20th of April.
+    const asset = await register({ name: 'Grúa', acquisitionDate: '2026-01-01', depreciationConvention: 'DAILY' });
+    const sold = await assets.dispose(
+      asset.id,
+      { disposalDate: '2026-04-20', salePrice: 100_000, disposalReason: 'Venta', cashAccountId: account['bank'], lossOnDisposalAccountId: account['loss'] },
+      organizationId,
+      ACTOR,
+    );
+
+    // January to March, 6 000, and twenty days of April's thirty, 1 333.33: 7 333.33 in all.
+    expect(sold).toMatchObject({ status: FixedAssetStatus.SOLD, accumulatedDepreciation: 7_333.33, bookValue: 112_666.67, depreciatedThrough: '2026-04-30' });
+    const charged = await chargesOf(asset.id);
+    expect(charged.map((row) => [row.periodEnd, row.amount])).toEqual([
+      ['2026-01-31', 2_000],
+      ['2026-02-28', 2_000],
+      ['2026-03-31', 2_000],
+      ['2026-04-30', 1_333.33],
+    ]);
+    // April's charge is carried by the disposal's entry; all four months by the disposal's run.
+    expect(charged[3].journalEntryId).toBe(sold.disposalJournalEntryId);
+    expect(new Set(charged.map((row) => row.runId)).size).toBe(1);
+    const run = await dataSource.getRepository(FixedAssetDepreciationRun).findOneByOrFail({ id: charged[0].runId! });
+    expect(run).toMatchObject({ trigger: DepreciationRunTrigger.DISPOSAL, fixedAssetId: asset.id, periodEnd: '2026-04-30', chargeCount: 4, total: 7_333.33 });
+
+    const entry = await dataSource.getRepository(JournalEntry).findOneOrFail({ where: { id: sold.disposalJournalEntryId! }, relations: ['lines'] });
+    const lines = entry.lines.map((line) => ({ accountId: line.accountId, debit: Number(line.debit), credit: Number(line.credit) }));
+    expect(lines).toEqual(
+      expect.arrayContaining([
+        { accountId: account['depreciation'], debit: 1_333.33, credit: 0 },
+        { accountId: account['accumulated'], debit: 0, credit: 1_333.33 },
+        { accountId: account['bank'], debit: 100_000, credit: 0 },
+        { accountId: account['accumulated'], debit: 7_333.33, credit: 0 },
+        { accountId: account['vehicles'], debit: 0, credit: 120_000 },
+        { accountId: account['loss'], debit: 12_666.67, credit: 0 },
+      ]),
+    );
+    expect(lines).toHaveLength(6);
+  });
+
+  it('refuses a disposal whose months due have no account to be charged to', async () => {
+    const asset = await register({ name: 'Sin cuenta de gasto', acquisitionDate: '2026-01-01', depreciationConvention: 'NEXT_MONTH' });
+    const settings = await dataSource.getRepository(OrganizationSettings).findOneByOrFail({ organizationId });
+    const before = settings.defaultDepreciationExpenseAccountId;
+    settings.defaultDepreciationExpenseAccountId = null;
+    await dataSource.getRepository(OrganizationSettings).save(settings);
+    try {
+      await expect(
+        assets.dispose(asset.id, { disposalDate: '2026-03-10', salePrice: 0, disposalReason: 'Robo' }, organizationId, ACTOR),
+      ).rejects.toMatchObject({ messageKey: 'fixed_assets.disposal_depreciation_accounts_missing' });
+      expect(await chargesOf(asset.id)).toEqual([]);
+    } finally {
+      settings.defaultDepreciationExpenseAccountId = before;
+      await dataSource.getRepository(OrganizationSettings).save(settings);
+    }
+  });
 });

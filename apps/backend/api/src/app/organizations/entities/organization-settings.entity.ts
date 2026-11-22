@@ -1,5 +1,5 @@
 
-import type { InflationAdjustmentPolicy, RegionalFormat } from '@virtex/shared/types';
+import type { DepreciationConvention, InflationAdjustmentPolicy, RegionalFormat } from '@virtex/shared/types';
 import { DEFAULT_REMINDER_DAYS, REMINDER_DAY_MAX, REMINDER_DAY_MIN, REMINDER_STEPS_MAX } from '../../contracts/collections/reminder-schedule.contract';
 import {
   Check,
@@ -31,6 +31,10 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 @Check(
   'CHK_organization_settings_inflation_adjustment_policy',
   `"inflation_adjustment_policy" IN ('NONE', 'YEAR_END', 'EVERY_PERIOD')`,
+)
+@Check(
+  'CHK_organization_settings_depreciation_convention',
+  `"default_depreciation_convention" IN ('FULL_MONTH', 'NEXT_MONTH', 'MID_MONTH', 'DAILY')`,
 )
 @Check(
   'CHK_organization_settings_reminder_days',
@@ -275,6 +279,14 @@ export class OrganizationSettings {
 
   @Column({ name: 'default_accumulated_depreciation_account_id', type: 'uuid', nullable: true })
   defaultAccumulatedDepreciationAccountId: string | null = null;
+
+  /**
+   * How much of the month an asset enters service in, and of the month it leaves, is depreciated —
+   * what a new asset follows unless it says otherwise (FINB-12; see `DEPRECIATION_CONVENTIONS`).
+   * Every company starts at `FULL_MONTH`, what every asset followed before there was a choice.
+   */
+  @Column({ name: 'default_depreciation_convention', type: 'varchar', length: 20, default: 'FULL_MONTH' })
+  defaultDepreciationConvention: DepreciationConvention = 'FULL_MONTH';
 
   @Column({ name: 'default_inflation_adjustment_account_id', type: 'uuid', nullable: true })
   defaultInflationAdjustmentAccountId: string | null = null;

@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { DepreciationConvention } from '@virtex/shared/types';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
@@ -66,6 +67,10 @@ interface Ref {
   'CHK_fixed_asset_method',
   `"depreciation_method" IN ('STRAIGHT_LINE', 'DOUBLE_DECLINING_BALANCE', 'SUM_OF_YEARS_DIGITS')`,
 )
+@Check(
+  'CHK_fixed_asset_convention',
+  `"depreciation_convention" IN ('FULL_MONTH', 'NEXT_MONTH', 'MID_MONTH', 'DAILY')`,
+)
 export class FixedAsset {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -116,6 +121,14 @@ export class FixedAsset {
 
   @Column({ name: 'depreciation_method', type: 'varchar', length: 32, default: DepreciationMethod.STRAIGHT_LINE })
   depreciationMethod: DepreciationMethod;
+
+  /**
+   * How much of the month it entered service in, and of the month it leaves, is charged
+   * (`DEPRECIATION_CONVENTIONS`; FINB-12). Defaulted from the company's when it is registered, and
+   * fixed once a month has been charged: it decided how much that first month took.
+   */
+  @Column({ name: 'depreciation_convention', type: 'varchar', length: 20, default: 'FULL_MONTH' })
+  depreciationConvention: DepreciationConvention;
 
   /** Cost less accumulated depreciation, kept in step by every run. */
   @Column('decimal', { name: 'book_value', precision: 18, scale: 2, nullable: true, transformer: numericTransformer })

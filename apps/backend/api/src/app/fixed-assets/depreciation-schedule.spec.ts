@@ -1,4 +1,4 @@
-import { chargesDue, firstChargeableMonth, remainingSchedule, DepreciableAsset } from './depreciation-schedule';
+import { chargesDue, disposalMonthCharge, firstChargeableMonth, remainingSchedule, DepreciableAsset } from './depreciation-schedule';
 import { DepreciationMethod } from './entities/fixed-asset.entity';
 
 const cents = (values: number[]) => values.reduce((sum, value) => sum + Math.round(value * 100), 0) / 100;
@@ -138,5 +138,118 @@ describe('accelerated methods over the real life', () => {
       expect([life, schedule.length, schedule[schedule.length - 1].bookValueAfter]).toEqual([life, life, 5_000]);
       expect([life, nonIncreasing(schedule.map((row) => row.amount))]).toEqual([life, true]);
     }
+  });
+});
+
+/**
+ * Where the life sits on the calendar (FINB-12).
+ *
+ * The convention was fixed: an asset entering service on the 31st of January was charged all of
+ * January (166.67 of a 10 000, five-year asset), and the month it was sold in was never charged at
+ * all. Each convention spreads the same base over the same life; what changes is how much of the
+ * first and of the last calendar month the life holds.
+ */
+describe('depreciation conventions', () => {
+  const asset = (overrides: Partial<DepreciableAsset> = {}): DepreciableAsset => ({
+    cost: 1_200,
+    residualValue: 0,
+    usefulLifeMonths: 12,
+    depreciationMethod: DepreciationMethod.STRAIGHT_LINE,
+    depreciationConvention: 'FULL_MONTH',
+    inServiceDate: '2026-01-31',
+    accumulatedDepreciation: 0,
+    depreciatedThrough: null,
+    ...overrides,
+  });
+  const months = (overrides: Partial<DepreciableAsset>) => remainingSchedule(asset(overrides)).map((row) => [row.periodEnd.slice(0, 7), row.amount]);
+  /** The asset with every month through `through` charged, as a run would leave it. */
+  const chargedThrough = (overrides: Partial<DepreciableAsset>, through: string): DepreciableAsset => {
+    const before = asset(overrides);
+    const charges = chargesDue(before, through);
+    const last = charges[charges.length - 1];
+    return { ...before, accumulatedDepreciation: last?.accumulatedAfter ?? 0, depreciatedThrough: last?.periodEnd ?? null };
+  };
+
+  it('the audit\'s asset, in service on the 31st of January: a whole January only under the full-month convention', () => {
+    const base = { cost: 10_000, usefulLifeMonths: 60 };
+    const january = (convention: string) => chargesDue(asset({ ...base, depreciationConvention: convention }), '2026-01-31')[0]?.amount ?? 0;
+    expect(january('FULL_MONTH')).toBe(166.67);
+    expect(january('MID_MONTH')).toBe(83.33);
+    expect(january('DAILY')).toBe(5.38); // one day of thirty-one
+    expect(january('NEXT_MONTH')).toBe(0);
+  });
+
+  it('full month: twelve whole months from the month it entered service', () => {
+    const schedule = months({});
+    expect(schedule).toHaveLength(12);
+    expect(schedule[0]).toEqual(['2026-01', 100]);
+    expect(schedule[11]).toEqual(['2026-12', 100]);
+  });
+
+  it('next month: nothing in the month it entered service, twelve whole months after', () => {
+    const schedule = months({ depreciationConvention: 'NEXT_MONTH' });
+    expect(schedule).toHaveLength(12);
+    expect(schedule[0]).toEqual(['2026-02', 100]);
+    expect(schedule[11]).toEqual(['2027-01', 100]);
+  });
+
+  it('mid month: half a month at each end, thirteen calendar months in all', () => {
+    const schedule = months({ depreciationConvention: 'MID_MONTH' });
+    expect(schedule).toHaveLength(13);
+    expect(schedule[0]).toEqual(['2026-01', 50]);
+    expect(schedule.slice(1, 12).every(([, amount]) => amount === 100)).toBe(true);
+    expect(schedule[12]).toEqual(['2027-01', 50]);
+  });
+
+  it('daily: the days in service, from the day it entered through the end of its life', () => {
+    const schedule = months({ depreciationConvention: 'DAILY', inServiceDate: '2026-01-21' });
+    // Eleven days of January's thirty-one, then whole months, then the twenty days left of the life.
+    expect(schedule).toHaveLength(13);
+    expect(schedule[0]).toEqual(['2026-01', 35.48]);
+    expect(schedule.slice(1, 12).every(([, amount]) => amount === 100)).toBe(true);
+    expect(schedule[12]).toEqual(['2027-01', 64.52]);
+  });
+
+  it.each(['FULL_MONTH', 'NEXT_MONTH', 'MID_MONTH', 'DAILY'])(
+    '%s spreads the same base over the same life, whatever the method',
+    (convention) => {
+      for (const method of [DepreciationMethod.STRAIGHT_LINE, DepreciationMethod.DOUBLE_DECLINING_BALANCE, DepreciationMethod.SUM_OF_YEARS_DIGITS]) {
+        for (const inServiceDate of ['2026-01-01', '2026-01-17', '2026-02-28']) {
+          const schedule = remainingSchedule(asset({ cost: 50_000, residualValue: 2_000, usefulLifeMonths: 18, depreciationMethod: method, depreciationConvention: convention, inServiceDate }));
+          const total = schedule.reduce((sum, row) => sum + Math.round(row.amount * 100), 0);
+          expect([method, inServiceDate, total, schedule[schedule.length - 1].bookValueAfter]).toEqual([method, inServiceDate, 4_800_000, 2_000]);
+        }
+      }
+    },
+  );
+
+  it('the month of a disposal, through the day it leaves the books, by its convention', () => {
+    // In service in January, charged through May, sold on the 10th of June.
+    const sold = (convention: string) => disposalMonthCharge(chargedThrough({ depreciationConvention: convention, inServiceDate: '2026-01-01' }, '2026-05-31'), '2026-06-10');
+    expect(sold('FULL_MONTH')).toBeNull();
+    expect(sold('NEXT_MONTH')).toMatchObject({ periodEnd: '2026-06-30', amount: 100 });
+    expect(sold('MID_MONTH')).toMatchObject({ periodEnd: '2026-06-30', amount: 50 });
+    // Ten days of June's thirty.
+    expect(sold('DAILY')).toMatchObject({ periodEnd: '2026-06-30', amount: 33.33, accumulatedAfter: 533.33, bookValueAfter: 666.67 });
+  });
+
+  it('an asset that enters service and leaves in the same month is charged the days between, and only under daily', () => {
+    const leaves = (convention: string) => disposalMonthCharge(asset({ depreciationConvention: convention, inServiceDate: '2026-01-10' }), '2026-01-20');
+    expect(leaves('FULL_MONTH')).toBeNull();
+    expect(leaves('NEXT_MONTH')).toBeNull();
+    expect(leaves('MID_MONTH')).toBeNull();
+    // The 10th through the 20th: eleven days of thirty-one.
+    expect(leaves('DAILY')).toMatchObject({ amount: 35.48 });
+  });
+
+  it('a disposal after the life has ended charges what was left, and nothing once written down', () => {
+    // Inside the life, a part month is charged its part: 15 days of December's 31 of the 50 left.
+    const inLife = asset({ inServiceDate: '2024-01-01', accumulatedDepreciation: 1_150, depreciatedThrough: '2024-11-30', depreciationConvention: 'DAILY' });
+    expect(disposalMonthCharge(inLife, '2024-12-15')).toMatchObject({ amount: 24.19 });
+    // A life that ended in December 2023, with 50 still to charge — left by a change of estimate.
+    const late = asset({ inServiceDate: '2023-01-01', accumulatedDepreciation: 1_150, depreciatedThrough: '2024-11-30' });
+    expect(disposalMonthCharge(late, '2024-12-15')).toBeNull(); // full month: not the month it leaves
+    expect(disposalMonthCharge({ ...late, depreciationConvention: 'DAILY' }, '2024-12-15')).toMatchObject({ amount: 50 });
+    expect(disposalMonthCharge({ ...late, depreciationConvention: 'DAILY', accumulatedDepreciation: 1_200 }, '2024-12-15')).toBeNull();
   });
 });

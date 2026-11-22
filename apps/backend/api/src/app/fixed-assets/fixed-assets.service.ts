@@ -48,6 +48,8 @@ const VALUATION_FIELDS = [
   'cost',
   'acquisitionDate',
   'inServiceDate',
+  // It decided how much the first month charged took.
+  'depreciationConvention',
   'openingAccumulatedDepreciation',
   'openingDepreciatedThrough',
   'assetAccountId',
@@ -85,6 +87,7 @@ export class FixedAssetsService {
         residualValue: roundAmount(dto.residualValue ?? 0),
         usefulLifeMonths: dto.usefulLifeMonths,
         depreciationMethod: dto.depreciationMethod ?? DepreciationMethod.STRAIGHT_LINE,
+        depreciationConvention: dto.depreciationConvention ?? (await this.depreciation.defaultConvention(manager, organizationId)),
         assetAccountId: dto.assetAccountId,
         accumulatedDepreciationAccountId: dto.accumulatedDepreciationAccountId,
         depreciationExpenseAccountId: dto.depreciationExpenseAccountId ?? null,
@@ -214,6 +217,7 @@ export class FixedAssetsService {
         residualValue: dto.residualValue !== undefined ? roundAmount(dto.residualValue) : asset.residualValue,
         usefulLifeMonths: dto.usefulLifeMonths ?? asset.usefulLifeMonths,
         depreciationMethod: dto.depreciationMethod ?? asset.depreciationMethod,
+        depreciationConvention: dto.depreciationConvention ?? asset.depreciationConvention,
         assetAccountId: dto.assetAccountId ?? asset.assetAccountId,
         accumulatedDepreciationAccountId: dto.accumulatedDepreciationAccountId ?? asset.accumulatedDepreciationAccountId,
         depreciationExpenseAccountId:
@@ -286,8 +290,10 @@ export class FixedAssetsService {
    *
    * First every month up to the one before the disposal is charged — the asset leaves the books at
    * its carrying amount on the day, not at whatever the last run happened to leave. Then one entry
-   * takes the cost and the accumulated depreciation out, books what it was sold for, and the
-   * difference as a gain or a loss.
+   * charges the disposal month through the day it leaves, by the asset's convention (FINB-12: that
+   * month was never charged, so the carrying amount — and the loss — were overstated by it), takes
+   * the cost and the accumulated depreciation out, books what it was sold for, and the difference
+   * as a gain or a loss.
    */
   async dispose(
     id: string,
@@ -319,12 +325,12 @@ export class FixedAssetsService {
       const salePrice = roundAmount(dto.salePrice);
       if (salePrice > 0 && !dto.cashAccountId) throw new BadRequestError('fixed_assets.proceeds_account_required');
 
-      const lastMonthBefore = previousDay(startOfMonthIso(dto.disposalDate));
-      if (lastMonthBefore >= asset.inServiceDate.slice(0, 7)) {
-        await this.depreciation.chargeAsset(manager, asset, lastMonthBefore, actorUserId);
-      }
-
-      const carrying = roundAmount(asset.cost - asset.accumulatedDepreciation);
+      // The months still due before the disposal month, charged by the disposal's own run; and that
+      // month's charge through the day it leaves, which this entry carries.
+      const depreciation = await this.depreciation.prepareDisposal(manager, asset, dto.disposalDate, actorUserId);
+      const stub = depreciation.stub;
+      const accumulatedOnTheDay = roundAmount(asset.accumulatedDepreciation + (stub?.amount ?? 0));
+      const carrying = roundAmount(asset.cost - accumulatedOnTheDay);
       const result = roundAmount(salePrice - carrying);
 
       if (result > 0 && !dto.gainOnDisposalAccountId) throw new BadRequestError('fixed_assets.gain_account_required');
@@ -366,9 +372,11 @@ export class FixedAssetsService {
       const acquired = toIsoDate(asset.acquisitionDate);
 
       const lines: CreateJournalEntryLineDto[] = [];
+      // The disposal month's depreciation first: what the asset wore down in it before it left.
+      if (stub) lines.push(...(await this.depreciation.chargeLines(manager, organizationId, asset, stub, stub, ledger.id)));
       if (salePrice > 0) lines.push(line(dto.cashAccountId as string, salePrice, 0, words.proceeds));
-      if (asset.accumulatedDepreciation > 0) {
-        lines.push(line(asset.accumulatedDepreciationAccountId, asset.accumulatedDepreciation, 0, words.accumulated, acquired));
+      if (accumulatedOnTheDay > 0) {
+        lines.push(line(asset.accumulatedDepreciationAccountId, accumulatedOnTheDay, 0, words.accumulated, acquired));
       }
       lines.push(line(asset.assetAccountId, 0, asset.cost, words.cost, acquired));
       if (result > 0) lines.push(line(dto.gainOnDisposalAccountId as string, 0, result, words.gain));
@@ -383,6 +391,7 @@ export class FixedAssetsService {
         { actorUserId, systemReason: 'fixed-asset-disposal', idempotencyKey: `fixed-asset-disposal:${asset.id}` },
       );
 
+      await this.depreciation.recordDisposalCharge(manager, asset, depreciation, entry.id);
       asset.status = salePrice > 0 ? FixedAssetStatus.SOLD : FixedAssetStatus.DISPOSED;
       asset.bookValue = carrying;
       asset.disposalDate = dto.disposalDate;

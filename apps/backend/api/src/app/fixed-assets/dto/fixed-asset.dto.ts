@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -16,6 +17,7 @@ import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
 import { DepreciationMethod, FixedAssetStatus } from '../entities/fixed-asset.entity';
 import { DepreciationRunTrigger } from '../entities/fixed-asset-depreciation-run.entity';
+import { DEPRECIATION_CONVENTIONS, type DepreciationConvention } from '@virtex/shared/types';
 
 const ISO_MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 
@@ -69,6 +71,11 @@ export class CreateFixedAssetDto {
   @IsEnum(DepreciationMethod)
   @IsOptional()
   depreciationMethod?: DepreciationMethod;
+
+  /** How the month it enters service, and the month it leaves, are charged. Defaults to the company's. */
+  @IsIn(DEPRECIATION_CONVENTIONS, { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  depreciationConvention?: DepreciationConvention;
 
   @IsUUID()
   assetAccountId: string;
@@ -148,6 +155,10 @@ export class UpdateFixedAssetDto {
   @IsEnum(DepreciationMethod)
   @IsOptional()
   depreciationMethod?: DepreciationMethod;
+
+  @IsIn(DEPRECIATION_CONVENTIONS, { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  depreciationConvention?: DepreciationConvention;
 
   @IsUUID()
   @IsOptional()

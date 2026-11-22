@@ -62,6 +62,18 @@
             }
           </select>
         </label>
+        <label class="field" for="fa-convention">
+          <span>{{ 'fixed_assets.form.convention' | translate }}</span>
+          <select id="fa-convention" formControlName="depreciationConvention">
+            @if (!current()) {
+              <option value="">{{ 'fixed_assets.form.convention_company' | translate }}</option>
+            }
+            @for (convention of conventions; track convention) {
+              <option [value]="convention">{{ 'fixed_assets.conventions.' + convention | translate }}</option>
+            }
+          </select>
+          <small class="form-hint">{{ 'fixed_assets.form.convention_help' | translate }}</small>
+        </label>
       </div>
       <p class="form-hint">{{ 'fixed_assets.form.valuation_hint' | translate }}</p>
     </section>

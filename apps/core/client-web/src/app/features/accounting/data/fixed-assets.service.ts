@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Page } from '../../../core/api/page';
+import type { DepreciationConvention } from '@virtex/shared/types';
 
 export type FixedAssetStatus = 'IN_USE' | 'DISPOSED' | 'SOLD';
 export type DepreciationMethod = 'STRAIGHT_LINE' | 'DOUBLE_DECLINING_BALANCE' | 'SUM_OF_YEARS_DIGITS';
@@ -26,6 +27,8 @@ export interface FixedAsset {
   residualValue: number;
   usefulLifeMonths: number;
   depreciationMethod: DepreciationMethod;
+  /** How the month it entered service, and the month it leaves, are charged (FINB-12). */
+  depreciationConvention: DepreciationConvention;
   bookValue: number;
   accumulatedDepreciation: number;
   openingAccumulatedDepreciation: number;
@@ -52,6 +55,8 @@ export interface FixedAssetInput {
   residualValue?: number;
   usefulLifeMonths: number;
   depreciationMethod?: DepreciationMethod;
+  /** Left out, the company's convention. */
+  depreciationConvention?: DepreciationConvention;
   assetAccountId: string;
   accumulatedDepreciationAccountId: string;
   depreciationExpenseAccountId?: string | null;

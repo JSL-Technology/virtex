@@ -629,6 +629,12 @@
       "submitted",
       "changed"
     ],
+    "fixed_assets.conventions": [
+      "FULL_MONTH",
+      "NEXT_MONTH",
+      "MID_MONTH",
+      "DAILY"
+    ],
     "fixed_assets.methods": [
       "STRAIGHT_LINE",
       "DOUBLE_DECLINING_BALANCE",

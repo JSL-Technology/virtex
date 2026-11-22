@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 
 import { Observable, map, startWith } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { DEPRECIATION_CONVENTIONS, type DepreciationConvention } from '@virtex/shared/types';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -38,6 +39,8 @@ const VALUATION_CONTROLS = [
   'acquisitionDate',
   'inServiceDate',
   'cost',
+  // It decided how much the first month charged took.
+  'depreciationConvention',
   'assetAccountId',
   'accumulatedDepreciationAccountId',
   'migrated',
@@ -84,6 +87,7 @@ export class FixedAssetFormPage implements OnInit {
   readonly id = input<string>();
 
   protected readonly methods = DEPRECIATION_METHODS;
+  protected readonly conventions = DEPRECIATION_CONVENTIONS;
 
   readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(200)]],
@@ -95,6 +99,8 @@ export class FixedAssetFormPage implements OnInit {
     residualValue: [0 as number | null, [Validators.min(0)]],
     usefulLifeMonths: [60 as number | null, [Validators.required, Validators.min(1), Validators.max(1200)]],
     depreciationMethod: ['STRAIGHT_LINE' as DepreciationMethod, [Validators.required]],
+    /** Empty: the company's convention, which the server applies. */
+    depreciationConvention: ['' as DepreciationConvention | ''],
     assetAccountId: ['', [Validators.required]],
     accumulatedDepreciationAccountId: ['', [Validators.required]],
     depreciationExpenseAccountId: [null as string | null],
@@ -172,6 +178,7 @@ export class FixedAssetFormPage implements OnInit {
       residualValue: round2(Number(raw.residualValue) || 0),
       usefulLifeMonths: Number(raw.usefulLifeMonths),
       depreciationMethod: raw.depreciationMethod as DepreciationMethod,
+      ...(raw.depreciationConvention ? { depreciationConvention: raw.depreciationConvention } : {}),
       assetAccountId: raw.assetAccountId as string,
       accumulatedDepreciationAccountId: raw.accumulatedDepreciationAccountId as string,
       depreciationExpenseAccountId: raw.depreciationExpenseAccountId || null,
@@ -213,6 +220,7 @@ export class FixedAssetFormPage implements OnInit {
       acquisitionDate: _acquisitionDate,
       inServiceDate: _inServiceDate,
       cost: _cost,
+      depreciationConvention: _convention,
       assetAccountId: _assetAccountId,
       accumulatedDepreciationAccountId: _accumulatedAccountId,
       openingAccumulatedDepreciation: _opening,
@@ -236,6 +244,7 @@ export class FixedAssetFormPage implements OnInit {
       residualValue: asset.residualValue,
       usefulLifeMonths: asset.usefulLifeMonths,
       depreciationMethod: asset.depreciationMethod,
+      depreciationConvention: asset.depreciationConvention,
       assetAccountId: asset.assetAccountId ?? '',
       accumulatedDepreciationAccountId: asset.accumulatedDepreciationAccountId ?? '',
       depreciationExpenseAccountId: asset.depreciationExpenseAccountId,

@@ -9,6 +9,9 @@
  *    straight line instead of taking the rest in its last month.
  *  - FINB-13: the month still running, or one years away, is previewed but not posted; the month
  *    that has ended is.
+ *  - FINB-12: the company chooses the convention a new asset follows, over its settings; each asset
+ *    may name its own, fixed once charged; a month in service in part is charged its part, and the
+ *    month an asset is sold in is charged through the day it leaves, in the sale's own entry.
  *  - FINB-17: a run is a document — trigger, who, month, totals — listed and readable; each entry
  *    it posts names it and leads to it; running again charges nothing and records nothing. A
  *    disposal's entry is the register's, locked and leading to the asset; the months it was still
@@ -62,6 +65,7 @@ interface RunDetail extends RunSummary {
   entries: Array<{ id: string; entryNumber: string | null; date: string; total: number }>;
 }
 interface Entry {
+  lines?: Array<{ accountId: string; debit: number | string; credit: number | string }>;
   systemReason: string | null;
   idempotencyKey: string | null;
   origin: { locked: boolean; reason: string | null; document: { type: string; id: string; route: string | null } | null };
@@ -282,6 +286,80 @@ async function main() {
   check('the runs that charged one asset can be listed', forAsset.rows.length === 1 && forAsset.rows[0].id === result.runId);
   const missing = await company.call('GET', '/api/v1/fixed-assets/depreciation-runs/00000000-0000-4000-8000-0000000000ab');
   check('a run that does not exist answers 404', missing.statusCode === 404, `HTTP ${missing.statusCode}`);
+
+  // ── FINB-12: where the life sits on the calendar ───────────────────────────────────────────
+  const setting = await company.call('PATCH', '/api/v1/organizations/settings/accounting', { fields: { defaultDepreciationConvention: 'DAILY' } });
+  check(
+    'the company chooses the convention its new assets follow, in its accounting settings (FINB-12)',
+    setting.statusCode === 200 && setting.json<{ fields: Record<string, unknown> }>().fields['defaultDepreciationConvention'] === 'DAILY',
+    `HTTP ${setting.statusCode}`,
+  );
+  const badSetting = await company.call('PATCH', '/api/v1/organizations/settings/accounting', { fields: { defaultDepreciationConvention: 'WHENEVER' } });
+  check('a convention that does not exist is refused', badSetting.statusCode === 400, `HTTP ${badSetting.statusCode}`);
+
+  // In service on the 21st of the month two before the last that ended: eleven or so days of it.
+  const crane = await register({ name: 'QA-Grúa', acquisitionDate: `${month(-2)}-21`, cost: 120_000, usefulLifeMonths: 60 });
+  const craneAsset = crane.json<Asset & { depreciationConvention: string }>();
+  const named = await register({ name: 'QA-Montacargas', acquisitionDate: `${month(-2)}-21`, cost: 120_000, usefulLifeMonths: 60, depreciationConvention: 'NEXT_MONTH' });
+  const namedAsset = named.json<Asset & { depreciationConvention: string }>();
+  check(
+    'a new asset follows the company\'s convention unless it names its own',
+    craneAsset.depreciationConvention === 'DAILY' && namedAsset.depreciationConvention === 'NEXT_MONTH',
+    `${craneAsset.depreciationConvention} / ${namedAsset.depreciationConvention}`,
+  );
+  const firstMonthEnd = new Date(Date.UTC(year, Number(month(-2).slice(5, 7)), 0)).getUTCDate();
+  const expectedFirst = Math.round((2_000 * (firstMonthEnd - 20)) / firstMonthEnd * 100) / 100;
+  const craneBoard = (await company.call('GET', `/api/v1/fixed-assets/${craneAsset.id}/schedule`)).json<Schedule>();
+  const namedBoard = (await company.call('GET', `/api/v1/fixed-assets/${namedAsset.id}/schedule`)).json<Schedule>();
+  check(
+    'by days: the month it entered service is charged the days it was in service; the life ends in part, 61 months on',
+    craneBoard.projected[0].amount === expectedFirst && craneBoard.projected.length === 61 && cents(craneBoard.projected.map((row) => row.amount)) === 12_000_000,
+    `${craneBoard.projected[0].periodEnd} ${craneBoard.projected[0].amount} (esperado ${expectedFirst}); ${craneBoard.projected.length} meses`,
+  );
+  check(
+    'from the following month: nothing in the month it entered service',
+    namedBoard.projected[0].periodEnd.slice(0, 7) === month(-1) && namedBoard.projected[0].amount === 2_000 && namedBoard.projected.length === 60,
+    `${namedBoard.projected[0].periodEnd} ${namedBoard.projected[0].amount}`,
+  );
+
+  // The month that ended is charged: the forklift's two whole months, and the crane's days and months.
+  const secondRun = await company.call('POST', '/api/v1/fixed-assets/depreciation-runs', { period: ended.slice(0, 7) }, freshKey());
+  const forklift = secondRun.json<RunResult>().assets.find((row) => row.id === namedAsset.id);
+  check('the run charges each asset by its own convention', secondRun.statusCode === 201 && forklift?.months === 2 && forklift.amount === 4_000, JSON.stringify(forklift));
+  const lockedConvention = await company.call('PATCH', `/api/v1/fixed-assets/${namedAsset.id}`, { depreciationConvention: 'DAILY' });
+  check(
+    'an asset already charged keeps its convention: it decided how much its first month took',
+    lockedConvention.statusCode === 409 && lockedConvention.json<{ messageKey?: string }>().messageKey === 'fixed_assets.valuation_locked_after_depreciation',
+    `HTTP ${lockedConvention.statusCode}`,
+  );
+
+  // Sold on the 10th of this month: the months before charged, and ten days of this one in the sale's entry.
+  const saleDay = `${running}-10` <= today ? `${running}-10` : today;
+  const craneSold = await company.call(
+    'POST',
+    `/api/v1/fixed-assets/${craneAsset.id}/dispose`,
+    { disposalDate: saleDay, salePrice: 110_000, disposalReason: 'Venta', cashAccountId: accounts['1120'], gainOnDisposalAccountId: accounts['4900'], lossOnDisposalAccountId: accounts['5900'] },
+    freshKey(),
+  );
+  const craneAfter = craneSold.json<Asset>();
+  const craneCharges = (await company.call('GET', `/api/v1/fixed-assets/${craneAsset.id}/schedule`)).json<Schedule>().posted;
+  const saleMonth = craneCharges.at(-1);
+  const daysOfSale = Number(saleDay.slice(8, 10));
+  const daysInSaleMonth = new Date(Date.UTC(Number(saleDay.slice(0, 4)), Number(saleDay.slice(5, 7)), 0)).getUTCDate();
+  check(
+    'the month it is sold in is charged through the day it leaves — it was never charged at all (FINB-12)',
+    craneSold.statusCode === 201 &&
+      saleMonth?.periodEnd.slice(0, 7) === running &&
+      Math.abs((saleMonth?.amount ?? 0) - (2_000 * daysOfSale) / daysInSaleMonth) <= 0.01,
+    `${saleMonth?.periodEnd} ${saleMonth?.amount}`,
+  );
+  const saleEntry = (await company.call('GET', `/api/v1/journal-entries/${craneAfter.disposalJournalEntryId}`)).json<Entry>();
+  const expenseLine = (saleEntry.lines ?? []).find((line) => line.accountId === accounts['5500']);
+  check(
+    'and that charge is in the sale\'s own entry, which leaves the books at the carrying amount on the day',
+    Number(expenseLine?.debit ?? 0) === saleMonth?.amount && craneAfter.accumulatedDepreciation === cents(craneCharges.map((row) => row.amount)) / 100,
+    `gasto ${expenseLine?.debit}, acumulada ${craneAfter.accumulatedDepreciation}`,
+  );
 
   await app.close();
   if (failures.length) {

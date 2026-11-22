@@ -2905,6 +2905,16 @@
     "en": "Money received in excess or in advance: a debt to the customer until applied.",
     "pt": "O recebido a mais ou antecipado: é uma dívida com o cliente até ser aplicado."
   },
+  "settings.sections.fields.depreciation_convention": {
+    "es": "Convención de depreciación de los activos nuevos",
+    "en": "Depreciation convention for new assets",
+    "pt": "Convenção de depreciação dos novos ativos"
+  },
+  "settings.sections.fields.depreciation_convention_help": {
+    "es": "Lo que sigue un activo nuevo si no indica otra: cuánto se deprecia del mes en que entra en servicio y del mes de su baja. Cada activo puede indicar la suya. Verifica con tu contador cuál exige el libro fiscal de tu país.",
+    "en": "What a new asset follows unless it names another: how much of the month it enters service in, and of the month it is disposed of in, is depreciated. Each asset can name its own. Check with your accountant which one your country's tax book requires.",
+    "pt": "O que um novo ativo segue se não indicar outra: quanto se deprecia do mês em que entra em serviço e do mês da baixa. Cada ativo pode indicar a sua. Verifique com seu contador qual o livro fiscal do seu país exige."
+  },
   "settings.sections.fields.depreciation_expense_account": {
     "es": "Gasto por depreciación",
     "en": "Depreciation expense",

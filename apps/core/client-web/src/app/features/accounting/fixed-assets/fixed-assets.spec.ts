@@ -30,6 +30,7 @@ describe('fixed assets', () => {
     residualValue: 0,
     usefulLifeMonths: 60,
     depreciationMethod: 'STRAIGHT_LINE',
+    depreciationConvention: 'FULL_MONTH',
     bookValue: 120_000,
     accumulatedDepreciation: 0,
     openingAccumulatedDepreciation: 0,
@@ -105,7 +106,7 @@ describe('fixed assets', () => {
         { provide: NotificationService, useValue: notifications },
         { provide: DialogService, useValue: { confirm: jest.fn().mockResolvedValue(true), prompt: jest.fn() } },
         { provide: ChartOfAccountsApiService, useValue: { searchAccounts: () => of([]), getAccountById: (id: string) => of({ id, code: '1', name: 'x' }) } },
-        { provide: BranchesService, useValue: { hasBranches: () => false, branches: () => [], load: jest.fn() } },
+        { provide: BranchesService, useValue: { hasBranches: () => false, branches: () => [], mine: () => ({ branches: [], defaultBranchId: null }), ensureMine: () => Promise.resolve(), load: jest.fn() } },
         { provide: ActiveOrganizationService, useValue: { urlFor: (path: string) => path } },
         { provide: AuthService, useValue: authServiceMock({ permissions: ['fixed_assets:manage'] }) },
       ],
@@ -150,6 +151,41 @@ describe('fixed assets', () => {
     expect(api['create']).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'Camioneta', cost: 120_000, inServiceDate: '2026-02-03', openingAccumulatedDepreciation: 0 }),
     );
+    // No convention chosen: none is sent, and the server applies the company's.
+    expect(api['create'].mock.calls[0][0]).not.toHaveProperty('depreciationConvention');
+  });
+
+  it('offers every convention, and the company\'s, and sends the one the asset names', () => {
+    TestBed.overrideComponent(FixedAssetFormPage, { set: { template: '' } });
+    const page = TestBed.createComponent(FixedAssetFormPage).componentInstance;
+    page.ngOnInit();
+    expect(page['conventions']).toEqual(['FULL_MONTH', 'NEXT_MONTH', 'MID_MONTH', 'DAILY']);
+    // A new asset starts on the company's convention: an empty choice.
+    expect(page.form.controls.depreciationConvention.value).toBe('');
+    page.form.patchValue({
+      name: 'Grúa',
+      acquisitionDate: '2026-02-03',
+      cost: 50_000,
+      usefulLifeMonths: 60,
+      depreciationConvention: 'DAILY',
+      assetAccountId: 'acc-asset',
+      accumulatedDepreciationAccountId: 'acc-accum',
+    });
+    page.save();
+    expect(api['create']).toHaveBeenCalledWith(expect.objectContaining({ depreciationConvention: 'DAILY' }));
+  });
+
+  it('keeps the convention fixed once the asset has been depreciated, and does not send it', () => {
+    api['get'].mockReturnValue(of(asset({ depreciationConvention: 'MID_MONTH', accumulatedDepreciation: 2_000, depreciatedThrough: '2026-01-31' })));
+    TestBed.overrideComponent(FixedAssetFormPage, { set: { template: '' } });
+    const fixture = TestBed.createComponent(FixedAssetFormPage);
+    fixture.componentRef.setInput('id', 'fa-1');
+    const page = fixture.componentInstance;
+    page.ngOnInit();
+    expect(page.form.controls.depreciationConvention.disabled).toBe(true);
+    expect(page.form.controls.depreciationConvention.value).toBe('MID_MONTH');
+    page.save();
+    expect(api['update'].mock.calls[0][1]).not.toHaveProperty('depreciationConvention');
   });
 
   it('refuses an opening balance without the month it covers', () => {
