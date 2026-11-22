@@ -20,3 +20,23 @@ empirical-Bayes blend of the party's own payment delays and the company's (shrin
 conditioned on how overdue it already is — and bootstraps not-yet-invoiced sales and spending by
 weekday from the company's history; payroll repeats its last cycle. Each document's chance of
 moving within 7 and 30 days is what collections ranks by (`p_by_30`).
+
+## Tests
+
+The tests run in the engine's own image — the interpreter (`ARG PYTHON_VERSION` in the
+`Dockerfile`), the system libraries and the locked packages the worker ships with — against the
+package as installed. That is how CI runs them, and the way to reproduce a CI result:
+
+```sh
+docker build --target test -t virtex-ai-engine:test apps/ai-engine
+docker run --rm --network host \
+  -e AI_ENGINE_TEST_ADMIN_DSN='host=localhost port=5432 dbname=<migrated db> user=postgres password=…' \
+  -e AI_ENGINE_TEST_ENGINE_DSN='host=localhost port=5432 dbname=<migrated db> user=virtex_ai_engine password=…' \
+  virtex-ai-engine:test
+```
+
+Without the two DSNs the integration tests (`tests/test_integration_db.py`) are skipped and only the
+unit tests run. The engine's role gets its password from `AI_ENGINE_DB_PASSWORD` when the
+migrations run. `npm run verify:ai-engine-image` checks that the image, the lock (`--python-version`)
+and `requires-python` name the same Python, and that the deployed stage is the last one and runs as
+a non-root user.

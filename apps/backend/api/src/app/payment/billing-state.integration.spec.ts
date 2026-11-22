@@ -6,7 +6,7 @@ import { PlanChangeReason } from '../saas/plan-change';
 import { Organization } from '../organizations/entities/organization.entity';
 import { actAsTenantWithin } from '../shared/tenancy/tenant-job';
 import { StripePaymentAdapter } from './adapters/stripe-payment.adapter';
-import { createTestOrganization, describeWithDb, dropTestOrganization, openTestDataSource } from '../common/database/testing/integration-db';
+import { createTestOrganization, describeWithDb, openTestDataSource } from '../common/database/testing/integration-db';
 
 /**
  * Billing state, written the way a payment webhook writes it: as the application's role, with the
@@ -32,6 +32,11 @@ describeWithDb('billing state is written once, for every organization a subscrip
   let starter: Plan;
   let pro: Plan;
   const subscriptionId = `sub_qa_${Date.now()}`;
+  // Plans of this suite's own. The catalogue is upserted when the API boots (`SaasService.seedPlans`)
+  // and CI runs this suite against a database that has only been migrated, so looking up `starter`
+  // and `pro` failed there and nowhere else. What is under test is how a subscription moves a group
+  // between two plans, not what the catalogue holds.
+  const suite = `qa-billing-${Date.now()}`;
 
   /** A transaction as the application's role, with no tenant — what a webhook gets. */
   const asWebhook = <T>(work: (manager: EntityManager) => Promise<T>): Promise<T> =>
@@ -59,8 +64,12 @@ describeWithDb('billing state is written once, for every organization a subscrip
 
   beforeAll(async () => {
     ds = await openTestDataSource();
-    starter = await ds.getRepository(Plan).findOneByOrFail({ slug: 'starter' });
-    pro = await ds.getRepository(Plan).findOneByOrFail({ slug: 'pro' });
+    const plans = ds.getRepository(Plan);
+    [starter, pro] = await plans.save([
+      // A provider event names the plan by its price, so each one has a price of its own too.
+      plans.create({ slug: `${suite}-starter`, name: 'QA Starter', monthlyPriceId: `price_${suite}-starter` }),
+      plans.create({ slug: `${suite}-pro`, name: 'QA Pro', monthlyPriceId: `price_${suite}-pro` }),
+    ]);
 
     parentId = await createTestOrganization(ds, 'QA billing parent');
     subsidiaryId = await createTestOrganization(ds, 'QA billing subsidiary');
@@ -96,9 +105,11 @@ describeWithDb('billing state is written once, for every organization a subscrip
   afterAll(async () => {
     if (ds?.isInitialized) {
       await ds.query(`DELETE FROM payment_webhook_events WHERE id = $1`, [eventId]);
-      await ds.query(`DELETE FROM organizations WHERE id = ANY($1)`, [[subsidiaryId, independentId]]);
+      await ds.query(`DELETE FROM organizations WHERE id = ANY($1)`, [[subsidiaryId, independentId, parentId].filter(Boolean)]);
+      // After the companies: they, and their plan history, point at the plans.
+      await ds.query(`DELETE FROM saas_plans WHERE id = ANY($1)`, [[starter?.id, pro?.id].filter(Boolean)]);
     }
-    await dropTestOrganization(ds, parentId);
+    if (ds?.isInitialized) await ds.destroy();
   }, 120_000);
 
   it('a plan change reaches the whole group and is recorded for each company — as the webhook role, with no tenant', async () => {

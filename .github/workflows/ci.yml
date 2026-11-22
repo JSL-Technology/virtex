@@ -18,7 +18,10 @@ concurrency:
 
 jobs:
   main:
-    runs-on: ubuntu-latest
+    # A named image, not `ubuntu-latest`: that label moved from 24.04 to 26.04 between 19 October and
+    # 19 November 2026, run by run, and the job changed under an unchanged commit (the AI engine's
+    # install began failing on the new image's Python). Moving to the next image is a commit here.
+    runs-on: ubuntu-26.04
 
     services:
       # The schema-drift check provisions a scratch database from the migrations and diffs it
@@ -302,24 +305,31 @@ jobs:
       # The forecasting and anomaly engine (apps/ai-engine, Python). Its unit tests check the
       # forecasting method and the detectors on data built to contain what they must find; its
       # integration tests run as the engine's own database role against the migrated schema and
-      # prove the row-level policies bind it like they bind the API. The runner's Python is used, so
-      # no unpinned action enters the job; dependencies are the locked ones the image installs.
-      - name: AI engine — install
+      # prove the row-level policies bind it like they bind the API.
+      #
+      # They run INSIDE the engine's image (`--target test` of its Dockerfile): the interpreter, the
+      # system libraries and the locked packages the worker ships with, and the package as installed.
+      # They used to run in the runner's own `python3`, which stopped being the production one when
+      # the runner image changed, and the install failed there (runs 494 and 498) while the image was
+      # fine. This also builds the deployed image on every change, which nothing did before. No
+      # action enters the job for it; the base image is the one the Dockerfile names.
+      - name: AI engine — one Python for the image, its lock and its tests
         if: ${{ !cancelled() }}
-        working-directory: apps/ai-engine
-        run: |
-          python3 -m venv .venv
-          .venv/bin/pip install --quiet -r requirements.lock
-          .venv/bin/pip install --quiet --no-deps -e .
+        run: npm run verify:ai-engine-image
 
+      - name: AI engine — image (the worker, and the same image with its tests)
+        if: ${{ !cancelled() }}
+        run: |
+          docker build --target test --tag virtex-ai-engine:test apps/ai-engine
+          docker build --tag virtex-ai-engine:ci apps/ai-engine
+
+      # `--network host`: the job's Postgres is published on the runner's localhost.
       - name: AI engine — tests (unit, and as its own role against the database)
         if: ${{ !cancelled() }}
-        working-directory: apps/ai-engine
         env:
-          NIXTLA_NUMBA_CACHE: '1'
           AI_ENGINE_TEST_ADMIN_DSN: host=localhost port=5432 dbname=virtex_ci user=postgres password=postgres
           AI_ENGINE_TEST_ENGINE_DSN: host=localhost port=5432 dbname=virtex_ci user=virtex_ai_engine password=ci-ai-engine-db-password
-        run: .venv/bin/python -m pytest -W ignore
+        run: docker run --rm --network host -e AI_ENGINE_TEST_ADMIN_DSN -e AI_ENGINE_TEST_ENGINE_DSN virtex-ai-engine:test
 
       - name: tenant isolation holds through the application
         if: ${{ !cancelled() }}

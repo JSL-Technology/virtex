@@ -45,7 +45,6 @@ import { ClosingChecklistService } from './closing-checklist.service';
 import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { ClosingBlockerRegistry } from '../contracts/closing-blockers/closing-blocker.registry';
 import { defaultFxTreatment } from '../contracts/accounting/fx-treatment.contract';
-import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { DepreciationMethod, FixedAsset, FixedAssetStatus } from '../fixed-assets/entities/fixed-asset.entity';
@@ -93,6 +92,22 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
 
   const ACTOR = '11111111-1111-4111-8111-111111111111';
   const ctx = { actorUserId: ACTOR };
+
+  // Currencies of this suite's own. The rate table is shared by every suite and Jest runs suites in
+  // parallel workers against one database: the treasury suite deletes every USD→DOP quote after
+  // each of its tests, so with USD here the closing rate this suite had just written could vanish
+  // before the revaluation read it — `closing_rate_missing` in CI, never on a quiet machine. And
+  // the "no rate" case cannot rely on nobody else having quoted CHF. A code with a digit is never an
+  // ISO 4217 code, so no other suite, and no published rate, can be using these.
+  const RATED = 'R0V'; // quoted at 60 on 31 January
+  const UNRATED = 'R0N'; // never quoted
+  /** The closing quote the revaluation reads. Idempotent: the tests that need it each publish it. */
+  const publishClosingRate = () =>
+    dataSource.query(
+      `INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ($1, 'DOP', 60, '2026-01-31')
+       ON CONFLICT ("fromCurrency", "toCurrency", date, rate_type) DO UPDATE SET rate = EXCLUDED.rate`,
+      [RATED],
+    );
 
   beforeAll(async () => {
     dataSource = new DataSource({
@@ -201,7 +216,10 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     if (organizationId) {
       await dataSource.getRepository(Organization).delete({ id: organizationId });
     }
-    if (dataSource?.isInitialized) await dataSource.destroy();
+    if (dataSource?.isInitialized) {
+      await dataSource.query(`DELETE FROM exchange_rate WHERE "fromCurrency" IN ($1, $2)`, [RATED, UNRATED]);
+      await dataSource.destroy();
+    }
   });
 
   beforeEach(async () => {
@@ -694,15 +712,15 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
   });
 
   it('revalues an open foreign-currency position at the closing rate, once (FINB-01)', async () => {
-    // A dollar balance on a monetary account, booked at 58 and restated at 60 on 31 January.
+    // A foreign-currency balance on a monetary account, booked at 58 and restated at 60 on 31 January.
     await dataSource.getRepository(OrganizationSettings).update({ organizationId }, { defaultCashId: account['cash'] });
     await entries.create(
       {
         date: '2026-01-10',
-        description: 'Cobro en dólares',
+        description: 'Cobro en divisa',
         journalId: generalJournalId,
         lines: [
-          { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
+          { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: RATED, foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
           { accountId: account['revenue'], debit: 0, credit: 5_800 },
         ],
       } as CreateJournalEntryDto,
@@ -711,7 +729,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       // person typing this line by hand is held to the day's published quote (FIN-JE-01).
       { ...ctx, systemReason: 'Cobro en divisa' },
     );
-    await dataSource.query(`INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ('USD', 'DOP', 60, '2026-01-31')`).catch(() => undefined);
+    await publishClosingRate();
 
     const [first] = await revaluation.run('2026-01-31', organizationId);
     expect(first).toMatchObject({ positions: 1, adjusted: 1 });
@@ -728,10 +746,10 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     await entries.create(
       {
         date: '2026-02-10',
-        description: 'Cobro en francos',
+        description: 'Cobro en divisa',
         journalId: generalJournalId,
         lines: [
-          { accountId: account['cash'], debit: 650, credit: 0, currencyCode: 'CHF', foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
+          { accountId: account['cash'], debit: 650, credit: 0, currencyCode: UNRATED, foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
           { accountId: account['revenue'], debit: 0, credit: 650 },
         ],
       } as CreateJournalEntryDto,
@@ -754,26 +772,24 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
    * account, and the close reads only that.
    */
   describe('what the period-end revaluation restates (FIN-AC-03)', () => {
-    /** One day's dollar movements: cash in, a prepayment, a customer's advance, all at 58. */
+    /** One day's foreign-currency movements: cash in, a prepayment, a customer's advance, all at 58. */
     const postDollars = async () => {
       await entries.create(
         {
           date: '2026-01-12',
-          description: 'Movimientos en dólares',
+          description: 'Movimientos en divisa',
           journalId: generalJournalId,
           lines: [
-            { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
-            { accountId: account['prepaid'], debit: 2_900, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 50, foreignCurrencyCredit: 0, exchangeRate: 58 },
-            { accountId: account['advances'], debit: 0, credit: 4_640, currencyCode: 'USD', foreignCurrencyDebit: 0, foreignCurrencyCredit: 80, exchangeRate: 58 },
+            { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: RATED, foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
+            { accountId: account['prepaid'], debit: 2_900, credit: 0, currencyCode: RATED, foreignCurrencyDebit: 50, foreignCurrencyCredit: 0, exchangeRate: 58 },
+            { accountId: account['advances'], debit: 0, credit: 4_640, currencyCode: RATED, foreignCurrencyDebit: 0, foreignCurrencyCredit: 80, exchangeRate: 58 },
             { accountId: account['revenue'], debit: 0, credit: 4_060 },
           ],
         } as CreateJournalEntryDto,
         organizationId,
         { ...ctx, systemReason: 'Movimientos en divisa' },
       );
-      await dataSource
-        .query(`INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ('USD', 'DOP', 60, '2026-01-31')`)
-        .catch(() => undefined);
+      await publishClosingRate();
     };
     const balance = (key: string) => balances.balanceOf(account[key], { organizationId, ledgerId, asOf: '2026-01-31' });
 
@@ -812,24 +828,24 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
 
       await expect(revaluation.outlook('2026-01-31', organizationId)).resolves.toEqual({
         positions: 1,
-        currencies: ['USD'],
+        currencies: [RATED],
         missingRates: [],
         historical: [
-          { code: '1401', currency: 'USD' },
-          { code: '2301', currency: 'USD' },
+          { code: '1401', currency: RATED },
+          { code: '2301', currency: RATED },
         ],
       });
 
       const items = await checklist.getChecklist(januaryId, organizationId);
       expect(items.find((item) => item.id === 'currency-revaluation')).toMatchObject({
         descriptionKey: 'accounting.checklist.items.revaluation_ready',
-        params: { count: 1, currencies: 'USD', missing: '' },
+        params: { count: 1, currencies: RATED, missing: '' },
         isCompleted: true,
       });
       // For the accountant to confirm that neither is money; nothing here stops the close.
       expect(items.find((item) => item.id === 'historical-fx-balances')).toMatchObject({
         descriptionKey: 'accounting.checklist.items.historical_fx_balances',
-        params: { count: 2, accounts: '1401 (USD), 2301 (USD)' },
+        params: { count: 2, accounts: `1401 (${RATED}), 2301 (${RATED})` },
         isCompleted: true,
         noteKey: 'accounting.checklist.historical_fx_note',
       });
@@ -839,10 +855,10 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       await entries.create(
         {
           date: '2026-01-14',
-          description: 'Cobro en francos',
+          description: 'Cobro en divisa',
           journalId: generalJournalId,
           lines: [
-            { accountId: account['cash'], debit: 650, credit: 0, currencyCode: 'CHF', foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
+            { accountId: account['cash'], debit: 650, credit: 0, currencyCode: UNRATED, foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
             { accountId: account['revenue'], debit: 0, credit: 650 },
           ],
         } as CreateJournalEntryDto,
@@ -853,7 +869,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       const items = await checklist.getChecklist(januaryId, organizationId);
       expect(items.find((item) => item.id === 'currency-revaluation')).toMatchObject({
         descriptionKey: 'accounting.checklist.items.revaluation_rates_missing',
-        params: { missing: 'CHF' },
+        params: { missing: UNRATED },
         isCompleted: false,
         resolutionLink: '/masters/currencies/exchange-rates',
       });
