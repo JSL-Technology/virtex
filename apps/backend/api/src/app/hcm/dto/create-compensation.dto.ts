@@ -2,7 +2,7 @@ import { IsDateString, IsEnum, IsNumber, IsOptional, IsPositive, Length } from '
 import { PayFrequency } from '../entities/employee-compensation.entity';
 
 export class CreateCompensationDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   effectiveFrom: string;
 
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -20,7 +20,7 @@ export class CreateCompensationDto {
 
 /** The starting salary, given with the hire. Its date defaults to the hire date. */
 export class InitialCompensationDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   effectiveFrom?: string;
 

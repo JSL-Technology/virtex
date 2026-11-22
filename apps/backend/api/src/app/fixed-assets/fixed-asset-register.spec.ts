@@ -1,10 +1,13 @@
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FixedAssetsService } from './fixed-assets.service';
 import { DepreciationService } from './depreciation.service';
 import { AssetPostingService } from './asset-posting.service';
 import { DepreciationMethod, FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
+import { DepreciationRunTrigger, FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
+import { describeEntryOrigin } from '../journal-entries/entry-origin';
+import { allowPostingsThrough } from '../accounting/period-status';
 import { CreateFixedAssetDto } from './dto/fixed-asset.dto';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -168,6 +171,32 @@ describeWithDb('fixed-asset register', () => {
   const balance = (key: string, asOf: string) =>
     balances.balanceOf(account[key], { organizationId, ledgerId, asOf });
 
+  /** A person at the board. */
+  const MANUAL = { trigger: DepreciationRunTrigger.MANUAL, ranByUserId: ACTOR } as const;
+
+  /**
+   * `work` with the clock — `Date` alone — stopped at `instant`: «today» for the run's guard and
+   * the posting horizon. Timers, ticks and the driver's I/O keep running.
+   */
+  async function atInstant<T>(instant: string, work: () => Promise<T>): Promise<T> {
+    jest.useFakeTimers({
+      now: new Date(instant),
+      doNotFake: [
+        'hrtime', 'nextTick', 'performance', 'queueMicrotask', 'requestAnimationFrame', 'cancelAnimationFrame',
+        'requestIdleCallback', 'cancelIdleCallback', 'setImmediate', 'clearImmediate', 'setInterval',
+        'clearInterval', 'setTimeout', 'clearTimeout',
+      ],
+    });
+    try {
+      return await work();
+    } finally {
+      jest.useRealTimers();
+    }
+  }
+
+  const chargesOf = (fixedAssetId: string) =>
+    dataSource.getRepository(FixedAssetDepreciation).find({ where: { organizationId, fixedAssetId }, order: { periodEnd: 'ASC' } });
+
   it('numbers each asset in its year of acquisition and refuses figures that do not add up', async () => {
     const first = await register();
     const second = await register({ name: 'Montacargas' });
@@ -192,8 +221,9 @@ describeWithDb('fixed-asset register', () => {
     expect(preview.journalEntryId).toBeNull();
     expect(preview.assets.find((row) => row.id === asset.id)).toMatchObject({ months: 3, amount: 6_000 });
 
-    const run = await depreciation.runMonthlyDepreciation(organizationId, '2026-03-31');
+    const run = await depreciation.runMonthlyDepreciation(organizationId, '2026-03-31', MANUAL);
     expect(run.journalEntryId).not.toBeNull();
+    expect(run.runId).not.toBeNull();
     expect(run.assets.find((row) => row.id === asset.id)).toMatchObject({ months: 3, amount: 6_000 });
 
     // To the asset's own expense account, not the company's default.
@@ -216,9 +246,46 @@ describeWithDb('fixed-asset register', () => {
     expect(await balance('vehicleDepreciation', '2026-01-31')).toBe(2_000);
     expect(await balance('vehicleDepreciation', '2026-02-28')).toBe(4_000);
 
+    // The run is a document: what set it going, who, through which month, what it charged — and
+    // each month it charged, and each entry it posted, lead back to it (FINB-17).
+    const record = await dataSource.getRepository(FixedAssetDepreciationRun).findOneByOrFail({ id: run.runId! });
+    expect(record).toMatchObject({ trigger: DepreciationRunTrigger.MANUAL, ranByUserId: ACTOR, periodEnd: '2026-03-31', fixedAssetId: null });
+    expect(record.total).toBe(run.total);
+    expect(record.assetCount).toBe(run.assets.length);
+    expect(months.every((row) => row.runId === run.runId)).toBe(true);
+    const runEntries = await dataSource.getRepository(JournalEntry).find({ where: { id: In(months.map((row) => row.journalEntryId)) }, order: { date: 'ASC' } });
+    expect(runEntries.map((row) => row.idempotencyKey)).toEqual([
+      `depreciation-run:${run.runId}:2026-01-31`,
+      `depreciation-run:${run.runId}:2026-02-28`,
+      `depreciation-run:${run.runId}:2026-03-31`,
+    ]);
+    expect(runEntries.every((row) => row.systemReason === 'depreciation-run' && row.postedByUserId === ACTOR)).toBe(true);
+    expect(describeEntryOrigin(runEntries[0])).toMatchObject({
+      locked: true,
+      document: { type: 'depreciation-run', id: run.runId, route: `/accounting/fixed-assets/depreciation-runs/${run.runId}` },
+    });
+
+    // The board reads it back: listed among the runs that charged the asset, with every month.
+    const listed = await depreciation.listRuns(organizationId, { fixedAssetId: asset.id });
+    expect(listed.rows.map((row) => row.id)).toEqual([run.runId]);
+    const detail = await depreciation.findRun(run.runId!, organizationId);
+    expect(detail.charges.filter((row) => row.fixedAssetId === asset.id).map((row) => [row.periodEnd, row.amount])).toEqual([
+      ['2026-01-31', 2_000],
+      ['2026-02-28', 2_000],
+      ['2026-03-31', 2_000],
+    ]);
+    expect(detail.entries.map((row) => row.date)).toEqual(['2026-01-31', '2026-02-28', '2026-03-31']);
+    await expect(depreciation.findRun('00000000-0000-4000-8000-0000000000ab', organizationId)).rejects.toMatchObject({
+      messageKey: 'fixed_assets.depreciation_run_not_found',
+    });
+
     // Again, for the same month: nothing more for this asset.
-    const again = await depreciation.runMonthlyDepreciation(organizationId, '2026-03-31');
+    const runsBefore = await dataSource.getRepository(FixedAssetDepreciationRun).countBy({ organizationId });
+    const again = await depreciation.runMonthlyDepreciation(organizationId, '2026-03-31', MANUAL);
     expect(again.assets.find((row) => row.id === asset.id)).toBeUndefined();
+    // A run that charged nothing leaves no record: there is nothing it did to account for.
+    expect(again).toMatchObject({ assets: [], runId: null, journalEntryId: null, total: 0 });
+    expect(await dataSource.getRepository(FixedAssetDepreciationRun).countBy({ organizationId })).toBe(runsBefore);
     expect(await balance('vehicleDepreciation', '2026-03-31')).toBe(6_000);
 
     const schedule = await assets.schedule(asset.id, organizationId);
@@ -242,7 +309,7 @@ describeWithDb('fixed-asset register', () => {
 
   it('keeps what valued the asset once a month is charged, and lets the estimates change', async () => {
     const asset = await register({ acquisitionDate: '2025-11-01' });
-    await depreciation.runMonthlyDepreciation(organizationId, '2025-11-30');
+    await depreciation.runMonthlyDepreciation(organizationId, '2025-11-30', MANUAL);
 
     await expect(assets.update(asset.id, { cost: 150_000 }, organizationId)).rejects.toMatchObject({
       messageKey: 'fixed_assets.valuation_locked_after_depreciation',
@@ -299,6 +366,36 @@ describeWithDb('fixed-asset register', () => {
         { accountId: account['loss'], debit: 14_000, credit: 0 },
       ]),
     );
+    // The disposal is a document of the register: its entry says so, cannot be edited in the
+    // journal, and leads back to the asset (FINB-17: it was a manual-looking entry, reason NULL).
+    expect(entry).toMatchObject({ systemReason: 'fixed-asset-disposal', idempotencyKey: `fixed-asset-disposal:${asset.id}` });
+    expect(describeEntryOrigin(entry!)).toEqual({
+      locked: true,
+      reason: 'fixed-asset-disposal',
+      document: { type: 'fixed-asset-disposal', id: asset.id, route: `/accounting/fixed-assets/${asset.id}` },
+    });
+
+    // The three months it was still due were charged by the disposal's own run, which names the
+    // asset and who disposed of it — not by an anonymous «monthly» run.
+    const caughtUp = await chargesOf(asset.id);
+    expect(caughtUp.map((row) => row.periodEnd)).toEqual(['2026-01-31', '2026-02-28', '2026-03-31']);
+    const runIds = [...new Set(caughtUp.map((row) => row.runId))];
+    expect(runIds).toHaveLength(1);
+    const disposalRun = await dataSource.getRepository(FixedAssetDepreciationRun).findOneByOrFail({ id: runIds[0]! });
+    expect(disposalRun).toMatchObject({
+      trigger: DepreciationRunTrigger.DISPOSAL,
+      fixedAssetId: asset.id,
+      ranByUserId: ACTOR,
+      periodEnd: '2026-03-31',
+      assetCount: 1,
+      chargeCount: 3,
+      total: 6_000,
+    });
+    const catchUpEntries = await dataSource.getRepository(JournalEntry).find({ where: { id: In(caughtUp.map((row) => row.journalEntryId)) } });
+    expect(catchUpEntries.map((row) => row.systemReason)).toEqual(['asset-disposal', 'asset-disposal', 'asset-disposal']);
+    expect(catchUpEntries.map((row) => describeEntryOrigin(row).document?.route)).toEqual(
+      Array(3).fill(`/accounting/fixed-assets/depreciation-runs/${disposalRun.id}`),
+    );
 
     await expect(
       assets.dispose(asset.id, { disposalDate: '2026-05-01', salePrice: 0, disposalReason: 'Otra vez' }, organizationId, ACTOR),
@@ -320,5 +417,50 @@ describeWithDb('fixed-asset register', () => {
     expect(preview.skipped).toEqual(
       expect.arrayContaining([expect.objectContaining({ id: orphan.id, reason: 'missing_accounts' })]),
     );
+  });
+
+  /**
+   * A month is depreciated once it has ended in the company's calendar (FINB-13).
+   *
+   * On the 7th of November a run for November posted the whole month dated the 30th, and the
+   * preview offered to post 25 months that had not happened: expense ahead of its time, and an
+   * asset carried below its value meanwhile.
+   */
+  it('previews a month that has not ended without posting it, unless that month is being closed', async () => {
+    const asset = await register({ acquisitionDate: '2026-06-02', name: 'Compresor' });
+
+    await atInstant('2026-06-07T15:00:00Z', async () => {
+      // Santo Domingo, the suite's calendar: the 7th of June, 11:00.
+      const june = await depreciation.preview(organizationId, '2026-06-30');
+      expect(june).toMatchObject({
+        postable: false,
+        notPostable: { key: 'fixed_assets.depreciation_period_not_ended', params: { period: '2026-06', today: '2026-06-07' } },
+      });
+      // It still says what the month will charge.
+      expect(june.assets.find((row) => row.id === asset.id)).toMatchObject({ months: 1, amount: 2_000 });
+      // A month that has ended is postable, and a later one is not: the guard is the month, not the asset.
+      expect((await depreciation.preview(organizationId, '2026-05-31')).postable).toBe(true);
+      expect((await depreciation.preview(organizationId, '2029-12-31')).postable).toBe(false);
+
+      await expect(depreciation.runMonthlyDepreciation(organizationId, '2026-06-30', MANUAL)).rejects.toMatchObject({
+        messageKey: 'fixed_assets.depreciation_period_not_ended',
+      });
+      await expect(depreciation.runMonthlyDepreciation(organizationId, '2029-12-31', MANUAL)).rejects.toMatchObject({
+        messageKey: 'fixed_assets.depreciation_period_not_ended',
+      });
+      expect(await chargesOf(asset.id)).toEqual([]);
+
+      // The close of June may close it early, and charges June as it does: on the close's own
+      // transaction, which says how far it closes, the month is chargeable.
+      await dataSource.transaction(async (manager) => {
+        await allowPostingsThrough(manager, '2026-06-30');
+        await depreciation.runForPeriod(organizationId, { startDate: '2026-06-01', endDate: '2026-06-30' }, manager, ACTOR);
+      });
+    });
+
+    const charged = await chargesOf(asset.id);
+    expect(charged.map((row) => [row.periodEnd, row.amount])).toEqual([['2026-06-30', 2_000]]);
+    const closeRun = await dataSource.getRepository(FixedAssetDepreciationRun).findOneByOrFail({ id: charged[0].runId! });
+    expect(closeRun).toMatchObject({ trigger: DepreciationRunTrigger.PERIOD_CLOSE, ranByUserId: ACTOR, periodEnd: '2026-06-30' });
   });
 });

@@ -2,7 +2,7 @@ import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Mi
 
 /** One line of an imported opening balance: an account and the side its balance sits on. */
 export class OpeningBalanceRowDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   date!: string;
 
   @IsString()
@@ -31,7 +31,7 @@ export class OpeningBalanceRowDto {
    * amount from when it arose (IAS 29.15, 24), so an account may come in several rows, one per
    * origin. Omitted: the opening date — a balance already expressed in that day's currency.
    */
-  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsDateString({ strict: true }, { message: 'validation.constraints.is_date_string' })
   @IsOptional()
   originDate?: string;
 

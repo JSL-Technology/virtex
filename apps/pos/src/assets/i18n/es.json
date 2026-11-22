@@ -184,6 +184,7 @@
   "errors.http_503": "El servicio no está disponible temporalmente. Vuelve a intentarlo en unos minutos.",
   "errors.impersonate": "No se pudo iniciar la suplantación.",
   "errors.internal": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
+  "errors.invalid_date": "Una de las fechas no existe en el calendario.",
   "errors.invalid_invitation_token": "El enlace de invitación no es válido o ya se usó. Pide uno nuevo a quien te invitó.",
   "errors.invite_user": "No se pudo invitar al usuario.",
   "errors.issue_credit_note": "No se pudo emitir la nota de crédito.",

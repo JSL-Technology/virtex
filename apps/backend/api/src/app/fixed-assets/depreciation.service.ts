@@ -5,6 +5,7 @@ import { DataSource, EntityManager } from 'typeorm';
 import { DepreciationPort } from './depreciation.port';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
+import { DepreciationRunTrigger, FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
 import { AssetPostingService } from './asset-posting.service';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
@@ -14,30 +15,79 @@ import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
 } from '../journal-entries/dto/create-journal-entry.dto';
-import { BadRequestError } from '../i18n/localized.exception';
+import { BadRequestError, NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
+import { personDisplayNames } from '../users/contracts/person-names.contract';
+import { resolvePaging, toPage, type Page } from '../common/pagination';
+import { DepreciationRunsQueryDto } from './dto/fixed-asset.dto';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { roundAmount, toCents } from '../common/money';
-import { endOfMonthIso, toIsoDate, toIsoMonth, type IsoDate } from '../common/dates';
+import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, toIsoMonth, type IsoDate } from '../common/dates';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { chargesDue, ScheduledCharge } from './depreciation-schedule';
-import { resolvePostingPeriod } from '../accounting/period-status';
+import { closingThrough, resolvePostingPeriod } from '../accounting/period-status';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 /** Why an asset due a charge was left out of a run. */
 export type DepreciationSkipReason = 'missing_accounts';
 
+/** What set a run going, and who: the run's record says so, and its entries lead back to it. */
+export interface DepreciationRunOrigin {
+  trigger: Exclude<DepreciationRunTrigger, DepreciationRunTrigger.DISPOSAL>;
+  /** The person who ran it, or closed the period that did; null for the monthly job. */
+  ranByUserId: string | null;
+}
+
 /** What one run charged. */
 export interface DepreciationRunResult {
   /** The last day of the month the run was for. */
   periodEnd: IsoDate;
-  /** The entry it posted, or null when nothing was due. */
+  /** The run's record — null when nothing was due, and for a preview. */
+  runId: string | null;
+  /** The entry it posted (the latest, when it caught up several months), or null. */
   journalEntryId: string | null;
   total: number;
   assets: Array<{ id: string; number: string; name: string; months: number; amount: number }>;
   /** Assets that were due a charge and could not be charged, with the reason. */
   skipped: Array<{ id: string; number: string; name: string; reason: DepreciationSkipReason }>;
+  /**
+   * Whether the run can be posted: false for a month that has not ended yet in the company's
+   * calendar (FINB-13), with the reason — the preview still shows what it would charge.
+   */
+  postable: boolean;
+  notPostable: { key: string; params: Record<string, unknown> } | null;
+}
+
+/** A run, as the board lists it. */
+export interface DepreciationRunSummary {
+  id: string;
+  periodEnd: IsoDate;
+  trigger: DepreciationRunTrigger;
+  /** The asset whose disposal ran it, for a disposal's run. */
+  fixedAsset: { id: string; number: string; name: string } | null;
+  ranByUserId: string | null;
+  ranByName: string | null;
+  assetCount: number;
+  chargeCount: number;
+  total: number;
+  createdAt: Date;
+}
+
+/** A run with every asset-month it charged and the entries that carry them. */
+export interface DepreciationRunDetail extends DepreciationRunSummary {
+  charges: Array<{
+    fixedAssetId: string;
+    number: string;
+    name: string;
+    periodEnd: IsoDate;
+    amount: number;
+    accumulatedAfter: number;
+    bookValueAfter: number;
+    journalEntryId: string;
+  }>;
+  entries: Array<{ id: string; entryNumber: string | null; date: IsoDate; total: number }>;
 }
 
 /** A charge planned for an asset, before it is posted. */
@@ -96,27 +146,38 @@ export class DepreciationService extends DepreciationPort {
   /**
    * Fires on the first of the month for the month that just ended. The claim keeps several
    * replicas from walking every tenant at once; the run itself would be safe regardless.
+   *
+   * Noon UTC on the first is the first moment the month has ended everywhere — at UTC−12 it is
+   * midnight. It fired at 02:00 UTC, when the month was still running for every company west of
+   * Greenwich: their books were charged a month they were still living, and since a run refuses a
+   * month that has not ended (FINB-13), at that hour it would not have charged them at all. Each
+   * company is charged through the last month ended in its own calendar, not in the server's.
    */
-  @Cron('0 2 1 * *', { name: 'monthly-depreciation' })
+  @Cron('0 12 1 * *', { name: 'monthly-depreciation' })
   @ExclusiveJob()
   async handleCron(): Promise<void> {
-    const today = new Date();
-    const target = endOfMonthIso(
-      toIsoDate(new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 15))),
-    );
+    const now = new Date();
+    const monthJustEnded = toIsoMonth(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15)));
 
-    await this.schedulerLock.runOnce('monthly-depreciation', toIsoMonth(target), async () => {
+    await this.schedulerLock.runOnce('monthly-depreciation', monthJustEnded, async () => {
       // Each tenant in its own context: the assets are behind the row-level policies, and a run
       // with no tenant set found none and depreciated nothing.
       await forEachTenant(
         this.dataSource,
-        async (organizationId) => {
-          await this.runMonthlyDepreciation(organizationId, target);
-        },
+        (organizationId) => this.chargeLastEndedMonth(organizationId),
         undefined,
         (organizationId, error) =>
           this.logger.error(`Depreciation failed for organization ${organizationId}: ${(error as Error).message}`),
       );
+    });
+  }
+
+  /** The monthly job for one company: through the last month ended in its own calendar. */
+  private async chargeLastEndedMonth(organizationId: string): Promise<void> {
+    const today = await organizationToday(this.dataSource.manager, organizationId);
+    await this.runMonthlyDepreciation(organizationId, lastEndedMonth(today), {
+      trigger: DepreciationRunTrigger.SCHEDULE,
+      ranByUserId: null,
     });
   }
 
@@ -125,8 +186,14 @@ export class DepreciationService extends DepreciationPort {
     organizationId: string,
     period: { startDate: IsoDate; endDate: IsoDate },
     manager?: EntityManager,
+    closedByUserId: string | null = null,
   ): Promise<void> {
-    await this.runMonthlyDepreciation(organizationId, period.endDate, manager);
+    await this.runMonthlyDepreciation(
+      organizationId,
+      period.endDate,
+      { trigger: DepreciationRunTrigger.PERIOD_CLOSE, ranByUserId: closedByUserId },
+      manager,
+    );
   }
 
   /**
@@ -135,35 +202,45 @@ export class DepreciationService extends DepreciationPort {
    *
    * @param depreciationDate any date inside the month to charge through, as an `IsoDate` (what a
    *   `date` column hands back) or a `Date`.
+   * @param origin what set the run going and who, recorded with it.
    */
   async runMonthlyDepreciation(
     organizationId: string,
-    depreciationDate: Date | string = new Date(),
+    depreciationDate: Date | string,
+    origin: DepreciationRunOrigin,
     manager?: EntityManager,
   ): Promise<DepreciationRunResult> {
     const periodEnd = endOfMonthIso(toIsoDate(depreciationDate));
     const execute = async (em: EntityManager) => {
+      const blocked = await this.notYetEnded(em, organizationId, periodEnd);
+      if (blocked) throw new UnprocessableEntityError(blocked.key, blocked.params);
       await this.lockTenant(em, organizationId);
       const assets = await em.find(FixedAsset, {
         where: { organizationId, status: FixedAssetStatus.IN_USE },
         order: { number: 'ASC' },
       });
-      return this.charge(em, organizationId, assets, periodEnd, 'monthly-depreciation');
+      return this.charge(em, organizationId, assets, periodEnd, { ...origin, fixedAssetId: null });
     };
     return manager ? execute(manager) : this.dataSource.transaction(execute);
   }
 
   /**
    * Charge one asset everything it is due through `through`, on the caller's transaction — what a
-   * disposal does first, so the asset leaves the books at its carrying amount on the day.
+   * disposal does first, so the asset leaves the books at its carrying amount on the day. The run
+   * is the disposal's: it names the asset and who disposed of it.
    */
   async chargeAsset(
     manager: EntityManager,
     asset: FixedAsset,
     through: IsoDate,
+    disposedByUserId: string | null,
   ): Promise<DepreciationRunResult> {
     await this.lockTenant(manager, asset.organizationId);
-    return this.charge(manager, asset.organizationId, [asset], endOfMonthIso(through), 'asset-disposal');
+    return this.charge(manager, asset.organizationId, [asset], endOfMonthIso(through), {
+      trigger: DepreciationRunTrigger.DISPOSAL,
+      ranByUserId: disposedByUserId,
+      fixedAssetId: asset.id,
+    });
   }
 
   /** What a run for the month would charge, without posting anything. */
@@ -175,7 +252,26 @@ export class DepreciationService extends DepreciationPort {
       order: { number: 'ASC' },
     });
     const { planned, skipped } = await this.plan(manager, organizationId, assets, periodEnd);
-    return summarise(periodEnd, null, planned, skipped);
+    return {
+      ...summarise(periodEnd, null, null, planned, skipped),
+      ...postability(await this.notYetEnded(manager, organizationId, periodEnd)),
+    };
+  }
+
+  /**
+   * Why a month cannot be charged yet, or null: a month is depreciated once it has ended in the
+   * company's calendar — or while the close of that very month runs, which may close it early.
+   *
+   * There was no such check: on the 7th of November a run for November posted the whole month
+   * dated the 30th, and the preview offered to post 25 months that had not happened (FINB-13) —
+   * expense booked ahead of its time, and an asset carried below its value until then.
+   */
+  private async notYetEnded(em: EntityManager, organizationId: string, periodEnd: IsoDate): Promise<DepreciationRunResult['notPostable']> {
+    const today = await organizationToday(em, organizationId);
+    if (periodEnd <= today) return null;
+    const closing = await closingThrough(em);
+    if (closing && closing >= periodEnd) return null;
+    return { key: 'fixed_assets.depreciation_period_not_ended', params: { period: toIsoMonth(periodEnd), today } };
   }
 
   private async charge(
@@ -183,13 +279,13 @@ export class DepreciationService extends DepreciationPort {
     organizationId: string,
     assets: FixedAsset[],
     periodEnd: IsoDate,
-    systemReason: string,
+    origin: { trigger: DepreciationRunTrigger; ranByUserId: string | null; fixedAssetId: string | null },
   ): Promise<DepreciationRunResult> {
     const { planned, skipped } = await this.plan(em, organizationId, assets, periodEnd);
     for (const skip of skipped) {
       this.logger.warn(`Activo ${skip.number} sin cuentas de depreciación en ${organizationId}; se omite.`);
     }
-    if (planned.length === 0) return summarise(periodEnd, null, [], skipped);
+    if (planned.length === 0) return summarise(periodEnd, null, null, [], skipped);
 
     // Only now that something is due: a company with no assets to charge must not need a ledger
     // or a journal it will never post to (QA C-06).
@@ -197,6 +293,23 @@ export class DepreciationService extends DepreciationPort {
     if (!defaultLedger) throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
     const journal = await this.journalLookup.findByCode(organizationId, SYSTEM_JOURNALS.depreciation.code, em);
     if (!journal) throw new BadRequestError('fixed_assets.depreciation_journal_deprec_not_found_create');
+
+    // The run's record first: its entries name it, and each month it charges points to it.
+    const totals = summarise(periodEnd, null, null, planned, skipped);
+    const run = await em.save(
+      em.create(FixedAssetDepreciationRun, {
+        organizationId,
+        periodEnd,
+        trigger: origin.trigger,
+        fixedAssetId: origin.fixedAssetId,
+        ranByUserId: origin.ranByUserId,
+        assetCount: planned.length,
+        chargeCount: planned.reduce((count, item) => count + item.charges.length, 0),
+        total: totals.total,
+      }),
+    );
+    // What posted the entries: a disposal's catch-up, or a run of the register.
+    const systemReason = origin.trigger === DepreciationRunTrigger.DISPOSAL ? 'asset-disposal' : 'depreciation-run';
 
     // One entry per month, dated on that month's last day (QA R3-M14: a run that caught up August
     // and September booked both in one entry dated 30/09, so August's expense sat in September's
@@ -266,7 +379,9 @@ export class DepreciationService extends DepreciationPort {
           lines: group.lines,
         } as CreateJournalEntryDto,
         organizationId,
-        { actorUserId: null, systemReason },
+        // Each entry names its run and the date it is posted on — one per month — so it leads back
+        // to the run, and a run cannot post the same month's entry twice.
+        { actorUserId: origin.ranByUserId, systemReason, idempotencyKey: `depreciation-run:${run.id}:${postOn}` },
       );
       runEntryId = entry.id;
       await em.insert(
@@ -279,6 +394,7 @@ export class DepreciationService extends DepreciationPort {
           accumulatedAfter: charge.accumulatedAfter,
           bookValueAfter: charge.bookValueAfter,
           journalEntryId: entry.id,
+          runId: run.id,
         })),
       );
     }
@@ -301,7 +417,7 @@ export class DepreciationService extends DepreciationPort {
 
     const month = toIsoMonth(periodEnd);
     // The latest entry: the run's own month whenever anything was due in it.
-    const result = summarise(periodEnd, runEntryId, planned, skipped);
+    const result = summarise(periodEnd, run.id, runEntryId, planned, skipped);
     this.logger.log(
       `Depreciación hasta ${month} registrada en ${organizationId}: ${planned.length} activos, ${result.total}.`,
     );
@@ -347,6 +463,84 @@ export class DepreciationService extends DepreciationPort {
     }
   }
 
+  /** The runs that charged something, newest first — by what set them going, or for one asset. */
+  async listRuns(organizationId: string, query: DepreciationRunsQueryDto = {}): Promise<Page<DepreciationRunSummary>> {
+    const paging = resolvePaging(query.page, query.pageSize);
+    const qb = this.dataSource
+      .getRepository(FixedAssetDepreciationRun)
+      .createQueryBuilder('run')
+      .leftJoinAndSelect('run.fixedAsset', 'asset')
+      .where('run.organizationId = :organizationId', { organizationId });
+    if (query.trigger) qb.andWhere('run.trigger = :trigger', { trigger: query.trigger });
+    if (query.fixedAssetId) {
+      // A run charged the asset if any of its months is the asset's — not only a disposal's run.
+      qb.andWhere(
+        `EXISTS (SELECT 1 FROM "fixed_asset_depreciations" d WHERE d."run_id" = run.id AND d."fixed_asset_id" = :assetId)`,
+        { assetId: query.fixedAssetId },
+      );
+    }
+    const [runs, total] = await qb
+      .orderBy('run.createdAt', 'DESC')
+      .addOrderBy('run.id', 'DESC')
+      .skip(paging.skip)
+      .take(paging.take)
+      .getManyAndCount();
+    const people = await personDisplayNames(this.dataSource.manager, runs.map((run) => run.ranByUserId));
+    return toPage(runs.map((run) => summariseRun(run, people)), total, paging);
+  }
+
+  /** One run: each asset-month it charged, and the entries that carry them. */
+  async findRun(id: string, organizationId: string): Promise<DepreciationRunDetail> {
+    const manager = this.dataSource.manager;
+    const run = await manager.findOne(FixedAssetDepreciationRun, {
+      where: { id, organizationId },
+      relations: { fixedAsset: true },
+    });
+    if (!run) throw new NotFoundError('fixed_assets.depreciation_run_not_found', { id });
+
+    const charges = await manager
+      .getRepository(FixedAssetDepreciation)
+      .createQueryBuilder('charge')
+      .innerJoinAndSelect('charge.fixedAsset', 'asset')
+      .where('charge.organizationId = :organizationId AND charge.runId = :runId', { organizationId, runId: id })
+      .orderBy('asset.number', 'ASC')
+      .addOrderBy('charge.periodEnd', 'ASC')
+      .getMany();
+    const entryIds = [...new Set(charges.map((charge) => charge.journalEntryId))];
+    const entries: Array<{ id: string; entryNumber: string | null; date: string; total: string }> = entryIds.length
+      ? await manager.query(
+          `SELECT e."id", e."entry_number" AS "entryNumber", e."date"::text AS "date",
+                  COALESCE(SUM(l."debit"), 0)::text AS "total"
+             FROM "journal_entries" e
+             LEFT JOIN "journal_entry_lines" l ON l."journal_entry_id" = e."id"
+            WHERE e."organization_id" = $1 AND e."id" = ANY($2::uuid[])
+            GROUP BY e."id"
+            ORDER BY e."date", e."entry_number"`,
+          [organizationId, entryIds],
+        )
+      : [];
+    const people = await personDisplayNames(manager, [run.ranByUserId]);
+    return {
+      ...summariseRun(run, people),
+      charges: charges.map((charge) => ({
+        fixedAssetId: charge.fixedAssetId,
+        number: charge.fixedAsset!.number,
+        name: charge.fixedAsset!.name,
+        periodEnd: toIsoDate(charge.periodEnd),
+        amount: charge.amount,
+        accumulatedAfter: charge.accumulatedAfter,
+        bookValueAfter: charge.bookValueAfter,
+        journalEntryId: charge.journalEntryId,
+      })),
+      entries: entries.map((entry) => ({
+        id: entry.id,
+        entryNumber: entry.entryNumber,
+        date: entry.date,
+        total: roundAmount(Number(entry.total)),
+      })),
+    };
+  }
+
   /**
    * One run per tenant at a time. Transaction-scoped: released at commit or rollback, so a failed
    * run leaves nothing claimed — the period close's rollback included.
@@ -356,8 +550,34 @@ export class DepreciationService extends DepreciationPort {
   }
 }
 
+function summariseRun(run: FixedAssetDepreciationRun, people: Map<string, string>): DepreciationRunSummary {
+  return {
+    id: run.id,
+    periodEnd: toIsoDate(run.periodEnd),
+    trigger: run.trigger,
+    fixedAsset: run.fixedAsset ? { id: run.fixedAsset.id, number: run.fixedAsset.number, name: run.fixedAsset.name } : null,
+    ranByUserId: run.ranByUserId,
+    ranByName: people.get(run.ranByUserId ?? '') ?? null,
+    assetCount: run.assetCount,
+    chargeCount: run.chargeCount,
+    total: run.total,
+    createdAt: run.createdAt,
+  };
+}
+
+/** The last day of the last month that has ended on `today`: the month before today's. */
+export function lastEndedMonth(today: IsoDate): IsoDate {
+  return previousDay(startOfMonthIso(today));
+}
+
+/** A posted run, or a preview: postable unless the month has not ended. */
+function postability(blocked: DepreciationRunResult['notPostable']): Pick<DepreciationRunResult, 'postable' | 'notPostable'> {
+  return { postable: blocked === null, notPostable: blocked };
+}
+
 function summarise(
   periodEnd: IsoDate,
+  runId: string | null,
   journalEntryId: string | null,
   planned: PlannedAsset[],
   skipped: DepreciationRunResult['skipped'],
@@ -365,6 +585,7 @@ function summarise(
   const totalCents = planned.reduce((sum, item) => sum + toCents(item.amount), 0);
   return {
     periodEnd,
+    runId,
     journalEntryId,
     total: roundAmount(totalCents / 100),
     assets: planned.map(({ asset, charges, amount }) => ({
@@ -375,5 +596,7 @@ function summarise(
       amount,
     })),
     skipped,
+    postable: true,
+    notPostable: null,
   };
 }

@@ -99,7 +99,7 @@ export class RecordCompanyParameterDto {
   @Type(() => WithholdingBracketDto)
   brackets?: WithholdingBracketDto[] | null;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   effectiveFrom: string;
 
   @IsString()

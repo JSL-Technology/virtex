@@ -93,10 +93,10 @@ export class CreateInvoiceDto {
   @IsOptional()
   branchId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   issueDate: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   dueDate: string;
 
   @IsArray()

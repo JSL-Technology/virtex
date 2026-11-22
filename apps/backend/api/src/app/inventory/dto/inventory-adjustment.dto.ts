@@ -55,7 +55,7 @@ export class InventoryAdjustmentLineDto {
 }
 
 export class SaveInventoryAdjustmentDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   date: string;
 
   @IsUUID()
@@ -115,12 +115,12 @@ export class ReverseInventoryAdjustmentDto {
   reason: string;
 
   /** The reversal's date. Omitted, today in the company's calendar. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   date?: string;
 }
 
 export class AdjustmentDateQueryDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   date: string;
 }

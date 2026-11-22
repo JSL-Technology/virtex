@@ -27,7 +27,7 @@ export class CreatePeriodEndAdjustmentDto {
   })
   ledgerId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string;
 

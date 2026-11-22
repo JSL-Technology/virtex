@@ -2,9 +2,11 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FixedAssetsService } from './fixed-assets.service';
 import { DepreciationService } from './depreciation.service';
+import { DepreciationRunTrigger } from './entities/fixed-asset-depreciation-run.entity';
 import {
   CreateFixedAssetDto,
   DepreciationRunDto,
+  DepreciationRunsQueryDto,
   DisposeAssetDto,
   FixedAssetsQueryDto,
   UpdateFixedAssetDto,
@@ -37,15 +39,32 @@ export class FixedAssetsController {
     return this.depreciation.preview(user.organizationId, `${query.period}-01`);
   }
 
+  /** The runs that charged something, newest first: when, why, who, and how much. */
+  @Get('depreciation-runs')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  listRuns(@Query() query: DepreciationRunsQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.depreciation.listRuns(user.organizationId, query);
+  }
+
+  /** One run: every asset-month it charged, and the entries that carry them. */
+  @Get('depreciation-runs/:runId')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  findRun(@Param('runId', UuidParamPipe) runId: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.depreciation.findRun(runId, user.organizationId);
+  }
+
   /**
    * Charge every asset everything it is due through the month. Idempotent by construction: a month
-   * already charged is not charged again, whoever ran it.
+   * already charged is not charged again, whoever ran it. A month that has not ended is refused.
    */
   @Post('depreciation-runs')
   @Idempotent()
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
   runDepreciation(@Body() dto: DepreciationRunDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.depreciation.runMonthlyDepreciation(user.organizationId, `${dto.period}-01`);
+    return this.depreciation.runMonthlyDepreciation(user.organizationId, `${dto.period}-01`, {
+      trigger: DepreciationRunTrigger.MANUAL,
+      ranByUserId: user.id,
+    });
   }
 
   @Post()

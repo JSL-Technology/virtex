@@ -69,7 +69,7 @@ export class CreateJournalEntryLineDto {
    * date an opening balance was incurred. Never after the entry's date. Omitted: the entry's date.
    */
   @IsOptional()
-  @IsDateString({}, { message: 'validation.create_journal_entry.origin_date_must_date' })
+  @IsDateString({ strict: true }, { message: 'validation.create_journal_entry.origin_date_must_date' })
   originDate?: string;
 
   /**
@@ -123,7 +123,7 @@ export class CreateJournalEntryLineDto {
 }
 
 export class CreateJournalEntryDto {
-  @IsDateString({}, { message: 'validation.create_journal_entry.date_must_valid_iso_8601_format' })
+  @IsDateString({ strict: true }, { message: 'validation.create_journal_entry.date_must_valid_iso_8601_format' })
   @IsNotEmpty({ message: 'validation.create_journal_entry.entry_date_required' })
   date: string;
 

@@ -8,7 +8,7 @@ export class CreateAuditAdjustmentDto {
   @IsNotEmpty()
   fiscalYearId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string;
 

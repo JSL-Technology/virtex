@@ -13,11 +13,11 @@ import {
 } from 'class-validator';
 
 export class JournalReportDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty({ message: 'validation.journal_report.start_date_required' })
   startDate: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty({ message: 'validation.journal_report.end_date_required' })
   endDate: string;
 

@@ -6,12 +6,16 @@ import { FixedAssetsPage } from './fixed-assets.page';
 import { FixedAssetFormPage } from './fixed-asset-form.page';
 import { FixedAssetDisposePage, carryingOnDisposal } from './fixed-asset-dispose.page';
 import { DepreciationRunPage, previousMonth } from './depreciation-run.page';
+import { DepreciationRunsPage, depreciationRunTriggerKey } from './depreciation-runs.page';
+import { DepreciationRunDetailPage } from './depreciation-run-detail.page';
 import { FixedAsset, FixedAssetSchedule, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
+import { AuthService } from '../../../core/services/auth';
+import { authServiceMock } from '../../../../testing/service-mocks';
 
 describe('fixed assets', () => {
   const asset = (overrides: Partial<FixedAsset> = {}): FixedAsset => ({
@@ -43,6 +47,19 @@ describe('fixed assets', () => {
     ...overrides,
   });
 
+  const run = () => ({
+    id: 'run-1',
+    periodEnd: '2026-03-31',
+    trigger: 'MANUAL' as const,
+    fixedAsset: null,
+    ranByUserId: 'u-1',
+    ranByName: 'Ana Pérez',
+    assetCount: 1,
+    chargeCount: 2,
+    total: 4_000,
+    createdAt: '2026-04-02T14:00:00.000Z',
+  });
+
   let api: Record<string, jest.Mock>;
   let notifications: Record<string, jest.Mock>;
 
@@ -55,10 +72,24 @@ describe('fixed assets', () => {
       update: jest.fn().mockReturnValue(of(asset())),
       dispose: jest.fn().mockReturnValue(of(asset({ status: 'SOLD' }))),
       previewDepreciation: jest.fn().mockReturnValue(
-        of({ periodEnd: '2026-03-31', journalEntryId: null, total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [] }),
+        of({ periodEnd: '2026-03-31', journalEntryId: null, total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], postable: true, notPostable: null }),
       ),
       runDepreciation: jest.fn().mockReturnValue(
-        of({ periodEnd: '2026-03-31', journalEntryId: 'je-1', total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [] }),
+        of({ periodEnd: '2026-03-31', runId: 'run-1', journalEntryId: 'je-1', total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], postable: true, notPostable: null }),
+      ),
+      listRuns: jest.fn().mockReturnValue(of({ rows: [run()], page: 1, pageSize: 50, total: 1, hasMore: false })),
+      getRun: jest.fn().mockReturnValue(
+        of({
+          ...run(),
+          charges: [
+            { fixedAssetId: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', periodEnd: '2026-02-28', amount: 2_000, accumulatedAfter: 4_000, bookValueAfter: 116_000, journalEntryId: 'je-2' },
+            { fixedAssetId: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', periodEnd: '2026-03-31', amount: 2_000, accumulatedAfter: 6_000, bookValueAfter: 114_000, journalEntryId: 'je-3' },
+          ],
+          entries: [
+            { id: 'je-2', entryNumber: 'DEPREC-2026-000002', date: '2026-02-28', total: 2_000 },
+            { id: 'je-3', entryNumber: 'DEPREC-2026-000003', date: '2026-03-31', total: 2_000 },
+          ],
+        }),
       ),
     };
     notifications = {
@@ -76,6 +107,7 @@ describe('fixed assets', () => {
         { provide: ChartOfAccountsApiService, useValue: { searchAccounts: () => of([]), getAccountById: (id: string) => of({ id, code: '1', name: 'x' }) } },
         { provide: BranchesService, useValue: { hasBranches: () => false, branches: () => [], load: jest.fn() } },
         { provide: ActiveOrganizationService, useValue: { urlFor: (path: string) => path } },
+        { provide: AuthService, useValue: authServiceMock({ permissions: ['fixed_assets:manage'] }) },
       ],
     });
   }
@@ -204,6 +236,67 @@ describe('fixed assets', () => {
     await page.run();
     expect(api['runDepreciation']).toHaveBeenCalledWith(previousMonth());
     expect(page.posted()?.journalEntryId).toBe('je-1');
+    // What it posted is a run, and the summary leads to it.
+    expect(page.posted()?.runId).toBe('run-1');
+  });
+
+  it('lists the runs, by what set them going', () => {
+    const fixture = TestBed.createComponent(DepreciationRunsPage);
+    const page = fixture.componentInstance;
+    page.ngOnInit();
+    expect(api['listRuns']).toHaveBeenCalledWith({ trigger: null, page: 1, pageSize: 50 });
+    expect(page.rows()).toHaveLength(1);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Ana Pérez');
+
+    page.setTrigger('DISPOSAL');
+    expect(api['listRuns']).toHaveBeenLastCalledWith({ trigger: 'DISPOSAL', page: 1, pageSize: 50 });
+    expect(depreciationRunTriggerKey('PERIOD_CLOSE')).toBe('fixed_assets.runs.trigger.period_close');
+  });
+
+  it('shows one run: each month it charged, and the entry that carries it', () => {
+    const fixture = TestBed.createComponent(DepreciationRunDetailPage);
+    fixture.componentRef.setInput('id', 'run-1');
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    expect(api['getRun']).toHaveBeenCalledWith('run-1');
+    expect(page.run()?.charges).toHaveLength(2);
+    expect(page.entryNumbers().get('je-3')).toBe('DEPREC-2026-000003');
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('DEPREC-2026-000002');
+    expect(text).toContain('Ana Pérez');
+  });
+
+  it('shows what a month still running would charge, and does not offer to post it', async () => {
+    const blocked = { key: 'fixed_assets.depreciation_period_not_ended', params: { period: '2026-11', today: '2026-11-07' } };
+    api['previewDepreciation'].mockReturnValue(
+      of({ periodEnd: '2026-11-30', journalEntryId: null, total: 2_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 1, amount: 2_000 }], skipped: [], postable: false, notPostable: blocked }),
+    );
+    const fixture = TestBed.createComponent(DepreciationRunPage);
+    const page = fixture.componentInstance;
+    page.setPeriod('2026-11');
+    fixture.detectChanges();
+
+    expect(page.rows()).toHaveLength(1);
+    expect(page.notPostable()).toEqual(blocked);
+    expect(page.canPost()).toBe(false);
+    const post = fixture.nativeElement.querySelector('button.primary-button') as HTMLButtonElement | null;
+    expect(post).not.toBeNull();
+    expect(post!.disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain('fixed_assets.depreciation_period_not_ended');
+
+    await page.run();
+    expect(api['runDepreciation']).not.toHaveBeenCalled();
+  });
+
+  it('offers to post a month that has ended', () => {
+    const fixture = TestBed.createComponent(DepreciationRunPage);
+    fixture.componentInstance.ngOnInit();
+    fixture.detectChanges();
+    const post = fixture.nativeElement.querySelector('button.primary-button') as HTMLButtonElement | null;
+    expect(post).not.toBeNull();
+    expect(post!.disabled).toBe(false);
+    expect(fixture.componentInstance.notPostable()).toBeNull();
   });
 
   it('runs for the month before today', () => {

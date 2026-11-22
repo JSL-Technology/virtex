@@ -140,6 +140,12 @@ export async function allowPostingsThrough(manager: EntityManager, endDate: Date
   await manager.query(`SELECT set_config($1, $2, true)`, [CLOSING_THROUGH_SETTING, toIsoDate(endDate)]);
 }
 
+/** The end of the period a close running on this transaction is closing, or null outside one. */
+export async function closingThrough(manager: EntityManager): Promise<string | null> {
+  const [row] = await manager.query(`SELECT NULLIF(current_setting($1, true), '') AS closing`, [CLOSING_THROUGH_SETTING]);
+  return row?.closing ?? null;
+}
+
 /** `YYYY-MM-DD` plus `days`, on the calendar. */
 function addDays(isoDate: string, days: number): string {
   const date = new Date(`${isoDate}T00:00:00Z`);

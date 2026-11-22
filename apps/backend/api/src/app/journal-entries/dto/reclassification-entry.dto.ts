@@ -15,7 +15,7 @@ export class CreateReclassificationEntryDto {
   })
   ledgerId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string;
 

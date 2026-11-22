@@ -39,6 +39,16 @@
     "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
     "pt": "O diário de Depreciação (DEPREC) não foi encontrado. Crie um diário com esse código para continuar."
   },
+  "fixed_assets.depreciation_period_not_ended": {
+    "es": "El mes {{period}} todavía no ha terminado (hoy es {{today}}): se deprecia cuando termina, o al cerrarlo.",
+    "en": "The month {{period}} has not ended yet (today is {{today}}): it is depreciated once it ends, or when it is closed.",
+    "pt": "O mês {{period}} ainda não terminou (hoje é {{today}}): ele é depreciado quando terminar, ou ao fechá-lo."
+  },
+  "fixed_assets.depreciation_run_not_found": {
+    "es": "La corrida de depreciación {{id}} no existe.",
+    "en": "Depreciation run {{id}} does not exist.",
+    "pt": "A execução de depreciação {{id}} não existe."
+  },
   "fixed_assets.disposal_before_acquisition": {
     "es": "La baja no puede ser anterior a la adquisición ({{date}}).",
     "en": "The disposal cannot be earlier than the acquisition ({{date}}).",
@@ -278,6 +288,11 @@
     "es": "Ver asiento",
     "en": "View entry",
     "pt": "Ver lançamento"
+  },
+  "fixed_assets.document.view_run": {
+    "es": "corrida",
+    "en": "run",
+    "pt": "execução"
   },
   "fixed_assets.fixed_asset_id_not_found": {
     "es": "Activo fijo con ID \"{{id}}\" no encontrado.",
@@ -629,6 +644,11 @@
     "en": "Depreciation could not be posted.",
     "pt": "Não foi possível lançar a depreciação."
   },
+  "fixed_assets.run.history": {
+    "es": "Corridas anteriores",
+    "en": "Past runs",
+    "pt": "Execuções anteriores"
+  },
   "fixed_assets.run.load_failed": {
     "es": "No se pudo calcular la depreciación del mes.",
     "en": "The month's depreciation could not be calculated.",
@@ -703,6 +723,126 @@
     "es": "Ver asiento",
     "en": "View entry",
     "pt": "Ver lançamento"
+  },
+  "fixed_assets.run.view_run": {
+    "es": "Ver la corrida",
+    "en": "View the run",
+    "pt": "Ver a execução"
+  },
+  "fixed_assets.runs.assets": {
+    "es": "Activos",
+    "en": "Assets",
+    "pt": "Ativos"
+  },
+  "fixed_assets.runs.back": {
+    "es": "Corridas",
+    "en": "Runs",
+    "pt": "Execuções"
+  },
+  "fixed_assets.runs.by_system": {
+    "es": "El sistema",
+    "en": "The system",
+    "pt": "O sistema"
+  },
+  "fixed_assets.runs.charged": {
+    "es": "Lo que cargó, activo por activo y mes por mes",
+    "en": "What it charged, asset by asset and month by month",
+    "pt": "O que lançou, ativo por ativo e mês a mês"
+  },
+  "fixed_assets.runs.charges": {
+    "es": "Meses cargados",
+    "en": "Months charged",
+    "pt": "Meses lançados"
+  },
+  "fixed_assets.runs.disposed_asset": {
+    "es": "Activo dado de baja",
+    "en": "Asset disposed of",
+    "pt": "Ativo baixado"
+  },
+  "fixed_assets.runs.document_title": {
+    "es": "Depreciación hasta {{month}}",
+    "en": "Depreciation through {{month}}",
+    "pt": "Depreciação até {{month}}"
+  },
+  "fixed_assets.runs.empty_help": {
+    "es": "Aparecen aquí cuando una corrida carga depreciación: la mensual, la de un cierre, la que lanzas desde el tablero o la de una baja.",
+    "en": "They appear here once a run charges depreciation: the monthly one, a close's, the one you start from the board, or a disposal's.",
+    "pt": "Aparecem aqui quando uma execução lança depreciação: a mensal, a de um fechamento, a que você inicia no painel ou a de uma baixa."
+  },
+  "fixed_assets.runs.empty_title": {
+    "es": "Todavía no hay corridas",
+    "en": "No runs yet",
+    "pt": "Ainda não há execuções"
+  },
+  "fixed_assets.runs.entries": {
+    "es": "Asientos",
+    "en": "Entries",
+    "pt": "Lançamentos"
+  },
+  "fixed_assets.runs.entry_date": {
+    "es": "Fecha del asiento",
+    "en": "Entry date",
+    "pt": "Data do lançamento"
+  },
+  "fixed_assets.runs.load_failed": {
+    "es": "No se pudieron cargar las corridas.",
+    "en": "The runs could not be loaded.",
+    "pt": "Não foi possível carregar as execuções."
+  },
+  "fixed_assets.runs.load_one_failed": {
+    "es": "No se pudo cargar la corrida.",
+    "en": "The run could not be loaded.",
+    "pt": "Não foi possível carregar a execução."
+  },
+  "fixed_assets.runs.ran_at": {
+    "es": "Fecha de la corrida",
+    "en": "Ran at",
+    "pt": "Data da execução"
+  },
+  "fixed_assets.runs.ran_by": {
+    "es": "Ejecutada por",
+    "en": "Run by",
+    "pt": "Executada por"
+  },
+  "fixed_assets.runs.subtitle": {
+    "es": "Cada corrida que cargó depreciación: cuándo, por qué, quién, hasta qué mes y cuánto.",
+    "en": "Every run that charged depreciation: when, why, who, through which month and how much.",
+    "pt": "Cada execução que lançou depreciação: quando, por quê, quem, até qual mês e quanto."
+  },
+  "fixed_assets.runs.through": {
+    "es": "Hasta el mes",
+    "en": "Through",
+    "pt": "Até o mês"
+  },
+  "fixed_assets.runs.title": {
+    "es": "Corridas de depreciación",
+    "en": "Depreciation runs",
+    "pt": "Execuções de depreciação"
+  },
+  "fixed_assets.runs.trigger.disposal": {
+    "es": "Baja de un activo",
+    "en": "Asset disposal",
+    "pt": "Baixa de um ativo"
+  },
+  "fixed_assets.runs.trigger.manual": {
+    "es": "Manual",
+    "en": "Manual",
+    "pt": "Manual"
+  },
+  "fixed_assets.runs.trigger.period_close": {
+    "es": "Cierre de período",
+    "en": "Period close",
+    "pt": "Fechamento de período"
+  },
+  "fixed_assets.runs.trigger.schedule": {
+    "es": "Programada (mensual)",
+    "en": "Scheduled (monthly)",
+    "pt": "Agendada (mensal)"
+  },
+  "fixed_assets.runs.trigger_label": {
+    "es": "Origen",
+    "en": "Started by",
+    "pt": "Origem"
   },
   "fixed_assets.status.disposed": {
     "es": "Dado de baja",

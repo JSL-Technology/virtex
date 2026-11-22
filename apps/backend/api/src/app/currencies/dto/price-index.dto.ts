@@ -27,7 +27,7 @@ export class PriceIndexEntryDto {
   value: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsDateString({ strict: true }, { message: 'validation.constraints.is_date_string' })
   publishedOn?: string;
 
   /** The publication it was read from. */

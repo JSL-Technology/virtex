@@ -403,6 +403,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:message-params
 
+      # A day that does not exist («2026-02-30») is refused at the door, not by a 500 from the
+      # database (FINB-14): every IsDateString strict, no date validated by its shape.
+      - name: npm run verify:date-validators
+        if: ${{ !cancelled() }}
+        run: npm run verify:date-validators
+
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.
@@ -548,6 +554,20 @@ jobs:
       - name: npm run verify:exchange-rates (como virtex_app)
         if: ${{ !cancelled() }}
         run: npm run verify:exchange-rates
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # Fixed assets (FINB-11, 13, 14, 17), over the HTTP API of a QA company: an impossible date is a
+      # 400; the accelerated methods charge their real life; a month that has not ended is previewed,
+      # not posted; a run is a document its entries lead to, and a disposal is the register's —
+      # and again as `virtex_app`.
+      - name: npm run verify:fixed-assets
+        if: ${{ !cancelled() }}
+        run: npm run verify:fixed-assets
+      - name: npm run verify:fixed-assets (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:fixed-assets
         env:
           DB_USERNAME: virtex_app
           DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}

@@ -33,6 +33,8 @@ export interface FixedAssetSchedule {
     accumulatedAfter: number;
     bookValueAfter: number;
     journalEntryId: string;
+    /** The run that charged it; null for a month charged before runs were recorded. */
+    runId: string | null;
   }>;
   projected: ScheduledCharge[];
 }
@@ -165,6 +167,7 @@ export class FixedAssetsService {
         accumulatedAfter: row.accumulatedAfter,
         bookValueAfter: row.bookValueAfter,
         journalEntryId: row.journalEntryId,
+        runId: row.runId,
       })),
       projected: asset.status === FixedAssetStatus.IN_USE ? remainingSchedule(asset) : [],
     };
@@ -318,7 +321,7 @@ export class FixedAssetsService {
 
       const lastMonthBefore = previousDay(startOfMonthIso(dto.disposalDate));
       if (lastMonthBefore >= asset.inServiceDate.slice(0, 7)) {
-        await this.depreciation.chargeAsset(manager, asset, lastMonthBefore);
+        await this.depreciation.chargeAsset(manager, asset, lastMonthBefore, actorUserId);
       }
 
       const carrying = roundAmount(asset.cost - asset.accumulatedDepreciation);
@@ -375,7 +378,9 @@ export class FixedAssetsService {
         manager,
         { date: dto.disposalDate, description: words.header, journalId: journal.id, lines } as CreateJournalEntryDto,
         organizationId,
-        { actorUserId },
+        // A disposal is a document of the register: the entry says so and leads back to the asset,
+        // instead of reading as a hand-made entry nobody can trace (FINB-17).
+        { actorUserId, systemReason: 'fixed-asset-disposal', idempotencyKey: `fixed-asset-disposal:${asset.id}` },
       );
 
       asset.status = salePrice > 0 ? FixedAssetStatus.SOLD : FixedAssetStatus.DISPOSED;

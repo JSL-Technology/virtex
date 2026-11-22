@@ -104,8 +104,8 @@ export class CreateAccountDto {
   @IsOptional() @IsString() @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
   fiscalGroupingCode?: string;
 
-  @IsDateString() @IsOptional() effectiveFrom?: string;
-  @IsDateString() @IsOptional() effectiveTo?: string;
+  @IsDateString({ strict: true }) @IsOptional() effectiveFrom?: string;
+  @IsDateString({ strict: true }) @IsOptional() effectiveTo?: string;
 
   @IsOptional()
   @ValidateNested()

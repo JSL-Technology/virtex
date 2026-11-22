@@ -2,11 +2,11 @@ import { IsDateString, IsOptional, IsString, Length } from 'class-validator';
 
 /** The window and currency of a statement of account. Defaults: this year to date, base currency. */
 export class StatementQueryDto {
-  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsDateString({ strict: true }, { message: 'validation.constraints.is_date_string' })
   @IsOptional()
   from?: string;
 
-  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsDateString({ strict: true }, { message: 'validation.constraints.is_date_string' })
   @IsOptional()
   to?: string;
 

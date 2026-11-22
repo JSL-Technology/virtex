@@ -141,6 +141,9 @@
                       @if (entryLink(row.journalEntryId); as link) {
                         <a [routerLink]="link">{{ 'fixed_assets.document.view_entry' | translate }}</a>
                       }
+                      @if (row.runId) {
+                        · <a [routerLink]="['/accounting/fixed-assets/depreciation-runs', row.runId]">{{ 'fixed_assets.document.view_run' | translate }}</a>
+                      }
                     </td>
                   </tr>
                 }

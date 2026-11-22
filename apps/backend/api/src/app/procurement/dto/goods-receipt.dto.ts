@@ -31,11 +31,11 @@ export class GoodsReceiptQueryDto {
   @IsOptional()
   status?: GoodsReceiptStatus;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   from?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   to?: string;
 
@@ -62,7 +62,7 @@ export class VoidGoodsReceiptDto {
   reason: string;
 
   /** The reversal's booking date (YYYY-MM-DD). Today, in the company's zone, when omitted. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   reversalDate?: string;
 }
@@ -91,7 +91,7 @@ export class ReturnGoodsDto {
   @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   reason: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   date?: string;
 }

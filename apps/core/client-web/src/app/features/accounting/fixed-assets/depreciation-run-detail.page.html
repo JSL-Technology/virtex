@@ -1,0 +1,110 @@
+<vx-document-shell
+  [title]="run() ? ('fixed_assets.runs.document_title' | translate: { month: (run()!.periodEnd | vxDate: 'monthYear' : true) }) : ('page_titles.depreciation_run_detail' | translate)"
+  [subtitle]="run() ? (run()!.createdAt | vxDate: 'dateTime') : null"
+  [statusKey]="run() ? triggerKey(run()!.trigger) : null"
+  [statusTone]="tone()"
+  [loading]="loading()"
+  [error]="error()"
+  backLabelKey="fixed_assets.runs.back"
+  (back)="goToList()"
+  (reload)="load()"
+>
+  @if (run(); as doc) {
+    <div class="doc-view">
+      <section class="doc-card">
+        <dl class="doc-facts">
+          <div>
+            <dt>{{ 'fixed_assets.runs.through' | translate }}</dt>
+            <dd>{{ doc.periodEnd | vxDate: 'monthYear' : true }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.runs.trigger_label' | translate }}</dt>
+            <dd>{{ triggerKey(doc.trigger) | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.runs.ran_by' | translate }}</dt>
+            <dd>{{ doc.ranByName ?? ('fixed_assets.runs.by_system' | translate) }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.runs.ran_at' | translate }}</dt>
+            <dd>{{ doc.createdAt | vxDate: 'dateTime' }}</dd>
+          </div>
+          @if (doc.fixedAsset; as asset) {
+            <div>
+              <dt>{{ 'fixed_assets.runs.disposed_asset' | translate }}</dt>
+              <dd><a [routerLink]="['/accounting/fixed-assets', asset.id]">{{ asset.number }} · {{ asset.name }}</a></dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'fixed_assets.runs.assets' | translate }}</dt>
+            <dd>{{ doc.assetCount }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.runs.charges' | translate }}</dt>
+            <dd>{{ doc.chargeCount }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.run.total' | translate }}</dt>
+            <dd><vx-amount [value]="doc.total" /></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="doc-card">
+        <h2 class="form-section-title">{{ 'fixed_assets.runs.entries' | translate }}</h2>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'fixed_assets.document.entry' | translate }}</th>
+                <th>{{ 'fixed_assets.runs.entry_date' | translate }}</th>
+                <th class="numeric">{{ 'fixed_assets.run.total' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of doc.entries; track entry.id) {
+                <tr>
+                  <td><a class="table-link" [routerLink]="entryLink(entry.id)">{{ entry.entryNumber ?? ('fixed_assets.document.view_entry' | translate) }}</a></td>
+                  <td>{{ entry.date | vxDate: 'date' : true }}</td>
+                  <td class="numeric"><vx-amount [value]="entry.total" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-card">
+        <h2 class="form-section-title">{{ 'fixed_assets.runs.charged' | translate }}</h2>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'fixed_assets.page.number' | translate }}</th>
+                <th>{{ 'fixed_assets.page.name' | translate }}</th>
+                <th>{{ 'fixed_assets.document.month' | translate }}</th>
+                <th class="numeric">{{ 'fixed_assets.document.charge' | translate }}</th>
+                <th class="numeric">{{ 'fixed_assets.page.accumulated' | translate }}</th>
+                <th class="numeric">{{ 'fixed_assets.page.book_value' | translate }}</th>
+                <th>{{ 'fixed_assets.document.entry' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (charge of doc.charges; track charge.fixedAssetId + charge.periodEnd) {
+                <tr>
+                  <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', charge.fixedAssetId]">{{ charge.number }}</a></td>
+                  <td>{{ charge.name }}</td>
+                  <td>{{ charge.periodEnd | vxDate: 'monthYear' : true }}</td>
+                  <td class="numeric"><vx-amount [value]="charge.amount" /></td>
+                  <td class="numeric"><vx-amount [value]="charge.accumulatedAfter" /></td>
+                  <td class="numeric"><vx-amount [value]="charge.bookValueAfter" /></td>
+                  <td><a [routerLink]="entryLink(charge.journalEntryId)">{{ entryNumbers().get(charge.journalEntryId) ?? ('fixed_assets.document.view_entry' | translate) }}</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  }
+</vx-document-shell>

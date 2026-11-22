@@ -634,6 +634,12 @@
       "DOUBLE_DECLINING_BALANCE",
       "SUM_OF_YEARS_DIGITS"
     ],
+    "fixed_assets.runs.trigger": [
+      "SCHEDULE",
+      "PERIOD_CLOSE",
+      "MANUAL",
+      "DISPOSAL"
+    ],
     "fixed_assets.status": [
       "IN_USE",
       "SOLD",

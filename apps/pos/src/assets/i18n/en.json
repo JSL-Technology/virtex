@@ -184,6 +184,7 @@
   "errors.http_503": "The service is temporarily unavailable. Try again in a few minutes.",
   "errors.impersonate": "Impersonation could not be started.",
   "errors.internal": "Something went wrong on the server. The team has been notified; try again in a few minutes.",
+  "errors.invalid_date": "One of the dates does not exist on the calendar.",
   "errors.invalid_invitation_token": "The invitation link is not valid or has already been used. Ask whoever invited you for a new one.",
   "errors.invite_user": "The user could not be invited.",
   "errors.issue_credit_note": "The credit note could not be issued.",

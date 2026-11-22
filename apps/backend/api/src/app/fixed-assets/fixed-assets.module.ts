@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FixedAsset } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
+import { FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
 import { FixedAssetsService } from './fixed-assets.service';
 import { FixedAssetsController } from './fixed-assets.controller';
 // DepreciationModule provides AssetPostingService, DepreciationService, and DepreciationPort.
@@ -21,7 +22,7 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
     // `DepreciationModule` does `forFeature([FixedAsset])` for its own use but does not re-export
     // TypeOrmModule, so importing it brought the services and not the repository — and Nest could
     // not resolve `FixedAssetsService` at all, which stopped the application booting.
-    TypeOrmModule.forFeature([FixedAsset, FixedAssetDepreciation]),
+    TypeOrmModule.forFeature([FixedAsset, FixedAssetDepreciation, FixedAssetDepreciationRun]),
     DepreciationModule,
     forwardRef(() => JournalEntriesModule),
   ],

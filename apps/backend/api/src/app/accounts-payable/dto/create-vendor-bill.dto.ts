@@ -98,11 +98,11 @@ export class CreateVendorBillDto {
    * could not record a single purchase. `CreateInvoiceDto` already declares its dates as strings,
    * which is why sales never hit this.
    */
-  @IsDateString()
+  @IsDateString({ strict: true })
   date: string;
 
   /** Omitted: the bill date plus the supplier's payment terms (CMP-17). */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   dueDate?: string;
 

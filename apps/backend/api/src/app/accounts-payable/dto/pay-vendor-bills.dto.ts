@@ -54,7 +54,7 @@ export class PayVendorBillsDto {
   @IsOptional()
   branchId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   paymentDate: string;
 

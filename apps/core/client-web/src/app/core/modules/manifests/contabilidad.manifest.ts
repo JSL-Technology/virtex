@@ -347,6 +347,25 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       menu: { group: 'documents', labelKey: 'page_titles.depreciation_run' },
       load: () => import('../../../features/accounting/fixed-assets/depreciation-run.page').then((m) => m.DepreciationRunPage),
     },
+    // The runs that charged something, and each one (FINB-17): a run's entries lead here.
+    {
+      path: 'fixed-assets/depreciation-runs',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.depreciation_runs',
+      icon: 'History',
+      entityKeyFn: () => 'contabilidad:depreciation-runs',
+      load: () => import('../../../features/accounting/fixed-assets/depreciation-runs.page').then((m) => m.DepreciationRunsPage),
+    },
+    {
+      path: 'fixed-assets/depreciation-runs/:id',
+      kind: WindowKind.DOCUMENT,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.depreciation_run_detail',
+      icon: 'CalendarClock',
+      entityKeyFn: (p) => `contabilidad:depreciation-run:${p['id']}`,
+      load: () => import('../../../features/accounting/fixed-assets/depreciation-run-detail.page').then((m) => m.DepreciationRunDetailPage),
+    },
     // Restatement for inflation (FIN-AC-04): statements in constant currency where the economy calls
     // for them (IAS 29). The close books it under the company's policy; this window shows the month's
     // restatement and the index it multiplies by, restates a month by hand and keeps the runs.

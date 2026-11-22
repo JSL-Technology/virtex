@@ -7,8 +7,11 @@
   [empty]="empty()"
   (reload)="load()"
 >
+  <a listActions routerLink="/accounting/fixed-assets/depreciation-runs" class="secondary-button">
+    {{ 'fixed_assets.run.history' | translate }}
+  </a>
   <button listActions *appHasPermission="'fixed_assets:manage'" type="button" class="primary-button"
-          [disabled]="running() || rows().length === 0" (click)="run()">
+          [disabled]="!canPost()" (click)="run()">
     {{ (running() ? 'fixed_assets.run.posting' : 'fixed_assets.run.post') | translate }}
   </button>
 
@@ -26,10 +29,17 @@
     <!-- Slotted: once posted nothing is left due, the list is empty and the shell hid the summary. -->
     <p listCreate class="ls__state-help" role="status">
       {{ 'fixed_assets.run.posted_summary' | translate: { count: done.assets.length } }}
-      @if (entryLink(done.journalEntryId); as link) {
+      @if (done.runId) {
+        <a [routerLink]="['/accounting/fixed-assets/depreciation-runs', done.runId]">{{ 'fixed_assets.run.view_run' | translate }}</a>
+      } @else if (entryLink(done.journalEntryId); as link) {
         <a [routerLink]="link">{{ 'fixed_assets.run.view_entry' | translate }}</a>
       }
     </p>
+  }
+
+  @if (notPostable(); as blocked) {
+    <!-- The preview of a month still running shows what it will charge; posting waits for its end. -->
+    <p listCreate class="ls__state-help" role="status">{{ blocked.key | translate: blocked.params }}</p>
   }
 
   @if (preview()?.skipped?.length) {

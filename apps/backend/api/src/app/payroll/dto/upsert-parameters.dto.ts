@@ -29,7 +29,7 @@ export class UpsertContributionDto {
   legalBasis: string;
 
   /** Date the instrument was published in the official gazette, where known. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   publishedOn?: string | null;
 
@@ -40,10 +40,10 @@ export class UpsertContributionDto {
   @Matches(/^[A-Z][A-Z0-9_]{1,31}$/, { message: 'payroll.contribution_code_invalid' })
   code: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   effectiveFrom: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   effectiveTo?: string | null;
 
@@ -80,7 +80,7 @@ export class UpsertReferenceDto {
   legalBasis: string;
 
   /** Date the instrument was published in the official gazette, where known. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   publishedOn?: string | null;
 
@@ -90,10 +90,10 @@ export class UpsertReferenceDto {
   @IsEnum(StatutoryReferenceKey)
   key: StatutoryReferenceKey;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   effectiveFrom: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   effectiveTo?: string | null;
 
@@ -137,17 +137,17 @@ export class ReplaceTaxScaleDto {
   legalBasis: string;
 
   /** Date the instrument was published in the official gazette, where known. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   publishedOn?: string | null;
 
   @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   effectiveFrom: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   effectiveTo?: string | null;
 

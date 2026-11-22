@@ -62,11 +62,11 @@ export class StockMovementsQueryDto {
   @IsOptional()
   warehouseId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   from?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   to?: string;
 

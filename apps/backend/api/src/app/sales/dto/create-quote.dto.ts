@@ -63,11 +63,11 @@ export class CreateQuoteDto {
   @IsOptional()
   opportunityId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   issueDate: string;
 
   /** Valid until. Checked against `issueDate` by the service. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   expiryDate: string;
 
   @IsString()

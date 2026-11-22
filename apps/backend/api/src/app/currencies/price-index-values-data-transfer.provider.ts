@@ -13,6 +13,7 @@ import { PERMISSIONS } from '../shared/permissions';
 import { inflationAccountingOf } from '../markets';
 import { addMonthsIso, todayIso, toIsoMonth } from '../common/dates';
 import { PriceIndicesService, trimLevel } from './price-indices.service';
+import { IsIsoDate } from '../common/validators/is-iso-date.validator';
 
 /** A date cell (`2026-03-01`) is the month it falls in; a month (`2026-03`) is itself. */
 function monthOfCell({ obj, key }: { obj: Record<string, unknown>; key: string }): unknown {
@@ -48,7 +49,7 @@ export class PriceIndexImportRowDto {
   value: string;
 
   @IsOptional()
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'validation.constraints.is_date_string' })
+  @IsIsoDate()
   publishedOn?: string;
 
   @IsOptional()

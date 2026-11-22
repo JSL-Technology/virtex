@@ -32,11 +32,11 @@ export class UploadStatementDto {
   // The period and balances: required for a CSV, which carries neither; an OFX or camt.053 file
   // states them itself, and a value sent here must then agree with the file's.
 
-  @IsDateString({}, { message: 'validation.upload_statement.start_date_must_valid_date' })
+  @IsDateString({ strict: true }, { message: 'validation.upload_statement.start_date_must_valid_date' })
   @IsOptional()
   startDate?: string;
 
-  @IsDateString({}, { message: 'validation.upload_statement.end_date_must_valid_date' })
+  @IsDateString({ strict: true }, { message: 'validation.upload_statement.end_date_must_valid_date' })
   @IsOptional()
   endDate?: string;
 

@@ -271,6 +271,7 @@ export class PeriodClosingService {
         period,
         organizationId,
         manager,
+        actorUserId,
       );
 
       // Deliberately no closing entry. See `ResultTransferService`: moving the result to retained

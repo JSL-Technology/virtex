@@ -46,7 +46,7 @@ export class CreateVendorDebitNoteDto {
   expenseAccountId: string;
 
   /** The day it takes effect (YYYY-MM-DD). Today when omitted. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   date?: string;
 

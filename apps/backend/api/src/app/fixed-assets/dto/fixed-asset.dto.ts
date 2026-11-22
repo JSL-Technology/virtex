@@ -13,11 +13,11 @@ import {
   Min,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
 import { DepreciationMethod, FixedAssetStatus } from '../entities/fixed-asset.entity';
+import { DepreciationRunTrigger } from '../entities/fixed-asset-depreciation-run.entity';
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
-const DATE_MESSAGE = 'validation.constraints.is_iso_date';
 
 /**
  * Registering an asset.
@@ -41,11 +41,11 @@ export class CreateFixedAssetDto {
   @IsOptional()
   branchId?: string | null;
 
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   acquisitionDate: string;
 
   /** Defaults to the acquisition date. */
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   @IsOptional()
   inServiceDate?: string;
 
@@ -118,11 +118,11 @@ export class UpdateFixedAssetDto {
   @IsOptional()
   branchId?: string | null;
 
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   @IsOptional()
   acquisitionDate?: string;
 
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   @IsOptional()
   inServiceDate?: string;
 
@@ -178,7 +178,7 @@ export class UpdateFixedAssetDto {
 
 /** Retiring an asset: sold, scrapped, lost. */
 export class DisposeAssetDto {
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   disposalDate: string;
 
   /** What it was sold for. Zero for a write-off. */
@@ -228,4 +228,15 @@ export class FixedAssetsQueryDto extends PaginationQueryDto {
 export class DepreciationRunDto {
   @Matches(ISO_MONTH)
   period: string;
+}
+
+/** The runs on the board: what set them going, or the runs that charged one asset. */
+export class DepreciationRunsQueryDto extends PaginationQueryDto {
+  @IsEnum(DepreciationRunTrigger)
+  @IsOptional()
+  trigger?: DepreciationRunTrigger;
+
+  @IsUUID()
+  @IsOptional()
+  fixedAssetId?: string;
 }

@@ -70,11 +70,11 @@ export class CreateTaxJurisdictionDto {
   @IsOptional()
   sourcing?: SourcingRule;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   effectiveFrom: string;
 
   /** Null while current. A superseded rate keeps its own window so old documents stay priceable. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   effectiveTo?: string | null;
 }

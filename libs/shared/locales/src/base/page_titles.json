@@ -204,6 +204,16 @@
     "en": "Run depreciation",
     "pt": "Executar depreciação"
   },
+  "page_titles.depreciation_run_detail": {
+    "es": "Corrida de depreciación",
+    "en": "Depreciation run",
+    "pt": "Execução de depreciação"
+  },
+  "page_titles.depreciation_runs": {
+    "es": "Corridas de depreciación",
+    "en": "Depreciation runs",
+    "pt": "Execuções de depreciação"
+  },
   "page_titles.dimensions": {
     "es": "Dimensiones analíticas",
     "en": "Analytic dimensions",

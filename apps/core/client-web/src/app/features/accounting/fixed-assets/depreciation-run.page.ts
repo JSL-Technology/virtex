@@ -22,7 +22,8 @@ export function previousMonth(today = new Date()): string {
  * Running depreciation (audit H-21): pick the month, see what each asset is due — every month it
  * is behind, not only this one — and post it as one entry. It runs on its own on the first of each
  * month and at each period close; this is for running it now, or catching up an asset registered
- * late. Running it twice charges nothing twice.
+ * late. Running it twice charges nothing twice. A month that has not ended can be previewed — what
+ * it will charge — but not posted (FINB-13).
  */
 @Component({
   selector: 'app-depreciation-run-page',
@@ -47,6 +48,12 @@ export class DepreciationRunPage implements OnInit {
   readonly error = signal<string | null>(null);
 
   readonly rows = computed(() => this.preview()?.assets ?? []);
+  /** Why the month on screen cannot be posted yet — it has not ended — or null. */
+  readonly notPostable = computed(() => {
+    const preview = this.preview();
+    return preview && !preview.postable ? preview.notPostable : null;
+  });
+  readonly canPost = computed(() => !this.running() && this.rows().length > 0 && this.preview()?.postable === true);
   readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0 && !this.preview()?.skipped.length);
 
   ngOnInit(): void {
@@ -77,7 +84,7 @@ export class DepreciationRunPage implements OnInit {
 
   async run(): Promise<void> {
     const preview = this.preview();
-    if (!preview || preview.assets.length === 0) return;
+    if (!preview || !this.canPost()) return;
     const confirmed = await this.dialog.confirm({
       title: 'fixed_assets.run.confirm_title',
       message: 'fixed_assets.run.confirm_message',

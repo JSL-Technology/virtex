@@ -184,6 +184,7 @@
   "errors.http_503": "O serviço está temporariamente indisponível. Tente novamente em alguns minutos.",
   "errors.impersonate": "Não foi possível iniciar a personificação.",
   "errors.internal": "Ocorreu um problema no servidor. A equipe já foi notificada; tente novamente em alguns minutos.",
+  "errors.invalid_date": "Uma das datas não existe no calendário.",
   "errors.invalid_invitation_token": "A ligação de convite não é válida ou já foi utilizada. Peça uma nova a quem o convidou.",
   "errors.invite_user": "Não foi possível convidar o usuário.",
   "errors.issue_credit_note": "Não foi possível emitir a nota de crédito.",

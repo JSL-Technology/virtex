@@ -61,7 +61,7 @@ export class CreateCustomerPaymentDto {
   @IsNotEmpty()
   customerId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   paymentDate: string;
 
@@ -124,7 +124,7 @@ export class VoidCustomerPaymentDto {
   reason: string;
 
   /** When the reversal is booked. Defaults to today. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   reversalDate?: string;
 }

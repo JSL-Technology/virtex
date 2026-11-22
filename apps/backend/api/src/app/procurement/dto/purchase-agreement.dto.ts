@@ -58,10 +58,10 @@ export class CreateAgreementDto {
   @IsUUID()
   supplierId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   validFrom: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   validTo: string;
 
   @IsString()
@@ -109,7 +109,7 @@ export class ReleaseAgreementDto {
   @IsOptional()
   branchId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   expectedDate?: string;
 

@@ -49,7 +49,7 @@ export class PurchaseRequisitionLineDto {
  * is a number an approver signs that means nothing.
  */
 export class CreatePurchaseRequisitionDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   requiredDate?: string;
 

@@ -42,6 +42,10 @@ const DOCUMENT_ROUTES: Readonly<Record<string, (id: string) => string | null>> =
   'audit-adjustment-close': () => null,
   // A restatement for inflation is corrected by replacing or undoing its run (FIN-AC-04).
   'inflation-adjustment': () => '/accounting/inflation-adjustment',
+  // A depreciation run's entries lead to the run (`depreciation-run:<run>:<date>`); a disposal's, to
+  // the asset it took off the books.
+  'depreciation-run': (id) => `/accounting/fixed-assets/depreciation-runs/${id}`,
+  'fixed-asset-disposal': (id) => `/accounting/fixed-assets/${id}`,
 };
 
 export function describeEntryOrigin(entry: {

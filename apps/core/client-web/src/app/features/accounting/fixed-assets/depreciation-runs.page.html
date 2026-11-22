@@ -1,0 +1,74 @@
+<vx-list-shell
+  titleKey="fixed_assets.runs.title"
+  subtitleKey="fixed_assets.runs.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'fixed_assets:manage'" routerLink="/accounting/fixed-assets/depreciation" class="secondary-button">
+    <lucide-icon [img]="RunIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'fixed_assets.page.run_depreciation' | translate }}</span>
+  </a>
+
+  <div listFilters class="doc-filter">
+    <label for="dr-trigger">{{ 'fixed_assets.runs.trigger_label' | translate }}</label>
+    <select id="dr-trigger" [ngModel]="triggerFilter()" (ngModelChange)="setTrigger($event)">
+      <option value="">{{ 'fixed_assets.page.all' | translate }}</option>
+      @for (trigger of triggers; track trigger) {
+        <option [value]="trigger">{{ triggerKey(trigger) | translate }}</option>
+      }
+    </select>
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'fixed_assets.runs.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'fixed_assets.runs.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'fixed_assets.runs.ran_at' | translate }}</th>
+          <th>{{ 'fixed_assets.runs.through' | translate }}</th>
+          <th>{{ 'fixed_assets.runs.trigger_label' | translate }}</th>
+          <th>{{ 'fixed_assets.runs.ran_by' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.runs.assets' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.runs.charges' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.run.total' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/accounting/fixed-assets/depreciation-runs', row.id]">{{ row.createdAt | vxDate: 'dateTime' }}</a></td>
+            <td>{{ row.periodEnd | vxDate: 'monthYear' : true }}</td>
+            <td>
+              <vx-badge [tone]="tones[row.trigger]">{{ triggerKey(row.trigger) | translate }}</vx-badge>
+              @if (row.fixedAsset; as asset) {
+                <a class="table-link" [routerLink]="['/accounting/fixed-assets', asset.id]">{{ asset.number }}</a>
+              }
+            </td>
+            <td>{{ row.ranByName ?? ('fixed_assets.runs.by_system' | translate) }}</td>
+            <td class="numeric">{{ row.assetCount }}</td>
+            <td class="numeric">{{ row.chargeCount }}</td>
+            <td class="numeric"><vx-amount [value]="row.total" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="pageSize()"
+    [total]="total()"
+    [pageSizes]="[50, 100, 200]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

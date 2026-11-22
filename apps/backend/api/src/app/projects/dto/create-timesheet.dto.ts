@@ -17,7 +17,7 @@ export class CreateTimesheetDto {
   @IsOptional()
   taskId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string;
 

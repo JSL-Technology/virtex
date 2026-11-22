@@ -58,6 +58,7 @@ export class ClosingAutomationService {
     period: AccountingPeriod,
     organizationId: string,
     manager: EntityManager,
+    closedByUserId: string | null = null,
   ): Promise<PreClosingOutcome[]> {
     // The one line this class exists for. `period.endDate` is a string at run time whatever its
     // declared type says; everything below is given an `IsoDate` and nothing re-derives it.
@@ -74,6 +75,7 @@ export class ClosingAutomationService {
         organizationId,
         { startDate: toIsoDate(period.startDate), endDate: periodEnd },
         manager,
+        closedByUserId,
       );
       outcomes.push({ task: 'depreciation', ranAt: periodEnd, performed: true });
     } catch (error) {

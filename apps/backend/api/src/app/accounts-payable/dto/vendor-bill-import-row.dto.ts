@@ -37,10 +37,10 @@ export class VendorBillImportRowDto {
   @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })
   supplierInvoiceNumber?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   date!: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   dueDate!: string;
 
   @IsString()

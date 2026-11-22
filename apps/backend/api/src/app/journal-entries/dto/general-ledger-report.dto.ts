@@ -28,11 +28,11 @@ export class GeneralLedgerReportDto {
   @IsNotEmpty({ message: 'validation.general_ledger_report.ledger_id_required' })
   ledgerId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty({ message: 'validation.general_ledger_report.start_date_required' })
   startDate: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty({ message: 'validation.general_ledger_report.end_date_required' })
   endDate: string;
 

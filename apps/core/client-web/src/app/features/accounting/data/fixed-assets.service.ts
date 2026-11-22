@@ -78,16 +78,62 @@ export interface ScheduledCharge {
 }
 
 export interface FixedAssetSchedule {
-  posted: Array<ScheduledCharge & { journalEntryId: string }>;
+  posted: Array<ScheduledCharge & { journalEntryId: string; runId: string | null }>;
   projected: ScheduledCharge[];
 }
 
 export interface DepreciationRunResult {
   periodEnd: string;
+  /** The run's record, or null when nothing was due (and for a preview). */
+  runId: string | null;
   journalEntryId: string | null;
   total: number;
   assets: Array<{ id: string; number: string; name: string; months: number; amount: number }>;
   skipped: Array<{ id: string; number: string; name: string; reason: string }>;
+  /**
+   * Whether the run can be posted: a month that has not ended yet in the company's calendar can be
+   * previewed, not posted — the reason comes as a message key with its values.
+   */
+  postable: boolean;
+  notPostable: { key: string; params: Record<string, unknown> } | null;
+}
+
+/** What set a depreciation run going. */
+export type DepreciationRunTrigger = 'SCHEDULE' | 'PERIOD_CLOSE' | 'MANUAL' | 'DISPOSAL';
+
+/** A run that charged something: when, why, who, through which month, and how much. */
+export interface DepreciationRunSummary {
+  id: string;
+  periodEnd: string;
+  trigger: DepreciationRunTrigger;
+  fixedAsset: { id: string; number: string; name: string } | null;
+  ranByUserId: string | null;
+  ranByName: string | null;
+  assetCount: number;
+  chargeCount: number;
+  total: number;
+  createdAt: string;
+}
+
+export interface DepreciationRunDetail extends DepreciationRunSummary {
+  charges: Array<{
+    fixedAssetId: string;
+    number: string;
+    name: string;
+    periodEnd: string;
+    amount: number;
+    accumulatedAfter: number;
+    bookValueAfter: number;
+    journalEntryId: string;
+  }>;
+  entries: Array<{ id: string; entryNumber: string | null; date: string; total: number }>;
+}
+
+export interface DepreciationRunQuery {
+  trigger?: DepreciationRunTrigger | null;
+  fixedAssetId?: string | null;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface FixedAssetQuery {
@@ -152,5 +198,17 @@ export class FixedAssetsService {
 
   runDepreciation(period: string): Observable<DepreciationRunResult> {
     return this.http.post<DepreciationRunResult>(`${this.base}/depreciation-runs`, { period });
+  }
+
+  listRuns(query: DepreciationRunQuery = {}): Observable<Page<DepreciationRunSummary>> {
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (value !== null && value !== undefined && value !== '') params = params.set(key, String(value));
+    }
+    return this.http.get<Page<DepreciationRunSummary>>(`${this.base}/depreciation-runs`, { params });
+  }
+
+  getRun(id: string): Observable<DepreciationRunDetail> {
+    return this.http.get<DepreciationRunDetail>(`${this.base}/depreciation-runs/${id}`);
   }
 }

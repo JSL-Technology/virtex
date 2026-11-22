@@ -47,11 +47,11 @@ export class CreatePriceListDto {
   // Strings, for the same reason as `CreateVendorBillDto`: `enableImplicitConversion` turns a
   // `Date`-typed property into a `Date` before validation, and `@IsDateString()` refuses anything
   // that is not a string, so the request could never be accepted.
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   validFrom: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   validTo: string;
 

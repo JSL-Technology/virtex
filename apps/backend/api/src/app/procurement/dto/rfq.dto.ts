@@ -53,7 +53,7 @@ export class CreateRfqDto {
   @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   responseDueDate?: string;
 
@@ -102,11 +102,11 @@ export class RecordQuoteDto {
   @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })
   reference?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   receivedOn?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   validUntil: string;
 
   @IsInt()
@@ -142,7 +142,7 @@ export class AwardQuoteDto {
   @IsOptional()
   branchId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   expectedDate?: string;
 }

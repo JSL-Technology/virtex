@@ -99,18 +99,19 @@ function monthlyCharge(
 
   let charge: number;
   switch (method) {
-    case DepreciationMethod.SUM_OF_YEARS_DIGITS: {
-      // The annual sum-of-the-years'-digits, spread evenly over each year's twelve months.
-      const years = Math.ceil(life / 12);
-      const sumOfDigits = (years * (years + 1)) / 2;
-      const year = Math.floor(age / 12) + 1;
-      charge = year <= years ? (depreciable * (years - year + 1)) / sumOfDigits / 12 : remaining;
+    case DepreciationMethod.SUM_OF_YEARS_DIGITS:
+      charge = sumOfYearsDigitsCharge(depreciable, life, age);
+      break;
+    case DepreciationMethod.DOUBLE_DECLINING_BALANCE: {
+      // Twice the straight-line rate on the book value at the start of the month — until straight
+      // line on what is left over the months left gives more, from when on that is the charge.
+      // Without the switch the declining balance never reached the residual on its own and the
+      // last month took the rest at once: 134.58 after 26.92 on a twelve-month asset (FINB-11).
+      const declining = (cost - accumulated) * (2 / life);
+      const straight = remaining / (life - age);
+      charge = Math.max(declining, straight);
       break;
     }
-    case DepreciationMethod.DOUBLE_DECLINING_BALANCE:
-      // Twice the straight-line rate on the book value at the start of the month.
-      charge = (cost - accumulated) * (2 / life);
-      break;
     case DepreciationMethod.STRAIGHT_LINE:
     default:
       // What is left over the months left. On schedule this is the depreciable base over the life;
@@ -120,4 +121,43 @@ function monthlyCharge(
       break;
   }
   return roundAmount(Math.max(0, Math.min(charge, remaining)));
+}
+
+/**
+ * The sum-of-the-years'-digits charge for month `age` (from 0) of a life of `life` months.
+ *
+ * Each year's digit is the life left at its start, weighted by how much of a year it is: L, L−1, …
+ * for the whole years of a life of L years, and f × f for a final part-year of f. A life in whole
+ * years gives the textbook schedule — 60 months: 5/15, 4/15, …, 1/15 — and every year's share is
+ * spread evenly over its months.
+ *
+ * It took the life as `ceil(L)` whole years, so a part-year was charged as if it were twelve
+ * months of its digit and the last month took whatever was left: 18 months charged 12 × 100,
+ * 5 × 50 and then 350 (FINB-11). With the part-year weighted for what it is, 18 months charge
+ * 1.5/1.75 of the base over the first twelve and 0.25/1.75 over the last six.
+ */
+function sumOfYearsDigitsCharge(depreciable: number, life: number, age: number): number {
+  // The difference of two rounded running totals, so the cents fall evenly month by month and the
+  // months add up to the base exactly, whatever the life — a share rounded month by month left
+  // the cents it lost for the last month.
+  return roundAmount(roundAmount(depreciable * sumOfYearsDigitsShare(life, age + 1)) - roundAmount(depreciable * sumOfYearsDigitsShare(life, age)));
+}
+
+/** The share of the base the sum of the years' digits has charged after `months` months of `life`. */
+function sumOfYearsDigitsShare(life: number, months: number): number {
+  const lifeYears = life / 12;
+  const wholeYears = Math.floor(lifeYears);
+  const partYear = lifeYears - wholeYears;
+  const sumOfDigits = wholeYears * lifeYears - (wholeYears * (wholeYears - 1)) / 2 + partYear * partYear;
+  const elapsed = Math.min(Math.max(months, 0), life);
+  const fullYears = Math.min(Math.floor(elapsed / 12), wholeYears);
+  let weight = fullYears * lifeYears - (fullYears * (fullYears - 1)) / 2;
+  const intoYear = elapsed - fullYears * 12;
+  if (fullYears < wholeYears) {
+    weight += ((lifeYears - fullYears) * intoYear) / 12;
+  } else {
+    const partMonths = life - wholeYears * 12;
+    if (partMonths > 0) weight += (partYear * partYear * Math.min(intoYear, partMonths)) / partMonths;
+  }
+  return weight / sumOfDigits;
 }

@@ -44,11 +44,11 @@ export class CreateProductionOrderDto {
   @IsOptional()
   status?: ProductionStatus;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   startDate?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   endDate?: string;
 }

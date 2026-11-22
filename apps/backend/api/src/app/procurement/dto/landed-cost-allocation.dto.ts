@@ -17,7 +17,7 @@ export class ApplyLandedCostDto {
   @Min(0.01, { message: 'validation.constraints.min|{"min":0.01}' })
   amount: number;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   date?: string;
 

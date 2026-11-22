@@ -23,7 +23,7 @@ export class ResolvePricesDto {
 
   /** The document's issue date; today when omitted. */
   @IsOptional()
-  @IsDateString()
+  @IsDateString({ strict: true })
   date?: string;
 
   @IsArray()

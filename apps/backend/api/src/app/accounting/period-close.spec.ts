@@ -40,6 +40,7 @@ import { InflationAdjustmentService } from './inflation-adjustment.service';
 import { PriceIndicesService } from '../currencies/price-indices.service';
 import { ResultTransferService } from './result-transfer.service';
 import { DepreciationService } from '../fixed-assets/depreciation.service';
+import { DepreciationRunTrigger } from '../fixed-assets/entities/fixed-asset-depreciation-run.entity';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
 import { ClosingChecklistService } from './closing-checklist.service';
 import { JournalQueryService } from '../journal-entries/services/journal-query.service';
@@ -411,7 +412,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       { accountId: account['revenue'], credit: 20_000 },
     ]);
 
-    await depreciation.runMonthlyDepreciation(organizationId, '2026-01-31');
+    await depreciation.runMonthlyDepreciation(organizationId, '2026-01-31', { trigger: DepreciationRunTrigger.SCHEDULE, ranByUserId: null });
     await closing.closePeriod(januaryId, organizationId, ACTOR);
 
     const charge = await balances.balanceOf(account['depreciation'], {

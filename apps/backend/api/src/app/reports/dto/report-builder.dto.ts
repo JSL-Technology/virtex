@@ -67,14 +67,14 @@ export class PeriodDefinition {
   @ApiProperty({
     description: 'Fecha de inicio del período en formato ISO 8601 (YYYY-MM-DD).',
   })
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   startDate: string;
 
   @ApiProperty({
     description: 'Fecha de fin del período en formato ISO 8601 (YYYY-MM-DD).',
   })
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   endDate: string;
 }

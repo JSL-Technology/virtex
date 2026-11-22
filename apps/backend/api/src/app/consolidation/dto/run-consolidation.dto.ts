@@ -2,7 +2,7 @@
 import { IsDateString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class RunConsolidationDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty({ message: 'validation.run_consolidation.consolidation_cut_off_date_required' })
   asOfDate: string;
 
@@ -14,7 +14,7 @@ export class RunConsolidationDto {
    * something over a stated period — and there was no consolidated result at all before, only a
    * statement of position.
    */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   startDate?: string;
 }
