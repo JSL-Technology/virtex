@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { SUPPORTED_LOCALES } from '@virtex/shared/types';
 import { applyRegionalCatalogue, type RegionalCatalogue } from './regional-catalogue';
 
 /**
@@ -48,10 +49,13 @@ const regional: RegionalCatalogue = Object.fromEntries(
 );
 
 describe('the regional layer', () => {
-  it('covers the markets this product is sold in', () => {
-    expect(Object.keys(regional).sort()).toEqual(
-      ['en-US', 'es-AR', 'es-CL', 'es-CO', 'es-DO', 'es-MX', 'es-PE', 'pt-BR'].sort(),
-    );
+  it('patches only locales the product can format', () => {
+    // WHICH markets have a patch is the market registry's question, and it is answered against the
+    // registry itself (`apps/backend/api/src/app/markets/regional-wording.spec.ts`: one patch per
+    // market, none left over). The list of eight written here went stale the day all nineteen
+    // markets got theirs, and kept this suite red for something that was correct.
+    expect(Object.keys(regional).length).toBeGreaterThan(0);
+    expect(Object.keys(regional).filter((locale) => !(SUPPORTED_LOCALES as readonly string[]).includes(locale))).toEqual([]);
   });
 
   it('only overrides keys the base catalogue has', () => {
