@@ -32,7 +32,7 @@ describe('AccountFormPage', () => {
     { id: 'g-revenue', code: '4100', name: { es: 'Ingresos' }, type: 'REVENUE', isPostable: false, parentId: null },
   ];
 
-  const build = async (id: string | null) => {
+  const build = async (id: string | null, inflationPolicy = 'NONE') => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [AccountFormPage],
@@ -59,6 +59,10 @@ describe('AccountFormPage', () => {
       .expectOne((r) => r.url === `${API}/chart-of-accounts/segment-definitions`)
       .flush([{ id: 's1', name: 'Cuenta', length: 4, isRequired: true, order: 1 }]);
     httpMock.expectOne((r) => r.url === `${API}/currencies`).flush([{ code: 'DOP' }, { code: 'USD' }]);
+    // Whether the company restates for inflation decides whether the account's restatement is asked.
+    httpMock
+      .expectOne((r) => r.url === `${API}/organizations/settings/closing`)
+      .flush({ section: 'closing', accounts: {}, expectedTypes: {}, fields: { inflationAdjustmentPolicy: inflationPolicy } });
     // Opened on its own (a link, a restored tab), the form reads the chart for its parent picker.
     httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts` && r.method === 'GET').flush(chart);
   };
@@ -152,6 +156,8 @@ describe('AccountFormPage', () => {
     for (const gone of ['rules', 'version', 'hierarchyType', 'advanced']) {
       expect(request.request.body).not.toHaveProperty(gone);
     }
+    // A company that does not restate for inflation is not asked, and sends nothing about it.
+    expect(request.request.body).not.toHaveProperty('isInflationAdjustable');
     request.flush({ id: 'new' });
     // The list is read again once the account exists.
     httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts` && r.method === 'GET').flush(chart);
@@ -207,5 +213,34 @@ describe('AccountFormPage', () => {
     // A summary account: no currency or treatment of its own to choose.
     expect(form().get('fxTreatment')?.disabled).toBe(true);
     expect(form().get('currency')?.disabled).toBe(true);
+  });
+
+  it('asks a company that restates for inflation which accounts are restated, never a monetary one (FIN-AC-04)', async () => {
+    await build(null, 'YEAR_END');
+    expect((component as unknown as { inflationApplies: () => boolean }).inflationApplies()).toBe(true);
+    const restated = form().get('isInflationAdjustable');
+
+    // Non-monetary by default: equity, an asset held at its historical rate.
+    form().get('type')?.setValue('EQUITY');
+    expect(restated?.value).toBe(true);
+    // A liability is money owed: revalued, and never restated.
+    form().get('type')?.setValue('LIABILITY');
+    expect(restated?.value).toBe(false);
+    expect(restated?.disabled).toBe(true);
+    // Back to an asset held at its historical rate, restated again by default.
+    form().get('type')?.setValue('ASSET');
+    expect(restated?.value).toBe(true);
+    // A choice made by the person is kept while it is allowed.
+    restated?.setValue(false);
+    form().get('type')?.setValue('EQUITY');
+    expect(restated?.value).toBe(false);
+
+    form().patchValue({ code: '3100', name: 'Capital', category: 'OWNERS_EQUITY' });
+    restated?.setValue(true);
+    component.onSave();
+    const request = httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts` && r.method === 'POST');
+    expect(request.request.body).toMatchObject({ isInflationAdjustable: true, inflationAdjustmentAccountId: null });
+    request.flush({ id: 'new' });
+    httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts` && r.method === 'GET').flush(chart);
   });
 });

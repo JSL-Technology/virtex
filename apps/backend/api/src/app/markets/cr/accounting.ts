@@ -15,4 +15,5 @@ export const accounting: MarketAccounting = {
   serviceChargeAccount: 'Cargo por Servicio (10 %) por Pagar',
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
+  inflationAccounting: null,
 };

@@ -194,6 +194,36 @@
     "en": "Reclassifying the posted balance…",
     "pt": "Reclassificando o saldo contabilizado…"
   },
+  "chart_of_accounts.restatement_account_needs_restated": {
+    "es": "La cuenta {{code}} no se reexpresa: no puede tener una cuenta de reexpresión.",
+    "en": "Account {{code}} is not restated: it cannot have a restatement account.",
+    "pt": "A conta {{code}} não é reexpressa: não pode ter conta de reexpressão."
+  },
+  "chart_of_accounts.restatement_account_not_found": {
+    "es": "La cuenta de reexpresión no existe en esta empresa.",
+    "en": "The restatement account does not exist in this company.",
+    "pt": "A conta de reexpressão não existe nesta empresa."
+  },
+  "chart_of_accounts.restatement_account_taken": {
+    "es": "La cuenta {{code}} ya recibe la reexpresión de {{other}}.",
+    "en": "Account {{code}} already takes the restatement of {{other}}.",
+    "pt": "A conta {{code}} já recebe a reexpressão de {{other}}."
+  },
+  "chart_of_accounts.restatement_account_unfit": {
+    "es": "La cuenta {{code}} no puede recibir la reexpresión de {{account}}: debe ser imputable, del mismo tipo, no monetaria, no reexpresarse ella misma ni pasar su reexpresión a otra.",
+    "en": "Account {{code}} cannot take the restatement of {{account}}: it must be postable, of the same type, non-monetary, not restated by itself and pass no restatement on.",
+    "pt": "A conta {{code}} não pode receber a reexpressão de {{account}}: deve ser analítica, do mesmo tipo, não monetária, não ser reexpressa por si mesma nem passar sua reexpressão a outra."
+  },
+  "chart_of_accounts.restatement_only_non_monetary": {
+    "es": "La cuenta {{code}} no puede reexpresarse por inflación: solo se reexpresan las cuentas imputables no monetarias, y nunca la del resultado por exposición a la inflación.",
+    "en": "Account {{code}} cannot be restated for inflation: only postable non-monetary accounts are, and never the account of the gain or loss on the net monetary position.",
+    "pt": "A conta {{code}} não pode ser reexpressa pela inflação: só as contas analíticas não monetárias o são, e nunca a do resultado da exposição à inflação."
+  },
+  "chart_of_accounts.restatement_target_cannot_be_restated": {
+    "es": "La cuenta {{code}} recibe la reexpresión de {{other}}: no se reexpresa por sí misma.",
+    "en": "Account {{code}} takes the restatement of {{other}}: it is not restated by itself.",
+    "pt": "A conta {{code}} recebe a reexpressão de {{other}}: não é reexpressa por si mesma."
+  },
   "chart_of_accounts.revalued_only_balance_sheet": {
     "es": "Solo una cuenta de activo o de pasivo se revalúa al cierre: un saldo de tipo {{type}} queda a la tasa de su día.",
     "en": "Only an asset or liability account is revalued at a period end: a {{type}} balance stays at the rate of its day.",

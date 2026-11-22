@@ -21,7 +21,7 @@ import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.serv
 import { I18nService } from '../i18n/i18n.service';
 import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { roundAmount, toCents } from '../common/money';
-import { endOfMonthIso, previousDay, startOfMonthIso, yearOf, type IsoDate } from '../common/dates';
+import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, yearOf, type IsoDate } from '../common/dates';
 import { remainingSchedule, ScheduledCharge } from './depreciation-schedule';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
@@ -343,20 +343,31 @@ export class FixedAssetsService {
         gain: { key: 'ledger.fixed_asset.gain', params: { asset: label } },
         loss: { key: 'ledger.fixed_asset.loss', params: { asset: label } },
       });
-      const line = (accountId: string, debit: number, credit: number, description: string): CreateJournalEntryLineDto => ({
+      const line = (
+        accountId: string,
+        debit: number,
+        credit: number,
+        description: string,
+        originDate?: string,
+      ): CreateJournalEntryLineDto => ({
         accountId,
         debit,
         credit,
         description,
+        ...(originDate ? { originDate } : {}),
         valuations: [{ ledgerId: ledger.id, debit, credit }],
       });
+      // The cost and the depreciation leave the books from where they came in: the acquisition
+      // (FIN-AC-04). Restated for inflation from the disposal date instead, the asset's restated
+      // cost would outlive it by the inflation since it was bought.
+      const acquired = toIsoDate(asset.acquisitionDate);
 
       const lines: CreateJournalEntryLineDto[] = [];
       if (salePrice > 0) lines.push(line(dto.cashAccountId as string, salePrice, 0, words.proceeds));
       if (asset.accumulatedDepreciation > 0) {
-        lines.push(line(asset.accumulatedDepreciationAccountId, asset.accumulatedDepreciation, 0, words.accumulated));
+        lines.push(line(asset.accumulatedDepreciationAccountId, asset.accumulatedDepreciation, 0, words.accumulated, acquired));
       }
-      lines.push(line(asset.assetAccountId, 0, asset.cost, words.cost));
+      lines.push(line(asset.assetAccountId, 0, asset.cost, words.cost, acquired));
       if (result > 0) lines.push(line(dto.gainOnDisposalAccountId as string, 0, result, words.gain));
       if (result < 0) lines.push(line(dto.lossOnDisposalAccountId as string, -result, 0, words.loss));
 

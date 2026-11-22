@@ -36,6 +36,8 @@ import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import { AccountPeriodLock } from './entities/account-period-lock.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { ClosingAutomationService } from './closing-automation.service';
+import { InflationAdjustmentService } from './inflation-adjustment.service';
+import { PriceIndicesService } from '../currencies/price-indices.service';
 import { ResultTransferService } from './result-transfer.service';
 import { DepreciationService } from '../fixed-assets/depreciation.service';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
@@ -162,11 +164,20 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       new JournalLookupService(dataSource.getRepository(Journal)),
     );
 
+    // The restatement for inflation, real: a company of a market without one is never restated,
+    // and the close must not need an index to close it.
+    const inflation = new InflationAdjustmentService(
+      dataSource,
+      entries,
+      new PriceIndicesService(dataSource),
+      new JournalLookupService(dataSource.getRepository(Journal)),
+    );
     checklist = new ClosingChecklistService(
       dataSource,
       new JournalQueryService(dataSource),
       new ClosingBlockerRegistry(),
       revaluation,
+      inflation,
     );
 
     closing = new PeriodClosingService(
@@ -176,7 +187,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       balances,
       dataSource,
       audit,
-      new ClosingAutomationService(depreciation, revaluation),
+      new ClosingAutomationService(depreciation, revaluation, inflation),
     );
     yearEnd = new YearEndCloseService(
       dataSource,

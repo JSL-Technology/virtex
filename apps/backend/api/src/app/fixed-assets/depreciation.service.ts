@@ -228,12 +228,17 @@ export class DepreciationService extends DepreciationPort {
           expense: { key: 'ledger.depreciation.expense', params: { month, asset: `${asset.number} ${asset.name}` } },
           accumulated: { key: 'ledger.depreciation.accumulated', params: { month, asset: `${asset.number} ${asset.name}` } },
         });
+        // A depreciation charge consumes cost that originated when the asset was acquired: the
+        // restatement for inflation restates the charge and the accumulated depreciation from then,
+        // as it does the cost (IAS 29.15; FIN-AC-04), not from the month it was booked.
+        const originDate = toIsoDate(asset.acquisitionDate);
         group.lines.push(
           {
             accountId: expenseAccountId,
             debit: amount,
             credit: 0,
             description: words.expense,
+            originDate,
             valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
           },
           {
@@ -241,6 +246,7 @@ export class DepreciationService extends DepreciationPort {
             debit: 0,
             credit: amount,
             description: words.accumulated,
+            originDate,
             valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
           },
         );

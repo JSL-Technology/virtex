@@ -69,6 +69,8 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
     { key: 'debito', property: 'debit', example: '150000.00' },
     { key: 'credito', property: 'credit', example: '0' },
     { key: 'detalle', property: 'description', example: 'Saldo según balance al 31/12' },
+    // The origin of the balance, for the restatement for inflation; empty: the opening date.
+    { key: 'fecha_origen', property: 'originDate', example: '' },
   ] as const;
 
   readonly import = {
@@ -102,7 +104,7 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
     const rows: Array<Record<string, unknown>> = await this.dataSource.query(
       `SELECT e.date::text AS "date", a.code AS "accountCode", a.name AS "accountNameMap",
               l.debit::float8 AS "debit", l.credit::float8 AS "credit", l.description AS "description",
-              o.books_language AS "booksLanguage"
+              l.origin_date::text AS "originDate", o.books_language AS "booksLanguage"
          FROM journal_entry_lines l
          JOIN journal_entries e ON e.id = l.journal_entry_id
          JOIN organizations o ON o.id = e.organization_id
@@ -144,6 +146,15 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
     dtos.forEach((dto, index) => {
       if (dto.date !== date) {
         problems.push({ index, column: 'fecha', key: 'data_transfer.opening_balances.one_date', params: { date } });
+      }
+      // A balance cannot have originated after the day it is opened on.
+      if (dto.originDate && dto.originDate.slice(0, 10) > String(dto.date).slice(0, 10)) {
+        problems.push({
+          index,
+          column: 'fecha_origen',
+          key: 'data_transfer.opening_balances.origin_after_date',
+          params: { origin: dto.originDate.slice(0, 10), date: String(dto.date).slice(0, 10) },
+        });
       }
     });
 
@@ -200,7 +211,10 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
   /** The same rows always give the same key, whatever order the file lists them in. */
   private keyOf(dtos: readonly OpeningBalanceRowDto[]): string {
     const canonical = dtos
-      .map((dto) => [dto.date, dto.accountCode, toCents(dto.debit ?? 0), toCents(dto.credit ?? 0)].join('|'))
+      // The origin joins the key only when stated, so a file without one keeps the key it always had.
+      .map((dto) =>
+        [dto.date, dto.accountCode, toCents(dto.debit ?? 0), toCents(dto.credit ?? 0), ...(dto.originDate ? [dto.originDate.slice(0, 10)] : [])].join('|'),
+      )
       .sort()
       .join('\n');
     return `opening-balances:${createHash('sha256').update(canonical).digest('hex').slice(0, 40)}`;
@@ -239,6 +253,7 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
             debit: dto.debit ?? 0,
             credit: dto.credit ?? 0,
             description: dto.description || words.line,
+            ...(dto.originDate ? { originDate: dto.originDate.slice(0, 10) } : {}),
           })),
         },
         context.organizationId,

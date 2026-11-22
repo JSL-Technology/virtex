@@ -21,4 +21,5 @@ export const accounting: MarketAccounting = {
   serviceChargeAccount: 'Propina Legal por Pagar',
   fiscalGroupingCodes: null,
   exclusiveTerms: [/\bTSS\b/, /\bAFP\b/, /\bSFS\b/, /\bSRL\b/, /INFOTEP/, /Propina Legal/, /ITBIS/, /Selectivo/],
+  inflationAccounting: null,
 };

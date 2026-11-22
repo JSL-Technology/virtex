@@ -240,10 +240,33 @@ export class TreasuryService {
         throw new BadRequestError('treasury.ledger_account_holds_other_currencies', { code: glAccount.code, currency });
       }
     }
-    if (glAccount.currency !== currency || glAccount.fxTreatment !== 'REVALUED') {
-      await manager.update(Account, { id: glAccount.id, organizationId }, { currency, fxTreatment: 'REVALUED' });
+    // An account that takes another account's restatement for inflation is that account's
+    // restatement — non-monetary by definition — and cannot become a bank's money.
+    const [restates] = await manager.query(
+      `SELECT code FROM accounts WHERE organization_id = $1 AND inflation_adjustment_account_id = $2 LIMIT 1`,
+      [organizationId, glAccount.id],
+    );
+    if (restates) {
+      throw new BadRequestError('treasury.ledger_account_takes_restatement', { code: glAccount.code, other: restates.code });
+    }
+    if (
+      glAccount.currency !== currency ||
+      glAccount.fxTreatment !== 'REVALUED' ||
+      glAccount.isInflationAdjustable ||
+      glAccount.inflationAdjustmentAccountId
+    ) {
+      // Money is never restated for inflation either (IAS 29.12): marked monetary, the account stops
+      // being restated — the database refuses a restated monetary account
+      // (`CHK_accounts_inflation_restatement_non_monetary`) — and passes no restatement on.
+      await manager.update(
+        Account,
+        { id: glAccount.id, organizationId },
+        { currency, fxTreatment: 'REVALUED', isInflationAdjustable: false, inflationAdjustmentAccountId: null },
+      );
       glAccount.currency = currency;
       glAccount.fxTreatment = 'REVALUED';
+      glAccount.isInflationAdjustable = false;
+      glAccount.inflationAdjustmentAccountId = null;
     }
   }
 

@@ -194,6 +194,36 @@
     "en": "Income statement category",
     "pt": "Categoria da demonstração de resultados"
   },
+  "accounting.account_form.inflation_account": {
+    "es": "Cuenta de reexpresión",
+    "en": "Restatement account",
+    "pt": "Conta de reexpressão"
+  },
+  "accounting.account_form.inflation_account_help": {
+    "es": "Para una cuenta que se mantiene a su valor nominal, como el capital: su reexpresión va a esta cuenta (por ejemplo, «Ajuste de capital»).",
+    "en": "For an account kept at its nominal value, such as capital: its restatement goes to this account (for example, “Capital adjustment”).",
+    "pt": "Para uma conta mantida a seu valor nominal, como o capital: sua reexpressão vai para esta conta (por exemplo, «Ajuste de capital»)."
+  },
+  "accounting.account_form.inflation_account_self": {
+    "es": "La propia cuenta",
+    "en": "The account itself",
+    "pt": "A própria conta"
+  },
+  "accounting.account_form.inflation_restated": {
+    "es": "Se reexpresa por inflación",
+    "en": "Restated for inflation",
+    "pt": "Reexpressa pela inflação"
+  },
+  "accounting.account_form.inflation_restated_help": {
+    "es": "Las cuentas no monetarias —inventario, bienes de uso y su depreciación, intangibles, anticipos, patrimonio, ingresos y gastos— se reexpresan desde que se originó cada importe (NIC 29). No una partida ya medida a un valor corriente. El dinero y lo que se cobra o paga en dinero nunca.",
+    "en": "Non-monetary accounts — inventory, property and its depreciation, intangibles, prepayments, equity, income and expenses — are restated from when each amount originated (IAS 29). Not an item already measured at a current amount. Money, and what is received or paid in money, never.",
+    "pt": "As contas não monetárias —estoque, imobilizado e sua depreciação, intangíveis, adiantamentos, patrimônio, receitas e despesas— são reexpressas desde a origem de cada valor (IAS 29). Não um item já medido a valor corrente. O dinheiro e o que se recebe ou paga em dinheiro, nunca."
+  },
+  "accounting.account_form.inflation_title": {
+    "es": "Reexpresión por inflación",
+    "en": "Restatement for inflation",
+    "pt": "Reexpressão pela inflação"
+  },
   "accounting.account_form.loading_account_data": {
     "es": "Cargando datos de la cuenta...",
     "en": "Loading account data...",
@@ -710,6 +740,21 @@
     "en": "{{count}} foreign-currency balances stay at their historical rate: {{accounts}}.",
     "pt": "{{count}} saldos em moeda estrangeira ficam à taxa histórica: {{accounts}}."
   },
+  "accounting.checklist.items.inflation_adjustment_outdated": {
+    "es": "Los libros cambiaron desde la reexpresión de {{period}}: el cierre la reemplaza ({{count}} líneas).",
+    "en": "The books changed since {{period}} was restated: the close replaces it ({{count}} lines).",
+    "pt": "Os livros mudaram desde a reexpressão de {{period}}: o fechamento a substitui ({{count}} linhas)."
+  },
+  "accounting.checklist.items.inflation_adjustment_posted": {
+    "es": "{{period}} está reexpresado por inflación y los libros no cambiaron desde entonces.",
+    "en": "{{period}} is restated for inflation and the books have not changed since.",
+    "pt": "{{period}} está reexpresso pela inflação e os livros não mudaram desde então."
+  },
+  "accounting.checklist.items.inflation_adjustment_ready": {
+    "es": "El cierre reexpresa {{period}} por inflación: {{count}} líneas, resultado por exposición a la inflación {{result}}.",
+    "en": "The close restates {{period}} for inflation: {{count}} lines, gain or loss on the net monetary position {{result}}.",
+    "pt": "O fechamento reexpressa {{period}} pela inflação: {{count}} linhas, resultado da exposição à inflação {{result}}."
+  },
   "accounting.checklist.items.pending_accrual_reversals": {
     "es": "Devengos pendientes de revertir de períodos anteriores: {{count}}",
     "en": "Accruals from earlier periods still pending reversal: {{count}}",
@@ -1219,26 +1264,6 @@
     "es": "No se importará",
     "en": "Will not import",
     "pt": "Não será importado"
-  },
-  "accounting.inflation_adjustment_account_disappeared_mid_transaction": {
-    "es": "La cuenta de ajuste por inflación desapareció a mitad de la transacción.",
-    "en": "The inflation-adjustment account disappeared mid-transaction.",
-    "pt": "A conta de ajuste inflacionário desapareceu no meio da transação."
-  },
-  "accounting.inflation_adjustment_account_not_configured": {
-    "es": "La cuenta para el ajuste por inflación no está configurada.",
-    "en": "The inflation-adjustment account is not configured.",
-    "pt": "A conta de ajuste inflacionário não está configurada."
-  },
-  "accounting.inflation_adjustment_journal_aju_inf_not": {
-    "es": "Diario de Ajuste por Inflación (AJU-INF) no encontrado.",
-    "en": "The Inflation Adjustment journal (AJU-INF) was not found.",
-    "pt": "O diário de Ajuste Inflacionário (AJU-INF) não foi encontrado."
-  },
-  "accounting.inflation_adjustment_process_ran_successfully": {
-    "es": "Proceso de ajuste por inflación ejecutado exitosamente.",
-    "en": "The inflation-adjustment process ran successfully.",
-    "pt": "O processo de ajuste inflacionário foi executado com sucesso."
   },
   "accounting.journal_entries.credit": {
     "es": "Crédito",
@@ -2060,11 +2085,6 @@
     "en": "No default ledger has been configured for the organization.",
     "pt": "Nenhum livro contábil padrão foi configurado para a organização."
   },
-  "accounting.no_inflation_index_found_year_month": {
-    "es": "Índice de inflación para {{year}}-{{month}} no encontrado.",
-    "en": "No inflation index was found for {{year}}-{{month}}.",
-    "pt": "Índice de inflação para {{year}}-{{month}} não encontrado."
-  },
   "accounting.no_lock_found_given_account_period": {
     "es": "No se encontró un bloqueo para la cuenta y período especificados.",
     "en": "No lock was found for the given account and period.",
@@ -2099,6 +2119,11 @@
     "es": "No se pudo registrar la depreciación de {{period}}, así que el período no se cerró. Revisa la configuración de activos fijos e inténtalo de nuevo.",
     "en": "The depreciation for {{period}} could not be posted, so the period was not closed. Check the fixed-asset settings and try again.",
     "pt": "Não foi possível registrar a depreciação de {{period}}, então o período não foi encerrado. Verifique a configuração de ativos fixos e tente novamente."
+  },
+  "accounting.period_close.inflation_adjustment_failed": {
+    "es": "No se pudo reexpresar por inflación {{period}}; el cierre no se realizó.",
+    "en": "The restatement for inflation of {{period}} failed; the close did not happen.",
+    "pt": "Não foi possível reexpressar pela inflação {{period}}; o fechamento não foi feito."
   },
   "accounting.period_close.revaluation_failed": {
     "es": "No se pudo revaluar la moneda extranjera de {{period}}, así que el período no se cerró. Revisa las tasas de cambio e inténtalo de nuevo.",

@@ -9,4 +9,5 @@ export const NEUTRAL_ACCOUNTING: MarketAccounting = {
   serviceChargeAccount: null,
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
+  inflationAccounting: null,
 };

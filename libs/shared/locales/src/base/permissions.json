@@ -144,6 +144,11 @@
     "en": "Manage ledgers",
     "pt": "Gerir livros contábeis"
   },
+  "permissions.actions.manage_price_indices": {
+    "es": "Registrar índices de precios",
+    "en": "Record price indices",
+    "pt": "Registrar índices de preços"
+  },
   "permissions.actions.manage_rules": {
     "es": "Administrar reglas",
     "en": "Manage rules",

@@ -691,6 +691,14 @@
       "FAILED",
       "DISMISSED"
     ],
+    "inflation_adjustment.page.index_source": [
+      "PLATFORM",
+      "COMPANY"
+    ],
+    "inflation_adjustment.page.run_status": [
+      "POSTED",
+      "REVERSED"
+    ],
     "inventory.common.status": [
       "DRAFT",
       "POSTED",
@@ -1190,6 +1198,11 @@
       "block",
       "warn",
       "none"
+    ],
+    "settings.sections.inflation_policy": [
+      "NONE",
+      "YEAR_END",
+      "EVERY_PERIOD"
     ],
     "settings.sections.rate_type": [
       "OFFICIAL",

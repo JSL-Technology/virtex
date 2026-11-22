@@ -1,5 +1,5 @@
 
-import type { RegionalFormat } from '@virtex/shared/types';
+import type { InflationAdjustmentPolicy, RegionalFormat } from '@virtex/shared/types';
 import { DEFAULT_REMINDER_DAYS, REMINDER_DAY_MAX, REMINDER_DAY_MIN, REMINDER_STEPS_MAX } from '../../contracts/collections/reminder-schedule.contract';
 import {
   Check,
@@ -28,6 +28,10 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 @Check('CHK_organization_settings_budget_control_mode', `"budget_control_mode" IN ('block', 'warn', 'none')`)
 @Check('CHK_organization_settings_budget_tolerance', '"budget_tolerance_bps" BETWEEN 0 AND 5000')
 @Check('CHK_organization_settings_max_future_posting_days', '"max_future_posting_days" BETWEEN 0 AND 366')
+@Check(
+  'CHK_organization_settings_inflation_adjustment_policy',
+  `"inflation_adjustment_policy" IN ('NONE', 'YEAR_END', 'EVERY_PERIOD')`,
+)
 @Check(
   'CHK_organization_settings_reminder_days',
   `cardinality("collections_reminder_days") BETWEEN 1 AND ${REMINDER_STEPS_MAX} AND ${REMINDER_DAY_MIN} <= ALL ("collections_reminder_days") AND ${REMINDER_DAY_MAX} >= ALL ("collections_reminder_days")`,
@@ -340,6 +344,22 @@ export class OrganizationSettings {
    */
   @Column({ name: 'max_future_posting_days', type: 'int', default: 31 })
   maxFuturePostingDays!: number;
+
+  /**
+   * When the period close restates the books for inflation (IAS 29; audit 2026-11-07, FIN-AC-04):
+   * never (`NONE`), at the close of each fiscal year's last period (`YEAR_END`) or at every close
+   * (`EVERY_PERIOD`) — see `INFLATION_ADJUSTMENT_POLICIES`. A company of a market whose economy calls
+   * for restated statements starts at that market's policy; any other at `NONE`.
+   */
+  @Column({ name: 'inflation_adjustment_policy', type: 'varchar', length: 16, default: 'NONE' })
+  inflationAdjustmentPolicy!: InflationAdjustmentPolicy;
+
+  /**
+   * The general price index the restatement multiplies by (`AR-FACPCE`): one a market prescribes
+   * (`PRICE_INDEX_SERIES`), in the currency the books are kept in.
+   */
+  @Column({ name: 'inflation_index_series_code', type: 'varchar', length: 40, nullable: true })
+  inflationIndexSeriesCode: string | null = null;
 
   // ── Outgoing mail identity ────────────────────────────────────────────────
   //

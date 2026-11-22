@@ -11,6 +11,8 @@ import { JournalQueryService } from '../journal-entries/services/journal-query.s
 import { ClosingBlockerRegistry } from '../contracts/closing-blockers/closing-blocker.registry';
 import { ClosingBlocker } from '../contracts/closing-blockers/closing-blocker.contract';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
+import { InflationAdjustmentService } from './inflation-adjustment.service';
+import { toIsoMonth } from '../common/dates';
 
 /**
  * Una línea del checklist, tal como la ve el cliente.
@@ -29,6 +31,7 @@ export class ClosingChecklistService {
     private readonly journalQuery: JournalQueryService,
     private readonly closingBlockers: ClosingBlockerRegistry,
     private readonly revaluation: CurrencyRevaluationService,
+    private readonly inflation: InflationAdjustmentService,
   ) {}
 
   async getChecklist(
@@ -134,6 +137,33 @@ export class ClosingChecklistService {
         noteKey: 'accounting.checklist.historical_fx_note',
         details: { pendingCount: outlook.historical.length },
         resolutionLink: '/accounting/chart-of-accounts',
+      });
+    }
+
+    // The restatement for inflation, where the company's policy calls for it at this close
+    // (FIN-AC-04): what the close will book, or what stops it — the series, the month's index, the
+    // account of the net monetary position — from the computation the close itself runs. Shown too
+    // when the month was restated by hand, so a run the books outgrew is not a surprise.
+    const restatement = await this.inflation.outlook(organizationId, toIsoMonth(period.endDate));
+    if (restatement.dueAtClose || restatement.run) {
+      const [blocker] = restatement.blockers;
+      checklist.push({
+        id: 'inflation-adjustment',
+        descriptionKey: blocker
+          ? blocker.key
+          : !restatement.run
+            ? 'accounting.checklist.items.inflation_adjustment_ready'
+            : restatement.current
+              ? 'accounting.checklist.items.inflation_adjustment_posted'
+              : 'accounting.checklist.items.inflation_adjustment_outdated',
+        params: blocker?.params ?? {
+          period: restatement.period,
+          count: restatement.lines.length,
+          result: restatement.netMonetaryResult,
+        },
+        isCompleted: !blocker,
+        details: { pendingCount: blocker ? 1 : 0 },
+        resolutionLink: '/accounting/inflation-adjustment',
       });
     }
 

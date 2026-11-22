@@ -90,6 +90,37 @@ export class ChartOfAccountsStateService {
       .map((account) => ({ id: account.id, name: account.name, code: account.code, type: account.type }));
   }
 
+  /**
+   * Where an account's inflation restatement can go (FIN-AC-04): a postable account of the same
+   * type, not restated itself, not the account's own, and taking no other account's restatement —
+   * the server refuses every other choice.
+   */
+  restatementTargetsFor(type: AccountType | null, accountId: string | null): ParentAccountOption[] {
+    if (!type) return [];
+    const accounts = this.allAccounts();
+    const taken = new Set(
+      accounts.filter((account) => account.inflationAdjustmentAccountId && account.id !== accountId).map((account) => account.inflationAdjustmentAccountId as string),
+    );
+    return accounts
+      .filter(
+        (account) =>
+          account.isPostable &&
+          account.type === type &&
+          account.id !== accountId &&
+          !account.isInflationAdjustable &&
+          !account.inflationAdjustmentAccountId &&
+          account.fxTreatment !== 'REVALUED' &&
+          account.systemRole !== 'INFLATION_ADJUSTMENT' &&
+          !taken.has(account.id),
+      )
+      .map((account) => ({ id: account.id, name: account.name, code: account.code, type: account.type }));
+  }
+
+  /** Whether the account takes another account's restatement (it is then never restated itself). */
+  isRestatementTarget(id: string): boolean {
+    return this.allAccounts().some((account) => account.inflationAdjustmentAccountId === id);
+  }
+
   /** The type of the summary account `id`, to give a new sub-account the type of its parent. */
   typeOf(id: string): AccountType | null {
     return this.allAccounts().find((account) => account.id === id)?.type ?? null;

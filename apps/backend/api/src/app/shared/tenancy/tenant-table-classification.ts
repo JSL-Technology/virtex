@@ -114,6 +114,10 @@ export const RETIRED_TENANT_TABLES: readonly UnscopedTableRef[] = [
     table: 'dimension_values_closure',
     why: 'Cierre mantenido y no leído por nada; eliminada en AccountFxTreatmentAndHierarchy1789750000000.',
   },
+  {
+    table: 'inflation_indices',
+    why: 'Tasa mensual por empresa sin forma de cargarla (FIN-AC-04); sustituida por los índices de cada mercado (price_index_values, tenant_price_index_values) en InflationRestatement1789770000000.',
+  },
 ];
 
 interface UnscopedTableRef {
@@ -146,6 +150,10 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'payroll_statutory_contributions', why: 'Contribuciones legales publicadas por la autoridad.' },
   { table: 'payroll_statutory_references', why: 'Referencias legales de nómina.' },
   { table: 'statutory_tax_rates', why: 'Tasas de impuesto legales por país, con vigencia y norma (SP-03).' },
+  {
+    table: 'price_index_values',
+    why: 'Índices generales de precios publicados que prescribe cada mercado (NIC 29), versionados por revisión; los escribe la plataforma (FIN-AC-04).',
+  },
   { table: 'report_definitions', why: 'Definiciones de informe por región fiscal, no por inquilino.' },
   { table: 'saas_plan_features', why: 'Catálogo de planes del producto.' },
   { table: 'saas_plan_limits', why: 'Catálogo de planes del producto.' },

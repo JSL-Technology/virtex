@@ -46,4 +46,48 @@ export interface MarketAccounting {
    * vocabulary from becoming everyone's default again.
    */
   exclusiveTerms: readonly RegExp[];
+  /**
+   * How the market's books recognise inflation, for a market whose economy calls for restated
+   * statements (IAS 29). Null where none is required.
+   */
+  inflationAccounting: MarketInflationAccounting | null;
+}
+
+/**
+ * A general price index a market's profession prescribes for restating its statements.
+ *
+ * A fact about the market, so it is declared here; its monthly values are reference data in the
+ * database (`price_index_values`, versioned by revision), loaded by the platform from the official
+ * publication or recorded by a company for itself (`tenant_price_index_values`).
+ */
+export interface PriceIndexSeriesDefinition {
+  /** Stable code the values are stored under: `<country>-<series>`. */
+  code: string;
+  country: string;
+  /** The currency whose purchasing power it measures: a restatement only applies to books kept in it. */
+  currency: string;
+  /** The official name, as the publisher writes it. */
+  name: string;
+  publisher: string;
+  /** The instrument that prescribes the series for restating statements. */
+  legalBasis: string;
+}
+
+/** An account the market keeps at nominal value, with its restatement in an account of its own. */
+export interface MarketRestatementAccount {
+  /** The template code of the account kept at nominal value (capital). */
+  sourceCode: string;
+  /** The template code of the account that takes its restatement. */
+  code: string;
+  /** Its name, in the market's books language. */
+  name: string;
+}
+
+export interface MarketInflationAccounting {
+  readonly series: PriceIndexSeriesDefinition;
+  /** The standard that requires restated statements, as an accountant would cite it. */
+  readonly standard: string;
+  /** What a company of the market starts with (`InflationAdjustmentPolicy`). */
+  readonly defaultPolicy: 'YEAR_END' | 'EVERY_PERIOD';
+  readonly restatementAccounts: readonly MarketRestatementAccount[];
 }

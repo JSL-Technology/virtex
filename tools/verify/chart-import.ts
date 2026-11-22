@@ -27,7 +27,7 @@ const check = (label: string, ok: boolean, detail = '') => {
 
 
 const HEADER =
-  'codigo,nombre,tipo,categoria,naturaleza,cuenta_padre,admite_movimientos,activa,contracuenta,moneda,tratamiento_cambiario,rol,codigo_agrupador,descripcion';
+  'codigo,nombre,tipo,categoria,naturaleza,cuenta_padre,admite_movimientos,activa,contracuenta,moneda,tratamiento_cambiario,rol,codigo_agrupador,descripcion,reexpresion_inflacion,cuenta_reexpresion';
 
 /** A CSV file with one row per account, only the columns given filled. */
 function csv(rows: Array<Partial<Record<string, string>>>): string {
@@ -105,11 +105,19 @@ async function main() {
     `SELECT code FROM accounts WHERE organization_id = $1 AND type = 'ASSET' AND NOT "isPostable" AND parent_id IS NULL ORDER BY code LIMIT 1`,
     [organizationId],
   );
+  const [equity] = await chart(
+    `SELECT code FROM accounts WHERE organization_id = $1 AND type = 'EQUITY' AND NOT "isPostable" AND parent_id IS NULL ORDER BY code LIMIT 1`,
+    [organizationId],
+  );
   const branch = [
     { codigo: '5961', nombre: 'QA Viáticos nacionales', tipo: 'expense', categoria: 'OPERATING_EXPENSE', cuenta_padre: '5960', admite_movimientos: 'sí' },
     { codigo: '5962', nombre: 'QA Viáticos al exterior', tipo: 'EXPENSE', categoria: 'OPERATING_EXPENSE', cuenta_padre: '5960', activa: 'No' },
     { codigo: '5960', nombre: 'QA Viáticos', tipo: 'EXPENSE', categoria: 'OPERATING_EXPENSE', cuenta_padre: expenses.code, admite_movimientos: 'false' },
     { codigo: '1990', nombre: 'QA Deterioro acumulado', tipo: 'ASSET', categoria: 'NON_CURRENT_ASSET', cuenta_padre: assets.code, contracuenta: 'si' },
+    // FIN-AC-04: an equity account kept at nominal value, its restatement in an account the file
+    // creates after it — linked once both exist.
+    { codigo: '3910', nombre: 'QA Aportes irrevocables', tipo: 'EQUITY', categoria: 'OWNERS_EQUITY', cuenta_padre: equity.code, cuenta_reexpresion: '3911' },
+    { codigo: '3911', nombre: 'QA Ajuste de aportes', tipo: 'EQUITY', categoria: 'OWNERS_EQUITY', cuenta_padre: equity.code, reexpresion_inflacion: 'no' },
   ];
 
   // ── Validation refuses, by line and column, and writes nothing ───────────────────────────
@@ -123,7 +131,7 @@ async function main() {
     'a revenue account under an expense heading is refused, naming the line and the column',
     refused.statusCode === 200 &&
       refusal.status === 'FAILED' &&
-      refusal.problems.some((p) => p.row === 6 && p.column === 'cuenta_padre' && p.key === 'chart_of_accounts.child_type_differs_from_parent'),
+      refusal.problems.some((p) => p.row === branch.length + 2 && p.column === 'cuenta_padre' && p.key === 'chart_of_accounts.child_type_differs_from_parent'),
     JSON.stringify(refusal.problems),
   );
   check('and nothing is written', (await count()) === before);
@@ -132,7 +140,7 @@ async function main() {
   const valid = JSON.parse((await upload('validate', csv(branch))).body) as { status: string; problems: unknown[] };
   check('the file validates', valid.status === 'VALIDATED', JSON.stringify(valid.problems));
   const committed = JSON.parse((await upload('commit', csv(branch))).body) as { status: string; importedRows: number };
-  check('and commits whole', committed.status === 'COMPLETED' && committed.importedRows === 4, JSON.stringify(committed));
+  check('and commits whole', committed.status === 'COMPLETED' && committed.importedRows === 6, JSON.stringify(committed));
 
   const imported = await chart<{ code: string; parent: string | null; isPostable: boolean; isActive: boolean; nature: string; contra: boolean }>(
     `SELECT a.code, p.code AS parent, a."isPostable" AS "isPostable", a."isActive" AS "isActive", a.nature, a.is_contra_account AS contra
@@ -148,6 +156,18 @@ async function main() {
   );
   check('«No» left an account inactive', by.get('5962')?.isActive === false);
   check('the contra account carries the nature its type does not', by.get('1990')?.contra === true && by.get('1990')?.nature === 'CREDIT');
+  const restatement = await chart<{ code: string; restated: boolean; target: string | null }>(
+    `SELECT a.code, a.is_inflation_adjustable AS restated, t.code AS target
+       FROM accounts a LEFT JOIN accounts t ON t.id = a.inflation_adjustment_account_id
+      WHERE a.organization_id = $1 AND a.code IN ('3910', '3911', '1990') ORDER BY a.code`,
+    [organizationId],
+  );
+  const restated = new Map(restatement.map((row) => [row.code, row]));
+  check(
+    'the restatement columns import: restated by default, a target named before it exists, «no» kept',
+    restated.get('1990')?.restated === true && restated.get('3910')?.target === '3911' && restated.get('3911')?.restated === false,
+    JSON.stringify(restatement),
+  );
 
   // ── The tree and the export see it ──────────────────────────────────────────────────────
   const [heading] = await chart(`SELECT id FROM accounts WHERE organization_id = $1 AND code = '5960'`, [organizationId]);

@@ -94,6 +94,15 @@ export class JournalEntryLine {
   @Column({ type: 'text', nullable: true })
   description?: string;
   
+  /**
+   * When the amount originated, where that is not the entry's date (FIN-AC-04): the restatement for
+   * inflation restates it from this month. A depreciation charge originates when its asset was
+   * acquired (IAS 29.15: cost and accumulated depreciation are restated from the acquisition), an
+   * opening balance when it was incurred. Null: the entry's date.
+   */
+  @Column({ name: 'origin_date', type: 'date', nullable: true })
+  originDate: string | null;
+
   @Column({ type: 'jsonb', nullable: true, name: 'dimensions' })
   dimensions?: Record<string, string>;
 

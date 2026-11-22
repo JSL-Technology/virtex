@@ -125,6 +125,21 @@ export async function resolvePostingPeriod(
 /** The horizon when a company's settings have none: the column's own default. */
 export const DEFAULT_MAX_FUTURE_POSTING_DAYS = 31;
 
+/**
+ * The transaction-local setting a close writes: the last day of the period (or fiscal year) it is
+ * closing. The entries the close itself books — depreciation, revaluation, the restatement for
+ * inflation, the result transfer — are dated at that period's end, which a close made before the
+ * period ends (`closeBeforeItEnds`) puts past the horizon; within that close, and only there, the
+ * horizon reaches the end of what is being closed. `set_config(…, true)` scopes it to the
+ * transaction: it is gone at commit, and nothing outside the database can set it.
+ */
+export const CLOSING_THROUGH_SETTING = 'app.closing_through';
+
+/** Lets the postings of a close, on its transaction, be dated up to `endDate` (see above). */
+export async function allowPostingsThrough(manager: EntityManager, endDate: Date | string): Promise<void> {
+  await manager.query(`SELECT set_config($1, $2, true)`, [CLOSING_THROUGH_SETTING, toIsoDate(endDate)]);
+}
+
 /** `YYYY-MM-DD` plus `days`, on the calendar. */
 function addDays(isoDate: string, days: number): string {
   const date = new Date(`${isoDate}T00:00:00Z`);
@@ -146,8 +161,9 @@ export async function postingHorizon(
   manager: EntityManager,
   organizationId: string,
 ): Promise<{ today: string; limit: string; days: number }> {
-  const [company]: Array<{ country: string | null; timezone: string | null; days: number | null }> = await manager.query(
-    `SELECT o.country, o.timezone, s.max_future_posting_days AS days
+  const [company]: Array<{ country: string | null; timezone: string | null; days: number | null; closing: string | null }> = await manager.query(
+    `SELECT o.country, o.timezone, s.max_future_posting_days AS days,
+            NULLIF(current_setting('${CLOSING_THROUGH_SETTING}', true), '') AS closing
        FROM organizations o
        LEFT JOIN organization_settings s ON s.organization_id = o.id
       WHERE o.id = $1`,
@@ -158,7 +174,12 @@ export async function postingHorizon(
   const ahead = addDays(today, days);
   const current = await findPeriodCovering(manager, organizationId, today);
   const periodEnd = current ? toIsoDate(current.endDate) : null;
-  return { today, limit: periodEnd && periodEnd > ahead ? periodEnd : ahead, days };
+  // The latest of: today plus the days allowed, the end of today's period, and the end of the
+  // period a close on this transaction is closing.
+  const limit = [ahead, periodEnd, company?.closing && /^\d{4}-\d{2}-\d{2}$/.test(company.closing) ? company.closing : null]
+    .filter((date): date is string => Boolean(date))
+    .reduce((latest, date) => (date > latest ? date : latest));
+  return { today, limit, days };
 }
 
 /** The property on the period that carries `module`'s own open/closed state. */

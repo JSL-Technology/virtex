@@ -7,7 +7,8 @@ import { PeriodClosingService } from './period-closing.service';
 import { AccountingController } from './accounting.controller';
 import { AuthModule } from '../auth/auth.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { InflationIndex } from './entities/inflation-index.entity';
+import { InflationAdjustmentRun } from './entities/inflation-adjustment-run.entity';
+import { InflationAdjustmentRunLine } from './entities/inflation-adjustment-run-line.entity';
 import { InflationAdjustmentController } from './inflation-adjustment.controller';
 import { InflationAdjustmentService } from './inflation-adjustment.service';
 import { FiscalYearArchivingService } from './fiscal-year-archiving.service';
@@ -52,7 +53,8 @@ import { AccountingInboxProvider } from './inbox/accounting-inbox.provider';
       // mismo módulo de negocio —contabilidad— así que esto no cruza ninguna frontera.
       JournalEntry,
       AccountingPeriod,
-      InflationIndex,
+      InflationAdjustmentRun,
+      InflationAdjustmentRunLine,
       FiscalYear,
       Ledger,
       AccountPeriodLock,

@@ -13,6 +13,12 @@ export const ACCOUNTING_PERMISSIONS = {
   ACCOUNTING_CLOSE_PERIOD: 'accounting:close_period',
   ACCOUNTING_REOPEN_PERIOD: 'accounting:reopen_period',
   ACCOUNTING_RUN_INFLATION_ADJUSTMENT: 'accounting:run_inflation_adjustment',
+  /**
+   * Record the months of a price index the platform has not loaded yet, for this company's own
+   * restatement. Separate from running it: whoever posts the restatement should not also be the
+   * one who typed the figure it multiplies by.
+   */
+  ACCOUNTING_MANAGE_PRICE_INDICES: 'accounting:manage_price_indices',
   /** Create, edit or re-point a ledger, and the mapping rules that drive multi-GAAP postings. */
   ACCOUNTING_MANAGE_LEDGERS: 'accounting:manage_ledgers',
   /** Close a fiscal year. */

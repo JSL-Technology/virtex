@@ -37,10 +37,13 @@ import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { likeTerm } from '../common/database/search-term';
 import {
   ACCOUNT_CATEGORIES_BY_TYPE,
+  defaultInflationRestatement,
   isCategoryAllowedForType,
   isFxTreatmentAllowedForType,
+  isRestatableAccount,
   summaryAccountFxSettingsFit,
   type FxTreatment,
+  type RestatableAccountFacts,
 } from '@virtex/shared/types';
 import { findCurrency } from '../currencies/currency-catalogue';
 import { defaultFxTreatment } from '../contracts/accounting/fx-treatment.contract';
@@ -129,6 +132,87 @@ export class ChartOfAccountsService {
   }
 
   /**
+   * An account's inflation-restatement settings (IAS 29; FIN-AC-04), resolved and checked.
+   *
+   * Restated only if it can be: postable, non-monetary, not the account of the net monetary position
+   * — a restated monetary account would count its loss of purchasing power twice. Omitted on a new
+   * account: the default (`defaultInflationRestatement`); omitted on an edit: kept while still
+   * allowed, dropped when the account became monetary or a summary account.
+   *
+   * Its restatement account, when it has one, takes that restatement and nothing else of the kind:
+   * postable, of the same type, non-monetary, not restated by itself, taking no other account's
+   * restatement and passing none on — the pair is restated as one, so a chain or a shared target
+   * would make «the restatement of capital» ambiguous. The database holds the same rules
+   * (`CHK_accounts_inflation_*`, `UQ_accounts_inflation_adjustment_account`).
+   */
+  static async resolveRestatementSettings(
+    manager: EntityManager,
+    organizationId: string,
+    account: RestatableAccountFacts & { id: string | null; code: string },
+    requested: { isInflationAdjustable?: boolean; inflationAdjustmentAccountId?: string | null },
+    current: { isInflationAdjustable: boolean; inflationAdjustmentAccountId: string | null } | null,
+  ): Promise<{ isInflationAdjustable: boolean; inflationAdjustmentAccountId: string | null }> {
+    const restatable = isRestatableAccount(account);
+    let isInflationAdjustable: boolean;
+    if (requested.isInflationAdjustable !== undefined) {
+      if (requested.isInflationAdjustable && !restatable) {
+        throw new BadRequestError('chart_of_accounts.restatement_only_non_monetary', { code: account.code });
+      }
+      isInflationAdjustable = requested.isInflationAdjustable;
+    } else {
+      isInflationAdjustable = current ? current.isInflationAdjustable && restatable : defaultInflationRestatement(account);
+    }
+
+    const requestedTarget = requested.inflationAdjustmentAccountId;
+    let targetId = requestedTarget !== undefined ? requestedTarget || null : (current?.inflationAdjustmentAccountId ?? null);
+    if (!isInflationAdjustable) {
+      if (requestedTarget) {
+        throw new BadRequestError('chart_of_accounts.restatement_account_needs_restated', { code: account.code });
+      }
+      targetId = null;
+    }
+
+    // An account that takes another's restatement is that account's restatement: never restated itself.
+    if (isInflationAdjustable && account.id) {
+      const [source] = await manager.find(Account, {
+        where: { organizationId, inflationAdjustmentAccountId: account.id },
+        select: { id: true, code: true },
+        take: 1,
+      });
+      if (source) {
+        throw new BadRequestError('chart_of_accounts.restatement_target_cannot_be_restated', { code: account.code, other: source.code });
+      }
+    }
+
+    if (targetId) {
+      if (targetId === account.id) {
+        throw new BadRequestError('chart_of_accounts.restatement_account_unfit', { code: account.code, account: account.code });
+      }
+      const target = await manager.findOne(Account, { where: { id: targetId, organizationId } });
+      if (!target) throw new BadRequestError('chart_of_accounts.restatement_account_not_found');
+      const fits =
+        target.isPostable &&
+        target.type === account.type &&
+        target.fxTreatment === 'HISTORICAL' &&
+        !target.isInflationAdjustable &&
+        !target.inflationAdjustmentAccountId &&
+        target.systemRole !== 'INFLATION_ADJUSTMENT';
+      if (!fits) {
+        throw new BadRequestError('chart_of_accounts.restatement_account_unfit', { code: target.code, account: account.code });
+      }
+      const [taken] = await manager.find(Account, {
+        where: { organizationId, inflationAdjustmentAccountId: targetId },
+        select: { id: true, code: true },
+        take: 2,
+      });
+      if (taken && taken.id !== account.id) {
+        throw new BadRequestError('chart_of_accounts.restatement_account_taken', { code: target.code, other: taken.code });
+      }
+    }
+    return { isInflationAdjustable, inflationAdjustmentAccountId: targetId };
+  }
+
+  /**
    * An account given a currency must not already hold lines in another: its currency would be
    * false about its own balance. Lines with no currency are in the books' currency.
    */
@@ -206,6 +290,36 @@ export class ChartOfAccountsService {
       [organizationId],
     );
     return `${fiscalDate(organizationTimeZone(organization)).slice(0, 4)}-01-01`;
+  }
+
+  /**
+   * Point an account's inflation restatement at an account of its own (capital → «Ajuste de
+   * capital»), by the rules of the account form: what the opening chart of a market that keeps
+   * capital at its nominal value does once both accounts exist.
+   */
+  async linkRestatementAccount(
+    organizationId: string,
+    sourceId: string,
+    targetId: string,
+    externalManager?: EntityManager,
+  ): Promise<void> {
+    const manager = externalManager ?? this.accountRepository.manager;
+    const source = await manager.findOneOrFail(Account, { where: { id: sourceId, organizationId } });
+    const settings = await ChartOfAccountsService.resolveRestatementSettings(
+      manager,
+      organizationId,
+      {
+        id: source.id,
+        code: source.code,
+        type: source.type,
+        fxTreatment: source.fxTreatment,
+        isPostable: source.isPostable,
+        systemRole: source.systemRole,
+      },
+      { isInflationAdjustable: true, inflationAdjustmentAccountId: targetId },
+      { isInflationAdjustable: source.isInflationAdjustable, inflationAdjustmentAccountId: source.inflationAdjustmentAccountId ?? null },
+    );
+    await manager.update(Account, { id: source.id, organizationId }, settings);
   }
 
   async create(
@@ -327,10 +441,22 @@ export class ChartOfAccountsService {
     }
 
 
+    const restatement = await ChartOfAccountsService.resolveRestatementSettings(
+      manager,
+      organizationId,
+      { id: null, code: fullCode, type: accountData.type, fxTreatment, isPostable, systemRole: createAccountDto.systemRole ?? null },
+      {
+        isInflationAdjustable: createAccountDto.isInflationAdjustable,
+        inflationAdjustmentAccountId: createAccountDto.inflationAdjustmentAccountId,
+      },
+      null,
+    );
+
     const { name, description, effectiveFrom, effectiveTo, ...restOfDto } = accountData;
     const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
     const entityData: Partial<Account> = {
       ...restOfDto,
+      ...restatement,
       fxTreatment,
       currency,
       organizationId,
@@ -520,9 +646,26 @@ export class ChartOfAccountsService {
       const { reasonForChange, parentId, segments, ...accountDataDto } =
         updateAccountDto;
 
+      const restatement = await ChartOfAccountsService.resolveRestatementSettings(
+        manager,
+        organizationId,
+        {
+          id: account.id,
+          code: account.code,
+          type: account.type,
+          fxTreatment: updateAccountDto.fxTreatment ?? account.fxTreatment,
+          isPostable,
+          systemRole: updateAccountDto.systemRole ?? account.systemRole,
+        },
+        {
+          isInflationAdjustable: updateAccountDto.isInflationAdjustable,
+          inflationAdjustmentAccountId: updateAccountDto.inflationAdjustmentAccountId,
+        },
+        { isInflationAdjustable: account.isInflationAdjustable, inflationAdjustmentAccountId: account.inflationAdjustmentAccountId ?? null },
+      );
 
       const { name, description, effectiveFrom, effectiveTo, ...restOfDto } = accountDataDto;
-      const updatePayload: Partial<Account> = { ...restOfDto };
+      const updatePayload: Partial<Account> = { ...restOfDto, ...restatement };
 
       // A plain string replaces the name in the books language and keeps the other translations
       // (audit 2026-11-07, I18N-05): it used to overwrite the whole object with `{ es: … }`.

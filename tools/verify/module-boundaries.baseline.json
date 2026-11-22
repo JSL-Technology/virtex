@@ -1,8 +1,8 @@
 {
   "generatedFrom": "tools/verify/module-boundaries.mjs",
-  "total": 1127,
+  "total": 1125,
   "byRule": {
-    "private-import": 433,
+    "private-import": 431,
     "private-import:spec": 232,
     "forbidden-dependency": 199,
     "forbidden-dependency:spec": 91,
@@ -12,7 +12,7 @@
     "forward-ref": 29
   },
   "counts": {
-    "private-import|contabilidad|identidad": 57,
+    "private-import|contabilidad|identidad": 55,
     "private-import|contabilidad|configuracion": 24,
     "private-import:spec|contabilidad|identidad": 27,
     "private-import:spec|contabilidad|configuracion": 22,

@@ -47,6 +47,8 @@ function openPeriod(name = 'Test', endDate = addDays(today, 10)): AccountingPeri
  */
 function managerFor(options: {
   days?: number | null;
+  /** The end of the period a close on this transaction is closing (`app.closing_through`). */
+  closing?: string | null;
   current?: AccountingPeriod | null;
   periods?: Array<AccountingPeriod | null>;
   fiscalYear?: { status: FiscalYearStatus } | null;
@@ -54,7 +56,9 @@ function managerFor(options: {
 }) {
   const periods = [...(options.periods ?? [])];
   const query = jest.fn(async (sql: string) =>
-    sql.includes('FROM organizations o') ? [{ country: null, timezone: null, days: options.days === undefined ? 31 : options.days }] : [],
+    sql.includes('FROM organizations o')
+      ? [{ country: null, timezone: null, days: options.days === undefined ? 31 : options.days, closing: options.closing ?? null }]
+      : [],
   );
   const findOne = jest.fn(async (entity: unknown, { where }: { where: { startDate: { value: string } } }) => {
     if (entity === FiscalYear) return options.fiscalYear ?? null;
@@ -139,6 +143,18 @@ describe('resolvePostingPeriod', () => {
     await expect(resolvePostingPeriod(managerFor({ days: 0, current }).manager, ORG, addDays(today, 11))).rejects.toMatchObject({
       messageKey: 'accounting.posting_date_beyond_horizon',
       params: { limit: addDays(today, 10), days: 0 },
+    });
+  });
+
+  it('lets a close date its own postings through the period it closes, even a close made early', async () => {
+    // Closing a period that ends in two months: its depreciation and its result transfer are dated
+    // at that end, past the horizon — allowed on the close's transaction, and only there.
+    const end = addDays(today, 60);
+    const period = openPeriod('Early', end);
+    const { manager } = managerFor({ closing: end, current: null, periods: [period], reread: period });
+    await expect(resolvePostingPeriod(manager, ORG, end)).resolves.toBe(period);
+    await expect(resolvePostingPeriod(managerFor({ closing: end, current: null }).manager, ORG, addDays(end, 1))).rejects.toMatchObject({
+      messageKey: 'accounting.posting_date_beyond_horizon',
     });
   });
 

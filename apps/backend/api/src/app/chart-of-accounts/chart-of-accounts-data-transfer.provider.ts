@@ -85,6 +85,9 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
     { key: 'rol', property: 'systemRole', example: '' },
     { key: 'codigo_agrupador', property: 'fiscalGroupingCode', example: '' },
     { key: 'descripcion', property: 'description', example: '' },
+    // Restatement for inflation (FIN-AC-04): blank takes the default for the account.
+    { key: 'reexpresion_inflacion', property: 'isInflationAdjustable', example: '' },
+    { key: 'cuenta_reexpresion', property: 'inflationAdjustmentAccountCode', example: '' },
   ] as const;
 
   readonly import = {
@@ -123,10 +126,12 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
               a."isPostable" AS "isPostable", a."isActive" AS "isActive",
               a.is_contra_account AS "isContraAccount", a.currency, a.fx_treatment AS "fxTreatment",
               a.system_role AS "systemRole", a.fiscal_grouping_code AS "fiscalGroupingCode",
-              a.description AS "descriptionMap", o.books_language AS "booksLanguage"
+              a.description AS "descriptionMap", o.books_language AS "booksLanguage",
+              a.is_inflation_adjustable AS "isInflationAdjustable", r.code AS "inflationAdjustmentAccountCode"
          FROM accounts a
          JOIN organizations o ON o.id = a.organization_id
          LEFT JOIN accounts p ON p.id = a.parent_id
+         LEFT JOIN accounts r ON r.id = a.inflation_adjustment_account_id
         WHERE a.organization_id = $1
         ORDER BY a.code
         LIMIT $2 OFFSET $3`,
@@ -244,6 +249,18 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
       }
     });
 
+    // The account a row's restatement goes to exists, in the file or in the chart, and the row is
+    // one that is restated at all; the rest of the rules are the form's, applied as the file commits.
+    rows.forEach((row, index) => {
+      const target = row.inflationAdjustmentAccountCode;
+      if (!target) return;
+      if (row.isInflationAdjustable === false) {
+        problems.push({ index, column: 'cuenta_reexpresion', key: 'chart_of_accounts.restatement_account_needs_restated', params: { code: row.code } });
+      } else if (!file.byCode.has(target) && !chart.has(target)) {
+        problems.push({ index, column: 'cuenta_reexpresion', key: 'chart_of_accounts.restatement_account_not_found' });
+      }
+    });
+
     const roles = new Map<string, number>();
     rows.forEach((row, index) => {
       if (!row.systemRole) return;
@@ -298,11 +315,19 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
             fxTreatment: row.fxTreatment,
             systemRole: row.systemRole,
             fiscalGroupingCode: row.fiscalGroupingCode,
+            isInflationAdjustable: row.isInflationAdjustable,
           } as CreateAccountDto,
           context.organizationId,
           manager,
         );
         ids.set(row.code, created.id);
+      }
+      // Restatement accounts last: a row may name one the file creates after it.
+      for (const row of rows) {
+        if (!row.inflationAdjustmentAccountCode) continue;
+        const targetId = ids.get(row.inflationAdjustmentAccountCode);
+        if (!targetId) throw new BadRequestError('chart_of_accounts.restatement_account_not_found');
+        await this.chart.linkRestatementAccount(context.organizationId, ids.get(row.code) as string, targetId, manager);
       }
     });
   }

@@ -18,6 +18,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { addMonthsIso, monthsBetween, nextDay, previousDay, toIsoDate } from '../common/dates';
+import { allowPostingsThrough } from './period-status';
 
 /**
  * Closing a fiscal year.
@@ -185,6 +186,8 @@ export class YearEndCloseService {
       // everywhere else; suspending it here, inside the transaction that also re-closes, is
       // narrower than carving an exception into the posting path.
       const lastPeriod = periodsInYear[periodsInYear.length - 1];
+      // Dated on the year's last day — past the posting horizon when the year is closed early.
+      await allowPostingsThrough(manager, fiscalYear.endDate);
       await this.withPeriodTemporarilyOpen(manager, lastPeriod, async () => {
         const entry = await this.resultTransfer.transfer(
           manager,
@@ -296,6 +299,8 @@ export class YearEndCloseService {
 
       if (closingEntries.length > 0 && periodsInYear.length > 0) {
         const lastPeriod = periodsInYear[periodsInYear.length - 1];
+        // The reversal of the transfer is dated where the transfer was: the year's last day.
+        await allowPostingsThrough(manager, fiscalYear.endDate);
         await this.withPeriodTemporarilyOpen(manager, lastPeriod, async () => {
           for (const closingEntry of closingEntries) {
             const reversal = await this.journalEntriesService.createSystemReversal(

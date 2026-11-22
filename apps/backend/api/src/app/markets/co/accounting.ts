@@ -20,4 +20,5 @@ export const accounting: MarketAccounting = {
   serviceChargeAccount: null,
   fiscalGroupingCodes: null,
   exclusiveTerms: [/\bEPS\b/, /\bARL\b/, /Parafiscales/, /Impuesto Nacional al Consumo/],
+  inflationAccounting: null,
 };

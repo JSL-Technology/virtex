@@ -77,6 +77,10 @@ export interface Account {
   fxTreatment: FxTreatment;
   /** ISO 4217. Set: every line on the account is in this currency. Null: lines in any currency. */
   currency?: string | null;
+  /** Restated for inflation (IAS 29): only a postable non-monetary account can be. */
+  isInflationAdjustable?: boolean;
+  /** Where its restatement is posted when the account stays at nominal value (capital → «Ajuste de capital»). */
+  inflationAdjustmentAccountId?: string | null;
   effectiveFrom?: string;
   effectiveTo?: string | null;
 

@@ -16,10 +16,13 @@ import {
   ACCOUNT_CATEGORIES_BY_TYPE,
   FX_TREATMENTS,
   defaultFxTreatmentForType,
+  defaultInflationRestatement,
   isCategoryAllowedForType,
   isFxTreatmentAllowedForType,
+  isRestatableAccount,
   type FxTreatment,
 } from '@virtex/shared/types';
+import { OrganizationSettingsService } from '../../settings/data/organization-settings.service';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
@@ -65,6 +68,7 @@ export class AccountFormPage implements OnInit {
   public readonly stateService = inject(ChartOfAccountsStateService); // Hecho público para el template
   private readonly notificationService = inject(NotificationService);
   private readonly currencies = inject(CurrenciesService);
+  private readonly settings = inject(OrganizationSettingsService);
 
   public accountForm!: FormGroup;
   public isEditing = signal(false);
@@ -124,10 +128,28 @@ export class AccountFormPage implements OnInit {
    */
   private fxTreatmentChosen = false;
 
+  /**
+   * Whether the company restates its books for inflation (IAS 29): the restatement settings of the
+   * account are only shown, and only matter, when it does.
+   */
+  protected readonly inflationApplies = signal(false);
+  /** Whether «restated» on the form is a choice rather than the default for the account's nature. */
+  private inflationChosen = false;
+  /** The account being edited, as loaded: whether it already takes another account's restatement. */
+  private readonly editingAccountRestatementTarget = signal(false);
+  /**
+   * Where the account's restatement can go (capital → «Ajuste de capital»): a postable account of its
+   * own type that is not restated itself and takes no other account's restatement.
+   */
+  protected readonly restatementTargets = computed(() =>
+    this.stateService.restatementTargetsFor(this.selectedType(), this.editingId()),
+  );
+
   ngOnInit(): void {
     this.initializeForm();
     this.loadSegmentDefinitions();
     this.loadCurrencies();
+    this.loadInflationPolicy();
     //  The parent picker reads the chart, and this page is not always opened from the list that
     //  reads it: a link or a restored tab opens it on its own.
     this.stateService.ensureLoaded();
@@ -146,6 +168,17 @@ export class AccountFormPage implements OnInit {
     this.currencies.getCurrencies().pipe(take(1)).subscribe({
       next: (all) => this.currencyCodes.set(all.map((currency) => currency.code)),
       error: () => this.currencyCodes.set([]),
+    });
+  }
+
+  private loadInflationPolicy(): void {
+    this.settings.get('closing').pipe(take(1)).subscribe({
+      next: (section) => {
+        const policy = section.fields['inflationAdjustmentPolicy'];
+        this.inflationApplies.set(typeof policy === 'string' && policy !== 'NONE');
+      },
+      // Without the company's settings the fields stay hidden; the server applies its defaults.
+      error: () => this.inflationApplies.set(false),
     });
   }
 
@@ -186,6 +219,9 @@ export class AccountFormPage implements OnInit {
       // Pestaña Moneda y revaluación
       fxTreatment: [defaultFxTreatmentForType(null) as FxTreatment, Validators.required],
       currency: [null as string | null],
+      // Reexpresión por inflación (NIC 29)
+      isInflationAdjustable: [false],
+      inflationAdjustmentAccountId: [null as string | null],
 
       // Pestaña Avanzado (agrupado)
       advanced: this.fb.group({
@@ -210,6 +246,7 @@ export class AccountFormPage implements OnInit {
         parent.setValue(null, { emitEvent: false });
       }
       this.applyFxTreatmentDefault();
+      this.applyInflationDefault();
     });
 
     //  A sub-account has its parent's type, so choosing the parent first gives the type.
@@ -227,7 +264,41 @@ export class AccountFormPage implements OnInit {
     //  Every value this page writes itself goes without an event, so an event here is a choice.
     this.accountForm.get('fxTreatment')?.valueChanges.subscribe(() => {
       this.fxTreatmentChosen = true;
+      this.applyInflationDefault();
     });
+    this.accountForm.get('isInflationAdjustable')?.valueChanges.subscribe((restated: boolean) => {
+      this.inflationChosen = true;
+      if (!restated) this.accountForm.get('inflationAdjustmentAccountId')?.setValue(null, { emitEvent: false });
+    });
+  }
+
+  /**
+   * Restated for inflation by default when the account can be — postable, non-monetary — and never
+   * when it cannot (a monetary account restated would count its loss of purchasing power twice). A
+   * choice the person made is kept while it is still allowed.
+   */
+  private applyInflationDefault(): void {
+    const restated = this.accountForm.get('isInflationAdjustable');
+    const target = this.accountForm.get('inflationAdjustmentAccountId');
+    if (!restated || !target) return;
+    const facts = {
+      type: this.selectedType(),
+      fxTreatment: this.accountForm.get('fxTreatment')?.value as FxTreatment,
+      isPostable: this.postable(),
+      systemRole: null,
+    };
+    const allowed = isRestatableAccount(facts) && !this.editingAccountRestatementTarget();
+    if (!allowed) {
+      restated.setValue(false, { emitEvent: false });
+      target.setValue(null, { emitEvent: false });
+      restated.disable({ emitEvent: false });
+      target.disable({ emitEvent: false });
+      this.inflationChosen = false;
+      return;
+    }
+    restated.enable({ emitEvent: false });
+    target.enable({ emitEvent: false });
+    if (!this.inflationChosen) restated.setValue(defaultInflationRestatement(facts), { emitEvent: false });
   }
 
   /**
@@ -262,6 +333,7 @@ export class AccountFormPage implements OnInit {
       currency.disable({ emitEvent: false });
       this.fxTreatmentChosen = false;
     }
+    this.applyInflationDefault();
   }
 
   private loadAccountData(id: string): void {
@@ -286,6 +358,8 @@ export class AccountFormPage implements OnInit {
             isActive: account.isActive,
             fxTreatment: account.fxTreatment ?? defaultFxTreatmentForType(account.type),
             currency: account.currency ?? null,
+            isInflationAdjustable: account.isInflationAdjustable ?? false,
+            inflationAdjustmentAccountId: account.inflationAdjustmentAccountId ?? null,
             statementMapping: account.statementMapping ?? {},
             advanced: {
               effectiveFrom: AccountFormPage.dateOnly(account.effectiveFrom) ?? tenantToday(),
@@ -298,6 +372,8 @@ export class AccountFormPage implements OnInit {
         this.selectedType.set(account.type ?? null);
         //  What was loaded is what the account has, not a default still to apply.
         this.fxTreatmentChosen = !!account.fxTreatment;
+        this.inflationChosen = account.isInflationAdjustable !== undefined;
+        this.editingAccountRestatementTarget.set(this.stateService.isRestatementTarget(account.id));
         this.applyPostability(account.isPostable !== false);
         if (this.isEditing()) {
           this.accountForm.get('code')?.disable();
@@ -367,6 +443,13 @@ export class AccountFormPage implements OnInit {
       statementMapping: formData.statementMapping,
       fxTreatment: formData.fxTreatment,
       currency: formData.currency || null,
+      // Sent only where the company restates: elsewhere the server keeps the account's default.
+      ...(this.inflationApplies()
+        ? {
+            isInflationAdjustable: !!formData.isInflationAdjustable,
+            inflationAdjustmentAccountId: formData.isInflationAdjustable ? formData.inflationAdjustmentAccountId || null : null,
+          }
+        : {}),
       effectiveFrom: advanced.effectiveFrom || undefined,
       effectiveTo: advanced.effectiveTo || undefined,
     };

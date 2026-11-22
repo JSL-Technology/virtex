@@ -4,6 +4,8 @@ import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
 import { BUDGET_CONTROL_MODES } from '../../contracts/accounting/budget-control.contract';
 import { normalizeReminderDays } from '../../contracts/collections/reminder-schedule.contract';
+import { INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
+import { PRICE_INDEX_SERIES_CODES } from '../../markets';
 
 /**
  * The organization's settings, by the section of «Configuración» that edits them (QA M-09).
@@ -119,7 +121,13 @@ export const SETTINGS_SECTIONS = {
   },
   closing: {
     accounts: { defaultRetainedEarningsAccountId: 'EQUITY' },
-    fields: { fiscalArchiveAfterYears: intField(5, 30), maxFuturePostingDays: intField(0, 366) },
+    fields: {
+      fiscalArchiveAfterYears: intField(5, 30),
+      maxFuturePostingDays: intField(0, 366),
+      // Restatement for inflation (FIN-AC-04): when the close runs it, and with which index.
+      inflationAdjustmentPolicy: enumField(INFLATION_ADJUSTMENT_POLICIES),
+      inflationIndexSeriesCode: enumField(PRICE_INDEX_SERIES_CODES, true),
+    },
   },
   intercompany: {
     accounts: {

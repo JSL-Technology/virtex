@@ -14,4 +14,5 @@ export const accounting: MarketAccounting = {
   serviceChargeAccount: null,
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
+  inflationAccounting: null,
 };

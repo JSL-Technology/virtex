@@ -1,5 +1,6 @@
 import { AccountGroup, PolicyField } from '../shared/settings-section.component';
 import { SettingsSectionId } from '../data/organization-settings.service';
+import { INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
 
 /**
  * What each settings row section holds: its default accounts and its policies.
@@ -257,6 +258,16 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
         kind: 'integer',
         min: 0,
         max: 366
+      },
+      // When the close restates the books for inflation (IAS 29; FIN-AC-04). The index series is
+      // chosen on the inflation adjustment screen, which lists the ones the markets prescribe.
+      {
+        field: 'inflationAdjustmentPolicy',
+        labelKey: 'settings.sections.fields.inflation_adjustment_policy',
+        helpKey: 'settings.sections.fields.inflation_adjustment_policy_help',
+        kind: 'select',
+        options: [...INFLATION_ADJUSTMENT_POLICIES],
+        optionPrefix: 'settings.sections.inflation_policy.'
       }
     ],
   },

@@ -561,8 +561,9 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     }
 
     const accounts = buildCountryCoaTemplate(countryCode);
+    const created = new Map<string, string>();
     for (const account of accounts) {
-      await this.createAccountFromTemplate(account, organizationId, null, manager);
+      await this.createAccountFromTemplate(account, organizationId, null, manager, created);
     }
   }
 
@@ -571,18 +572,25 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     accountDto: AccountTemplateDto,
     organizationId: string,
     parentId: string | null,
-    manager?: EntityManager,
+    manager: EntityManager | undefined,
+    created: Map<string, string>,
   ) {
-    const { children, ...createAccountDto } = accountDto;
+    const { children, restatementAccountCode, ...createAccountDto } = accountDto;
+    // An account whose inflation restatement goes to one of its own (capital → «Ajuste de capital»)
+    // names it: the template lists the target first, so it exists by now. Created through the same
+    // rules as the account form.
+    const inflationAdjustmentAccountId = restatementAccountCode ? created.get(restatementAccountCode) : undefined;
 
     const createdAccount = await this.coaService.create(
       {
         ...createAccountDto,
+        ...(inflationAdjustmentAccountId ? { inflationAdjustmentAccountId } : {}),
         parentId,
       },
       organizationId,
       manager,
     );
+    created.set(createdAccount.code, createdAccount.id);
 
     if (children && children.length > 0) {
       for (const child of children) {
@@ -591,8 +599,10 @@ export class LocalizationService extends LocalizationProvisioningPort implements
           organizationId,
           createdAccount.id,
           manager,
+          created,
         );
       }
     }
   }
 }
+

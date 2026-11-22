@@ -329,6 +329,11 @@
     "en": "Only posted entries can be reversed.",
     "pt": "Somente lançamentos contabilizados podem ser estornados."
   },
+  "journal_entries.origin_date_after_entry": {
+    "es": "Línea {{line}}: la fecha de origen {{origin}} es posterior a la del asiento ({{date}}).",
+    "en": "Line {{line}}: the origin date {{origin}} is after the entry date ({{date}}).",
+    "pt": "Linha {{line}}: a data de origem {{origin}} é posterior à do lançamento ({{date}})."
+  },
   "journal_entries.original_entry_not_found": {
     "es": "Asiento original no encontrado.",
     "en": "The original entry was not found.",

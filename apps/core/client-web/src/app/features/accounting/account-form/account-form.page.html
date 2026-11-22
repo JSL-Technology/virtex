@@ -185,6 +185,27 @@
                   <small id="currency-help" class="field-hint">{{ 'accounting.account_form.account_currency_help' | translate }}</small>
                 </div>
               </div>
+              @if (inflationApplies()) {
+                <!-- Reexpresión por inflación (NIC 29): solo en empresas que la aplican. -->
+                <h4>{{ 'accounting.account_form.inflation_title' | translate }}</h4>
+                <div class="form-grid">
+                  <div class="form-field checkbox-field">
+                    <input id="isInflationAdjustable" type="checkbox" formControlName="isInflationAdjustable" aria-describedby="isInflationAdjustable-help">
+                    <label for="isInflationAdjustable">{{ 'accounting.account_form.inflation_restated' | translate }}</label>
+                    <small id="isInflationAdjustable-help" class="field-hint">{{ 'accounting.account_form.inflation_restated_help' | translate }}</small>
+                  </div>
+                  <div class="form-field">
+                    <label for="inflationAdjustmentAccountId">{{ 'accounting.account_form.inflation_account' | translate }}</label>
+                    <select id="inflationAdjustmentAccountId" formControlName="inflationAdjustmentAccountId" aria-describedby="inflationAdjustmentAccountId-help">
+                      <option [ngValue]="null">{{ 'accounting.account_form.inflation_account_self' | translate }}</option>
+                      @for (option of restatementTargets(); track option.id) {
+                        <option [ngValue]="option.id">{{ parentLabel(option) }}</option>
+                      }
+                    </select>
+                    <small id="inflationAdjustmentAccountId-help" class="field-hint">{{ 'accounting.account_form.inflation_account_help' | translate }}</small>
+                  </div>
+                </div>
+              }
               <!--
                 Las dimensiones obligatorias tenían aquí tres casillas que el servidor descartaba:
                 se guardan como reglas por cuenta, en la pantalla de dimensiones.

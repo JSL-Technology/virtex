@@ -33,6 +33,10 @@ export interface CreateAccountDto {
   fxTreatment?: FxTreatment;
   /** ISO 4217, or null for lines in any currency. */
   currency?: string | null;
+  /** Omitted: every postable non-monetary account is restated for inflation. */
+  isInflationAdjustable?: boolean;
+  /** The account its restatement is posted to; null: the account itself. */
+  inflationAdjustmentAccountId?: string | null;
 }
 
 /** Every change to an account is recorded in its history with the reason for it. */

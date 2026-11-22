@@ -42,17 +42,25 @@ export class CreateAccountDto {
   @IsEnum(AccountCategory) @IsNotEmpty() category: AccountCategory;
   @IsEnum(AccountNature) @IsNotEmpty() nature: AccountNature;
   @IsUUID('4') @IsOptional() parentId?: string | null;
-  @IsBoolean() @IsOptional() isActive?: boolean = true;
-  @IsBoolean() @IsOptional() isPostable?: boolean = false;
+  /*
+   * No property initializers on this DTO: `UpdateAccountDto` is its `PartialType`, which copies
+   * initializers into every instance — so `isPostable = false` here made every PATCH that left it
+   * out a request to turn the account into a summary account (refused once it had lines, silently
+   * done before), `isActive = true` reactivated a deactivated account on any edit, and
+   * `isContraAccount = false` took the mark off accumulated depreciation when it was renamed. The
+   * defaults live where an account is created: the service (`isPostable ?? false`) and the columns.
+   */
+  @IsBoolean() @IsOptional() isActive?: boolean;
+  @IsBoolean() @IsOptional() isPostable?: boolean;
 
   /** Declares that `nature` is deliberately the opposite of the type's normal balance. */
-  @IsBoolean() @IsOptional() isContraAccount?: boolean = false;
+  @IsBoolean() @IsOptional() isContraAccount?: boolean;
 
 
   /** Operational role, used by the automatic postings to find this account. */
   @IsEnum(AccountRole) @IsOptional() systemRole?: AccountRole;
 
-  @IsBoolean() @IsOptional() isSystemAccount?: boolean = false;
+  @IsBoolean() @IsOptional() isSystemAccount?: boolean;
 
   /**
    * How the account's foreign-currency balances are measured at a period end (IAS 21): restated at
@@ -70,6 +78,23 @@ export class CreateAccountDto {
   @IsOptional()
   @Matches(/^[A-Z]{3}$/, { message: 'validation.constraints.currency_code' })
   currency?: string | null;
+
+  /**
+   * Whether the restatement for inflation restates the account (IAS 29). Omitted: every postable
+   * non-monetary account is restated (`defaultInflationRestatement`); a monetary account, a summary
+   * account and the account of the net monetary position cannot be.
+   */
+  @IsOptional()
+  @IsBoolean()
+  isInflationAdjustable?: boolean;
+
+  /**
+   * The account the restatement is posted to, when the account itself stays at its nominal value
+   * (capital → «Ajuste de capital»). Null: the account itself.
+   */
+  @IsOptional()
+  @IsUUID('4', { message: 'validation.constraints.is_uuid' })
+  inflationAdjustmentAccountId?: string | null;
 
 
   /**

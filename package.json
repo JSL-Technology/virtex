@@ -47,6 +47,7 @@
     "verify:plan-writes": "node tools/verify/plan-writes.mjs",
     "verify:invoicing": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/invoicing-lifecycle.ts",
     "verify:journal-api": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/journal-api.ts",
+    "verify:inflation-adjustment": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/inflation-adjustment.ts",
     "verify:ledger": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/ledger-close.ts",
     "verify:localized-errors": "node tools/verify/localized-errors.mjs",
     "verify:localized-names": "node tools/i18n/verify-localized-names.mjs",

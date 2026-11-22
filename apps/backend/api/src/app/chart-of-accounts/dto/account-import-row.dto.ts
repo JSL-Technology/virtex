@@ -77,6 +77,24 @@ export class AccountImportRowDto {
   @IsEnum(AccountRole)
   systemRole?: AccountRole;
 
+  /**
+   * Restated for inflation (IAS 29): only a postable non-monetary account can be. Blank: every one
+   * that can be is (`defaultInflationRestatement`).
+   */
+  @IsOptional()
+  @SpreadsheetBoolean()
+  @IsBoolean()
+  isInflationAdjustable?: boolean;
+
+  /**
+   * The code of the account its restatement is posted to, when it stays at nominal value itself
+   * (capital → «Ajuste de capital»): in the file or already in the chart.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: 'validation.constraints.max_length|{"max":50}' })
+  inflationAdjustmentAccountCode?: string;
+
   /** The authority's grouping code (Mexico's SAT «código agrupador»). */
   @IsOptional()
   @IsString()

@@ -52,7 +52,7 @@ import {
   FastifyFile,
   toUploadableFile,
 } from '../common/interfaces/fastify-file.interface';
-import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
 import {
   MoneyError,
   convert,
@@ -344,9 +344,22 @@ export class JournalEntriesService {
         });
       }
 
+      // The date the amount ORIGINATED, when it is not the entry's own (FIN-AC-04): the restatement
+      // for inflation restates each amount from then — a depreciation charge from the asset's
+      // acquisition, an opening balance from when it was incurred. Never after the entry: an amount
+      // cannot originate after it is booked.
+      const originDate = line.originDate ? String(line.originDate).slice(0, 10) : undefined;
+      if (originDate && (originDate > toIsoDate(entryDate) || originDate < '1900-01-01')) {
+        throw new UnprocessableEntityError('journal_entries.origin_date_after_entry', {
+          line: index + 1,
+          origin: originDate,
+          date: toIsoDate(entryDate),
+        });
+      }
+
       totalDebitCents += toCents(debit);
       totalCreditCents += toCents(credit);
-      return { ...line, debit, credit };
+      return { ...line, debit, credit, originDate };
     });
 
     // Exact. Not "within a cent": a ledger that tolerates a cent per entry is a ledger that does
@@ -527,6 +540,7 @@ export class JournalEntriesService {
         journalEntry: savedEntry,
         debit: lineDto.debit,
         credit: lineDto.credit,
+        originDate: lineDto.originDate ?? null,
         valuations: [],
       });
       if (context.reconciledAccountIds?.includes(lineDto.accountId)) {
@@ -1268,6 +1282,9 @@ export class JournalEntriesService {
         credit: Number(line.debit),
         description: `${reversalWords.linePrefix}${line.description || original.description}`,
         dimensions: line.dimensions,
+        // The reversal undoes the amount where it originated, so a restatement for inflation sees
+        // the two cancel at every index instead of restating them from different months.
+        ...(line.originDate ? { originDate: toIsoDate(line.originDate) } : {}),
         valuations: line.valuations?.map((valuation) => ({
           ledgerId: valuation.ledgerId,
           debit: Number(valuation.credit),

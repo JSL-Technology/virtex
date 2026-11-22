@@ -64,6 +64,15 @@ export class CreateJournalEntryLineDto {
   dimensions?: Record<string, string>;
 
   /**
+   * When the amount originated, if not on the entry's date (`YYYY-MM-DD`): the date the restatement
+   * for inflation restates it from (IAS 29.15) — an asset's acquisition for its depreciation, the
+   * date an opening balance was incurred. Never after the entry's date. Omitted: the entry's date.
+   */
+  @IsOptional()
+  @IsDateString({}, { message: 'validation.create_journal_entry.origin_date_must_date' })
+  originDate?: string;
+
+  /**
    * The currency this line was actually transacted in, when it is not the entry's.
    *
    * ## Why the line needs its own currency

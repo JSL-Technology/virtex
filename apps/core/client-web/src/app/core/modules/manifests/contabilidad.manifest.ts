@@ -347,6 +347,19 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       menu: { group: 'documents', labelKey: 'page_titles.depreciation_run' },
       load: () => import('../../../features/accounting/fixed-assets/depreciation-run.page').then((m) => m.DepreciationRunPage),
     },
+    // Restatement for inflation (FIN-AC-04): statements in constant currency where the economy calls
+    // for them (IAS 29). The close books it under the company's policy; this window shows the month's
+    // restatement and the index it multiplies by, restates a month by hand and keeps the runs.
+    {
+      path: 'inflation-adjustment',
+      kind: WindowKind.LIST,
+      permission: 'accounting:view',
+      titleKey: 'page_titles.inflation_adjustment',
+      icon: 'TrendingUp',
+      entityKeyFn: () => 'contabilidad:inflation-adjustment',
+      menu: { group: 'documents', labelKey: 'page_titles.inflation_adjustment' },
+      load: () => import('../../../features/accounting/inflation-adjustment/inflation-adjustment.page').then((m) => m.InflationAdjustmentPage),
+    },
     {
       path: 'fixed-assets/:id',
       kind: WindowKind.DOCUMENT,

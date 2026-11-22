@@ -34,6 +34,11 @@
     "en": "Point-of-sale sales",
     "pt": "Vendas do ponto de venda"
   },
+  "data_transfer.datasets.price_index_values": {
+    "es": "Índices de precios",
+    "en": "Price indices",
+    "pt": "Índices de preços"
+  },
   "data_transfer.datasets.products": {
     "es": "Productos",
     "en": "Products",
@@ -80,9 +85,14 @@
     "pt": "Cada linha é uma conta. O código segue a estrutura de segmentos da empresa, separados por «-», e a conta pai — no arquivo ou já no plano — é uma conta de agrupamento do mesmo tipo. Uma conta da qual outra linha depende é de agrupamento mesmo que não se diga; a natureza vem do tipo (a contrária numa conta redutora) e o tratamento cambial, do tipo e do papel. Cada papel vai numa única conta. O arquivo entra inteiro ou não entra."
   },
   "data_transfer.hints.opening_balances": {
-    "es": "Un archivo es un solo asiento de apertura: una fila por cuenta, todas con la misma fecha, y los débitos deben igualar los créditos al centavo. Las cuentas por cobrar, por pagar, el inventario y los bancos no se cargan aquí: sus saldos salen de las facturas abiertas, las facturas de proveedor abiertas, las existencias y el saldo inicial de cada cuenta bancaria.",
-    "en": "One file is a single opening entry: one row per account, all with the same date, and debits must equal credits to the cent. Receivables, payables, inventory and bank accounts are not loaded here: their balances come from open invoices, open supplier bills, stock on hand and each bank account’s opening balance.",
-    "pt": "Um arquivo é um único lançamento de abertura: uma linha por conta, todas com a mesma data, e os débitos devem igualar os créditos ao centavo. Contas a receber, a pagar, estoque e bancos não são carregados aqui: seus saldos vêm das faturas em aberto, das faturas de fornecedor em aberto, do estoque e do saldo inicial de cada conta bancária."
+    "es": "Un archivo es un solo asiento de apertura: todas las filas con la misma fecha, y los débitos deben igualar los créditos al centavo. Si la empresa reexpresa por inflación, un saldo originado antes de la apertura va con su «fecha_origen», y una cuenta puede venir en varias filas, una por origen. Las cuentas por cobrar, por pagar, el inventario y los bancos no se cargan aquí: sus saldos salen de las facturas abiertas, las facturas de proveedor abiertas, las existencias y el saldo inicial de cada cuenta bancaria.",
+    "en": "One file is a single opening entry: every row with the same date, and debits must equal credits to the cent. If the company restates for inflation, a balance that originated before the opening carries its “fecha_origen”, and an account may come in several rows, one per origin. Receivables, payables, inventory and bank accounts are not loaded here: their balances come from open invoices, open supplier bills, stock on hand and each bank account’s opening balance.",
+    "pt": "Um arquivo é um único lançamento de abertura: todas as linhas com a mesma data, e os débitos devem igualar os créditos ao centavo. Se a empresa reexpressa pela inflação, um saldo originado antes da abertura vai com sua «fecha_origen», e uma conta pode vir em várias linhas, uma por origem. Contas a receber, a pagar, estoque e bancos não são carregados aqui: seus saldos vêm das faturas em aberto, das faturas de fornecedor em aberto, do estoque e do saldo inicial de cada conta bancária."
+  },
+  "data_transfer.hints.price_index_values": {
+    "es": "Una fila por mes de la serie que prescribe tu mercado, con el índice tal como se publicó y punto decimal. Un mes registrado aquí solo se usa mientras la plataforma no haya cargado el publicado. Importar de nuevo el mismo valor no registra nada; un valor distinto queda como una revisión nueva, sin borrar la anterior.",
+    "en": "One row per month of the series your market prescribes, with the index as published and a decimal point. A month recorded here is only used while the platform has not loaded the published one. Importing the same value again records nothing; a different value becomes a new revision, and the previous one stays.",
+    "pt": "Uma linha por mês da série que o seu mercado prescreve, com o índice tal como publicado e ponto decimal. Um mês registrado aqui só é usado enquanto a plataforma não tiver carregado o publicado. Importar de novo o mesmo valor não registra nada; um valor diferente fica como uma nova revisão, sem apagar a anterior."
   },
   "data_transfer.hints.vendor_bills": {
     "es": "Cada fila es una factura de proveedor de una línea y entra como borrador, para revisarla y aprobarla. El proveedor se busca por su identificación fiscal y debe existir. Para facturas anteriores al inicio en el sistema, usa como cuenta de gasto la cuenta de patrimonio de saldos iniciales: el gasto ya está en los libros anteriores.",
@@ -138,6 +148,11 @@
     "es": "Cada fila lleva un débito o un crédito, no los dos ni ninguno.",
     "en": "Each row carries a debit or a credit, not both and not neither.",
     "pt": "Cada linha leva um débito ou um crédito, não os dois nem nenhum."
+  },
+  "data_transfer.opening_balances.origin_after_date": {
+    "es": "La fecha de origen {{origin}} es posterior a la de apertura ({{date}}).",
+    "en": "The origin date {{origin}} is after the opening date ({{date}}).",
+    "pt": "A data de origem {{origin}} é posterior à de abertura ({{date}})."
   },
   "data_transfer.opening_balances.subledger_bank": {
     "es": "La cuenta {{code}} pertenece a una cuenta bancaria: registra su saldo inicial en Tesorería.",

@@ -68,4 +68,5 @@ export const accounting: MarketAccounting = {
   serviceChargeAccount: null,
   fiscalGroupingCodes: GROUPING_CODES,
   exclusiveTerms: [/IMSS/, /INFONAVIT/, /\bSAR\b/, /IEPS/],
+  inflationAccounting: null,
 };

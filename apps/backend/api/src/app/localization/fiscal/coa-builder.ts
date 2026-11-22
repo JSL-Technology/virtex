@@ -1,4 +1,5 @@
 import { defaultFxTreatment } from '../../contracts/accounting/fx-treatment.contract';
+import { defaultInflationRestatement } from '@virtex/shared/types';
 import {
   AccountCategory,
   AccountNature,
@@ -299,7 +300,50 @@ function leaf(
     systemRole: role,
     // Monetary or not, from the account's role and type (`fx-treatment.contract.ts`).
     fxTreatment: defaultFxTreatment(type, role),
+    // Restated for inflation when non-monetary (`inflation-restatement.contract.ts`): read only by a
+    // company that applies inflation accounting.
+    isInflationAdjustable: defaultInflationRestatement({
+      type,
+      fxTreatment: defaultFxTreatment(type, role),
+      isPostable: true,
+      systemRole: role ?? null,
+    }),
   };
+}
+
+/**
+ * The equity accounts a market keeps at nominal value, with their restatement in an account of its
+ * own beside them (Argentina: capital and «Ajuste de capital»). The target comes first, and the
+ * source names it by code: created in that order, the source is born pointing at it.
+ */
+function withRestatementAccounts(code: string, accounts: AccountTemplateDto[]): AccountTemplateDto[] {
+  const declared = marketFor(code).accounting.inflationAccounting?.restatementAccounts ?? [];
+  if (declared.length === 0) return accounts;
+  const result: AccountTemplateDto[] = [];
+  for (const account of accounts) {
+    const accountCode = account.segments.join('');
+    const restatement = declared.find((entry) => entry.sourceCode === accountCode);
+    if (!restatement) {
+      result.push(account);
+      continue;
+    }
+    result.push(
+      // The target first, so the source can name it when it is created.
+      {
+        ...account,
+        segments: splitCoaCode(code, restatement.code),
+        ...groupingCode(code, restatement.code),
+        name: restatement.name,
+        systemRole: undefined,
+        // The target IS the source's restatement: it is never restated by itself.
+        isInflationAdjustable: false,
+        restatementAccountCode: undefined,
+      },
+      // The full code, as the target carries it once created (`1-100` in a segmented plan).
+      { ...account, restatementAccountCode: splitCoaCode(code, restatement.code).join('-') },
+    );
+  }
+  return result;
 }
 
 
@@ -408,7 +452,7 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       ]),
     ]),
 
-    group(code, '3000', t.equity, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C, [
+    group(code, '3000', t.equity, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C, withRestatementAccounts(code, [
       leaf(code, { code: '3100', name: t.capital }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
       leaf(code, { code: '3200', name: t.legalReserve }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
       // The counterpart of every balance that predates the books: opening stock, an opening bank
@@ -416,7 +460,7 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       leaf(code, { code: '3150', name: t.openingBalance, role: AccountRole.OPENING_BALANCE_EQUITY }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
       leaf(code, { code: '3300', name: t.retained, role: AccountRole.RETAINED_EARNINGS }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
       leaf(code, { code: '3400', name: t.periodResult }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
-    ]),
+    ])),
 
     group(code, '4000', t.revenue, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C, [
       leaf(code, { code: '4100', name: t.sales, role: AccountRole.SALES_REVENUE }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C),

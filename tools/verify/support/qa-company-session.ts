@@ -38,6 +38,24 @@ function dominicanRnc(prefix: string): string {
   return `${base}${digit}`;
 }
 
+/** An Argentine company CUIT (prefix 30) with its AFIP check digit; the seed picks the eight digits. */
+function argentineCompanyCuit(seed: number): string {
+  const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+  for (let offset = 0; ; offset++) {
+    const base = `30${String(10000000 + ((seed + offset) % 89999999)).slice(-8)}`;
+    const sum = base.split('').reduce((acc, d, i) => acc + Number(d) * weights[i], 0);
+    const digit = 11 - (sum % 11);
+    if (digit === 10) continue; // Never issued: AFIP changes the prefix instead.
+    return `${base}${digit === 11 ? 0 : digit}`;
+  }
+}
+
+/** What the signup of a QA company in each market needs that differs between them. */
+const MARKET_FIXTURES: Record<string, (stamp: number) => { taxId: string; city: string; state: string; postalCode: string }> = {
+  DO: (stamp) => ({ taxId: dominicanRnc(String(13400000 + (stamp % 500000))), city: 'Santo Domingo', state: '32', postalCode: '10101' }),
+  AR: (stamp) => ({ taxId: argentineCompanyCuit(stamp), city: 'Buenos Aires', state: 'C', postalCode: 'C1001' }),
+};
+
 function cookiesOf(raw: string | string[] | undefined): Record<string, string> {
   const jar: Record<string, string> = {};
   for (const line of Array.isArray(raw) ? raw : raw ? [raw] : []) {
@@ -82,8 +100,16 @@ export interface QaCompanySession {
   signedIn: boolean;
 }
 
-/** A DO company on `planSlug`, provisioned through signup, with its owner signed in. */
-export async function qaCompanySession(app: NestFastifyApplication, label: string, planSlug = 'pro'): Promise<QaCompanySession> {
+/**
+ * A company of `country` (DO unless said otherwise) on `planSlug`, provisioned through signup —
+ * the market's chart, taxes and policies — with its owner signed in.
+ */
+export async function qaCompanySession(
+  app: NestFastifyApplication,
+  label: string,
+  planSlug = 'pro',
+  country: keyof typeof MARKET_FIXTURES = 'DO',
+): Promise<QaCompanySession> {
   const server = app.getHttpAdapter().getInstance();
   const ds = app.get(DataSource);
   // One source address per run: the login throttler is real (see `auth-http-contract.ts`).
@@ -93,8 +119,9 @@ export async function qaCompanySession(app: NestFastifyApplication, label: strin
 
   const email = `qa-${label.toLowerCase()}-${stamp}@example.test`;
   const password = 'QaVerificador!2026';
-  const region = await app.get(LocalizationService).findRegionByCountryCode('DO');
-  if (!region) throw new Error('No hay región fiscal DO sembrada.');
+  const region = await app.get(LocalizationService).findRegionByCountryCode(country);
+  if (!region) throw new Error(`No hay región fiscal ${country} sembrada.`);
+  const market = MARKET_FIXTURES[country](stamp);
   const pendingRepo = ds.getRepository(PendingRegistration);
   const pending = await pendingRepo.save(
     pendingRepo.create({
@@ -105,17 +132,17 @@ export async function qaCompanySession(app: NestFastifyApplication, label: strin
       phoneVerified: false,
       passwordHash: await argon2.hash(password, { type: argon2.argon2id }),
       organizationName: `QA-${label.toUpperCase()} ${stamp}`,
-      taxId: dominicanRnc(String(13400000 + (stamp % 500000))),
+      taxId: market.taxId,
       taxpayerKind: 'company',
       fiscalProfile: {},
       fiscalRegionId: region.id,
       industry: 'technology',
       companySize: '1-10',
       address: 'Calle QA 3',
-      city: 'Santo Domingo',
-      state: '32',
-      postalCode: '10101',
-      countryCode: 'DO',
+      city: market.city,
+      state: market.state,
+      postalCode: market.postalCode,
+      countryCode: country,
       planSlug,
       status: PendingRegistrationStatus.PENDING,
       expiresAt: new Date(Date.now() + 3_600_000),

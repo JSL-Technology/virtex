@@ -280,6 +280,11 @@
     "en": "Ledger account {{code}} already carries a bank account in {{currency}}: each currency needs its own ledger account.",
     "pt": "A conta contábil {{code}} já leva um banco em {{currency}}: cada moeda precisa de sua própria conta contábil."
   },
+  "treasury.ledger_account_takes_restatement": {
+    "es": "La cuenta {{code}} recibe la reexpresión por inflación de {{other}}: no puede ser la cuenta de un banco, que es dinero.",
+    "en": "Account {{code}} takes the restatement for inflation of {{other}}: it cannot be a bank's account, which is money.",
+    "pt": "A conta {{code}} recebe a reexpressão pela inflação de {{other}}: não pode ser a conta de um banco, que é dinheiro."
+  },
   "treasury.no_bank_accounts_have_registered": {
     "es": "No hay cuentas bancarias registradas.",
     "en": "No bank accounts have been registered.",

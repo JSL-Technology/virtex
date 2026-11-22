@@ -501,6 +501,20 @@ jobs:
           DB_USERNAME: virtex_app
           DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
 
+      # The restatement for inflation (IAS 29, FIN-AC-04), over HTTP with an Argentine company and a
+      # Dominican one: provisioned from the market, each amount restated from the month it
+      # originated, the RECPAM equal to the loss on the money held, idempotent, refused out of order,
+      # replaced after a revised index, undone as a run — and again as `virtex_app`.
+      - name: npm run verify:inflation-adjustment
+        if: ${{ !cancelled() }}
+        run: npm run verify:inflation-adjustment
+      - name: npm run verify:inflation-adjustment (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:inflation-adjustment
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

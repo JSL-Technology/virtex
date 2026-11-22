@@ -319,6 +319,11 @@
     "en": "Income statement",
     "pt": "Demonstração do resultado"
   },
+  "page_titles.inflation_adjustment": {
+    "es": "Ajuste por inflación",
+    "en": "Inflation adjustment",
+    "pt": "Ajuste pela inflação"
+  },
   "page_titles.inventory_adjustment": {
     "es": "Ajuste de inventario",
     "en": "Inventory adjustment",

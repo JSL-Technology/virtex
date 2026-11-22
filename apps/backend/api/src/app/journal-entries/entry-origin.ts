@@ -40,6 +40,8 @@ const DOCUMENT_ROUTES: Readonly<Record<string, (id: string) => string | null>> =
   'po-receipt': () => null,
   'bank-rule': () => null,
   'audit-adjustment-close': () => null,
+  // A restatement for inflation is corrected by replacing or undoing its run (FIN-AC-04).
+  'inflation-adjustment': () => '/accounting/inflation-adjustment',
 };
 
 export function describeEntryOrigin(entry: {

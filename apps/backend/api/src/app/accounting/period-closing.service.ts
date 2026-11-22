@@ -40,7 +40,7 @@ import { LocalizedMessage } from '../i18n/localized-message';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { fiscalDate, organizationTimeZone, type TimeZoneBearingOrganization } from '../shared/fiscal-clock';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
-import { moduleStatusColumn } from './period-status';
+import { allowPostingsThrough, moduleStatusColumn } from './period-status';
 import { previousDay, toIsoDate } from '../common/dates';
 
 /**
@@ -263,7 +263,10 @@ export class PeriodClosingService {
 
       // Depreciation and FX revaluation post into the period being closed, before it is locked.
       // Because balances are read from the journal through this same transaction, everything they
-      // post is visible to the year-end result transfer later.
+      // post is visible to the year-end result transfer later. They are dated at the period's end,
+      // which a close made before it ends puts past the posting horizon: within this close, the
+      // horizon reaches it (`allowPostingsThrough`).
+      await allowPostingsThrough(manager, period.endDate);
       await this.closingAutomationService.runPreClosingTasks(
         period,
         organizationId,

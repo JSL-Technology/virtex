@@ -18,7 +18,7 @@ import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virtex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
-import { languageOfCountry, marketFor } from '../../markets';
+import { inflationAccountingOf, languageOfCountry, marketFor } from '../../markets';
 import { SYSTEM_JOURNALS } from '../../contracts/ledger-posting/system-journals';
 
 /**
@@ -117,7 +117,7 @@ export class TenantBookkeepingProvisioner {
     // The statutory language of these books, which is what their ledger and journals are named in.
     const language = await this.provisionBooksLanguage(organization, manager);
 
-    const settings = await this.provisionSettings(organizationId, baseCurrency, manager);
+    const settings = await this.provisionSettings(organizationId, baseCurrency, manager, organization.country ?? null);
     await this.provisionLedger(organizationId, baseCurrency, language, manager);
     await this.provisionJournals(organizationId, language, manager);
     await this.provisionDocumentSequences(organizationId, language, manager);
@@ -212,6 +212,7 @@ export class TenantBookkeepingProvisioner {
     organizationId: string,
     baseCurrency: string,
     manager: EntityManager,
+    country: string | null = null,
   ): Promise<OrganizationSettings> {
     const repo = manager.getRepository(OrganizationSettings);
     const byRole = await this.accountsByRole(organizationId, manager);
@@ -242,6 +243,20 @@ export class TenantBookkeepingProvisioner {
     settings.defaultDepreciationExpenseAccountId ??= byRole.get(AccountRole.DEPRECIATION_EXPENSE) ?? null;
     settings.defaultAccumulatedDepreciationAccountId ??= byRole.get(AccountRole.ACCUMULATED_DEPRECIATION) ?? null;
     settings.defaultInflationAdjustmentAccountId ??= byRole.get(AccountRole.INFLATION_ADJUSTMENT) ?? null;
+
+    // Restated statements where the market's economy calls for them (IAS 29; FIN-AC-04): its
+    // index, and — for a company whose books are kept in the currency that index measures — its
+    // policy. A company keeping its books in another currency (a dollar functional currency) is not
+    // restated by a peso index. Only a NEW settings row takes the policy: re-provisioning keeps the
+    // one the company chose, `NONE` included.
+    const inflation = inflationAccountingOf(country);
+    if (inflation) {
+      const booksCurrency = (settings.baseCurrency ?? baseCurrency ?? '').toUpperCase();
+      settings.inflationIndexSeriesCode ??= inflation.series.code;
+      if (!existing && booksCurrency === inflation.series.currency) {
+        settings.inflationAdjustmentPolicy = inflation.defaultPolicy;
+      }
+    }
 
     // Payroll: derived from the same roles the chart stamps, so a tenant can run payroll without
     // hand-picking seven accounts — and re-pointing any of them survives a re-provision.

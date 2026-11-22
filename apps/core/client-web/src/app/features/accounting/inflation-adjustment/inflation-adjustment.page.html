@@ -1,0 +1,221 @@
+<vx-list-shell
+  titleKey="inflation_adjustment.page.title"
+  subtitleKey="inflation_adjustment.page.subtitle"
+  [count]="accounts().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <button listActions *appHasPermission="'accounting:run_inflation_adjustment'" type="button" class="primary-button"
+          [disabled]="busy() || !canPost()" (click)="post()">
+    {{ (outlook()?.run ? 'inflation_adjustment.page.replace' : 'inflation_adjustment.page.post') | translate }}
+  </button>
+
+  <div listFilters class="doc-filter">
+    <label for="ia-period">{{ 'inflation_adjustment.page.period' | translate }}</label>
+    <input id="ia-period" type="month" [ngModel]="period()" (ngModelChange)="setPeriod($event)" />
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'inflation_adjustment.page.nothing_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'inflation_adjustment.page.nothing_help' | translate }}</p>
+  </div>
+
+  @if (outlook(); as o) {
+    <section listCreate class="ia-summary card" aria-labelledby="ia-summary-title">
+      <h2 id="ia-summary-title" class="ia-summary__title">{{ 'inflation_adjustment.page.summary' | translate }}</h2>
+      <dl class="ia-facts">
+        <div>
+          <dt>{{ 'inflation_adjustment.page.policy' | translate }}</dt>
+          <dd>{{ ('settings.sections.inflation_policy.' + o.policy) | translate }}</dd>
+        </div>
+        <div>
+          <dt>
+            @if (canChooseSeries) {
+              <label for="ia-series">{{ 'inflation_adjustment.page.series' | translate }}</label>
+            } @else {
+              {{ 'inflation_adjustment.page.series' | translate }}
+            }
+          </dt>
+          <dd>
+            @if (canChooseSeries) {
+              <select id="ia-series" [ngModel]="o.seriesCode ?? ''" (ngModelChange)="chooseSeries($event)">
+                <option value="">{{ 'inflation_adjustment.page.no_series' | translate }}</option>
+                @for (entry of catalogue(); track entry.code) {
+                  <option [value]="entry.code">{{ entry.code }} · {{ entry.name }}</option>
+                }
+              </select>
+            } @else {
+              {{ o.seriesCode ?? ('inflation_adjustment.page.no_series' | translate) }}
+            }
+            @if (series(); as s) {
+              <small class="ia-hint">{{ s.publisher }} — {{ s.legalBasis }}</small>
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'inflation_adjustment.page.closing_index' | translate }}</dt>
+          <dd>
+            @if (o.closingIndex; as index) {
+              {{ index.value }}
+              <small class="ia-hint">{{ ('inflation_adjustment.page.index_source.' + index.source) | translate: { revision: index.revision } }}</small>
+            } @else {
+              {{ 'inflation_adjustment.page.index_missing' | translate }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'inflation_adjustment.page.net_monetary_result' | translate }}</dt>
+          <dd><vx-amount [value]="shown()?.netMonetaryResult ?? '0.00'" /></dd>
+        </div>
+      </dl>
+
+      @if (o.run; as run) {
+        <p class="ls__state-help" role="status">
+          {{ (o.current ? 'inflation_adjustment.page.run_current' : 'inflation_adjustment.page.run_outdated') | translate: { period: run.period, result: run.netMonetaryResult } }}
+          @if (entryLink(run.journalEntryId); as link) {
+            <a [routerLink]="link">{{ 'inflation_adjustment.page.view_entry' | translate }}</a>
+          }
+        </p>
+      } @else if (o.dueAtClose) {
+        <p class="ls__state-help">{{ 'inflation_adjustment.page.due_at_close' | translate: { period: o.period } }}</p>
+      }
+      <p class="ia-hint">{{ 'inflation_adjustment.page.local_accountant' | translate }}</p>
+    </section>
+  }
+
+  @if (blockers().length > 0) {
+    <div class="banner-error" role="alert">
+      <strong>{{ 'inflation_adjustment.page.blocked' | translate }}</strong>
+      <ul>
+        @for (blocker of blockers(); track blocker.key) {
+          <li>{{ blocker.key | translate: (blocker.params ?? {}) }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="table-container card">
+    <table class="data-table">
+      <caption class="visually-hidden">{{ 'inflation_adjustment.page.accounts_caption' | translate }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'inflation_adjustment.page.account' | translate }}</th>
+          <th scope="col">{{ 'inflation_adjustment.page.origin' | translate }}</th>
+          <th scope="col" class="numeric">{{ 'inflation_adjustment.page.historical' | translate }}</th>
+          <th scope="col" class="numeric">{{ 'inflation_adjustment.page.restated' | translate }}</th>
+          <th scope="col" class="numeric">{{ 'inflation_adjustment.page.book' | translate }}</th>
+          <th scope="col" class="numeric">{{ 'inflation_adjustment.page.adjustment' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of accounts(); track line.accountId + dimensionsOf(line)) {
+          <tr>
+            <td>
+              <span class="ia-code">{{ line.accountCode }}</span> {{ line.accountName }}
+              @if (line.postedAccountId !== line.accountId) {
+                <small class="ia-hint">{{ 'inflation_adjustment.page.posted_to' | translate: { code: line.postedAccountCode } }}</small>
+              }
+              @if (line.dimensions) {
+                <small class="ia-hint">{{ dimensionsOf(line) }}</small>
+              }
+            </td>
+            <td>{{ line.earliestOrigin ?? '—' }}</td>
+            <td class="numeric"><vx-amount [value]="line.historical" /></td>
+            <td class="numeric"><vx-amount [value]="line.restated" /></td>
+            <td class="numeric"><vx-amount [value]="line.bookBalance" /></td>
+            <td class="numeric"><vx-amount [value]="line.adjustment" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <section class="ia-index card" aria-labelledby="ia-index-title">
+    <h2 id="ia-index-title" class="ia-summary__title">{{ 'inflation_adjustment.page.index_title' | translate }}</h2>
+    @if (indexMonths().length > 0) {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'inflation_adjustment.page.month' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'inflation_adjustment.page.value' | translate }}</th>
+            <th scope="col">{{ 'inflation_adjustment.page.source_header' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (month of indexMonths(); track month.period) {
+            <tr>
+              <td>{{ month.period }}</td>
+              <td class="numeric">{{ month.value }}</td>
+              <td>
+                {{ ('inflation_adjustment.page.index_source.' + month.source) | translate: { revision: month.revision } }}
+                @if (month.companyValue; as own) {
+                  <small class="ia-hint">{{ 'inflation_adjustment.page.company_value_unused' | translate: { value: own.value } }}</small>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="ls__state-help">{{ 'inflation_adjustment.page.no_index_values' | translate }}</p>
+    }
+
+    @if (outlook()?.seriesCode) {
+      <form *appHasPermission="'accounting:manage_price_indices'" class="ia-record" (ngSubmit)="recordIndex()">
+        <p class="ia-hint">{{ 'inflation_adjustment.page.record_help' | translate }}</p>
+        <div class="ia-record__fields">
+          <label for="ia-entry-period">{{ 'inflation_adjustment.page.month' | translate }}</label>
+          <input id="ia-entry-period" name="entryPeriod" type="month" [ngModel]="entryPeriod()" (ngModelChange)="entryPeriod.set($event)" required />
+          <label for="ia-entry-value">{{ 'inflation_adjustment.page.value' | translate }}</label>
+          <input id="ia-entry-value" name="entryValue" type="text" inputmode="decimal" [ngModel]="entryValue()" (ngModelChange)="entryValue.set($event)" required />
+          <label for="ia-entry-reference">{{ 'inflation_adjustment.page.reference' | translate }}</label>
+          <input id="ia-entry-reference" name="entryReference" type="text" [ngModel]="entryReference()" (ngModelChange)="entryReference.set($event)" />
+          <button type="submit" class="secondary-button" [disabled]="busy() || !entryValue().trim()">
+            {{ 'inflation_adjustment.page.record' | translate }}
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+
+  @if (runs().length > 0) {
+    <section class="ia-runs card" aria-labelledby="ia-runs-title">
+      <h2 id="ia-runs-title" class="ia-summary__title">{{ 'inflation_adjustment.page.runs_title' | translate }}</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'inflation_adjustment.page.month' | translate }}</th>
+            <th scope="col">{{ 'inflation_adjustment.page.status' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'inflation_adjustment.page.net_monetary_result' | translate }}</th>
+            <th scope="col">{{ 'inflation_adjustment.page.entry' | translate }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'inflation_adjustment.page.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of runs(); track run.id) {
+            <tr>
+              <td>{{ run.period }}</td>
+              <td>{{ ('inflation_adjustment.page.run_status.' + run.status) | translate }}</td>
+              <td class="numeric"><vx-amount [value]="run.netMonetaryResult" /></td>
+              <td>
+                @if (entryLink(run.journalEntryId); as link) {
+                  <a class="table-link" [routerLink]="link">{{ 'inflation_adjustment.page.view_entry' | translate }}</a>
+                }
+              </td>
+              <td>
+                @if (run.id === latestPosted()?.id) {
+                  <button *appHasPermission="'accounting:run_inflation_adjustment'" type="button" class="link-button"
+                          [disabled]="busy()" (click)="reverse(run)">
+                    {{ 'inflation_adjustment.page.reverse' | translate }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</vx-list-shell>

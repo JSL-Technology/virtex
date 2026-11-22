@@ -2985,6 +2985,16 @@
     "en": "Only in countries that restate financial statements for inflation.",
     "pt": "Apenas em países que reajustam demonstrações pela inflação."
   },
+  "settings.sections.fields.inflation_adjustment_policy": {
+    "es": "Reexpresión por inflación",
+    "en": "Restatement for inflation",
+    "pt": "Reexpressão pela inflação"
+  },
+  "settings.sections.fields.inflation_adjustment_policy_help": {
+    "es": "Cuándo el cierre reexpresa los libros en moneda homogénea (NIC 29): nunca, al cierre del último período de cada ejercicio o en cada cierre. La exigen las economías hiperinflacionarias; verifica con tu contador local.",
+    "en": "When the close restates the books in constant currency (IAS 29): never, at the close of each fiscal year's last period, or at every close. Hyperinflationary economies require it; confirm with your local accountant.",
+    "pt": "Quando o fechamento reexpressa os livros em moeda constante (IAS 29): nunca, no fechamento do último período de cada exercício ou em cada fechamento. As economias hiperinflacionárias o exigem; confirme com seu contador local."
+  },
   "settings.sections.fields.intercompany_payable_account": {
     "es": "Cuentas por pagar intercompañía",
     "en": "Intercompany payable",
@@ -3219,6 +3229,21 @@
     "es": "Cuentas de impuestos",
     "en": "Tax accounts",
     "pt": "Contas de impostos"
+  },
+  "settings.sections.inflation_policy.every_period": {
+    "es": "En cada cierre de período",
+    "en": "At every period close",
+    "pt": "Em cada fechamento de período"
+  },
+  "settings.sections.inflation_policy.none": {
+    "es": "No se aplica",
+    "en": "Not applied",
+    "pt": "Não se aplica"
+  },
+  "settings.sections.inflation_policy.year_end": {
+    "es": "Al cierre del ejercicio",
+    "en": "At the year-end close",
+    "pt": "No fechamento do exercício"
   },
   "settings.sections.load_failed": {
     "es": "No se pudo cargar esta configuración.",

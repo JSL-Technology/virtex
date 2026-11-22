@@ -436,6 +436,11 @@
     "en": "The line description must be text.",
     "pt": "A descrição da linha deve ser texto."
   },
+  "validation.create_journal_entry.origin_date_must_date": {
+    "es": "La fecha de origen debe ser una fecha (AAAA-MM-DD).",
+    "en": "The origin date must be a date (YYYY-MM-DD).",
+    "pt": "A data de origem deve ser uma data (AAAA-MM-DD)."
+  },
   "validation.create_journal_entry.valuations_must_array": {
     "es": "Las valoraciones deben ser un arreglo.",
     "en": "The valuations must be an array.",
@@ -1750,6 +1755,21 @@
     "es": "El ID del libro contable (ledgerId) es obligatorio.",
     "en": "The ledger ID (ledgerId) is required.",
     "pt": "O ID do livro contábil (ledgerId) é obrigatório."
+  },
+  "validation.price_indices.period_format": {
+    "es": "El período se escribe AAAA-MM (2026-03).",
+    "en": "The period is written YYYY-MM (2026-03).",
+    "pt": "O período é escrito AAAA-MM (2026-03)."
+  },
+  "validation.price_indices.series_format": {
+    "es": "La serie es un código como AR-FACPCE.",
+    "en": "The series is a code such as AR-FACPCE.",
+    "pt": "A série é um código como AR-FACPCE."
+  },
+  "validation.price_indices.value_format": {
+    "es": "El índice es un número positivo con hasta 10 decimales, escrito con punto.",
+    "en": "The index is a positive number with up to 10 decimals, written with a point.",
+    "pt": "O índice é um número positivo com até 10 casas decimais, escrito com ponto."
   },
   "validation.product.barcode_format": {
     "es": "El código de barras solo puede tener números, letras y guiones.",

@@ -23,6 +23,11 @@ export interface LedgerPostingLine {
   description?: string;
   /** Analytical tags, by dimension name. Validated like any entry's unless `tagsFromLedger`. */
   dimensions?: Record<string, string>;
+  /**
+   * When the amount originated, if not on the entry's date (`YYYY-MM-DD`): what the restatement for
+   * inflation restates it from. A subledger that knows — the asset an amount belongs to — says so.
+   */
+  originDate?: string;
 }
 
 export interface LedgerPostingRequest {

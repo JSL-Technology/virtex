@@ -26,6 +26,16 @@ export class OpeningBalanceRowDto {
   description?: string;
 
   /**
+   * When the balance originated, if before the opening date (FIN-AC-04): property bought in 2019,
+   * capital contributed in 2015. A company restating for inflation for the first time restates each
+   * amount from when it arose (IAS 29.15, 24), so an account may come in several rows, one per
+   * origin. Omitted: the opening date — a balance already expressed in that day's currency.
+   */
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsOptional()
+  originDate?: string;
+
+  /**
    * The account's name, as the export writes it. Read and ignored — the code decides — so a file
    * exported from here, or a trial balance that names its accounts, imports as it is.
    */

@@ -1,4 +1,4 @@
-import type { CoaSegmentSpec } from '../contracts';
+import type { CoaSegmentSpec, MarketInflationAccounting, PriceIndexSeriesDefinition } from '../contracts';
 import { allMarkets, isKnownMarket, marketFor } from '../registry';
 
 /**
@@ -78,3 +78,31 @@ export const COUNTRY_SPECIFIC_COA_TERMS: Readonly<Record<string, readonly RegExp
       .map((market) => [market.code, market.accounting.exclusiveTerms]),
   ),
 );
+
+/**
+ * How a market's books recognise inflation (IAS 29), or null where its economy does not call for
+ * restated statements — and for a country the product is not sold in.
+ */
+export function inflationAccountingOf(countryCode: string | null | undefined): MarketInflationAccounting | null {
+  if (!countryCode || !isKnownMarket(countryCode)) return null;
+  return marketFor(countryCode).accounting.inflationAccounting;
+}
+
+/**
+ * Every general price index a market prescribes for restating statements, by code: the series a
+ * company can restate its books with, and the only codes index values are stored under.
+ */
+export const PRICE_INDEX_SERIES: ReadonlyMap<string, PriceIndexSeriesDefinition> = new Map(
+  allMarkets()
+    .map((market) => market.accounting.inflationAccounting?.series)
+    .filter((series): series is PriceIndexSeriesDefinition => Boolean(series))
+    .map((series) => [series.code, Object.freeze({ ...series })]),
+);
+
+/** The codes of {@link PRICE_INDEX_SERIES}, sorted. */
+export const PRICE_INDEX_SERIES_CODES: readonly string[] = Object.freeze([...PRICE_INDEX_SERIES.keys()].sort());
+
+/** A series by its code, or null when no market prescribes it. */
+export function priceIndexSeries(code: string | null | undefined): PriceIndexSeriesDefinition | null {
+  return (code && PRICE_INDEX_SERIES.get(code)) || null;
+}
