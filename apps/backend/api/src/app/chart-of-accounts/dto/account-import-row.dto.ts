@@ -25,6 +25,25 @@ export class AccountImportRowDto {
   @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   name!: string;
 
+  /**
+   * The name in each language the product speaks, for whoever reads the screen in it. The one in
+   * the books language is `name`'s and is not read from here; a blank leaves that language without.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
+  nameEs?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
+  nameEn?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
+  namePt?: string;
+
   @UpperCaseCode()
   @IsEnum(AccountType)
   type!: AccountType;

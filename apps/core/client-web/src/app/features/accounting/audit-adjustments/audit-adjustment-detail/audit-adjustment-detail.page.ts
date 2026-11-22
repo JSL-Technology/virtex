@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Paperclip, Upload } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
 
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virtex/shared/ui-i18n';
 import { DocumentShellComponent, DocumentTone } from '../../../../shared/components/gestures';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { NotificationService } from '../../../../core/services/notification';
@@ -38,6 +38,8 @@ const EVIDENCE_TYPES = '.pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv,.docx,.doc';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditAdjustmentDetailPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly adjustments = inject(AuditAdjustmentsService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
@@ -122,7 +124,7 @@ export class AuditAdjustmentDetailPage implements OnInit {
     forkJoin(ids.map((id) => this.accounts.getAccountById(id).pipe(catchError(() => of(null))))).subscribe((rows) => {
       const names: Record<string, string> = {};
       rows.forEach((account, index) => {
-        names[ids[index]] = account ? `${account.code} — ${accountNameOf(account.name)}` : ids[index].slice(0, 8);
+        names[ids[index]] = account ? `${account.code} — ${this.locale.nameOf(account.name)}` : ids[index].slice(0, 8);
       });
       this.accountNames.set(names);
     });

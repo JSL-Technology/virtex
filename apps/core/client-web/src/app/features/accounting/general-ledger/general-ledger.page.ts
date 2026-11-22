@@ -9,7 +9,7 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
@@ -30,6 +30,8 @@ import { StatementExportService } from '../../../core/export/statement-export.se
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneralLedgerPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   //  Quedaban aquí nueve iconos de los que la plantilla usaba dos; los otros
   //  siete —UserCog, PowerOff, Ban, Trash2, Edit, Key, Calendar— venían de una
   //  pantalla de usuarios de la que se copió este archivo.
@@ -58,7 +60,7 @@ export class GeneralLedgerPage implements OnInit {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounting.searchAccounts(query, limit);
   protected readonly resolveAccount = (id: string): Observable<Account> => this.chartOfAccounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountValue = (account: Account): string => account.id;
 
   selectedAccount = signal<{ code: string; name: string } | null>(null);
@@ -133,7 +135,7 @@ export class GeneralLedgerPage implements OnInit {
           //  la URL es un UUID; el código y el nombre solo se conocen al responder el servidor.
           this.tab?.setTitle(
             `${this.translate.instant('page_titles.general_ledger')} · ` +
-              `${ledgerData.account.code} ${accountNameOf(ledgerData.account.name)}`,
+              `${ledgerData.account.code} ${this.locale.nameOf(ledgerData.account.name)}`,
           );
           this.initialBalance.set(ledgerData.initialBalance);
           this.finalBalance.set(ledgerData.finalBalance);

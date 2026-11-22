@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -55,6 +55,8 @@ const emptyDraft = (): Draft => ({ id: null, name: '', description: '', isActive
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DimensionsPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly dimensions = inject(DimensionsService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
@@ -83,7 +85,7 @@ export class DimensionsPage implements OnInit {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounts.searchAccounts(query, limit).pipe(map((list) => (list ?? []).filter((account) => account.isPostable && account.isActive)));
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   ngOnInit(): void {
@@ -267,7 +269,7 @@ export class DimensionsPage implements OnInit {
   }
 
   accountName(name: unknown): string {
-    return accountNameOf(name as Parameters<typeof accountNameOf>[0]);
+    return this.locale.nameOf(name as Parameters<typeof accountNameOf>[0]);
   }
 
   activeCount(dimension: Dimension): number {

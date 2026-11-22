@@ -49,6 +49,11 @@
     "en": "Account name",
     "pt": "Nome da conta"
   },
+  "accounting.account_form.account_name_books_hint": {
+    "es": "Es el nombre oficial, en {{language}}: el que llevan los libros, las exportaciones y las declaraciones.",
+    "en": "It is the official name, in {{language}}: the one the books, the exports and the tax filings carry.",
+    "pt": "É o nome oficial, em {{language}}: o que levam os livros, as exportações e as declarações."
+  },
   "accounting.account_form.account_type": {
     "es": "Tipo de cuenta",
     "en": "Account type",
@@ -303,6 +308,16 @@
     "es": "Nueva cuenta contable",
     "en": "New account",
     "pt": "Nova conta contábil"
+  },
+  "accounting.account_form.translations": {
+    "es": "Nombre en otros idiomas",
+    "en": "Name in other languages",
+    "pt": "Nome em outros idiomas"
+  },
+  "accounting.account_form.translations_hint": {
+    "es": "Opcional. Quien use el sistema en otro idioma verá la cuenta con este nombre; los libros y las declaraciones conservan el nombre oficial.",
+    "en": "Optional. Whoever uses the system in another language sees the account by this name; the books and the tax filings keep the official one.",
+    "pt": "Opcional. Quem usar o sistema em outro idioma verá a conta com este nome; os livros e as declarações mantêm o nome oficial."
   },
   "accounting.account_nature.credit": {
     "es": "Acreedora",

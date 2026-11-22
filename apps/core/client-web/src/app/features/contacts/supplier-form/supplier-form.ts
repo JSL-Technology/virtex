@@ -9,7 +9,7 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
-import { TranslateModule, LocaleStore, accountNameOf } from '@virtex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
@@ -212,7 +212,7 @@ export class SupplierForm implements OnInit {
   protected readonly searchExpenseAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounts.searchAccounts(query, limit).pipe(map((list) => chargeableExpenseAccounts(list ?? [])));
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   // ── Bank accounts (CMP-17) ──────────────────────────────────────────────────

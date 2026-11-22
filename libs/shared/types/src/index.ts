@@ -5,6 +5,7 @@ export * from './lib/contracts/legal-documents.contract';
 export * from './lib/i18n/locale.contract';
 export * from './lib/i18n/regional-format.contract';
 export * from './lib/i18n/key.contract';
+export * from './lib/i18n/localized-name.contract';
 export * from './lib/accounting/account-classification.contract';
 export * from './lib/accounting/fx-treatment.contract';
 export * from './lib/accounting/inflation-restatement.contract';

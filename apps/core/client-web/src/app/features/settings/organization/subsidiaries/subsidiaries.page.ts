@@ -10,7 +10,7 @@ import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto, UpdateSubsidiaryD
 import { AuthService } from '../../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, accountNameOf, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, LocaleStore } from '@virtex/shared/ui-i18n';
 import { Account, AccountType } from '../../../../core/models/account.model';
 import { ChartOfAccountsApiService } from '../../../accounting/data/chart-of-accounts.service';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -33,6 +33,8 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubsidiariesPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   // Icons
   protected readonly BuildingIcon = Building;
   protected readonly PlusIcon = Plus;
@@ -181,7 +183,7 @@ export class SubsidiariesPage implements OnInit {
       .searchAccounts(query, Math.max(limit * 3, 50))
       .pipe(map((rows) => rows.filter((a) => a.isPostable && a.type === AccountType.ASSET).slice(0, limit)));
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   constructor() {

@@ -11,7 +11,8 @@ import {
 import { CurrenciesService } from '../../../core/api/currencies.service';
 import { ChartOfAccountsStateService, ParentAccountOption } from '../state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { accountNameOf, LocaleStore, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { LANGUAGE_ENDONYMS, SUPPORTED_LANGUAGES, type LanguageCode } from '@virtex/shared/types';
 import {
   ACCOUNT_CATEGORIES_BY_TYPE,
   FX_TREATMENTS,
@@ -55,7 +56,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 export class AccountFormPage implements OnInit {
   /** «1100 - Efectivo y equivalentes»: el código primero, que es por donde se busca. */
   protected readonly parentLabel = (option: ParentAccountOption): string =>
-    `${option.code} - ${accountNameOf(option.name)}`;
+    `${option.code} - ${this.locale.nameOf(option.name)}`;
   protected readonly parentId = (option: ParentAccountOption): string => option.id;
 
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
@@ -69,6 +70,21 @@ export class AccountFormPage implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly currencies = inject(CurrenciesService);
   private readonly settings = inject(OrganizationSettingsService);
+  private readonly locale = inject(LocaleStore);
+
+  /**
+   * The language the company keeps its books in: `name` is the account's name in it — the record,
+   * what the exports and the filings read — whatever language the person filling the form reads.
+   */
+  protected readonly booksLanguage = computed<LanguageCode>(() => this.locale.booksLanguage());
+  /** The other languages the product speaks: each may carry the account's name for its readers. */
+  protected readonly translationLanguages = computed(() =>
+    SUPPORTED_LANGUAGES.filter((language) => language !== this.booksLanguage()).map((language) => ({
+      language,
+      label: LANGUAGE_ENDONYMS[language],
+    })),
+  );
+  protected readonly booksLanguageName = computed(() => LANGUAGE_ENDONYMS[this.booksLanguage()]);
 
   public accountForm!: FormGroup;
   public isEditing = signal(false);
@@ -201,6 +217,10 @@ export class AccountFormPage implements OnInit {
       // Pestaña General
       code: ['', [Validators.required, Validators.maxLength(20)]],
       name: ['', [Validators.required, Validators.maxLength(255)]],
+      // The name in the other languages, for whoever reads the screen in one of them.
+      translations: this.fb.group(
+        Object.fromEntries(SUPPORTED_LANGUAGES.map((language) => [language, ['', [Validators.maxLength(255)]]])),
+      ),
       description: [''],
       parentId: [null],
       type: [null, Validators.required],
@@ -345,10 +365,11 @@ export class AccountFormPage implements OnInit {
         this.accountForm.patchValue(
           {
             code: account.code ?? '',
-            // The server sends the name as `{ es: 'Bancos' }`, and a text input given an object
-            // renders `[object Object]` — which is also what a save would have written back as the
-            // account's name. `accountNameOf` is the existing fallback chain for exactly this.
-            name: accountNameOf(account.name as Record<string, string> | string | null | undefined),
+            // The server sends the name as `{ es: 'Bancos', en: 'Banks' }`. The field is the name in
+            // the BOOKS language, whatever the reader's: filled with the reader's, a save wrote the
+            // English name over the Spanish record. The other languages go to their own fields.
+            name: nameInBooks(account.name as Record<string, string> | string | null | undefined, this.booksLanguage()),
+            translations: translationsOf(account.name as Record<string, string> | string | null | undefined, this.booksLanguage()),
             description: typeof account.description === 'string' ? account.description : '',
             parentId: account.parentId ?? null,
             type: account.type,
@@ -433,6 +454,10 @@ export class AccountFormPage implements OnInit {
     const advanced = formData.advanced ?? {};
     const account: Omit<CreateAccountDto, 'segments'> = {
       name: formData.name,
+      // Every other language, empty ones included: an empty field removes that translation.
+      translations: Object.fromEntries(
+        this.translationLanguages().map(({ language }) => [language, (formData.translations?.[language] ?? '').trim()]),
+      ),
       description: formData.description || undefined,
       parentId: formData.parentId || null,
       type: formData.type,
@@ -547,3 +572,18 @@ const ACCOUNT_FIELD_LABELS: Record<string, string> = {
   effectiveFrom: 'accounting.account_form.effective_from',
   effectiveTo: 'accounting.account_form.effective_until',
 };
+
+/** The account's name in the books language; a name kept in one language only, as it is. */
+function nameInBooks(name: Record<string, string> | string | null | undefined, booksLanguage: LanguageCode): string {
+  if (name == null) return '';
+  if (typeof name === 'string') return name;
+  return name[booksLanguage] ?? accountNameOf(name, [booksLanguage]);
+}
+
+/** The account's name in every language but the books one, empty where it has none. */
+function translationsOf(name: Record<string, string> | string | null | undefined, booksLanguage: LanguageCode): Record<string, string> {
+  const names = name && typeof name === 'object' ? name : {};
+  return Object.fromEntries(
+    SUPPORTED_LANGUAGES.map((language) => [language, language === booksLanguage ? '' : (names[language] ?? '')]),
+  );
+}

@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { Copy, LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective, LocaleStore } from '@virtex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -44,6 +44,8 @@ export function restOfYear(period: string): string[] {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BudgetFormPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly budgets = inject(BudgetsService);
@@ -79,11 +81,11 @@ export class BudgetFormPage implements OnInit {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounts.searchAccounts(query, limit).pipe(map((list) => (list ?? []).filter(isChargeable)));
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   protected accountName(name: unknown): string {
-    return accountNameOf(name as Parameters<typeof accountNameOf>[0]);
+    return this.locale.nameOf(name as Parameters<typeof accountNameOf>[0]);
   }
 
   get lines(): FormArray {

@@ -344,6 +344,16 @@
     "en": "Appearance",
     "pt": "Aparência"
   },
+  "settings.branding.books_view": {
+    "es": "Ver los datos de la empresa como los llevan los libros ({{language}})",
+    "en": "See the company's data as its books keep it ({{language}})",
+    "pt": "Ver os dados da empresa como os livros os registram ({{language}})"
+  },
+  "settings.branding.books_view_hint": {
+    "es": "Los nombres de las cuentas y las descripciones que escribe el sistema se muestran en {{language}}, como los lee un auditor o una declaración. La interfaz sigue en tu idioma.",
+    "en": "Account names and the descriptions the system writes are shown in {{language}}, as an auditor or a tax filing reads them. The interface stays in your language.",
+    "pt": "Os nomes das contas e as descrições que o sistema escreve aparecem em {{language}}, como um auditor ou uma declaração os lê. A interface continua no seu idioma."
+  },
   "settings.branding.comfortable": {
     "es": "Cómoda",
     "en": "Comfortable",

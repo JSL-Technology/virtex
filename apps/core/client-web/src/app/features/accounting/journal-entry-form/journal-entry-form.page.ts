@@ -14,7 +14,7 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday, LocaleStore } from '@virtex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -83,6 +83,8 @@ interface EntryOrigin {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalEntryFormPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   @Input() id?: string;
 
   private fb = inject(FormBuilder);
@@ -271,7 +273,7 @@ export class JournalEntryFormPage implements OnInit {
 
   /** «1101 — Efectivo en caja». El código primero: es como se busca una cuenta. */
   protected readonly accountLabel = (account: Account): string =>
-    `${account.code} — ${accountNameOf(account.name)}`;
+    `${account.code} — ${this.locale.nameOf(account.name)}`;
 
   protected readonly accountId = (account: Account): string => account.id;
 

@@ -743,6 +743,7 @@
   "validation.constraints.is_int": "{{property}} debe ser un número entero.",
   "validation.constraints.is_iso8601": "{{property}} no es una fecha válida.",
   "validation.constraints.is_iso_date": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
+  "validation.constraints.is_localized_name": "{{property}} debe tener textos de hasta {{max}} caracteres en {{languages}}.",
   "validation.constraints.is_not_empty": "{{property}} es obligatorio.",
   "validation.constraints.is_number": "{{property}} debe ser un número.",
   "validation.constraints.is_number_string": "{{property}} debe ser un número.",

@@ -14,7 +14,8 @@ import {
   IsDateString,
   IsIn,
 } from 'class-validator';
-import { FX_TREATMENTS, type FxTreatment } from '@virtex/shared/types';
+import { FX_TREATMENTS, type FxTreatment, type LocalizedName } from '@virtex/shared/types';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
 import { Type } from 'class-transformer';
 import {
   AccountType,
@@ -36,7 +37,15 @@ export class CreateAccountDto {
   @ArrayMinSize(1, { message: 'validation.constraints.array_min_size|{"min":1}' })
   segments: string[];
 
+  /** The name in the books language: the record, what the filings and the exports read. */
   @IsString() @IsNotEmpty() @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' }) name: string;
+
+  /**
+   * The name in the other languages the product speaks, for whoever reads the screen in one of
+   * them: `{ en: 'Banks' }`. The books language is `name`'s; one sent here is ignored. An empty
+   * text removes that translation.
+   */
+  @IsOptional() @IsLocalizedName() translations?: LocalizedName;
   @IsString() @IsOptional() description?: string;
   @IsEnum(AccountType) @IsNotEmpty() type: AccountType;
   @IsEnum(AccountCategory) @IsNotEmpty() category: AccountCategory;

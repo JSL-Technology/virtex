@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday, LocaleStore } from '@virtex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -70,6 +70,8 @@ export function lineTotals(lines: readonly StoredEntryLine[]): { debit: number; 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecurringEntryFormPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly service = inject(RecurringEntriesService);
@@ -107,7 +109,7 @@ export class RecurringEntryFormPage implements OnInit {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accountingService.searchAccounts(query, limit);
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   ngOnInit(): void {

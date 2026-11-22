@@ -7,6 +7,7 @@ import {
   AccountType,
 } from '../../chart-of-accounts/enums/account-enums';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
+import { SUPPORTED_LANGUAGES, type LanguageCode } from '@virtex/shared/types';
 import { BooksLanguage, PayrollAccountNames, marketFor, splitCoaCode } from '../../markets';
 
 /**
@@ -137,6 +138,7 @@ const ES = {
   unrealizedForex: 'Diferencia Cambiaria No Realizada',
   inflation: 'Resultado por Exposición a la Inflación',
   otherExpenses: 'Otros Gastos',
+  restatementAdjustment: 'Ajuste por Reexpresión',
 };
 
 const PT: typeof ES = {
@@ -188,6 +190,7 @@ const PT: typeof ES = {
   unrealizedForex: 'Variação Cambial Não Realizada',
   inflation: 'Resultado da Exposição à Inflação',
   otherExpenses: 'Outras Despesas',
+  restatementAdjustment: 'Ajuste de Reexpressão',
 };
 
 const EN: typeof ES = {
@@ -239,6 +242,7 @@ const EN: typeof ES = {
   unrealizedForex: 'Unrealized Foreign Exchange Gain or Loss',
   inflation: 'Inflation Adjustment Result',
   otherExpenses: 'Other Expenses',
+  restatementAdjustment: 'Restatement Adjustment',
 };
 
 
@@ -316,7 +320,12 @@ function leaf(
  * own beside them (Argentina: capital and «Ajuste de capital»). The target comes first, and the
  * source names it by code: created in that order, the source is born pointing at it.
  */
-function withRestatementAccounts(code: string, accounts: AccountTemplateDto[]): AccountTemplateDto[] {
+function withRestatementAccounts(
+  code: string,
+  accounts: AccountTemplateDto[],
+  language: BooksLanguage,
+  booksLanguage: BooksLanguage,
+): AccountTemplateDto[] {
   const declared = marketFor(code).accounting.inflationAccounting?.restatementAccounts ?? [];
   if (declared.length === 0) return accounts;
   const result: AccountTemplateDto[] = [];
@@ -333,7 +342,8 @@ function withRestatementAccounts(code: string, accounts: AccountTemplateDto[]): 
         ...account,
         segments: splitCoaCode(code, restatement.code),
         ...groupingCode(code, restatement.code),
-        name: restatement.name,
+        // The market names it in its books language; in another, it says what it is of.
+        name: language === booksLanguage ? restatement.name : `${LABELS[language].restatementAdjustment}: ${account.name}`,
         systemRole: undefined,
         // The target IS the source's restatement: it is never restated by itself.
         isInflationAdjustable: false,
@@ -358,8 +368,41 @@ function withRestatementAccounts(code: string, accounts: AccountTemplateDto[]): 
  */
 export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto[] {
   const code = countryCode?.toUpperCase() ?? '';
+  const books = booksLanguageOf(code);
+  const plan = planIn(code, books, books);
+  // The same plan in every other language the product speaks: whoever reads the screen sees the
+  // names in theirs, while the books, the exports and the filings keep the books language. Each
+  // account was stored in that one language only, so a US controller of a Dominican company read
+  // the interface in English and the whole chart in Spanish.
+  for (const language of SUPPORTED_LANGUAGES) {
+    if (language !== books) addTranslations(plan, planIn(code, language, books), language);
+  }
+  return plan;
+}
+
+/**
+ * Sets each account's name in `language` from `translated`, the same plan written in it: the same
+ * codes, in the same order, whatever the language — anything else is a defect of this file.
+ */
+function addTranslations(plan: AccountTemplateDto[], translated: AccountTemplateDto[], language: LanguageCode): void {
+  plan.forEach((account, index) => {
+    const twin = translated[index];
+    if (!twin || twin.segments.join('') !== account.segments.join('')) {
+      throw new Error(`The ${language} plan does not follow the books plan at ${account.segments.join('')}.`);
+    }
+    account.translations = { ...(account.translations ?? {}), [language]: twin.name };
+    if (account.children?.length) addTranslations(account.children, twin.children ?? [], language);
+  });
+}
+
+/**
+ * The plan with its names in `language`. The names a market declares for itself — its payroll
+ * institutions, its excise, its service charge, its restatement accounts — are its books
+ * language's; in any other, the neutral name of what the account is.
+ */
+function planIn(code: string, language: BooksLanguage, booksLanguage: BooksLanguage): AccountTemplateDto[] {
   const market = marketFor(code);
-  const language = booksLanguageOf(code);
+  const own = language === booksLanguage;
   const t = LABELS[language];
   const tax = market.taxes.principalTaxName;
 
@@ -392,12 +435,13 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
   const accounting = market.accounting;
   const payroll: PayrollAccountNames = {
     ...NEUTRAL_PAYROLL[language],
-    ...(accounting.payrollAccounts ?? {}),
+    ...(own ? (accounting.payrollAccounts ?? {}) : {}),
   };
-  const exciseTaxName = accounting.exciseTaxAccount ?? t.exciseTax;
+  const exciseTaxName = (own ? accounting.exciseTaxAccount : undefined) ?? t.exciseTax;
   // Only a market whose taxes declare a legal service charge gets the account; the rate and the
   // account come from the same market, so they cannot disagree.
-  const serviceChargeName = market.taxes.serviceChargeRate > 0 ? (accounting.serviceChargeAccount ?? t.serviceCharge) : null;
+  const serviceChargeName =
+    market.taxes.serviceChargeRate > 0 ? ((own ? accounting.serviceChargeAccount : undefined) ?? t.serviceCharge) : null;
 
   const D = AccountNature.DEBIT;
   const C = AccountNature.CREDIT;
@@ -460,7 +504,7 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       leaf(code, { code: '3150', name: t.openingBalance, role: AccountRole.OPENING_BALANCE_EQUITY }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
       leaf(code, { code: '3300', name: t.retained, role: AccountRole.RETAINED_EARNINGS }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
       leaf(code, { code: '3400', name: t.periodResult }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
-    ])),
+    ], language, booksLanguage)),
 
     group(code, '4000', t.revenue, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C, [
       leaf(code, { code: '4100', name: t.sales, role: AccountRole.SALES_REVENUE }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C),

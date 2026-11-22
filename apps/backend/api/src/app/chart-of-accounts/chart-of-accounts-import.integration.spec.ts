@@ -245,4 +245,62 @@ describeWithDb('importing a chart of accounts', () => {
     expect(example).toEqual({ code: String(Number(last) + 1), parentCode: '6000' });
     await expect(account(example.code)).resolves.toBeUndefined();
   });
+
+  /**
+   * The chart in every language (books bilingual): the books keep their name — the record — and
+   * the other languages carry theirs for whoever reads the screen in one of them.
+   */
+  const names = async (code: string) =>
+    (await ds.query(`SELECT name FROM accounts WHERE organization_id = $1 AND code = $2`, [organizationId, code]))[0]?.name;
+
+  it('keeps the books name apart from its translations, and a blank removes one', async () => {
+    // An edit is recorded in the account's history under the person who made it.
+    const [{ id: editor }] = await ds.query(`INSERT INTO users ("firstName", "lastName", email) VALUES ('QA', 'Idiomas', $1) RETURNING id`, [
+      `qa-coa-translations-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`,
+    ]);
+    const created = await chart.create(
+      {
+        segments: ['6020'],
+        name: 'Viáticos',
+        // The books language is `name`'s: a Spanish «translation» does not overwrite it.
+        translations: { en: ' Travel allowances ', pt: 'Diárias', es: 'Otro nombre' },
+        type: 'EXPENSE',
+        category: 'OPERATING_EXPENSE',
+        nature: 'DEBIT',
+        isPostable: true,
+      } as never,
+      organizationId,
+    );
+    await expect(names('6020')).resolves.toEqual({ es: 'Viáticos', en: 'Travel allowances', pt: 'Diárias' });
+
+    // Renaming in the books keeps the translations; a blank one goes; one sent changes.
+    await chart.update(created.id, { name: 'Viáticos de ventas', translations: { pt: '', en: 'Sales travel allowances' }, reasonForChange: 'QA' } as never, organizationId, editor);
+    await expect(names('6020')).resolves.toEqual({ es: 'Viáticos de ventas', en: 'Sales travel allowances' });
+    // Only a translation: the books name stays.
+    await chart.update(created.id, { translations: { pt: 'Diárias de vendas' }, reasonForChange: 'QA' } as never, organizationId, editor);
+    await expect(names('6020')).resolves.toEqual({ es: 'Viáticos de ventas', en: 'Sales travel allowances', pt: 'Diárias de vendas' });
+    await ds.query(`DELETE FROM account_history WHERE changed_by_user_id = $1`, [editor]);
+    await ds.query(`DELETE FROM users WHERE id = $1`, [editor]);
+  });
+
+  it('refuses a translation in a language the product does not speak, or one too long', async () => {
+    const { CreateAccountDto } = await import('./dto/create-account.dto');
+    const refused = async (translations: unknown) =>
+      (await validate(plainToInstance(CreateAccountDto, { segments: ['6030'], name: 'x', type: 'EXPENSE', category: 'OPERATING_EXPENSE', nature: 'DEBIT', translations }))).map((error) => error.property);
+    await expect(refused({ fr: 'Frais' })).resolves.toEqual(['translations']);
+    await expect(refused({ en: 'x'.repeat(256) })).resolves.toEqual(['translations']);
+    await expect(refused(['Banks'])).resolves.toEqual(['translations']);
+    await expect(refused({ en: 'Travel', pt: '' })).resolves.toEqual([]);
+  });
+
+  it('imports and exports the name in every language beside the books one', async () => {
+    const file = [await expense('6040', '6000', { name: 'Combustible', nameEn: 'Fuel', namePt: 'Combustível', nameEs: 'ignorado: es el de los libros' })];
+    expect(await provider.import.checkFile(file, context)).toEqual([]);
+    await provider.import.createAll(file, context);
+    await expect(names('6040')).resolves.toEqual({ es: 'Combustible', en: 'Fuel', pt: 'Combustível' });
+
+    const { rows } = await provider.exportPage(organizationId, 200, 0);
+    expect(rows.find((exported) => exported['code'] === '6040')).toMatchObject({ name: 'Combustible', nameEs: 'Combustible', nameEn: 'Fuel', namePt: 'Combustível' });
+    expect(provider.columns.map((column) => column.key)).toEqual(expect.arrayContaining(['nombre', 'nombre_es', 'nombre_en', 'nombre_pt']));
+  });
 });

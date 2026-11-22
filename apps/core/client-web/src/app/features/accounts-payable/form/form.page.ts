@@ -39,7 +39,7 @@ import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, LocaleStore } from '@virtex/shared/ui-i18n';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
@@ -108,6 +108,8 @@ interface BillTotals {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillFormPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   protected readonly AddIcon = Plus;
@@ -404,7 +406,7 @@ export class VendorBillFormPage implements OnInit {
 
   /** «6101 — Servicios profesionales». El código primero: es como se busca una cuenta. */
   protected readonly accountLabel = (account: Account): string =>
-    `${account.code} — ${accountNameOf(account.name)}`;
+    `${account.code} — ${this.locale.nameOf(account.name)}`;
 
   protected readonly accountId = (account: Account): string => account.id;
   readonly totals = signal<BillTotals>({

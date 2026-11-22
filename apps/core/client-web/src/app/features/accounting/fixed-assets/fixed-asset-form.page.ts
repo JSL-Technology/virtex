@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { Observable, map, startWith } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday, LocaleStore } from '@virtex/shared/ui-i18n';
 import { DEPRECIATION_CONVENTIONS, type DepreciationConvention } from '@virtex/shared/types';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -75,6 +75,8 @@ const VALUATION_CONTROLS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FixedAssetFormPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly assets = inject(FixedAssetsService);
@@ -140,7 +142,7 @@ export class FixedAssetFormPage implements OnInit {
   protected readonly searchExpenseAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounts.searchAccounts(query, limit).pipe(map((list) => depreciationExpenseAccounts(list ?? [])));
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   ngOnInit(): void {

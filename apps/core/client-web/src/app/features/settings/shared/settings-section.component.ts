@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, com
 import { FormsModule } from '@angular/forms';
 
 import { Observable, map, of, throwError } from 'rxjs';
-import { TranslateModule, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { TranslateModule, VxNumberInputDirective, LocaleStore } from '@virtex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
 import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
 import { AccountingService } from '../../../core/api/accounting.service';
@@ -61,6 +61,8 @@ export interface PolicyField {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsSectionComponent implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly api = inject(OrganizationSettingsService);
   private readonly accounting = inject(AccountingService);
   private readonly notifications = inject(NotificationService);
@@ -313,7 +315,7 @@ export class SettingsSectionComponent implements OnInit {
   });
 
   protected readonly accountLabel = (account: Account): string =>
-    `${account.code} — ${accountNameOf(account.name as never)}`;
+    `${account.code} — ${this.locale.nameOf(account.name as never)}`;
   protected readonly accountValue = (account: Account): string => account.id;
 
   /** The account type a field expects, for its hint. */
@@ -331,7 +333,7 @@ export class SettingsSectionComponent implements OnInit {
 
   /** The account's label, for a default shown as a hint. */
   protected refLabel(account: SettingsAccountRef): string {
-    return `${account.code} — ${accountNameOf(account.name as never)}`;
+    return `${account.code} — ${this.locale.nameOf(account.name as never)}`;
   }
 }
 

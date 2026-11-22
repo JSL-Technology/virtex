@@ -11,6 +11,7 @@ import {
   isLanguageCode,
   matchLanguage,
   isLocaleTag,
+  localizedNameIn,
   resolveLocale,
   RegionalFormat,
   mergeRegionalFormats,
@@ -45,6 +46,9 @@ import {
  * the next page load.
  */
 export const LANGUAGE_STORAGE_KEY = 'vx-language';
+
+/** Where this browser keeps the choice to see the company's data as its books keep it. */
+export const BOOKS_VIEW_STORAGE_KEY = 'vx-books-view';
 
 /** Storage keys this build no longer writes, cleared on first run so they cannot be read again. */
 const LEGACY_STORAGE_KEYS = ['ui_lang', 'lang'];
@@ -130,6 +134,21 @@ export class LocaleStore {
     () => this._tenantContext()?.booksLanguage ?? this._language(),
   );
 
+  private readonly _booksView = signal(false);
+  /**
+   * Whether the company's DATA — its account names, the narratives the system wrote on its
+   * entries — is shown as the books keep it, in the books language, instead of in the reader's.
+   * The interface stays in the reader's language either way: this is for seeing exactly what an
+   * auditor or a filing reads, without switching the whole product to another language.
+   */
+  readonly booksView = this._booksView.asReadonly();
+
+  /** The language the company's data is shown in: the reader's, unless they asked for the books'. */
+  readonly dataLanguage = computed<LanguageCode>(() => (this._booksView() ? this.booksLanguage() : this._language()));
+
+  /** Whether the books are kept in a language other than the reader's — only then is there a choice. */
+  readonly booksLanguageDiffers = computed(() => this.booksLanguage() !== this._language());
+
   readonly direction = computed<'ltr' | 'rtl'>(() => LANGUAGE_DIRECTION[this._language()]);
 
   /**
@@ -162,6 +181,7 @@ export class LocaleStore {
 
   constructor() {
     this._language.set(this.readInitialLanguage());
+    this._booksView.set(this.read(BOOKS_VIEW_STORAGE_KEY) === '1');
 
     // The document must always agree with the store. Doing it here, rather than at each place
     // that changes the language, is what makes it impossible for a switcher to change the text
@@ -194,6 +214,20 @@ export class LocaleStore {
       // Running outside the shell, or an older shell without the bridge. Neither is a problem
       // worth interrupting a language change for.
     }
+  }
+
+  /** See the company's data in the books language (true) or in the reader's (false). */
+  setBooksView(on: boolean): void {
+    this._booksView.set(on);
+    this.write(BOOKS_VIEW_STORAGE_KEY, on ? '1' : '0');
+  }
+
+  /**
+   * A name kept in several languages (`{ es: 'Bancos', en: 'Banks' }`), in the data language:
+   * the reader's, or the books' in the books view; the books one where it has no translation.
+   */
+  nameOf(name: Record<string, string> | string | null | undefined): string {
+    return localizedNameIn(name, this.dataLanguage(), this.booksLanguage());
   }
 
   /** Change the interface language. Returns false when the code is not one this build has. */

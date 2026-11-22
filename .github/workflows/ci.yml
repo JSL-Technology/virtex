@@ -558,6 +558,19 @@ jobs:
           DB_USERNAME: virtex_app
           DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
 
+      # The books language and the reader's, over the HTTP API of a Dominican QA company read in
+      # English: the chart in every language, the official name kept as given, and the chart's and
+      # the journal's exports in the books language whoever exports them — and again as `virtex_app`.
+      - name: npm run verify:books-language
+        if: ${{ !cancelled() }}
+        run: npm run verify:books-language
+      - name: npm run verify:books-language (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:books-language
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
       # Fixed assets (FINB-11, 13, 14, 17), over the HTTP API of a QA company: an impossible date is a
       # 400; the accelerated methods charge their real life; a month that has not ended is previewed,
       # not posted; a run is a document its entries lead to, and a disposal is the register's —

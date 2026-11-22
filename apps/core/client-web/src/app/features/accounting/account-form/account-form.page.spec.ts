@@ -7,6 +7,7 @@ import { AccountFormPage } from './account-form.page';
 import { environment } from '../../../../environments/environment';
 import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 
 /**
  * The account form asks what the server keeps (FIN-AC-03, FIN-COA-05).
@@ -193,6 +194,46 @@ describe('AccountFormPage', () => {
       reasonForChange: 'Reclasificación de la moneda',
     });
     expect(request.request.body).not.toHaveProperty('segments');
+    request.flush({ id: 'l-bank' });
+    httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts` && r.method === 'GET').flush(chart);
+  });
+
+  /**
+   * A US controller of a Dominican company edits an account (books bilingual). The name field is
+   * the books one — Spanish — whatever the reader's language: filled with the English name, a save
+   * wrote it over the Spanish record. Each other language has its own field.
+   */
+  it('edits the books name in the books language, and each translation apart, whatever the reader reads', async () => {
+    await build('l-bank');
+    const locale = TestBed.inject(LocaleStore);
+    locale.setLanguage('en');
+    locale.setTenantContext({ language: 'en', locale: 'en-US', direction: 'ltr', countryCode: 'DO', currency: 'DOP', timezone: 'America/Santo_Domingo', booksLanguage: 'es', firstDayOfWeek: 0 });
+    httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts/l-bank`).flush({
+      ...chart[2],
+      name: { es: 'Banco en dólares', en: 'Dollar bank account' },
+      category: 'CURRENT_ASSET',
+      nature: 'DEBIT',
+      isActive: true,
+      fxTreatment: 'REVALUED',
+      currency: 'USD',
+      effectiveFrom: '2026-01-01',
+      effectiveTo: null,
+    });
+
+    expect(form().get('name')?.value).toBe('Banco en dólares');
+    expect(form().get('translations.en')?.value).toBe('Dollar bank account');
+    expect(form().get('translations.pt')?.value).toBe('');
+    expect((component as unknown as { translationLanguages: () => Array<{ language: string }> }).translationLanguages().map((option) => option.language)).toEqual(['en', 'pt']);
+
+    form().get('translations.pt')?.setValue('Banco em dólares');
+    form().get('reasonForChange')?.setValue('Nombre en portugués');
+    component.onSave();
+    const request = httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts/l-bank` && r.method === 'PATCH');
+    expect(request.request.body).toMatchObject({
+      name: 'Banco en dólares',
+      translations: { en: 'Dollar bank account', pt: 'Banco em dólares' },
+    });
+    expect(request.request.body.translations).not.toHaveProperty('es');
     request.flush({ id: 'l-bank' });
     httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts` && r.method === 'GET').flush(chart);
   });

@@ -16,7 +16,7 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
-import { TranslateModule, FORMAT_PIPES, FormatService, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective, LocaleStore } from '@virtex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
@@ -66,6 +66,8 @@ function oneSide(group: AbstractControl): ValidationErrors | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditAdjustmentFormPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly fb = inject(FormBuilder);
@@ -129,7 +131,7 @@ export class AuditAdjustmentFormPage implements OnInit {
   protected readonly resolveAccount = (id: string): Observable<Account> => this.chartOfAccounts.getAccountById(id);
 
   /** «1101 — Efectivo en caja». El código primero: es como se busca una cuenta. */
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
 
   protected readonly accountId = (account: Account): string => account.id;
 

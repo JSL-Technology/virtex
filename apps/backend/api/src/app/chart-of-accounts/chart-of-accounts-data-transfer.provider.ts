@@ -73,6 +73,10 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
   readonly columns = [
     { key: 'codigo', property: 'code', required: true, example: '6105' },
     { key: 'nombre', property: 'name', required: true, example: 'Gastos de viaje' },
+    // The name in each language, for the readers of each (the books one is `nombre`).
+    { key: 'nombre_es', property: 'nameEs', example: 'Gastos de viaje' },
+    { key: 'nombre_en', property: 'nameEn', example: 'Travel expenses' },
+    { key: 'nombre_pt', property: 'namePt', example: 'Despesas de viagem' },
     { key: 'tipo', property: 'type', required: true, example: 'EXPENSE' },
     { key: 'categoria', property: 'category', required: true, example: 'OPERATING_EXPENSE' },
     { key: 'naturaleza', property: 'nature', example: 'DEBIT' },
@@ -140,9 +144,14 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
     return {
       rows: rows.map((row) => {
         const language = row['booksLanguage'] as string | null;
+        const names = (row['nameMap'] && typeof row['nameMap'] === 'object' ? row['nameMap'] : {}) as Record<string, string>;
         return {
           ...row,
+          // The books' name: the record. Each language beside it, as the account has it.
           name: accountNameIn(row['nameMap'], language),
+          nameEs: names['es'] ?? '',
+          nameEn: names['en'] ?? '',
+          namePt: names['pt'] ?? '',
           description: accountNameIn(row['descriptionMap'], language),
         };
       }),
@@ -303,6 +312,7 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
           {
             segments: row.code.split('-').map((segment) => segment.trim()),
             name: row.name,
+            translations: { es: row.nameEs ?? '', en: row.nameEn ?? '', pt: row.namePt ?? '' },
             description: row.description,
             type: row.type,
             category: row.category,

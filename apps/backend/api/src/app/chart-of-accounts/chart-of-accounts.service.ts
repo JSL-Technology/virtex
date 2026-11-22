@@ -452,7 +452,7 @@ export class ChartOfAccountsService {
       null,
     );
 
-    const { name, description, effectiveFrom, effectiveTo, ...restOfDto } = accountData;
+    const { name, description, effectiveFrom, effectiveTo, translations, ...restOfDto } = accountData;
     const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
     const entityData: Partial<Account> = {
       ...restOfDto,
@@ -462,7 +462,8 @@ export class ChartOfAccountsService {
       organizationId,
       parentId: parentId || null,
       code: fullCode,
-      name: typeof name === 'string' ? { [language]: name } : name,
+      // The books language from `name`, the record; the others for whoever reads the screen.
+      name: typeof name === 'string' ? withTranslations({}, language, name, translations) : name,
     };
     if (description) {
       entityData.description = typeof description === 'string' ? { [language]: description } : description;
@@ -664,14 +665,16 @@ export class ChartOfAccountsService {
         { isInflationAdjustable: account.isInflationAdjustable, inflationAdjustmentAccountId: account.inflationAdjustmentAccountId ?? null },
       );
 
-      const { name, description, effectiveFrom, effectiveTo, ...restOfDto } = accountDataDto;
+      const { name, description, effectiveFrom, effectiveTo, translations, ...restOfDto } = accountDataDto;
       const updatePayload: Partial<Account> = { ...restOfDto, ...restatement };
 
       // A plain string replaces the name in the books language and keeps the other translations
-      // (audit 2026-11-07, I18N-05): it used to overwrite the whole object with `{ es: … }`.
+      // (audit 2026-11-07, I18N-05): it used to overwrite the whole object with `{ es: … }`. The
+      // translations sent change those languages only; an empty one removes it.
       const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
-      if (name) {
-        updatePayload.name = typeof name === 'string' ? { ...(account.name ?? {}), [language]: name } : name;
+      if (name || translations) {
+        const current = (account.name ?? {}) as Record<string, string>;
+        updatePayload.name = withTranslations(current, language, typeof name === 'string' && name ? name : current[language], translations);
       }
       if (description) {
         updatePayload.description =
@@ -1030,4 +1033,26 @@ export class ChartOfAccountsService {
       relations: ['changedByUser'],
     });
   }
+}
+
+/**
+ * An account's names after an edit: `current`, with the books language set to `booksName` and each
+ * language in `translations` set — or removed, when sent empty. The books language is never
+ * removed and never taken from `translations`: it is `name`'s.
+ */
+function withTranslations(
+  current: Record<string, string>,
+  booksLanguage: string,
+  booksName: string | undefined,
+  translations: Record<string, string | null | undefined> | null | undefined,
+): Record<string, string> {
+  const next: Record<string, string> = { ...current };
+  for (const [language, text] of Object.entries(translations ?? {})) {
+    if (language === booksLanguage) continue;
+    const trimmed = typeof text === 'string' ? text.trim() : '';
+    if (trimmed) next[language] = trimmed;
+    else delete next[language];
+  }
+  if (booksName) next[booksLanguage] = booksName.trim();
+  return next;
 }

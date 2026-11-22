@@ -457,6 +457,7 @@
   "validation.constraints.is_int": "{{property}} must be a whole number.",
   "validation.constraints.is_iso8601": "{{property}} is not a valid date.",
   "validation.constraints.is_iso_date": "{{property}} must be a calendar date in YYYY-MM-DD format.",
+  "validation.constraints.is_localized_name": "{{property}} must hold texts of up to {{max}} characters in {{languages}}.",
   "validation.constraints.is_not_empty": "{{property}} is required.",
   "validation.constraints.is_number": "{{property}} must be a number.",
   "validation.constraints.is_number_string": "{{property}} must be a number.",

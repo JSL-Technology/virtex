@@ -130,6 +130,11 @@
     "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
     "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
   },
+  "validation.constraints.is_localized_name": {
+    "es": "{{property}} debe tener textos de hasta {{max}} caracteres en {{languages}}.",
+    "en": "{{property}} must hold texts of up to {{max}} characters in {{languages}}.",
+    "pt": "{{property}} deve ter textos de até {{max}} caracteres em {{languages}}."
+  },
   "validation.constraints.is_not_empty": {
     "es": "{{property}} es obligatorio.",
     "en": "{{property}} is required.",

@@ -9,7 +9,7 @@ import {
   TrialBalanceReport,
 } from '../api/financial-reporting.service';
 import { ProfitabilityReport } from '../api/profitability.service';
-import { accountNameOf } from '@virtex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { CsvValue, downloadCsv, reportFilename, toCsv } from './csv-export';
 import { GeneralLedger } from '../models/general-ledger.model';
 
@@ -31,6 +31,8 @@ import { GeneralLedger } from '../models/general-ledger.model';
  */
 @Injectable({ providedIn: 'root' })
 export class StatementExportService {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  private readonly names = inject(LocaleStore);
   private readonly translate = inject(TranslateService);
 
   private t(key: string): string {
@@ -59,7 +61,7 @@ export class StatementExportService {
   private lineRows(accounts: ReportAccountLine[]): CsvValue[][] {
     return accounts.map((account) => [
       account.code,
-      accountNameOf(account.name),
+      this.names.nameOf(account.name),
       account.category,
       account.amount,
     ]);
@@ -178,7 +180,7 @@ export class StatementExportService {
       ],
       ...report.rows.map((row) => [
         row.code,
-        accountNameOf(row.name),
+        this.names.nameOf(row.name),
         row.openingDebit,
         row.openingCredit,
         row.periodDebit,
@@ -215,7 +217,7 @@ export class StatementExportService {
 
   exportCashFlow(report: CashFlowStatementReport): void {
     const label = (movement: { code: string; name?: Record<string, string> | string }) =>
-      movement.name ? `${movement.code} ${accountNameOf(movement.name)}` : movement.code;
+      movement.name ? `${movement.code} ${this.names.nameOf(movement.name)}` : movement.code;
     const adjustmentRows = (
       movements: { code: string; name?: Record<string, string> | string; amount: number }[],
     ): CsvValue[][] => movements.map((movement) => [label(movement), '', '', movement.amount]);
@@ -406,7 +408,7 @@ export class StatementExportService {
       ]),
       [to, '', this.t('accounting.general_ledger.ending_balance'), '', '', ledger.finalBalance],
     ];
-    const account = `${ledger.account.code} ${accountNameOf(ledger.account.name)}`;
+    const account = `${ledger.account.code} ${this.names.nameOf(ledger.account.name)}`;
     downloadCsv(
       reportFilename('libro-mayor', ledger.account.code, from, to),
       toCsv(rows, {

@@ -55,9 +55,22 @@
                 <input id="code" formControlName="code" [readonly]="isEditing()">
               </div>
               <div class="form-field">
-                <label for="name">{{ 'accounting.account_form.account_name' | translate }} *</label>
+                <label for="name">{{ 'accounting.account_form.account_name' | translate }} ({{ booksLanguageName() }}) *</label>
                 <input id="name" formControlName="name">
+                <small class="field-hint">{{ 'accounting.account_form.account_name_books_hint' | translate: { language: booksLanguageName() } }}</small>
               </div>
+              <fieldset class="form-field full-width" formGroupName="translations">
+                <legend>{{ 'accounting.account_form.translations' | translate }}</legend>
+                <div class="form-grid">
+                  @for (option of translationLanguages(); track option.language) {
+                    <div class="form-field">
+                      <label [for]="'name-' + option.language">{{ option.label }}</label>
+                      <input [id]="'name-' + option.language" [formControlName]="option.language" maxlength="255" [attr.lang]="option.language">
+                    </div>
+                  }
+                </div>
+                <small class="field-hint">{{ 'accounting.account_form.translations_hint' | translate }}</small>
+              </fieldset>
               @if (isEditing()) {
                 <div class="form-field full-width">
                   <label for="reasonForChange">{{ 'accounting.account_form.reason_for_change' | translate }} *</label>

@@ -1,4 +1,4 @@
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, FileDown } from 'lucide-angular';
@@ -41,6 +41,8 @@ const PAGE_SIZE = 50;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DailyJournalPage {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly entriesApi = inject(JournalEntriesApiService);
   private readonly accountsApi = inject(ChartOfAccountsApiService);
   /** «Exportar» — every line of every entry, not the fifty on this page (QA A-13). */
@@ -149,7 +151,7 @@ export class DailyJournalPage {
           new Map(
             accounts.map((account) => [
               account.id,
-              `${account.code} — ${accountNameOf(account.name)}`,
+              `${account.code} — ${this.locale.nameOf(account.name)}`,
             ]),
           ),
         );

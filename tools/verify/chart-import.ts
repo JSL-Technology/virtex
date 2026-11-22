@@ -27,7 +27,9 @@ const check = (label: string, ok: boolean, detail = '') => {
 
 
 const HEADER =
-  'codigo,nombre,tipo,categoria,naturaleza,cuenta_padre,admite_movimientos,activa,contracuenta,moneda,tratamiento_cambiario,rol,codigo_agrupador,descripcion,reexpresion_inflacion,cuenta_reexpresion';
+  'codigo,nombre,nombre_es,nombre_en,nombre_pt,tipo,categoria,naturaleza,cuenta_padre,admite_movimientos,activa,contracuenta,moneda,tratamiento_cambiario,rol,codigo_agrupador,descripcion,reexpresion_inflacion,cuenta_reexpresion';
+/** Where the parent's code sits in a row: read from the header, not counted by hand. */
+const PARENT_COLUMN = HEADER.split(',').indexOf('cuenta_padre');
 
 /** A CSV file with one row per account, only the columns given filled. */
 function csv(rows: Array<Partial<Record<string, string>>>): string {
@@ -92,7 +94,7 @@ async function main() {
   const [templateHeader = '', exampleLine = ''] = csvLines(template.body);
   check(
     'the template’s example hangs from a heading of the company’s own chart',
-    template.statusCode === 200 && templateHeader.replace(/;/g, ',') === HEADER && exampleLine.split(';')[5] === headingRow?.code,
+    template.statusCode === 200 && templateHeader.replace(/;/g, ',') === HEADER && exampleLine.split(';')[PARENT_COLUMN] === headingRow?.code,
     exampleLine,
   );
 

@@ -2,6 +2,7 @@ import { AccountRole } from '../../contracts/accounting/account-role.contract';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
 import { COUNTRY_SPECIFIC_COA_TERMS, buildCountryCoaTemplate } from './coa-builder';
 import { marketCodes, marketFor } from '../../markets';
+import { SUPPORTED_LANGUAGES } from '@virtex/shared/types';
 
 /**
  * The opening chart is neutral, and a country's institutions reach only that country's tenants
@@ -110,5 +111,52 @@ describe('chart-of-accounts country packs', () => {
 
   it('names Brazilian tax accounts in Portuguese even with no seeded taxes (I18N-05)', () => {
     expect(byRole('BR', AccountRole.TAX_RECEIVABLE)?.name).toBe('Tributos a Recuperar');
+  });
+});
+
+/**
+ * The plan in every language the product speaks (books bilingual).
+ *
+ * Every account was named in the books language only: a US controller of a Dominican company read
+ * the interface in English and the whole chart in Spanish. The books keep their language — it is
+ * the record — and every other one comes with the plan.
+ */
+describe('the opening chart in every language', () => {
+  it.each([...marketCodes()])('%s: every account has its name in each language but the books one, which is the name itself', (country) => {
+    const books = marketFor(country).profile?.booksLanguage ?? 'es';
+    for (const account of flatten(buildCountryCoaTemplate(country))) {
+      const code = account.segments.join('');
+      expect([code, account.translations?.[books]]).toEqual([code, undefined]);
+      for (const language of SUPPORTED_LANGUAGES.filter((candidate) => candidate !== books)) {
+        expect([code, language, Boolean(account.translations?.[language]?.trim())]).toEqual([code, language, true]);
+      }
+    }
+  });
+
+  it('a Dominican plan reads in English and Portuguese, its own institutions said for what they are', () => {
+    const bank = byRole('DO', AccountRole.BANK)!;
+    expect([bank.name, bank.translations]).toEqual(['Bancos', { en: 'Bank Accounts', pt: 'Bancos' }]);
+    const pension = byRole('DO', AccountRole.PENSION_CONTRIBUTIONS_PAYABLE)!;
+    expect(pension.name).toBe('AFP por Pagar (TSS)');
+    expect(pension.translations).toEqual({ en: 'Pension Contributions Payable', pt: 'Previdência a Recolher' });
+    // The tax is the market's, in every language.
+    expect(byRole('DO', AccountRole.TAX_PAYABLE)!.translations?.en).toBe('ITBIS Payable');
+  });
+
+  it('a plan kept in Portuguese or in English reads in the other two', () => {
+    expect(byRole('BR', AccountRole.TAX_RECEIVABLE)?.translations).toEqual(
+      expect.objectContaining({ es: expect.any(String), en: expect.any(String) }),
+    );
+    expect(byRole('US', AccountRole.BANK)?.translations).toEqual({ es: 'Bancos', pt: 'Bancos' });
+  });
+
+  it('carries no other market\'s institutions in any language either', () => {
+    for (const country of marketCodes()) {
+      const translated = flatten(buildCountryCoaTemplate(country)).flatMap((account) => Object.values(account.translations ?? {}));
+      for (const [owner, terms] of Object.entries(COUNTRY_SPECIFIC_COA_TERMS)) {
+        if (owner === country) continue;
+        for (const term of terms) expect([country, owner, translated.filter((name) => term.test(name))]).toEqual([country, owner, []]);
+      }
+    }
   });
 });

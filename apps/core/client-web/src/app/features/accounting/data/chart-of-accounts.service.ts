@@ -14,7 +14,10 @@ import {
 
 export interface CreateAccountDto {
   segments: string[];
+  /** In the books language: the record. */
   name: string;
+  /** In the other languages, for their readers; an empty text removes that translation. */
+  translations?: Partial<Record<string, string>>;
   description?: string;
   parentId?: string | null;
   type: AccountType;
