@@ -103,7 +103,7 @@ export class ExchangeRatesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Elimina una tasa registrada por la empresa.' })
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.exchangeRatesService.remove(id, user.organizationId);
+    return this.exchangeRatesService.remove(id, user.organizationId, user.id);
   }
 
   @Get()

@@ -1093,7 +1093,7 @@ export class ReconciliationService {
         throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
       }
       if (transaction.status === TransactionStatus.MATCHED) {
-        throw new BadRequestError('reconciliation.bank_movement_id_already_matched_set');
+        throw new BadRequestError('reconciliation.bank_movement_id_already_matched_set', { id: transaction.id });
       }
 
       transaction.status = TransactionStatus.EXCLUDED;

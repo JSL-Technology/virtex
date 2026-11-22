@@ -64,6 +64,11 @@
     "en": "Invalid date range: {{startDate}} is later than {{endDate}}.",
     "pt": "Intervalo de datas inválido: {{startDate}} é posterior a {{endDate}}."
   },
+  "currencies.market_rate_used_without_official": {
+    "es": "No había tasa oficial de {{from}} a {{to}} para el {{date}}: se usó la de mercado de {{source}} del {{quotedOn}}. Registra la tasa oficial si el documento debe convertirse con ella.",
+    "en": "There was no official {{from}} to {{to}} rate for {{date}}: the {{source}} market rate of {{quotedOn}} was used. Record the official rate if the document must be converted at it.",
+    "pt": "Não havia taxa oficial de {{from}} para {{to}} em {{date}}: foi usada a taxa de mercado de {{source}} de {{quotedOn}}. Registre a taxa oficial se o documento deve ser convertido por ela."
+  },
   "currencies.no_currencies_update": {
     "es": "No hay divisas para actualizar.",
     "en": "There are no currencies to update.",

@@ -563,7 +563,10 @@ export class InvoicesService {
       // A market whose regime cannot issue one through the product refuses it before a number is
       // drawn, rather than numbering a document its authority would reject (FAC-INV-05).
       if (!adapter.assignDebitNoteNumber) {
-        throw new BadRequestError('invoices.debit_note_not_supported_in_market', { country: countryCode ?? '—' });
+        throw new BadRequestError('invoices.debit_note_not_supported_in_market', {
+          authority: fiscalAuthorityOf(countryCode),
+          country: countryCode ?? '—',
+        });
       }
       assignment = await adapter.assignDebitNoteNumber({
         invoice,

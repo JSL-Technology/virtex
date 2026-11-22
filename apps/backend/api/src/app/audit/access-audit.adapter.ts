@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AccessAuditPort, ChangeAuditPort } from '../contracts/audit/access-audit.contract';
+import type { EntityManager } from 'typeorm';
+import { AccessAuditPort, ChangeAuditPort, TransactionalChange } from '../contracts/audit/access-audit.contract';
 import { AuditTrailService } from './audit.service';
 import { ActionType } from './entities/audit-log.entity';
 
@@ -51,5 +52,21 @@ export class ChangeAuditAdapter extends ChangeAuditPort {
 
   actorsOf(organizationId: string, entityId: string): Promise<string[]> {
     return this.audit.actorsOf(organizationId, entityId);
+  }
+
+  recordChangesWithin(manager: EntityManager, changes: readonly TransactionalChange[]): Promise<void> {
+    return this.audit.recordManyWithManager(
+      manager,
+      changes.map((change) => ({
+        userId: change.userId,
+        organizationId: change.organizationId,
+        entity: change.entity,
+        entityId: change.entityId,
+        actionType: ActionType[change.action],
+        newValue: change.after,
+        previousValue: change.before ?? undefined,
+        ipAddress: change.ipAddress,
+      })),
+    );
   }
 }

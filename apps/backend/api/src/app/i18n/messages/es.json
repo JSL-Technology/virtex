@@ -2687,6 +2687,7 @@
   "currencies.import_duplicate_rate": "La tasa {{pair}} del {{date}} aparece dos veces.",
   "currencies.import_row_invalid": "Fila {{row}}: {{reason}} No se importó ninguna tasa.",
   "currencies.invalid_date_range_start_date_later": "El rango de fechas es inválido: {{startDate}} es posterior a {{endDate}}.",
+  "currencies.market_rate_used_without_official": "No había tasa oficial de {{from}} a {{to}} para el {{date}}: se usó la de mercado de {{source}} del {{quotedOn}}. Registra la tasa oficial si el documento debe convertirse con ella.",
   "currencies.no_currencies_update": "No hay divisas para actualizar.",
   "currencies.no_exchange_rate_from_from_force": "No se encontró una tasa de cambio de {{from}} a {{to}} vigente al {{date}}.",
   "currencies.no_exchange_rate_provider_configured_record": "No hay un proveedor de tasas de cambio configurado. Registra las tasas manualmente o configura las credenciales del proveedor.",

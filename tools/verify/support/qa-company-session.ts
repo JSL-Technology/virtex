@@ -92,6 +92,8 @@ export interface QaCompanySession {
   call(method: 'GET' | 'POST' | 'PATCH' | 'DELETE', url: string, payload?: unknown, extraHeaders?: Record<string, string>): Promise<{
     statusCode: number;
     body: string;
+    /** The response headers, lower-cased: what the API says beside the body (`Virtex-Notices`, say). */
+    headers: Record<string, string | string[] | number | undefined>;
     json<T = unknown>(): T;
   }>;
   /** Reads the company's own rows, in its tenant context. */
@@ -174,7 +176,12 @@ export async function qaCompanySession(
         remoteAddress,
         headers: { cookie, 'x-xsrf-token': csrf, ...extraHeaders },
       });
-      return { statusCode: response.statusCode, body: response.body, json: <T>() => JSON.parse(response.body) as T };
+      return {
+        statusCode: response.statusCode,
+        body: response.body,
+        headers: response.headers,
+        json: <T>() => JSON.parse(response.body) as T,
+      };
     },
     query: <T>(sql: string, params: unknown[] = []) => runAsTenantJob(ds, organizationId, () => ds.query(sql, params)) as Promise<T[]>,
   };

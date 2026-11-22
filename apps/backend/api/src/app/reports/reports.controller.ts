@@ -89,7 +89,7 @@ export class ReportsController {
         // A localized 400, not a bare `Error` — which the exception filter reports as a 500 and an
         // untranslated English sentence.
         throw new BadRequestError('reports.report_type_kind_does_not_exist', {
-          reportType: generateReportDto.reportType,
+          kind: generateReportDto.reportType,
         });
     }
   }

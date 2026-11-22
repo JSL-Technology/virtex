@@ -2687,6 +2687,7 @@
   "currencies.import_duplicate_rate": "The {{pair}} rate for {{date}} appears twice.",
   "currencies.import_row_invalid": "Row {{row}}: {{reason}} No rate was imported.",
   "currencies.invalid_date_range_start_date_later": "Invalid date range: {{startDate}} is later than {{endDate}}.",
+  "currencies.market_rate_used_without_official": "There was no official {{from}} to {{to}} rate for {{date}}: the {{source}} market rate of {{quotedOn}} was used. Record the official rate if the document must be converted at it.",
   "currencies.no_currencies_update": "There are no currencies to update.",
   "currencies.no_exchange_rate_from_from_force": "No exchange rate from {{from}} to {{to}} was in force on {{date}}.",
   "currencies.no_exchange_rate_provider_configured_record": "No exchange rate provider is configured. Record rates manually or configure the provider credentials.",

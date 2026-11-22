@@ -10,3 +10,4 @@ export * from './lib/accounting/fx-treatment.contract';
 export * from './lib/accounting/inflation-restatement.contract';
 export * from './lib/contracts/country-pack.contract';
 export * from './lib/contracts/plan-features.contract';
+export * from './lib/contracts/request-notices.contract';

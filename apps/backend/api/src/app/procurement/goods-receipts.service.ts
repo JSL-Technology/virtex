@@ -261,7 +261,7 @@ export class GoodsReceiptsService {
         where: { id: receipt.orderId, organizationId },
         relations: ['lines'],
       });
-      if (!order) throw new NotFoundError('procurement.order_not_found');
+      if (!order) throw new NotFoundError('procurement.order_not_found', { id: receipt.orderId });
       const byId = new Map(order.lines.map((line) => [line.id, line]));
 
       // What is still in from this receipt: a return already sent part of it back (CMP-15).
@@ -348,7 +348,7 @@ export class GoodsReceiptsService {
       }
       await manager.query(`SELECT "id" FROM "purchase_order_lines" WHERE "order_id" = $1 ORDER BY "id" FOR UPDATE`, [receipt.orderId]);
       const order = await manager.findOne(PurchaseOrder, { where: { id: receipt.orderId, organizationId }, relations: ['lines'] });
-      if (!order) throw new NotFoundError('procurement.order_not_found');
+      if (!order) throw new NotFoundError('procurement.order_not_found', { id: receipt.orderId });
       const orderLines = new Map(order.lines.map((line) => [line.id, line]));
 
       const returned: PurchaseReturnLine[] = [];

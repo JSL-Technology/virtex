@@ -9,6 +9,8 @@ import { RateScope } from './dto/exchange-rate.dto';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { runInTenantContext } from '../shared/tenancy/tenant-context';
+import { ChangeAuditPort, TransactionalChange } from '../contracts/audit/access-audit.contract';
+import { collectNotices, RequestNotice } from '../i18n/request-notices';
 
 /**
  * Exchange rates: direction, triangulation, type and staleness.
@@ -73,12 +75,50 @@ describeWithDb('exchange rates', () => {
       // contract is pinned in `xe-rates.provider.spec.ts`. What is under test here is resolution,
       // triangulation, staleness and manual recording, all of which read the database.
       new XeRatesProvider({ get: () => undefined } as never, { get: () => undefined } as never),
+      trailPort,
     );
   });
 
   afterAll(async () => {
+    if (dataSource?.isInitialized) {
+      await dataSource.query(
+        `DELETE FROM tenant_exchange_rates WHERE from_currency IN ('PYG','BOB','UYU') OR to_currency IN ('PYG','BOB','UYU')`,
+      );
+      await dataSource.query(`DELETE FROM exchange_rate WHERE "fromCurrency" IN ('PYG','BOB','UYU') OR "toCurrency" IN ('PYG','BOB','UYU')`);
+    }
     await dataSource?.destroy();
   });
+
+  /**
+   * What the service reports to the audit trail (FINB-05), through the port the audit module
+   * implements — and whether it reported it INSIDE the transaction that wrote the rate, which is
+   * what makes the row commit or roll back with it. That the port's rows reach `audit_logs` is the
+   * audit module's to prove (`audit/change-audit.adapter.spec.ts`), and the whole path, over HTTP,
+   * is `npm run verify:exchange-rates`.
+   */
+  let recorded: Array<TransactionalChange & { inTransaction: boolean }> = [];
+  const trailPort = {
+    recordChange: async () => undefined,
+    actorsOf: async () => [],
+    recordChangesWithin: async (manager, changes) => {
+      const inTransaction = Boolean(manager.queryRunner?.isTransactionActive);
+      recorded.push(...changes.map((change) => ({ ...change, inTransaction })));
+    },
+  } satisfies ChangeAuditPort;
+  const markTrail = () => {
+    recorded = [];
+  };
+  const trail = (organizationId: string) =>
+    recorded
+      .filter((change) => change.organizationId === organizationId && change.entity === 'tenant_exchange_rates')
+      .map((change) => ({
+        action: change.action,
+        entityId: change.entityId,
+        userId: change.userId,
+        newValue: change.after as Record<string, unknown>,
+        previousValue: change.before as Record<string, unknown> | null,
+        inTransaction: change.inTransaction,
+      }));
 
   /**
    * `exchange_rates` is deliberately global — what a currency was worth on a day is a fact about
@@ -214,9 +254,27 @@ describeWithDb('exchange rates', () => {
 
   it('falls back from official to market rather than blocking a posting, and says so', async () => {
     await publish('USD', 'PYG', 59.45, DAY, ExchangeRateType.MARKET, 'XE');
-    const resolved = await resolver.resolve('USD', 'PYG', DAY, undefined, ExchangeRateType.OFFICIAL);
+    // Inside a request, as a posting resolves it: «says so» means to the person posting, not only to
+    // the server's log (FINB-06).
+    const notices: RequestNotice[] = [];
+    const resolved = await collectNotices(notices, () => resolver.resolve('USD', 'PYG', DAY, undefined, ExchangeRateType.OFFICIAL));
     expect(resolved.rate).toBeCloseTo(59.45, 6);
     expect(resolved.rateType).toBe(ExchangeRateType.MARKET);
+    expect(resolved.substitutedFor).toBe(ExchangeRateType.OFFICIAL);
+    expect(notices).toEqual([
+      {
+        code: 'EXCHANGE_RATE_MARKET_FALLBACK',
+        messageKey: 'currencies.market_rate_used_without_official',
+        messageParams: { from: 'USD', to: 'PYG', date: DAY, source: 'XE', quotedOn: DAY },
+      },
+    ]);
+
+    // An official quote answers for itself: nothing is substituted and nothing is said.
+    await publish('USD', 'PYG', 59.5, DAY, ExchangeRateType.OFFICIAL, 'BCP');
+    const official: RequestNotice[] = [];
+    const direct = await collectNotices(official, () => resolver.resolve('USD', 'PYG', DAY, undefined, ExchangeRateType.OFFICIAL));
+    expect(direct.substitutedFor).toBeUndefined();
+    expect(official).toHaveLength(0);
   });
 
   /**
@@ -409,6 +467,105 @@ describeWithDb('exchange rates', () => {
     await expect(service.remove(rate.id, tenantB.id)).rejects.toMatchObject({ messageKey: 'currencies.exchange_rate_not_found' });
     await service.remove(rate.id, tenantA.id);
     expect((await service.history(tenantA.id, { currency: 'PYG', scope: RateScope.TENANT })).total).toBe(0);
+  });
+
+  /**
+   * Entering, correcting, importing and deleting a rate leave a row each, with the figure before and
+   * after (FINB-05). All four wrote through `upsert` or a delete by criteria, which the audit
+   * subscriber never sees, so none of them left any trace.
+   */
+  describe('the audit trail of a company\'s rates (FINB-05)', () => {
+    beforeEach(markTrail);
+
+    it('records the rate entered, the correction with the figure it replaced, and nothing for a repeat', async () => {
+      const { rate } = await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: DAY }, ACTOR, tenantA.id);
+      await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59.25, date: DAY }, ACTOR, tenantA.id);
+      // The same figure again changes nothing, so it records nothing.
+      await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59.25, date: DAY }, ACTOR, tenantA.id);
+
+      const rows = await trail(tenantA.id);
+      expect(rows).toHaveLength(2);
+      expect(rows[0]).toMatchObject({
+        action: 'CREATE',
+        entityId: rate.id,
+        userId: ACTOR,
+        newValue: { fromCurrency: 'USD', toCurrency: 'PYG', date: DAY, rateType: 'OFFICIAL', rate: 59, source: 'MANUAL' },
+      });
+      expect(rows[0].previousValue).toBeNull();
+      expect(rows[1]).toMatchObject({
+        action: 'UPDATE',
+        entityId: rate.id,
+        newValue: { rate: 59.25 },
+        previousValue: { rate: 59 },
+      });
+      // Each one in the transaction that wrote the rate; another company's trail has nothing of it.
+      expect(rows.every((row) => row.inTransaction)).toBe(true);
+      expect(await trail(tenantB.id)).toHaveLength(0);
+    });
+
+    it('an import leaves one row per rate it created or changed, and none for a rate it left as it was', async () => {
+      await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: '2026-03-01' }, ACTOR, tenantA.id);
+      await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59.1, date: '2026-03-02' }, ACTOR, tenantA.id);
+      await markTrail();
+
+      await service.importRates(
+        {
+          rates: [
+            { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: '2026-03-01' }, // unchanged
+            { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59.4, date: '2026-03-02' }, // corrected
+            { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59.6, date: '2026-03-03' }, // new
+          ],
+        },
+        ACTOR,
+        tenantA.id,
+      );
+
+      const rows = await trail(tenantA.id);
+      expect(rows.map((row) => [row.action, row.newValue['date']]).sort()).toEqual([
+        ['CREATE', '2026-03-03'],
+        ['UPDATE', '2026-03-02'],
+      ]);
+      expect(rows.find((row) => row.action === 'UPDATE')).toMatchObject({
+        newValue: { rate: 59.4 },
+        previousValue: { rate: 59.1 },
+      });
+    });
+
+    it('a refused import leaves no rate and no row', async () => {
+      await expect(
+        service.importRates(
+          {
+            rates: [
+              { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: '2026-03-01' },
+              { fromCurrency: 'USD', toCurrency: 'PYG', rate: -1, date: '2026-03-02' },
+            ],
+          },
+          ACTOR,
+          tenantA.id,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'currencies.import_row_invalid' });
+      expect(await trail(tenantA.id)).toHaveLength(0);
+    });
+
+    it('a deletion keeps the rate as it was, and who deleted it', async () => {
+      const { rate } = await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: DAY }, ACTOR, tenantA.id);
+      const REMOVER = '66666666-6666-4666-8666-666666666666';
+      await service.remove(rate.id, tenantA.id, REMOVER);
+
+      const rows = await trail(tenantA.id);
+      expect(rows.map((row) => row.action)).toEqual(['CREATE', 'DELETE']);
+      expect(rows[1]).toMatchObject({ entityId: rate.id, userId: REMOVER, inTransaction: true, newValue: { rate: 59, date: DAY, fromCurrency: 'USD' } });
+    });
+
+    it('answers in the reader\'s language with the count it imported (FINB-04)', async () => {
+      const result = await service.importRates(
+        { rates: [{ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: '2026-03-05' }] },
+        ACTOR,
+        tenantA.id,
+      );
+      // The interceptor interpolates `messageParams`; the count next to the key was never read.
+      expect(result).toMatchObject({ messageKey: 'currencies.exchange_rates_imported', messageParams: { imported: 1 } });
+    });
   });
 
   it('explains a rate through the route the controller serves', async () => {

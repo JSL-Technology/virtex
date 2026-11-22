@@ -397,6 +397,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:localized-errors
 
+      # A key whose text has a placeholder, sent without it, reaches the reader as a literal
+      # «{{imported}}» (FINB-04). Checked for every keyed answer and every localized error.
+      - name: npm run verify:message-params
+        if: ${{ !cancelled() }}
+        run: npm run verify:message-params
+
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.
@@ -528,6 +534,20 @@ jobs:
       - name: npm run verify:inflation-adjustment (como virtex_app)
         if: ${{ !cancelled() }}
         run: npm run verify:inflation-adjustment
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # Exchange rates (FINB-04..06), over the HTTP API of a QA company: the import says how many it
+      # imported; entering, importing, correcting and deleting a rate each leave their row in the
+      # trail; a conversion at the market rate for want of an official one says so in the response —
+      # and again as `virtex_app`.
+      - name: npm run verify:exchange-rates
+        if: ${{ !cancelled() }}
+        run: npm run verify:exchange-rates
+      - name: npm run verify:exchange-rates (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:exchange-rates
         env:
           DB_USERNAME: virtex_app
           DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
