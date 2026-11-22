@@ -54,6 +54,7 @@
     "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/provision-all-markets.ts",
     "verify:migration-identities": "node tools/verify/migration-identities.mjs",
     "verify:numeric-transformers": "node tools/verify/numeric-transformers.mjs",
+    "verify:partial-update-defaults": "node tools/verify/partial-update-defaults.mjs",
     "verify:package-families": "node tools/verify/package-families.mjs",
     "verify:product-name": "node tools/verify/product-name.mjs",
     "verify:provisioning": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/registration-provisioning.ts",

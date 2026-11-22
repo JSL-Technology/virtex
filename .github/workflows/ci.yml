@@ -231,6 +231,13 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:numeric-transformers
 
+      # A partial update carries what it changes: `PartialType` copies the create DTO's property
+      # initializers into every instance, so a default declared there made every PATCH that left
+      # the field out reset it — renaming an account turned it into a summary account.
+      - name: npm run verify:partial-update-defaults
+        if: ${{ !cancelled() }}
+        run: npm run verify:partial-update-defaults
+
       # Proves a calendar date is never declared as an instant. A `date` column has no time to
       # convert, and typing one `Date` builds it as `timestamp` — which is why every supplier bill
       # displayed the day before its own date for a tenant in UTC-4.
