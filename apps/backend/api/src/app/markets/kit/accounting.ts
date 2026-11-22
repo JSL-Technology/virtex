@@ -10,4 +10,5 @@ export const NEUTRAL_ACCOUNTING: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: null,
 };

@@ -9,6 +9,7 @@ import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { AuthenticatedUser } from '../security/principal';
 import { PERMISSIONS } from '../shared/permissions';
 import { ExchangeRatesService } from './exchange-rates.service';
+import { OfficialRatesService } from './official-rates.service';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import {
   BackfillRatesDto,
@@ -37,7 +38,10 @@ import {
 @ApiBearerAuth()
 @Controller('exchange-rates')
 export class ExchangeRatesController {
-  constructor(private readonly exchangeRatesService: ExchangeRatesService) {}
+  constructor(
+    private readonly exchangeRatesService: ExchangeRatesService,
+    private readonly officialRates: OfficialRatesService,
+  ) {}
 
   @Post('update')
   @HasPermission(PERMISSIONS.EXCHANGE_RATES_MANAGE)
@@ -104,6 +108,17 @@ export class ExchangeRatesController {
   @ApiOperation({ summary: 'Elimina una tasa registrada por la empresa.' })
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.exchangeRatesService.remove(id, user.organizationId, user.id);
+  }
+
+  /**
+   * Who publishes each market's official rate, and whether it arrives on its own (FINB-03): what a
+   * company reads to know where its official rates come from and whether it has to enter them.
+   */
+  @Get('official-sources')
+  @HasPermission(PERMISSIONS.CURRENCIES_VIEW)
+  @ApiOperation({ summary: 'La fuente de la tasa oficial de cada mercado y si llega sola.' })
+  officialSources() {
+    return this.officialRates.sources();
   }
 
   @Get()

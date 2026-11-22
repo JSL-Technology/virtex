@@ -15,4 +15,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central de Bolivia',
+    quoteCurrency: 'BOB',
+    legalBasis: 'Tipo de cambio oficial publicado por el Banco Central de Bolivia.',
+    feed: null,
+  },
 };

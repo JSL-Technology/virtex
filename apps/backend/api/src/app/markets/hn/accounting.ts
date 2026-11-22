@@ -15,4 +15,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central de Honduras',
+    quoteCurrency: 'HNL',
+    legalBasis: 'Tipo de cambio de referencia publicado por el Banco Central de Honduras.',
+    feed: null,
+  },
 };

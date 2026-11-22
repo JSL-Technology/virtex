@@ -33,4 +33,10 @@ export const accounting: MarketAccounting = {
     defaultPolicy: 'YEAR_END',
     restatementAccounts: [],
   },
+  officialExchangeRates: {
+    publisher: 'Banco Central de Venezuela',
+    quoteCurrency: 'VES',
+    legalBasis: 'Tipo de cambio oficial publicado por el Banco Central de Venezuela.',
+    feed: null,
+  },
 };

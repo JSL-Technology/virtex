@@ -15,4 +15,6 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [/\bICE\b/],
   inflationAccounting: null,
+  // El dólar es la moneda del mercado: nada de lo que registra pide una conversión publicada propia.
+  officialExchangeRates: null,
 };

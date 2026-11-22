@@ -15,4 +15,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central del Uruguay',
+    quoteCurrency: 'UYU',
+    legalBasis: 'Cotizaciones publicadas por el Banco Central del Uruguay.',
+    feed: null,
+  },
 };

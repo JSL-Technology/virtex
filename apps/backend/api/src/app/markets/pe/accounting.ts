@@ -1,5 +1,6 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketAccounting } from '../contracts';
+import { officialRateFeed } from './accounting/official-rates';
 
 /**
  * Peru: what the market adds to the neutral starting plan. Every name is a starting point a local
@@ -15,4 +16,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Superintendencia de Banca, Seguros y AFP',
+    quoteCurrency: 'PEN',
+    legalBasis: 'Tipo de cambio promedio ponderado venta del sistema bancario publicado por la SBS.',
+    feed: officialRateFeed,
+  },
 };

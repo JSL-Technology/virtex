@@ -22,4 +22,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [/\bTSS\b/, /\bAFP\b/, /\bSFS\b/, /\bSRL\b/, /INFOTEP/, /Propina Legal/, /ITBIS/, /Selectivo/],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central de la República Dominicana',
+    quoteCurrency: 'DOP',
+    legalBasis: 'Tasa de cambio de referencia del Banco Central, la que la DGII publica para fines fiscales.',
+    feed: null,
+  },
 };

@@ -176,6 +176,12 @@ export const envValidation = Joi.object({
   }),
   XE_API_BASE_URL: Joi.string().uri().default('https://xecdapi.xe.com/v1'),
 
+  // Banco de México's SIE API token, which Mexico's official-rate feed sends in `Bmx-Token`
+  // (markets/mx/accounting/official-rates.ts; FINB-03). Free, issued per requester by Banxico.
+  // Without it the feed records each reading as skipped, naming this variable, and Mexican companies
+  // enter the DOF rate themselves, as they did before.
+  BANXICO_SIE_TOKEN: Joi.string().allow('').optional(),
+
   /**
    * The AI platform. Every key is optional: without `ANTHROPIC_API_KEY` the features that need a
    * language model answer 503 and the forms they assist work exactly as before, and without

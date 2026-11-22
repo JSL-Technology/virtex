@@ -1,5 +1,6 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketAccounting } from '../contracts';
+import { officialRateFeed } from './accounting/official-rates';
 
 /**
  * SAT «código agrupador» (Anexo 24), at the first level of the catalogue, for the accounts of the
@@ -69,4 +70,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: GROUPING_CODES,
   exclusiveTerms: [/IMSS/, /INFONAVIT/, /\bSAR\b/, /IEPS/],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco de México',
+    quoteCurrency: 'MXN',
+    legalBasis: 'Tipo de cambio FIX que el Banco de México publica en el DOF; las contribuciones se convierten al publicado el día anterior (CFF art. 20).',
+    feed: officialRateFeed,
+  },
 };

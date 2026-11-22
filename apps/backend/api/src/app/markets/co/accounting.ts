@@ -1,5 +1,6 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketAccounting } from '../contracts';
+import { officialRateFeed } from './accounting/official-rates';
 
 /**
  * Colombia: what the market adds to the neutral starting plan. Every name is a starting point a local
@@ -21,4 +22,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [/\bEPS\b/, /\bARL\b/, /Parafiscales/, /Impuesto Nacional al Consumo/],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Superintendencia Financiera de Colombia',
+    quoteCurrency: 'COP',
+    legalBasis: 'Tasa de Cambio Representativa del Mercado certificada por la Superintendencia Financiera.',
+    feed: officialRateFeed,
+  },
 };

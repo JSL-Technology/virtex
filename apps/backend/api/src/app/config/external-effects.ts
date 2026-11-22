@@ -12,6 +12,10 @@
  * Every outbound call with a real-world consequence now asks here first, by kind:
  *
  *   fiscal_authority   DGII e-CF, the other regimes' authorities, Mexico's PAC
+ *   reference_data     a central bank's or regulator's published reference data: the official
+ *                      exchange rates each market's feed reads (FINB-03). Read-only, but it is
+ *                      still this process reaching a third party, and a development process or a
+ *                      CI run that reads them would book whatever the publisher said today.
  *
  * ## The rule
  *
@@ -27,6 +31,7 @@ import { isDevLikeEnvironment } from './environment';
 
 export enum ExternalEffect {
   FiscalAuthority = 'fiscal_authority',
+  ReferenceData = 'reference_data',
 }
 
 const ALL = Object.values(ExternalEffect) as string[];

@@ -15,4 +15,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco de Guatemala',
+    quoteCurrency: 'GTQ',
+    legalBasis: 'Tipo de cambio de referencia publicado por el Banco de Guatemala.',
+    feed: null,
+  },
 };

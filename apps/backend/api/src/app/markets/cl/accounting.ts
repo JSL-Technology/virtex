@@ -15,4 +15,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central de Chile',
+    quoteCurrency: 'CLP',
+    legalBasis: 'Dólar observado publicado por el Banco Central de Chile.',
+    feed: null,
+  },
 };

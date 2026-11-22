@@ -1,4 +1,10 @@
-import type { CoaSegmentSpec, MarketInflationAccounting, PriceIndexSeriesDefinition } from '../contracts';
+import type {
+  CoaSegmentSpec,
+  MarketInflationAccounting,
+  MarketOfficialExchangeRates,
+  OfficialRateFeed,
+  PriceIndexSeriesDefinition,
+} from '../contracts';
 import { allMarkets, isKnownMarket, marketFor } from '../registry';
 
 /**
@@ -105,4 +111,43 @@ export const PRICE_INDEX_SERIES_CODES: readonly string[] = Object.freeze([...PRI
 /** A series by its code, or null when no market prescribes it. */
 export function priceIndexSeries(code: string | null | undefined): PriceIndexSeriesDefinition | null {
   return (code && PRICE_INDEX_SERIES.get(code)) || null;
+}
+
+/**
+ * Who publishes the exchange rate a market's books and taxes take as official, and the feed that
+ * reads it where there is one (FINB-03). Null for a dollar market and for a country the product is
+ * not sold in.
+ */
+export function officialExchangeRatesOf(countryCode: string | null | undefined): MarketOfficialExchangeRates | null {
+  if (!countryCode || !isKnownMarket(countryCode)) return null;
+  return marketFor(countryCode).accounting.officialExchangeRates;
+}
+
+/** A feed with what its market says about the publication it reads. */
+export interface RegisteredOfficialRateFeed {
+  readonly feed: OfficialRateFeed;
+  readonly publisher: string;
+  readonly legalBasis: string;
+  /** The market's currency, which the feed's figures are quoted in. */
+  readonly quoteCurrency: string;
+}
+
+/** Every official-rate feed a market declares, by its code — the only codes the feeds' rates are stored under. */
+export const OFFICIAL_RATE_FEEDS: ReadonlyMap<string, RegisteredOfficialRateFeed> = new Map(
+  allMarkets().flatMap((market) => {
+    const official = market.accounting.officialExchangeRates;
+    if (!official?.feed) return [];
+    const entry: RegisteredOfficialRateFeed = {
+      feed: official.feed,
+      publisher: official.publisher,
+      legalBasis: official.legalBasis,
+      quoteCurrency: official.quoteCurrency,
+    };
+    return [[official.feed.code, entry] as const];
+  }),
+);
+
+/** A feed by its code, or null when no market declares it. */
+export function officialRateFeed(code: string | null | undefined): RegisteredOfficialRateFeed | null {
+  return (code && OFFICIAL_RATE_FEEDS.get(code)) || null;
 }

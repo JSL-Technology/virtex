@@ -27,6 +27,7 @@ import {
 } from '../../../apps/backend/api/src/app/auth/entities/pending-registration.entity';
 import { runAsTenantJob } from '../../../apps/backend/api/src/app/shared/tenancy/tenant-job';
 import { purgeProbeAccounts } from '../probe-cleanup';
+import { Test } from '@nestjs/testing';
 
 /** A Dominican RNC with its DGII check digit (the probe needs a valid, unused one). */
 function dominicanRnc(prefix: string): string {
@@ -67,8 +68,22 @@ function cookiesOf(raw: string | string[] | undefined): Record<string, string> {
 }
 
 /** The application, booted as `main.ts` boots it. */
-export async function bootApplication(): Promise<NestFastifyApplication> {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), { logger: ['error'] });
+/** A provider the verifier replaces — an outbound transport with a recorded one, so nothing leaves the process. */
+export interface ProviderOverride {
+  provide: unknown;
+  useValue: unknown;
+}
+
+export async function bootApplication(overrides: ProviderOverride[] = []): Promise<NestFastifyApplication> {
+  let app: NestFastifyApplication;
+  if (overrides.length === 0) {
+    app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), { logger: ['error'] });
+  } else {
+    let builder = Test.createTestingModule({ imports: [AppModule] });
+    for (const override of overrides) builder = builder.overrideProvider(override.provide).useValue(override.useValue);
+    const moduleRef = await builder.compile();
+    app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { logger: ['error'] });
+  }
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -86,10 +101,15 @@ export async function bootApplication(): Promise<NestFastifyApplication> {
   return app;
 }
 
+export interface QaCompanySessionOptions {
+  /** Seeded platform roles (`organization_id IS NULL`) to hand the owner before they sign in. */
+  platformRoles?: string[];
+}
+
 export interface QaCompanySession {
   organizationId: string;
   /** Sends a request as the company's owner. */
-  call(method: 'GET' | 'POST' | 'PATCH' | 'DELETE', url: string, payload?: unknown, extraHeaders?: Record<string, string>): Promise<{
+  call(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', url: string, payload?: unknown, extraHeaders?: Record<string, string>): Promise<{
     statusCode: number;
     body: string;
     /** The response headers, lower-cased: what the API says beside the body (`Virtex-Notices`, say). */
@@ -111,6 +131,7 @@ export async function qaCompanySession(
   label: string,
   planSlug = 'pro',
   country: keyof typeof MARKET_FIXTURES = 'DO',
+  options: QaCompanySessionOptions = {},
 ): Promise<QaCompanySession> {
   const server = app.getHttpAdapter().getInstance();
   const ds = app.get(DataSource);
@@ -157,6 +178,16 @@ export async function qaCompanySession(
     currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3_600_000),
   });
   const organizationId = (owner as unknown as { organizationId: string }).organizationId;
+
+  // A platform role is handed to a person in the database, by someone with access to it — never
+  // through the API, which refuses to put a platform permission in any tenant role. Done before the
+  // owner signs in, so the session carries it from the start.
+  for (const roleName of options.platformRoles ?? []) {
+    const [role] = await ds.query(`SELECT id FROM roles WHERE organization_id IS NULL AND name = $1`, [roleName]);
+    if (!role) throw new Error(`No hay un rol de plataforma «${roleName}» sembrado.`);
+    const [user] = await ds.query(`SELECT id FROM users WHERE email = $1`, [email]);
+    await ds.query(`INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [user.id, role.id]);
+  }
 
   const login = await server.inject({ method: 'POST', url: '/api/v1/auth/login', payload: { email, password }, remoteAddress });
   const jar = cookiesOf(login.headers['set-cookie'] as string[] | undefined);

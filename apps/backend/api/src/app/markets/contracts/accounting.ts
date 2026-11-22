@@ -51,6 +51,104 @@ export interface MarketAccounting {
    * statements (IAS 29). Null where none is required.
    */
   inflationAccounting: MarketInflationAccounting | null;
+  /**
+   * Who publishes the exchange rate this market's books and taxes take as official, and how the
+   * product reads it (audit 2026-11-07, FINB-03). Null where the market's currency is the dollar and
+   * nothing it books in needs a published conversion of its own.
+   */
+  officialExchangeRates: MarketOfficialExchangeRates | null;
+}
+
+/**
+ * A market's official exchange rate: a publication, by an institution, that the market's
+ * accounting and tax rules name as the rate to convert at.
+ *
+ * Declared per market because it is a fact about the market. The figures are reference data: the
+ * feed below writes them to the shared rate table as `OFFICIAL`, under its own code as the source,
+ * where every company booking in the market's currency resolves them — or, where there is no feed
+ * yet, a company records or imports them itself (`tenant_exchange_rates`).
+ */
+export interface MarketOfficialExchangeRates {
+  /** The institution, as it names itself. */
+  readonly publisher: string;
+  /** The market's currency, which the published rates are quoted in. */
+  readonly quoteCurrency: string;
+  /** What makes the publication official for books and taxes, as an accountant would cite it. */
+  readonly legalBasis: string;
+  /** How the product reads it automatically, or null where it does not yet. */
+  readonly feed: OfficialRateFeed | null;
+}
+
+/** One published figure, as the publication states it. */
+export interface OfficialRateQuote {
+  /** The foreign currency quoted, ISO 4217. */
+  readonly currency: string;
+  /** The day the publication dates the figure, `YYYY-MM-DD`. */
+  readonly publishedOn: string;
+  /** Units of the market's currency per unit of `currency`. */
+  readonly rate: number;
+}
+
+/**
+ * The publication changed shape, or answered with something that is not it. A feed never guesses a
+ * figure out of a response it does not recognise: the run fails, names what was wrong, and nothing
+ * is written.
+ */
+export class OfficialRateFormatError extends Error {
+  constructor(readonly feed: string, readonly reason: string) {
+    super(`${feed}: ${reason}`);
+    this.name = 'OfficialRateFormatError';
+  }
+}
+
+/**
+ * How the product reads one publication: where to ask, and how to read the answer.
+ *
+ * Both are pure — the HTTP call, the external-effects switch, the credential and the storage are the
+ * platform's (`currencies/official-rates.service.ts`) — so a feed is tested against recorded
+ * documents and never needs the network.
+ */
+export interface OfficialRateFeed {
+  /** Stable code the rates are stored under (`exchange_rate.source`): `<country>-<publication>`. */
+  readonly code: string;
+  readonly country: string;
+  /** The publication, in the publisher's own words. */
+  readonly publication: string;
+  /** The foreign currencies it quotes, each against the market's currency. */
+  readonly currencies: readonly string[];
+  /**
+   * The day a published figure is the official rate FOR: the day it is dated, or the day after —
+   * Mexico's contributions use the rate the DOF published the day before (CFF art. 20).
+   */
+  readonly effectiveFrom: 'publication-day' | 'day-after-publication';
+  /** When the day's figure is out, in the publisher's time zone; the job looks for it after this. */
+  readonly publishedAfter: { readonly timeZone: string; readonly time: string };
+  /**
+   * How many days past today the publication may already date a figure: Colombia's TRM is certified
+   * the afternoon before the day it applies to — on Friday for the whole weekend — so tomorrow's is
+   * read today. Zero for a publication that only ever dates the day it is out.
+   */
+  readonly datesAhead: number;
+  /**
+   * The largest day-on-day move written without an operator confirming it, as a fraction (0.1 =
+   * 10 %). Null for a currency that moves too much for a bound to mean anything.
+   */
+  readonly maxDailyChange: number | null;
+  /** The environment variable holding the credential the publisher requires, where it requires one. */
+  readonly credentialEnv: string | null;
+  /**
+   * Where the format the parser reads was established. A feed whose format comes from the
+   * publisher's documentation starts in shadow — it fetches and compares, and writes nothing — until
+   * an operator has seen it read the live publication correctly.
+   */
+  readonly formatEstablishedFrom: 'documentation' | 'live-response';
+  /** The request for the days `from`..`to` (inclusive). */
+  request(range: { readonly from: string; readonly to: string }, credential: string | null): {
+    readonly url: string;
+    readonly headers: Readonly<Record<string, string>>;
+  };
+  /** The figures in a response body. Throws `OfficialRateFormatError` on anything it does not recognise. */
+  parse(body: string): OfficialRateQuote[];
 }
 
 /**

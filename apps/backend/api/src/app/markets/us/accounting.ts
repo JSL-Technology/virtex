@@ -15,4 +15,6 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  // The dollar is the market's currency: nothing it books needs a published conversion of its own.
+  officialExchangeRates: null,
 };

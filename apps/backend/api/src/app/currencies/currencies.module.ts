@@ -16,6 +16,12 @@ import { TenantPriceIndexValue } from './entities/tenant-price-index-value.entit
 import { PriceIndicesService } from './price-indices.service';
 import { PriceIndicesController } from './price-indices.controller';
 import { PriceIndexValuesDataTransferProvider } from './price-index-values-data-transfer.provider';
+import { ExchangeRateFeedState } from './entities/exchange-rate-feed.entity';
+import { ExchangeRateFeedRun } from './entities/exchange-rate-feed-run.entity';
+import { ExchangeRateFeedsController } from './exchange-rate-feeds.controller';
+import { OfficialRatesTransport } from './official-rates.transport';
+import { OFFICIAL_RATE_FEED_REGISTRY, OfficialRatesService } from './official-rates.service';
+import { OFFICIAL_RATE_FEEDS } from '../markets';
 
 // CurrencyRevaluationService moved to accounting/services/ — it belongs to the accounting
 // domain and now injects AccountingPostingPort instead of JournalEntriesService.
@@ -28,10 +34,18 @@ import { PriceIndexValuesDataTransferProvider } from './price-index-values-data-
   // `CurrencyRevaluationService` had already moved to `accounting/`, which is where it belongs.
   // Removing the import removed the cycle and the workaround together.
   imports: [
-    TypeOrmModule.forFeature([Currency, ExchangeRate, TenantExchangeRate, PriceIndexValue, TenantPriceIndexValue]),
+    TypeOrmModule.forFeature([
+      Currency,
+      ExchangeRate,
+      TenantExchangeRate,
+      PriceIndexValue,
+      TenantPriceIndexValue,
+      ExchangeRateFeedState,
+      ExchangeRateFeedRun,
+    ]),
     HttpModule,
   ],
-  controllers: [CurrenciesController, ExchangeRatesController, PriceIndicesController],
+  controllers: [CurrenciesController, ExchangeRatesController, PriceIndicesController, ExchangeRateFeedsController],
   providers: [
     ExchangeRateResolver,
     XeRatesProvider,
@@ -41,6 +55,10 @@ import { PriceIndexValuesDataTransferProvider } from './price-index-values-data-
     // General price indices for restating statements (IAS 29): reference data beside the rates.
     PriceIndicesService,
     PriceIndexValuesDataTransferProvider,
+    // Each market's official rate, read from its publisher (FINB-03).
+    OfficialRatesTransport,
+    OfficialRatesService,
+    { provide: OFFICIAL_RATE_FEED_REGISTRY, useValue: OFFICIAL_RATE_FEEDS },
   ],
   exports: [ExchangeRateResolver, XeRatesProvider, CurrencySeederService, PriceIndicesService],
 })

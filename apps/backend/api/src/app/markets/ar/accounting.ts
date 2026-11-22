@@ -1,5 +1,6 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketAccounting } from '../contracts';
+import { officialRateFeed } from './accounting/official-rates';
 
 /**
  * Argentina: what the market adds to the neutral starting plan. Every name is a starting point a local
@@ -35,5 +36,11 @@ export const accounting: MarketAccounting = {
     standard: 'RT 6 (FACPCE) · NIC 29',
     defaultPolicy: 'YEAR_END',
     restatementAccounts: [{ sourceCode: '3100', code: '3110', name: 'Ajuste de Capital' }],
+  },
+  officialExchangeRates: {
+    publisher: 'Banco Central de la República Argentina',
+    quoteCurrency: 'ARS',
+    legalBasis: 'Tipo de cambio de referencia del BCRA (Comunicación «A» 3500).',
+    feed: officialRateFeed,
   },
 };

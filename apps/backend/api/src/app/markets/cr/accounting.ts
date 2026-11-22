@@ -16,4 +16,10 @@ export const accounting: MarketAccounting = {
   fiscalGroupingCodes: null,
   exclusiveTerms: [],
   inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central de Costa Rica',
+    quoteCurrency: 'CRC',
+    legalBasis: 'Tipo de cambio de referencia publicado por el Banco Central de Costa Rica.',
+    feed: null,
+  },
 };

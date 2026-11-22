@@ -140,6 +140,14 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'currency', why: 'Catálogo de monedas ISO 4217.' },
   { table: 'dim_time', why: 'Dimensión de calendario del cubo analítico.' },
   { table: 'exchange_rate', why: 'Tipos de cambio publicados.' },
+  {
+    table: 'exchange_rate_feeds',
+    why: 'Estado de cada fuente automática de tasa oficial (observación, activa, desactivada); la cambia la plataforma (FINB-03).',
+  },
+  {
+    table: 'exchange_rate_feed_runs',
+    why: 'Bitácora de las lecturas de cada fuente de tasa oficial: qué publicó, qué se escribió y qué no cuadró (FINB-03).',
+  },
   { table: 'fiscal_document_type_definitions', why: 'Tipos de comprobante por régimen fiscal.' },
   { table: 'fiscal_reason_codes', why: 'Catálogos de motivos de las autoridades fiscales (anulación), con vigencia y base legal.' },
   { table: 'fiscal_region_tax_templates', why: 'Plantillas de impuesto por región fiscal.' },
