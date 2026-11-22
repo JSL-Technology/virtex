@@ -24,6 +24,7 @@ import { roundAmount, toCents } from '../common/money';
 import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, yearOf, type IsoDate } from '../common/dates';
 import { remainingSchedule, ScheduledCharge } from './depreciation-schedule';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { LedgerText, narrated } from '../contracts/ledger-posting/ledger-text';
 
 /** The asset's depreciation board: what has been charged, and what remains to be. */
 export interface FixedAssetSchedule {
@@ -356,13 +357,13 @@ export class FixedAssetsService {
         accountId: string,
         debit: number,
         credit: number,
-        description: string,
+        description: LedgerText,
         originDate?: string,
       ): CreateJournalEntryLineDto => ({
         accountId,
         debit,
         credit,
-        description,
+        ...narrated(description),
         ...(originDate ? { originDate } : {}),
         valuations: [{ ledgerId: ledger.id, debit, credit }],
       });
@@ -384,7 +385,7 @@ export class FixedAssetsService {
 
       const entry = await this.assetPosting.createWithManager(
         manager,
-        { date: dto.disposalDate, description: words.header, journalId: journal.id, lines } as CreateJournalEntryDto,
+        { date: dto.disposalDate, ...narrated(words.header), journalId: journal.id, lines } as CreateJournalEntryDto,
         organizationId,
         // A disposal is a document of the register: the entry says so and leads back to the asset,
         // instead of reading as a hand-made entry nobody can trace (FINB-17).

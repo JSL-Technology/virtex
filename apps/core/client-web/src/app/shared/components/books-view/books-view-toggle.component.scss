@@ -1,0 +1,25 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: inline-flex;
+}
+
+.books-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent-solid);
+  }
+
+  input:focus-visible {
+    @include ds.focus-ring;
+  }
+}

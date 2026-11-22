@@ -27,6 +27,7 @@ import { assertPostableAccount, isInventoryAccount, resolvePurchaseTaxAccount } 
 import { checkReceivedDocument, fiscalAuthorityOf } from '../markets';
 import { VendorDebitNoteQueryDto } from './dto/vendor-debit-note-query.dto';
 import { billPayable } from './vendor-bill-balance';
+import { described, LedgerText } from '../contracts/ledger-posting/ledger-text';
 
 /** One page of a list. */
 export interface Paged<T> {
@@ -198,11 +199,11 @@ export class VendorDebitNotesService {
         tax: { key: 'ledger.debit_note.vendor_tax_returned' },
       });
 
-      const line = (accountId: string, debit: number, credit: number, description: string) => ({
+      const line = (accountId: string, debit: number, credit: number, description: LedgerText | string) => ({
         accountId,
         debit,
         credit,
-        description,
+        ...described(description),
         valuations: [{ ledgerId: defaultLedger.id, debit, credit }],
       });
       const lines = [line(settings.defaultAccountsPayableId, amount, 0, words.payable)];
@@ -213,7 +214,7 @@ export class VendorDebitNotesService {
         manager,
         {
           date,
-          description: words.header,
+          ...described(words.header),
           journalId: journal.id,
           lines,
           currencyCode: vendorBill.currencyCode,

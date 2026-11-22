@@ -15,6 +15,7 @@ import { toIsoDate } from '../../common/dates';
 import { Page, resolvePaging, toPage } from '../../common/pagination';
 import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
 import { I18nService } from '../../i18n/i18n.service';
+import { described } from '../../contracts/ledger-posting/ledger-text';
 
 @Injectable()
 export class AuditAdjustmentsService {
@@ -235,12 +236,12 @@ export class AuditAdjustmentsService {
             // `toISOString()` on it threw at runtime — the same defect this whole path already had
             // one instance of, in `createAuditAdjustment`.
             date: toIsoDate(adjustment.date),
-            description: await this.narrative.describe(
+            ...described(await this.narrative.describe(
               manager,
               organizationId,
               'ledger.adjustment.audit',
               { description: adjustment.description },
-            ),
+            )),
             journalId: adjustment.journalId,
             lines: adjustment.lines.map(line => ({
               accountId: line.accountId,

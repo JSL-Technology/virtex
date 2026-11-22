@@ -74,6 +74,7 @@ import { PostingContext } from './accounting-posting.port';
 import { JOURNAL_ENTRY_LIST_SORT, JournalEntryListSort } from './dto/journal-entry-list-query.dto';
 import { describeEntryOrigin } from './entry-origin';
 import { BudgetControlRegistry, budgetLimitsPosting } from '../contracts/budget-control/budget-control.contract';
+import { LedgerText, narrated, NarrativeRef } from '../contracts/ledger-posting/ledger-text';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -263,7 +264,7 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<{ entry: JournalEntry; totalDebit: number }> {
-    const { lines, date, journalId, currencyCode, exchangeRate, ledgerId: requestedLedgerId, ...entryData } =
+    const { lines, date, journalId, currencyCode, exchangeRate, ledgerId: requestedLedgerId, narrative, ...entryData } =
       createDto;
     const entryDate = new Date(`${String(date).slice(0, 10)}T00:00:00.000Z`);
     if (Number.isNaN(entryDate.getTime())) {
@@ -493,6 +494,9 @@ export class JournalEntriesService {
 
     const entry = manager.create(JournalEntry, {
       ...entryData,
+      // The message the system wrote the narrative from, beside the narrative the books record.
+      descriptionKey: narrative?.key ?? null,
+      descriptionParams: narrative?.params ?? null,
       date: entryDate,
       organizationId,
       journalId,
@@ -536,6 +540,8 @@ export class JournalEntriesService {
       const line = manager.create(JournalEntryLine, {
         accountId: lineDto.accountId,
         description: lineDto.description,
+        descriptionKey: lineDto.narrative?.key ?? null,
+        descriptionParams: lineDto.narrative?.params ?? null,
         dimensions: lineDto.dimensions,
         journalEntry: savedEntry,
         debit: lineDto.debit,
@@ -622,11 +628,11 @@ export class JournalEntriesService {
       const amount = roundAmount(Math.abs(differenceCents) / 100);
       const roundingLine = manager.create(JournalEntryLine, {
         accountId: roundingAccountId,
-        description: await this.narrative.describe(
+        ...narratedLine(await this.narrative.describe(
           manager,
           organizationId,
           'ledger.rounding_difference',
-        ),
+        )),
         journalEntry: savedEntry,
         debit: differenceCents < 0 ? amount : 0,
         credit: differenceCents > 0 ? amount : 0,
@@ -1265,10 +1271,16 @@ export class JournalEntriesService {
       },
       linePrefix: { key: 'ledger.reversal.line_prefix' },
     });
+    // A reversed line reads «Reversión: <the original's>»; on a screen in another language the
+    // original's own narrative is rendered inside it, when the system wrote one.
+    const reversedLine = (text: string, key: string | null | undefined, params: NarrativeRef['params'] | null | undefined): NarrativeRef => ({
+      key: 'ledger.reversal.line',
+      params: { line: key ? { key, params: params ?? {} } : text },
+    });
 
     const reversalDto: CreateJournalEntryDto = {
       date: reverseDto.reversalDate,
-      description: reversalWords.entry,
+      ...narrated(reversalWords.entry),
       journalId: original.journalId,
       // The reversal is posted to the book the original was posted to.
       ledgerId: original.ledgerId,
@@ -1281,6 +1293,9 @@ export class JournalEntriesService {
         debit: Number(line.credit),
         credit: Number(line.debit),
         description: `${reversalWords.linePrefix}${line.description || original.description}`,
+        narrative: line.description
+          ? reversedLine(line.description, line.descriptionKey, line.descriptionParams)
+          : reversedLine(original.description, original.descriptionKey, original.descriptionParams),
         dimensions: line.dimensions,
         // The reversal undoes the amount where it originated, so a restatement for inflation sees
         // the two cancel at every index instead of restating them from different months.
@@ -1641,4 +1656,9 @@ export class JournalEntriesService {
 /** Escapes LIKE wildcards so a search for «50%» matches the text, not everything. */
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+/** A line entity's description and the narrative it was written from. */
+function narratedLine(text: LedgerText): { description: string; descriptionKey: string; descriptionParams: NarrativeRef['params'] } {
+  return { description: text.text, descriptionKey: text.ref.key, descriptionParams: text.ref.params };
 }

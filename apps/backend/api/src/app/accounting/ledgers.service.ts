@@ -22,6 +22,9 @@ export interface JournalReportLine {
   accountCode: string;
   accountName: Record<string, string> | string;
   description: string | null;
+  /** The message `description` was written from, when the system wrote it (books bilingual). */
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   debit: number;
   credit: number;
   dimensions: Record<string, string> | null;
@@ -32,6 +35,8 @@ export interface JournalReportEntry {
   entryNumber: string | null;
   date: IsoDate;
   description: string;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   journalCode: string | null;
   journalName: string | null;
   status: string;
@@ -191,7 +196,10 @@ export class LedgersService {
         date: toIsoDate(row.date),
         reference: row.reference ?? '',
         journalCode: row.journalCode,
+        // The line's own narrative, or the entry's — with the message of whichever it is.
         description: row.lineDescription || row.entryDescription,
+        descriptionKey: row.lineDescription ? row.lineDescriptionKey : row.entryDescriptionKey,
+        descriptionParams: row.lineDescription ? row.lineDescriptionParams : row.entryDescriptionParams,
         debit,
         credit,
         balance: running,
@@ -303,6 +311,8 @@ export class LedgersService {
         accountCode: codeById.get(row.accountId) ?? '',
         accountName: row.accountName,
         description: row.description,
+        descriptionKey: row.descriptionKey,
+        descriptionParams: row.descriptionParams,
         debit: row.debit,
         credit: row.credit,
         dimensions: row.dimensions,
@@ -318,6 +328,8 @@ export class LedgersService {
         entryNumber: entry.entryNumber,
         date: toIsoDate(entry.date),
         description: entry.description,
+        descriptionKey: entry.descriptionKey ?? null,
+        descriptionParams: entry.descriptionParams ?? null,
         journalCode: entry.journal?.code ?? null,
         journalName: entry.journal?.name ?? null,
         status: entry.status,

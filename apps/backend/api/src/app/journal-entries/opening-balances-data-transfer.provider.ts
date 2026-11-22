@@ -16,6 +16,7 @@ import { JournalEntryType } from './entities/journal-entry.entity';
 import { JournalLookupService } from './services/journal-lookup.service';
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { accountNameIn } from '../chart-of-accounts/chart-of-accounts-data-transfer.provider';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 /** Recorded on the entry, so the books say where an opening balance came from. */
 const SYSTEM_REASON = 'opening-balances-import';
@@ -243,7 +244,7 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
         manager,
         {
           date: dtos[0].date,
-          description: words.entry,
+          ...described(words.entry),
           journalId: journal.id,
           currencyCode: settings?.baseCurrency ?? 'USD',
           exchangeRate: 1,
@@ -252,7 +253,7 @@ export class OpeningBalancesDataTransferProvider implements DataTransferDataset<
             accountId: (accounts.get(dto.accountCode) as AccountRow).id,
             debit: dto.debit ?? 0,
             credit: dto.credit ?? 0,
-            description: dto.description || words.line,
+            ...described(dto.description || words.line),
             ...(dto.originDate ? { originDate: dto.originDate.slice(0, 10) } : {}),
           })),
         },

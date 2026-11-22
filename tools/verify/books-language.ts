@@ -9,8 +9,15 @@
  *  - an account is created with its translations, and the books name stays the one it was given;
  *  - the chart's export says the official name and each translation in its own column;
  *  - the journal's export — the books as a filing reads them — names the accounts in Spanish even
- *    when the person exporting reads English.
+ *    when the person exporting reads English;
+ *  - a narrative the system writes is recorded in Spanish and kept with the message it came from,
+ *    which the screen renders in English with the catalogue the browser receives — a reversal with
+ *    the narrative it reverses, a reclassification with the accounts it names; what a person
+ *    typed has no message; and the API refuses a message sent from outside.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { localizedNameIn, renderNarrative, type NarrativeRef } from '@virtex/shared/types';
 import { bootApplication, qaCompanySession } from './support/qa-company-session';
 
 const failures: string[] = [];
@@ -150,6 +157,118 @@ async function main() {
     'the journal\'s export names the account as the books do — «Bancos» — though the reader reads English',
     journalExport.statusCode === 200 && bankLine?.[journalHeader.indexOf('nombre_cuenta')] === 'Bancos',
     bankLine ? bankLine.join(' | ') : journalExport.body.slice(0, 200),
+  );
+
+  // ── The narratives the system writes: the record in Spanish, readable in English ─────────────
+  // The catalogue the browser receives, and the rule the screen renders with (`vxNarrative`).
+  const shipped = JSON.parse(readFileSync(join(process.cwd(), 'apps/core/client-web/src/assets/i18n/en.json'), 'utf8')) as Record<string, string>;
+  const inEnglish = (ref: NarrativeRef | null) =>
+    ref
+      ? renderNarrative(ref, {
+          message: (key, values) =>
+            key in shipped ? shipped[key].replace(/\{\{\s*(\w+)\s*\}\}/g, (match, name: string) => (name in values ? String(values[name]) : match)) : null,
+          name: (name) => localizedNameIn(name, 'en', 'es'),
+        })
+      : null;
+  type Entry = {
+    id: string;
+    entryNumber: string | null;
+    description: string;
+    descriptionKey: string | null;
+    descriptionParams: NarrativeRef['params'] | null;
+    lines: Array<{ accountId: string; description: string | null; descriptionKey: string | null; descriptionParams: NarrativeRef['params'] | null }>;
+  };
+  const refOf = (narrated: { descriptionKey: string | null; descriptionParams: NarrativeRef['params'] | null }) =>
+    narrated.descriptionKey && narrated.descriptionParams ? { key: narrated.descriptionKey, params: narrated.descriptionParams } : null;
+
+  const manual = (await company.call('GET', `/api/v1/journal-entries/${posted.json<{ id: string }>().id}`, undefined, ENGLISH)).json<Entry>();
+  check(
+    'what a person typed is only text: no message is kept beside it',
+    manual.description === 'QA depósito' && manual.descriptionKey === null && manual.lines.every((line) => line.descriptionKey === null),
+    JSON.stringify({ description: manual.description, key: manual.descriptionKey }),
+  );
+
+  const forged = await company.call(
+    'POST',
+    '/api/v1/journal-entries',
+    {
+      date: today,
+      description: 'QA falsa',
+      narrative: { key: 'ledger.sales.invoice', params: { number: 'B0100000001', customer: 'QA' } },
+      journalId: general.id,
+      lines: [
+        { accountId: bank?.id, debit: 1, credit: 0 },
+        { accountId: revenue.id, debit: 0, credit: 1 },
+      ],
+    },
+    { ...ENGLISH, ...freshKey() },
+  );
+  check(
+    'the API refuses a message sent from outside: only the system says what it wrote a narrative from',
+    forged.statusCode === 400 && forged.body.includes('narrative'),
+    `HTTP ${forged.statusCode} ${forged.body.slice(0, 160)}`,
+  );
+
+  const reversed = await company.call('POST', `/api/v1/journal-entries/${manual.id}/reverse`, { reversalDate: today, reason: 'Depósito duplicado' }, { ...ENGLISH, ...freshKey() });
+  const reversalId = (
+    await company.query<{ id: string }>(`SELECT id FROM journal_entries WHERE organization_id = $1 AND reverses_entry_id = $2`, [company.organizationId, manual.id])
+  )[0]?.id;
+  const reversal = (await company.call('GET', `/api/v1/journal-entries/${reversalId}`, undefined, ENGLISH)).json<Entry>();
+  check(
+    'a reversal is recorded in Spanish, with the message it came from',
+    reversed.statusCode < 300 && reversal.description === `Reversión de ${manual.entryNumber}. Razón: Depósito duplicado` && reversal.descriptionKey === 'ledger.reversal.entry',
+    `HTTP ${reversed.statusCode} «${reversal.description}» ${reversal.descriptionKey}`,
+  );
+  check(
+    'the screen reads it in English, and the record stays Spanish',
+    inEnglish(refOf(reversal)) === `Reversal of ${manual.entryNumber}. Reason: Depósito duplicado`,
+    String(inEnglish(refOf(reversal))),
+  );
+  const reversalBank = reversal.lines.find((line) => line.accountId === bank?.id);
+  check(
+    'a reversed line nests what it reverses — the person\'s text, kept as typed',
+    reversalBank?.description === 'Reversión: QA depósito' && inEnglish(reversalBank ? refOf(reversalBank) : null) === 'Reversal: QA depósito',
+    `«${reversalBank?.description}» → «${inEnglish(reversalBank ? refOf(reversalBank) : null)}»`,
+  );
+
+  const [ledger] = await company.query<{ id: string }>(`SELECT id FROM ledgers WHERE organization_id = $1 AND is_default`, [company.organizationId]);
+  const cash = chart.find((account) => account.code === '1110');
+  const reclassified = await company.call(
+    'POST',
+    '/api/v1/journal-entries/adjustments/reclassify',
+    { ledgerId: ledger.id, date: today, description: 'QA reclasificación', fromAccountId: cash?.id, toAccountId: bank?.id, amount: 10, journalId: general.id },
+    { ...ENGLISH, ...freshKey() },
+  );
+  const reclassification = (await company.call('GET', `/api/v1/journal-entries/${reclassified.json<{ id: string }>().id}`, undefined, ENGLISH)).json<Entry>();
+  const intoBank = reclassification.lines.find((line) => line.accountId === bank?.id);
+  check(
+    'a reclassification names the accounts by code and name in the books — never «[object Object]»',
+    reclassified.statusCode === 201 &&
+      intoBank?.description === `Transferencia desde la cuenta relacionada 1110 — ${cash?.name['es']}` &&
+      !JSON.stringify(reclassification).includes('[object Object]'),
+    `HTTP ${reclassified.statusCode} «${intoBank?.description}»`,
+  );
+  check(
+    'and the screen reads the account names in English',
+    !!cash?.name['en'] && inEnglish(intoBank ? refOf(intoBank) : null) === `Transfer from related account 1110 — ${cash.name['en']}`,
+    String(inEnglish(intoBank ? refOf(intoBank) : null)),
+  );
+
+  const generalLedger = (
+    await company.call('GET', `/api/v1/accounting/ledgers/general-ledger?accountId=${bank?.id}&startDate=${today}&endDate=${today}`, undefined, ENGLISH)
+  ).json<{ lines: Array<{ reference: string; description: string; descriptionKey: string | null; descriptionParams: NarrativeRef['params'] | null }> }>();
+  const ledgerReversal = generalLedger.lines.find((line) => line.reference === reversal.entryNumber);
+  check(
+    'the general ledger hands the screen the message with the record',
+    ledgerReversal?.description === 'Reversión: QA depósito' && ledgerReversal.descriptionKey === 'ledger.reversal.line',
+    JSON.stringify(ledgerReversal),
+  );
+
+  const booksExport = await company.call('POST', '/api/v1/data-transfer/exports', { dataset: 'journal_entry_lines', format: 'csv' }, ENGLISH);
+  check(
+    'the journal\'s export carries the record — Spanish — whoever exports it',
+    booksExport.statusCode === 200 && booksExport.body.includes('Reversión: QA depósito') && !booksExport.body.includes('Reversal: QA'),
+    `HTTP ${booksExport.statusCode}`,
   );
 
   await app.close();

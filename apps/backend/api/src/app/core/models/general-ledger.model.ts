@@ -14,7 +14,11 @@ export interface GeneralLedgerLine {
   reference: string;
   journalEntryId: string;
   journalCode: string | null;
+  /** The line's narrative as the books record it — the entry's, where the line has none. */
   description: string;
+  /** The message it was written from, when the system wrote it: rendered for other readers. */
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   debit: number;
   credit: number;
   /** Running balance in the account's natural sense. */

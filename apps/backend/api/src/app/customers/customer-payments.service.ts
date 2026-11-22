@@ -44,6 +44,7 @@ import {
 import { addToAgingRow, agingRowsAndTotals, daysPastDue, emptyAgingRow, type AgingReport, type AgingRow } from '../shared/statements/aging-report';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
+import { described, LedgerText } from '../contracts/ledger-posting/ledger-text';
 
 /**
  * Collections from customers.
@@ -404,7 +405,7 @@ export class CustomerPaymentsService {
         accountId: string,
         debit: number,
         credit: number,
-        description: string,
+        description: LedgerText | string,
         document?: { debit: number; credit: number; rate: number },
       ) => {
         if (toCents(debit) === 0 && toCents(credit) === 0) return;
@@ -412,7 +413,7 @@ export class CustomerPaymentsService {
           accountId,
           debit,
           credit,
-          description,
+          ...described(description),
           valuations: [{ ledgerId: ledger.id, debit, credit }],
           ...(foreign && document
             ? {
@@ -533,12 +534,12 @@ export class CustomerPaymentsService {
         manager,
         {
           date: toIsoDate(dto.paymentDate),
-          description: await this.narrative.describe(
+          ...described(await this.narrative.describe(
             manager,
             organizationId,
             'ledger.collection.receipt',
             { number: payment.receiptNumber ?? payment.id.slice(0, 8) },
-          ),
+          )),
           journalId: collectionJournal.id,
           lines: entryLines,
         } as CreateJournalEntryDto,

@@ -18,6 +18,7 @@ import {
 import { convert, roundAmount, toCents } from '../../common/money';
 import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
 import { I18nService } from '../../i18n/i18n.service';
+import { described } from '../../contracts/ledger-posting/ledger-text';
 
 /**
  * Restates foreign-currency account balances at the closing rate — the unrealised FX adjustment.
@@ -164,10 +165,10 @@ export class CurrencyRevaluationService {
         accountId: position.accountId,
         debit,
         credit,
-        description: await this.narrative.describe(manager, organizationId, 'ledger.revaluation.line', {
+        ...described(await this.narrative.describe(manager, organizationId, 'ledger.revaluation.line', {
           currency: position.currencyCode,
           account: codes.get(position.accountId) ?? position.accountId,
-        }),
+        })),
         valuations: [{ ledgerId: ledger.id, debit, credit }],
         // A translation adjustment: the carrying amount moves, the document amount does not.
         currencyCode: position.currencyCode,
@@ -196,11 +197,11 @@ export class CurrencyRevaluationService {
       accountId: forexAccountId,
       debit: gain ? 0 : netAmount,
       credit: gain ? netAmount : 0,
-      description: await this.narrative.describe(
+      ...described(await this.narrative.describe(
         manager,
         organizationId,
         gain ? 'ledger.revaluation.unrealised_gain' : 'ledger.revaluation.unrealised_loss',
-      ),
+      )),
       valuations: [{ ledgerId: ledger.id, debit: gain ? 0 : netAmount, credit: gain ? netAmount : 0 }],
     });
 
@@ -209,7 +210,7 @@ export class CurrencyRevaluationService {
       manager,
       {
         date: periodEndIso,
-        description: await this.narrative.describe(manager, organizationId, 'ledger.revaluation.entry', { ledger: ledger.name }),
+        ...described(await this.narrative.describe(manager, organizationId, 'ledger.revaluation.entry', { ledger: ledger.name })),
         journalId: generalJournal.id,
         lines: revaluationLines,
       } as CreateJournalEntryDto,

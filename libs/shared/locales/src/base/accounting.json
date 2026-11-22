@@ -554,6 +554,16 @@
     "en": "View the closing entry",
     "pt": "Ver o lançamento de encerramento"
   },
+  "accounting.books_view.hint": {
+    "es": "Muestra los nombres de las cuentas y las descripciones que escribe el sistema en {{language}}, tal como los registran los libros y los lee un auditor. Sin marcar, se muestran en tu idioma; lo registrado no cambia.",
+    "en": "Shows account names and the descriptions the system writes in {{language}}, as the books record them and an auditor reads them. Unchecked, they are shown in your language; what is recorded does not change.",
+    "pt": "Mostra os nomes das contas e as descrições que o sistema escreve em {{language}}, como os livros os registram e um auditor os lê. Desmarcado, aparecem no seu idioma; o registrado não muda."
+  },
+  "accounting.books_view.label": {
+    "es": "Ver como los libros ({{language}})",
+    "en": "View as the books ({{language}})",
+    "pt": "Ver como os livros ({{language}})"
+  },
   "accounting.cash_flow_category.financing": {
     "es": "Financiamiento",
     "en": "Financing",

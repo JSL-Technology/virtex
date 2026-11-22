@@ -5,6 +5,7 @@ import { LedgerPostingLine, LedgerPostingRegistry } from '../contracts/ledger-po
 import { organizationPostingAccounts } from '../organizations/contracts/posting-accounts.contract';
 import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, sumAmounts } from '../common/money';
+import { described, LedgerText } from '../contracts/ledger-posting/ledger-text';
 
 /** What one till sale contributes to the books, split the way the entry needs it. */
 export interface PosSalePosting {
@@ -87,9 +88,9 @@ export class PosPostingService {
     });
 
     const lines: LedgerPostingLine[] = [];
-    const add = (accountId: string | null | undefined, debit: number, credit: number, description: string) => {
+    const add = (accountId: string | null | undefined, debit: number, credit: number, description: LedgerText | string) => {
       if (!accountId || roundAmount(debit) + roundAmount(credit) === 0) return;
-      lines.push({ accountId, debit: roundAmount(debit), credit: roundAmount(credit), description });
+      lines.push({ accountId, debit: roundAmount(debit), credit: roundAmount(credit), ...described(description) });
     };
     add(cashAccountId, amounts.cash, 0, words.cash);
     add(bankAccountId, amounts.nonCash, 0, words.nonCash);
@@ -110,7 +111,7 @@ export class PosPostingService {
         {
           journalCode: 'VENTAS',
           date,
-          description: words.header,
+          ...described(words.header),
           currencyCode: settings.baseCurrency ?? undefined,
           exchangeRate: 1,
           lines,
@@ -128,12 +129,12 @@ export class PosPostingService {
         {
           journalCode: 'GENERAL',
           date,
-          description: words.costHeader,
+          ...described(words.costHeader),
           currencyCode: settings.baseCurrency ?? undefined,
           exchangeRate: 1,
           lines: [
-            { accountId: settings.costOfGoodsSoldId, debit: cost, credit: 0, description: words.cost },
-            { accountId: settings.inventoryId, debit: 0, credit: cost, description: words.stock },
+            { accountId: settings.costOfGoodsSoldId, debit: cost, credit: 0, ...described(words.cost) },
+            { accountId: settings.inventoryId, debit: 0, credit: cost, ...described(words.stock) },
           ],
         },
         { actorUserId, module: 'inventory', systemReason: 'pos-sale-cost', idempotencyKey: `pos-sale:${sale.id}:cost` },

@@ -13,6 +13,7 @@ import { toIsoDate } from '../common/dates';
 import { runAsTenantJob } from '../shared/tenancy/tenant-job';
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 interface RecurringJobData {
     recurringEntryId: string;
@@ -112,12 +113,12 @@ export class RecurringEntriesProcessor extends WorkerHost {
             
             const dto: CreateJournalEntryDto = {
                 date: postingDate,
-                description: await this.narrative.describe(
+                ...described(await this.narrative.describe(
                     manager,
                     entry.organizationId,
                     'ledger.recurring.entry',
                     { description: entry.description },
-                ),
+                )),
                 journalId: entry.journalId,
                 lines: entry.lines.map(line => ({
                   ...line,

@@ -16,6 +16,7 @@ import {
   IsObject,
   IsDefined,
 } from 'class-validator';
+import type { NarrativeRef } from '../../contracts/ledger-posting/ledger-text';
 import { StrictNumber } from '../../common/transformers/strict-number.transformer';
 import { JournalEntryType } from '../entities/journal-entry.entity';
 
@@ -58,6 +59,17 @@ export class CreateJournalEntryLineDto {
   @IsString({ message: 'validation.create_journal_entry.line_description_must_text' })
   @IsOptional()
   description?: string;
+
+  /**
+   * Set by the system when it writes the line's description: the message and its values. It carries
+   * no validation on purpose — the API refuses it (`forbidNonWhitelisted`); only code posting a
+   * document it narrated sets it. See `LedgerNarrativeService`.
+   *
+   * `declare`, so it is a type and never a property: a class field compiled for ES2022 exists on
+   * every instance, as `undefined`, and the pipe then refused every entry a person wrote for
+   * carrying a property it does not allow — whatever the body said.
+   */
+  declare narrative?: NarrativeRef;
   
   @IsObject({ message: 'validation.create_journal_entry.dimensions_must_object' })
   @IsOptional()
@@ -130,6 +142,9 @@ export class CreateJournalEntryDto {
   @IsString({ message: 'validation.create_journal_entry.description_must_text' })
   @IsNotEmpty({ message: 'validation.create_journal_entry.entry_description_required' })
   description: string;
+
+  /** Set by the system when it narrates the entry: see the line's `narrative`. Not accepted from the API. */
+  declare narrative?: NarrativeRef;
   
   @IsString()
   @IsOptional()

@@ -58,6 +58,25 @@ describe('I18nService', () => {
     });
   });
 
+  describe('a name kept in several languages, as a value', () => {
+    const name = { es: 'Gastos bancarios', en: 'Bank charges', pt: 'Despesas bancárias' };
+
+    it('is read in the language of the message, never printed as «[object Object]»', () => {
+      expect(i18n.translate('ledger.reconciliation.category_line', 'es', { account: name })).toBe('Categoría: Gastos bancarios');
+      expect(i18n.translate('ledger.reconciliation.category_line', 'en', { account: name })).toBe('Category: Bank charges');
+      expect(i18n.translate('ledger.reconciliation.category_line', 'pt', { account: name })).toBe('Categoria: Despesas bancárias');
+    });
+
+    it('falls back to a language it has when it has none in the message language', () => {
+      expect(i18n.translate('ledger.reconciliation.category_line', 'en', { account: { es: 'Caja chica' } })).toBe('Category: Caja chica');
+    });
+
+    it('is judged by shape: an object whose keys are not languages is not a name', () => {
+      const translated = i18n.translate('ledger.reconciliation.category_line', 'en', { account: { code: '6105' } });
+      expect(translated).not.toBe('Category: 6105');
+    });
+  });
+
   describe('pluralisation', () => {
     /**
      * CLDR categories, not an `if (n === 1)`.

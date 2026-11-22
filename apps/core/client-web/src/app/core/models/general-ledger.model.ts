@@ -1,8 +1,13 @@
 export interface GeneralLedgerLine {
-  id: string; // <-- AÑADIDO: Necesario para 'track' en el bucle @for
+  id: string;
   date: string;
-  reference: string; // <-- RENOMBRADO: de 'entryNumber' a 'reference' para que coincida con el HTML
+  /** The entry's number. */
+  reference: string;
+  /** The line's narrative as the books record it — the entry's, where the line has none. */
   description: string;
+  /** The message it was written from, when the system wrote it: `vxNarrative` renders it. */
+  descriptionKey?: string | null;
+  descriptionParams?: Record<string, unknown> | null;
   debit: number | null;
   credit: number | null;
   balance: number;

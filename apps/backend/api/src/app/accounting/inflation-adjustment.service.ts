@@ -25,6 +25,7 @@ import { AccountingPeriod } from './entities/accounting-period.entity';
 import { InflationAdjustmentRun, InflationAdjustmentRunStatus, type UsedIndexValue } from './entities/inflation-adjustment-run.entity';
 import { InflationAdjustmentRunLine } from './entities/inflation-adjustment-run-line.entity';
 import { resolvePostingPeriod } from './period-status';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 /** The `system_reason` of the entries a restatement posts, and of their reversals. */
 export const INFLATION_ADJUSTMENT_REASON = 'inflation-adjustment';
@@ -601,7 +602,7 @@ export class InflationAdjustmentService {
           accountId: line.postedAccountId,
           debit,
           credit,
-          description: words.line,
+          ...described(words.line),
           ...(line.dimensions ? { dimensions: line.dimensions } : {}),
           valuations: [{ ledgerId: ledger.id, debit, credit }],
         });
@@ -620,7 +621,7 @@ export class InflationAdjustmentService {
           accountId: plan.netMonetaryAccountId as string,
           debit,
           credit,
-          description: words.counterpart,
+          ...described(words.counterpart),
           ...(slot.dimensions ? { dimensions: slot.dimensions } : {}),
           valuations: [{ ledgerId: ledger.id, debit, credit }],
         });
@@ -629,7 +630,7 @@ export class InflationAdjustmentService {
         manager,
         {
           date: plan.entryDate,
-          description: words.header,
+          ...described(words.header),
           journalId: journal.id,
           ledgerId: ledger.id,
           lines,

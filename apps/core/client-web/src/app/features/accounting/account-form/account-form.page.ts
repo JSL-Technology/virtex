@@ -11,7 +11,7 @@ import {
 import { CurrenciesService } from '../../../core/api/currencies.service';
 import { ChartOfAccountsStateService, ParentAccountOption } from '../state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf, LocaleStore, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { accountNameOf, LocaleStore, tenantToday } from '@virtex/shared/ui-i18n';
 import { LANGUAGE_ENDONYMS, SUPPORTED_LANGUAGES, type LanguageCode } from '@virtex/shared/types';
 import {
   ACCOUNT_CATEGORIES_BY_TYPE,
@@ -40,7 +40,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

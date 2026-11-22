@@ -12,6 +12,7 @@ import { LedgerLookupService } from '../../accounting/services/ledger-lookup.ser
 import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
 import { OrgSettingsService } from '../../organizations/services/org-settings.service';
 import type { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
+import { described, LedgerText } from '../../contracts/ledger-posting/ledger-text';
 
 /**
  * Posts a payroll run to the general ledger — one balanced, idempotent entry.
@@ -101,18 +102,18 @@ export class PayrollAccountingService {
     // Sign-aware: a positive figure posts to its natural side; a negative one (an adjustment that
     // reduces a previously-booked amount) posts to the opposite side. The entry still balances because
     // a delta of two balanced entries is itself balanced.
-    const post = (accountId: string, amount: number, naturalDebit: boolean, description: string) => {
+    const post = (accountId: string, amount: number, naturalDebit: boolean, description: LedgerText | string) => {
       if (amount === 0) return;
       const onDebit = naturalDebit === amount > 0;
       const value = Math.abs(amount);
       lines.push(
         onDebit
-          ? { accountId, debit: value, credit: 0, description, valuations: [{ ledgerId, debit: value, credit: 0 }] }
-          : { accountId, debit: 0, credit: value, description, valuations: [{ ledgerId, debit: 0, credit: value }] },
+          ? { accountId, debit: value, credit: 0, ...described(description), valuations: [{ ledgerId, debit: value, credit: 0 }] }
+          : { accountId, debit: 0, credit: value, ...described(description), valuations: [{ ledgerId, debit: 0, credit: value }] },
       );
     };
-    const debit = (accountId: string, amount: number, description: string) => post(accountId, amount, true, description);
-    const credit = (accountId: string, amount: number, description: string) => post(accountId, amount, false, description);
+    const debit = (accountId: string, amount: number, description: LedgerText | string) => post(accountId, amount, true, description);
+    const credit = (accountId: string, amount: number, description: LedgerText | string) => post(accountId, amount, false, description);
 
     //  El relato del asiento en el idioma en que se llevan los libros del inquilino. Nombra la clase
     //  de pasivo; la institución ya la nombra la cuenta (AFP, IMSS…), que es del paquete del país.
@@ -152,7 +153,7 @@ export class PayrollAccountingService {
       manager,
       {
         date: run.periodEnd,
-        description: words.entry,
+        ...described(words.entry),
         journalId: journal.id,
         entryType: JournalEntryType.SYSTEM_GENERATED,
         lines,
@@ -206,18 +207,18 @@ export class PayrollAccountingService {
     });
     const lines: CreateJournalEntryLineDto[] = [
       payableOnDebit
-        ? { accountId: netPayableAccount, debit: value, credit: 0, description: paid.settled, valuations: [{ ledgerId, debit: value, credit: 0 }] }
-        : { accountId: netPayableAccount, debit: 0, credit: value, description: paid.reversed, valuations: [{ ledgerId, debit: 0, credit: value }] },
+        ? { accountId: netPayableAccount, debit: value, credit: 0, ...described(paid.settled), valuations: [{ ledgerId, debit: value, credit: 0 }] }
+        : { accountId: netPayableAccount, debit: 0, credit: value, ...described(paid.reversed), valuations: [{ ledgerId, debit: 0, credit: value }] },
       payableOnDebit
-        ? { accountId: bankGlAccountId, debit: 0, credit: value, description: paid.bankOut, valuations: [{ ledgerId, debit: 0, credit: value }] }
-        : { accountId: bankGlAccountId, debit: value, credit: 0, description: paid.bankBack, valuations: [{ ledgerId, debit: value, credit: 0 }] },
+        ? { accountId: bankGlAccountId, debit: 0, credit: value, ...described(paid.bankOut), valuations: [{ ledgerId, debit: 0, credit: value }] }
+        : { accountId: bankGlAccountId, debit: value, credit: 0, ...described(paid.bankBack), valuations: [{ ledgerId, debit: value, credit: 0 }] },
     ];
 
     const entry = await this.posting.createWithManager(
       manager,
       {
         date: paymentDate ?? run.payDate,
-        description: paid.entry,
+        ...described(paid.entry),
         journalId: journal.id,
         entryType: JournalEntryType.SYSTEM_GENERATED,
         lines,

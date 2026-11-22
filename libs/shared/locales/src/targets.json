@@ -1,7 +1,7 @@
 {
   "$note": "Which application each namespace is emitted to. A namespace may appear under more than one target: it is still defined ONCE, in base/, and the generator writes the same entry to both catalogues, so the two cannot drift. That is the whole point of the single source — the old arrangement had 57 keys defined twice, 23 of them with different Spanish text, and which one a reader saw depended on lookup order.\n\nOwnership is declared rather than inferred from a usage scan. A scan that misses a reference silently ships a catalogue without the key, and the miss surfaces to a customer; a declaration that is wrong is caught by verify-catalogues.mjs, which checks every referenced key against the catalogue its application actually receives.",
   "client-web": {
-    "$why": "The browser renders all user-visible text, including the wording of every domain error: the server sends a code, a message key and its parameters, never prose, so the namespaces the API raises errors from are emitted here too. Excluded are the six the server renders itself with no browser in the loop -- transactional e-mail, the invoice PDF, the account and journal names written into a new tenant's books, the units those messages pluralise, the quota nouns in stored notifications, and the Electron menu. Shipping those to a browser would be ~300 keys per language that no screen can reach.",
+    "$why": "The browser renders all user-visible text, including the wording of every domain error: the server sends a code, a message key and its parameters, never prose, so the namespaces the API raises errors from are emitted here too. Excluded are the five the server renders itself with no browser in the loop -- transactional e-mail, the invoice PDF, the units those messages pluralise, the quota nouns in stored notifications, and the Electron menu. Shipping those to a browser would be ~300 keys per language that no screen can reach. The ledger namespace is emitted here too: the narratives the system writes on entries are stored with their message and values, and a reader whose language is not the books' sees them rendered in theirs (books bilingual).",
     "namespaces": [
       "accounting",
       "accounts_payable",
@@ -64,6 +64,7 @@
       "inventory",
       "invoices",
       "journal_entries",
+      "ledger",
       "legal",
       "localization",
       "login",

@@ -1,4 +1,9 @@
 {
+  "ledger.account_label": {
+    "es": "{{code}} — {{name}}",
+    "en": "{{code}} — {{name}}",
+    "pt": "{{code}} — {{name}}"
+  },
   "ledger.adjustment.audit": {
     "es": "Ajuste de auditoría: {{description}}",
     "en": "Audit adjustment: {{description}}",
@@ -38,6 +43,26 @@
     "es": "Transferencia a la cuenta relacionada {{account}}",
     "en": "Transfer to related account {{account}}",
     "pt": "Transferência para a conta relacionada {{account}}"
+  },
+  "ledger.adjustment_type.accrual": {
+    "es": "devengo",
+    "en": "accrual",
+    "pt": "competência"
+  },
+  "ledger.adjustment_type.deferral": {
+    "es": "diferimiento",
+    "en": "deferral",
+    "pt": "diferimento"
+  },
+  "ledger.adjustment_type.general": {
+    "es": "general",
+    "en": "general",
+    "pt": "geral"
+  },
+  "ledger.adjustment_type.provision": {
+    "es": "provisión",
+    "en": "provision",
+    "pt": "provisão"
   },
   "ledger.collection.advance_applied": {
     "es": "Aplicación de anticipo de cliente",
@@ -674,6 +699,11 @@
     "en": "Reversal of {{number}}. Reason: {{reason}}",
     "pt": "Estorno de {{number}}. Motivo: {{reason}}"
   },
+  "ledger.reversal.line": {
+    "es": "Reversión: {{line}}",
+    "en": "Reversal: {{line}}",
+    "pt": "Estorno: {{line}}"
+  },
   "ledger.reversal.line_prefix": {
     "es": "Reversión: ",
     "en": "Reversal: ",
@@ -758,5 +788,10 @@
     "es": "Retenciones practicadas al proveedor",
     "en": "Tax withheld from the supplier",
     "pt": "Retenções efetuadas ao fornecedor"
+  },
+  "ledger.with_note": {
+    "es": "{{narrative}} — {{note}}",
+    "en": "{{narrative}} — {{note}}",
+    "pt": "{{narrative}} — {{note}}"
   }
 }

@@ -781,6 +781,12 @@
       "VOID",
       "CREDIT_NOTE"
     ],
+    "ledger.adjustment_type": [
+      "accrual",
+      "deferral",
+      "provision",
+      "general"
+    ],
     "ledger.sales": [],
     "legal": [
       "terms.title",

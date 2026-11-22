@@ -23,6 +23,7 @@ import { toIsoDate, type IsoDate } from '../common/dates';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { described, NarrativeInput } from '../contracts/ledger-posting/ledger-text';
 
 /**
  * The entry that closes profit and loss into retained earnings.
@@ -143,7 +144,7 @@ export class ResultTransferService {
     range: {
       from: Date | string;
       to: Date | string;
-      label: { key: string; params?: Record<string, unknown> };
+      label: { key: string; params?: Record<string, NarrativeInput> };
     },
     actorUserId: string | null,
   ): Promise<JournalEntry | null> {
@@ -224,7 +225,7 @@ export class ResultTransferService {
         accountId: movement.accountId,
         debit,
         credit,
-        description: words.closingLine,
+        ...described(words.closingLine),
         // The tags of the balance being closed. They came out of the ledger, so the posting path
         // carries them as they are (`tagsFromLedger`): a dimension value retired during the year
         // must not stop the close, and a mandatory rule on the account is satisfied by
@@ -259,7 +260,7 @@ export class ResultTransferService {
         accountId: settings.defaultRetainedEarningsAccountId,
         debit: retained.debit,
         credit: retained.credit,
-        description: words.retained,
+        ...described(words.retained),
         ...(slot.dimensions ? { dimensions: slot.dimensions } : {}),
         valuations: [
           { ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit },
@@ -272,7 +273,7 @@ export class ResultTransferService {
       manager,
       {
         date: closingDate,
-        description: words.header,
+        ...described(words.header),
         lines,
         journalId: closingJournal.id,
         entryType: JournalEntryType.CLOSING_ENTRY,

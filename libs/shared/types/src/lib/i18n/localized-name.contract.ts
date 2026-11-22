@@ -1,4 +1,4 @@
-import { SUPPORTED_LANGUAGES, type LanguageCode } from './locale.contract';
+import { SUPPORTED_LANGUAGES, isLanguageCode, type LanguageCode } from './locale.contract';
 
 /**
  * A name kept in several languages: `{ es: 'Bancos', en: 'Banks', pt: 'Bancos' }`.
@@ -9,6 +9,22 @@ import { SUPPORTED_LANGUAGES, type LanguageCode } from './locale.contract';
  * keep «Bancos». A language that is missing falls back to the books one, never to a blank.
  */
 export type LocalizedName = Partial<Record<LanguageCode, string>>;
+
+/**
+ * Whether a value IS a name kept in several languages — `{ es: 'Bancos', en: 'Banks' }` — judged by
+ * its shape alone: an object with at least one entry, every key a language the product speaks and
+ * every value a text.
+ *
+ * It is what lets a message carry an account's name as a value and have it read in the message's
+ * language: the server and the client apply the same test, so `Categoría: {{account}}` becomes
+ * «Categoría: Bancos» in the books and «Category: Banks» on an English screen — never
+ * «[object Object]», which is what interpolating the object printed.
+ */
+export function isLocalizedName(value: unknown): value is LocalizedName {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const entries = Object.entries(value as Record<string, unknown>);
+  return entries.length > 0 && entries.every(([language, text]) => isLanguageCode(language) && typeof text === 'string');
+}
 
 /** The longest name a translation may carry: the column's own limit for the books one. */
 export const LOCALIZED_NAME_MAX_LENGTH = 255;

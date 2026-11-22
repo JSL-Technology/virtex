@@ -22,6 +22,7 @@ import { JournalLookupService } from '../../journal-entries/services/journal-loo
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import type { Ledger } from '../../accounting/entities/ledger.entity';
 import type { SystemJournalCode } from '../../contracts/ledger-posting/system-journals';
+import { described, LedgerText } from '../../contracts/ledger-posting/ledger-text';
 
 /**
  * Turns a sales document into a balanced ledger entry.
@@ -239,7 +240,7 @@ export class InvoicePostingService {
     const journal = await this.requireJournal(invoice.organizationId, 'VENTAS', manager);
     const dto: CreateJournalEntryDto = {
       date: new Date(`${cancellation?.date ?? invoice.issueDate}T00:00:00.000Z`).toISOString(),
-      description: cancellation ? await this.describeCancellation(manager, invoice) : await this.describe(manager, invoice),
+      ...described(cancellation ? await this.describeCancellation(manager, invoice) : await this.describe(manager, invoice)),
       journalId: journal.id,
       currencyCode: currency,
       exchangeRate: invoice.exchangeRate,
@@ -291,20 +292,20 @@ export class InvoicePostingService {
       stock: { key: 'ledger.sales.stock_released' },
     });
     const debits: PostingLine[] = [
-      { accountId: settings.defaultCostOfGoodsSoldId, amount: cost, description: words.cost },
+      { accountId: settings.defaultCostOfGoodsSoldId, amount: cost, ...described(words.cost) },
     ];
     const credits: PostingLine[] = [
-      { accountId: settings.defaultInventoryId, amount: cost, description: words.stock },
+      { accountId: settings.defaultInventoryId, amount: cost, ...described(words.stock) },
     ];
 
     const dto: CreateJournalEntryDto = {
       date: new Date(`${cancellation?.date ?? invoice.issueDate}T00:00:00.000Z`).toISOString(),
-      description: await this.narrative.describe(
+      ...described(await this.narrative.describe(
         manager,
         invoice.organizationId,
         'ledger.sales.cost_of',
         { document: cancellation ? await this.describeCancellation(manager, invoice) : await this.describe(manager, invoice) },
-      ),
+      )),
       journalId: journal.id,
       currencyCode: settings.baseCurrency,
       exchangeRate: 1,
@@ -382,7 +383,7 @@ export class InvoicePostingService {
    * resolves it against `Organization.booksLanguage` — the statutory language of the record, not
    * the reader's — so an entry says the same thing in six years as it does today.
    */
-  private describe(manager: EntityManager, invoice: Invoice): Promise<string> {
+  private describe(manager: EntityManager, invoice: Invoice): Promise<LedgerText> {
     const kind =
       invoice.type === InvoiceType.CREDIT_NOTE
         ? 'CREDIT_NOTE'
@@ -398,7 +399,7 @@ export class InvoicePostingService {
     });
   }
 
-  private describeCancellation(manager: EntityManager, invoice: Invoice): Promise<string> {
+  private describeCancellation(manager: EntityManager, invoice: Invoice): Promise<LedgerText> {
     return this.narrative.describe(manager, invoice.organizationId, 'ledger.sales.cancellation', {
       number: invoice.invoiceNumber,
       fiscal: invoice.fiscalNumber ? ` (${invoice.fiscalNumber})` : '',

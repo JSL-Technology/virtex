@@ -293,7 +293,7 @@
                               <span class="candidate__entry">{{ candidate.entryNumber ?? '—' }}</span>
                               <span class="candidate__date">{{ candidate.date | vxDate: 'date' : true }}</span>
                               <span class="candidate__description">
-                                {{ candidate.description ?? '—' }}
+                                {{ (candidate.description | vxNarrative: candidate.descriptionKey : candidate.descriptionParams) || '—' }}
                                 @if (candidate.reasons.length) {
                                   <span class="candidate__reasons">
                                     @for (reason of candidate.reasons; track reason) {

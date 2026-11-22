@@ -58,6 +58,7 @@ import { ReconciliationAutoOutcome } from './entities/reconciliation-auto-outcom
 import { CALIBRATION_DAYS, calibrate } from './autopilot';
 import { predictBankLine, trainBankLineModel } from './bank-line-classifier';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { described, NarrativeInput } from '../contracts/ledger-posting/ledger-text';
 
 /** A ledger line offered as a counterpart, with why it was offered. */
 export interface MatchCandidate {
@@ -65,7 +66,11 @@ export interface MatchCandidate {
   journalEntryId: string;
   entryNumber: string | null;
   date: string;
+  /** The line's narrative as the books record it: what the scoring compares with the bank's text. */
   description: string | null;
+  /** The message it was written from, when the system wrote it: rendered for a reader in another language. */
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   /** Positive into the account, negative out of it. */
   amount: number;
   /** 0-100. Amount and proximity in time, plus any overlap in wording. */
@@ -163,6 +168,8 @@ export interface OutstandingLedgerLine {
   entryNumber: string | null;
   date: string;
   description: string | null;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   /** In the bank account's currency — what the statement is measured in. */
   amount: number;
   /** The same movement in the books' currency. */
@@ -465,6 +472,8 @@ export class ReconciliationService {
             entryNumber: line.entryNumber,
             date: line.date,
             description: line.description,
+            descriptionKey: line.descriptionKey,
+            descriptionParams: line.descriptionParams,
             amount: line.amount,
             score,
             reasons,
@@ -1627,6 +1636,8 @@ export class ReconciliationService {
           entryNumber: row.entryNumber,
           date: row.date,
           description: row.description,
+          descriptionKey: row.descriptionKey,
+          descriptionParams: row.descriptionParams,
           amount: amountInBaseCurrency,
           amountInBaseCurrency,
           amountUnavailable: false,
@@ -1648,6 +1659,8 @@ export class ReconciliationService {
         entryNumber: row.entryNumber,
         date: row.date,
         description: row.description,
+        descriptionKey: row.descriptionKey,
+        descriptionParams: row.descriptionParams,
         amount: hasDocumentAmount
           ? roundAmount((row.foreignDebit ?? 0) - (row.foreignCredit ?? 0))
           : 0,
@@ -1740,7 +1753,7 @@ export class ReconciliationService {
     statement: BankStatement,
     bankAccount: BankAccount,
     transaction: BankTransaction,
-    target: { targetAccountId: string; lineNarrative: { key: string; params: Record<string, unknown> }; idempotencyKey: string },
+    target: { targetAccountId: string; lineNarrative: { key: string; params: Record<string, NarrativeInput> }; idempotencyKey: string },
     organizationId: string,
     actorUserId: string,
   ): Promise<{ id: string }> {
@@ -1765,7 +1778,7 @@ export class ReconciliationService {
       manager,
       {
         date: transaction.date,
-        description: words.header,
+        ...described(words.header),
         journalId: journal.id,
         // The account's own currency when it is not the books': the entry converts at the day's
         // rate and keeps the document amount, so the line can be matched against the statement and

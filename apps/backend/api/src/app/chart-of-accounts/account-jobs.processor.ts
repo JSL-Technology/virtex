@@ -16,6 +16,7 @@ import { JournalQueryService } from '../journal-entries/services/journal-query.s
 import { LedgerPostingRegistry } from '../contracts/ledger-posting/ledger-posting.contract';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { roundAmount } from '../common/money';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 
 interface MergeAccountsJobData {
@@ -134,7 +135,7 @@ export class AccountJobsProcessor extends WorkerHost {
             {
               journalCode: 'GENERAL',
               date: fiscalDate(organizationTimeZone(organization)),
-              description: words.description,
+              ...described(words.description),
               lines: slices.flatMap((slice) => {
                 const amount = Math.abs(slice.balance);
                 const tags = slice.dimensions ? { dimensions: slice.dimensions } : {};

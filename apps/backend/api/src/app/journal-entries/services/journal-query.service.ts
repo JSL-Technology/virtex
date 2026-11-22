@@ -21,6 +21,11 @@ export interface GeneralLedgerLineRow {
   entryDescription: string;
   journalCode: string | null;
   lineDescription: string | null;
+  /** The message each was written from, when the system wrote it (books bilingual). */
+  entryDescriptionKey: string | null;
+  entryDescriptionParams: Record<string, unknown> | null;
+  lineDescriptionKey: string | null;
+  lineDescriptionParams: Record<string, unknown> | null;
   debit: number;
   credit: number;
 }
@@ -32,6 +37,8 @@ export interface JournalReportLineRow {
   accountId: string;
   accountName: Record<string, string> | string;
   description: string | null;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   dimensions: Record<string, string> | null;
   debit: number;
   credit: number;
@@ -147,8 +154,12 @@ export class JournalQueryService {
         'entry.entry_number AS reference',
         'entry.date AS date',
         'entry.description AS "entryDescription"',
+        'entry.description_key AS "entryDescriptionKey"',
+        'entry.description_params AS "entryDescriptionParams"',
         'journal.code AS "journalCode"',
         'line.description AS "lineDescription"',
+        'line.description_key AS "lineDescriptionKey"',
+        'line.description_params AS "lineDescriptionParams"',
         'valuation.debit AS debit',
         'valuation.credit AS credit',
       ])
@@ -163,8 +174,12 @@ export class JournalQueryService {
         reference: string | null;
         date: Date | string;
         entryDescription: string;
+        entryDescriptionKey: string | null;
+        entryDescriptionParams: Record<string, unknown> | null;
         journalCode: string | null;
         lineDescription: string | null;
+        lineDescriptionKey: string | null;
+        lineDescriptionParams: Record<string, unknown> | null;
         debit: string;
         credit: string;
       }>();
@@ -175,8 +190,12 @@ export class JournalQueryService {
       reference: row.reference ?? null,
       date: toIsoDate(row.date),
       entryDescription: row.entryDescription,
+      entryDescriptionKey: row.entryDescriptionKey ?? null,
+      entryDescriptionParams: row.entryDescriptionParams ?? null,
       journalCode: row.journalCode ?? null,
       lineDescription: row.lineDescription ?? null,
+      lineDescriptionKey: row.lineDescriptionKey ?? null,
+      lineDescriptionParams: row.lineDescriptionParams ?? null,
       debit: Number(row.debit),
       credit: Number(row.credit),
     }));
@@ -297,6 +316,8 @@ export class JournalQueryService {
         'account.id AS "accountId"',
         'account.name AS "accountName"',
         'line.description AS description',
+        'line.description_key AS "descriptionKey"',
+        'line.description_params AS "descriptionParams"',
         'line.dimensions AS dimensions',
         'valuation.debit AS debit',
         'valuation.credit AS credit',
@@ -308,6 +329,8 @@ export class JournalQueryService {
         accountId: string;
         accountName: Record<string, string> | string;
         description: string | null;
+        descriptionKey: string | null;
+        descriptionParams: Record<string, unknown> | null;
         dimensions: Record<string, string> | null;
         debit: string;
         credit: string;
@@ -319,6 +342,8 @@ export class JournalQueryService {
       accountId: row.accountId,
       accountName: row.accountName,
       description: row.description,
+      descriptionKey: row.descriptionKey ?? null,
+      descriptionParams: row.descriptionParams ?? null,
       dimensions: row.dimensions,
       debit: Number(row.debit),
       credit: Number(row.credit),
@@ -641,6 +666,8 @@ export class JournalQueryService {
         'entry.entry_number AS "entryNumber"',
         'entry.date AS date',
         'line.description AS description',
+        'line.description_key AS "descriptionKey"',
+        'line.description_params AS "descriptionParams"',
         'valuation.debit AS "baseDebit"',
         'valuation.credit AS "baseCredit"',
         'line.currency_code AS "lineCurrency"',
@@ -662,6 +689,8 @@ export class JournalQueryService {
       entryNumber: string | null;
       date: Date | string;
       description: string | null;
+      descriptionKey: string | null;
+      descriptionParams: Record<string, unknown> | null;
       baseDebit: string;
       baseCredit: string;
       lineCurrency: string | null;
@@ -675,6 +704,8 @@ export class JournalQueryService {
       entryNumber: row.entryNumber,
       date: toIsoDate(row.date),
       description: row.description,
+      descriptionKey: row.descriptionKey ?? null,
+      descriptionParams: row.descriptionParams ?? null,
       baseDebit: Number(row.baseDebit),
       baseCredit: Number(row.baseCredit),
       lineCurrency: row.lineCurrency,
@@ -691,6 +722,8 @@ export interface OutstandingLedgerLineRow {
   entryNumber: string | null;
   date: IsoDate;
   description: string | null;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   baseDebit: number;
   baseCredit: number;
   lineCurrency: string | null;

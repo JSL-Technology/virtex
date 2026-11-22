@@ -20,6 +20,8 @@ import { toIsoDate } from '../common/dates';
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { described, LedgerText } from '../contracts/ledger-posting/ledger-text';
+import { composeKey } from '@virtex/shared/types';
 
 @Injectable()
 export class AdjustmentsService {
@@ -45,19 +47,24 @@ export class AdjustmentsService {
    *
    * The reclassification lines used to name the counter-account by the first eight characters of
    * its UUID — `Transferencia a cta. relacionada con 3f8b21a0` — which identifies nothing to the
-   * accountant reading the ledger and nothing to the auditor reading it later.
+   * accountant reading the ledger and nothing to the auditor reading it later. Then by its code
+   * and its name interpolated as it is kept, `{ es: 'Bancos' }`, which printed
+   * «1105 — [object Object]». The label is a narrative of its own now: the books read the name in
+   * their language, and a reader in another one reads it in theirs.
    */
   private async accountLabel(
     manager: EntityManager,
     organizationId: string,
     accountId: string,
-  ): Promise<string> {
+  ): Promise<LedgerText> {
     const account = await manager.findOne(Account, {
       where: { id: accountId, organizationId },
       select: { id: true, code: true, name: true },
     });
-    if (!account) return accountId;
-    return `${account.code} — ${account.name}`;
+    // Both accounts are posted to right after this: one that is not the company's is refused there,
+    // with the message that says so. Here it is refused first, so no narrative names a UUID.
+    if (!account) throw new BadRequestError('journal_entries.one_more_accounts_not_found_inactive');
+    return this.narrative.describe(manager, organizationId, 'ledger.account_label', { code: account.code, name: account.name });
   }
 
   async createReclassification(
@@ -85,20 +92,20 @@ export class AdjustmentsService {
 
     const entryDto = {
       date: dto.date,
-      description: words.header,
+      ...described(words.header),
       journalId: dto.journalId,
       lines: [
         {
           accountId: dto.fromAccountId,
           credit: dto.amount,
           debit: 0,
-          description: words.out,
+          ...described(words.out),
         },
         {
           accountId: dto.toAccountId,
           debit: dto.amount,
           credit: 0,
-          description: words.in,
+          ...described(words.in),
         },
       ],
     };
@@ -123,12 +130,14 @@ export class AdjustmentsService {
 
         const adjustment = await createWithManager({
             date: dto.date,
-            description: await this.narrative.describe(
+            ...described(await this.narrative.describe(
               manager,
               organizationId,
               'ledger.adjustment.period_end',
-              { type: dto.adjustmentType, description: dto.description },
-            ),
+              // The type by its catalogue key: «(devengo)» in Spanish books, «(accrual)» on an
+              // English screen — never the enum value, which printed «(ACCRUAL)» in both.
+              { type: composeKey('ledger.adjustment_type', dto.adjustmentType), description: dto.description },
+            )),
             journalId: dto.journalId,
             lines: dto.lines,
         });
@@ -315,7 +324,7 @@ export class AdjustmentsService {
         accountId: line.accountId,
         debit: side.debit,
         credit: side.credit,
-        description: words.closeLine,
+        ...described(words.closeLine),
         valuations: [{ ledgerId: defaultLedger.id, debit: side.debit, credit: side.credit }],
       });
     }
@@ -325,7 +334,7 @@ export class AdjustmentsService {
       accountId: settings.defaultRetainedEarningsAccountId,
       debit: retained.debit,
       credit: retained.credit,
-      description: words.resultTransfer,
+      ...described(words.resultTransfer),
       valuations: [{ ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit }],
     });
 
@@ -333,7 +342,7 @@ export class AdjustmentsService {
       manager,
       {
         date,
-        description: words.closeEntry,
+        ...described(words.closeEntry),
         journalId: closingJournal.id,
         lines,
         entryType: JournalEntryType.CLOSING_ENTRY,

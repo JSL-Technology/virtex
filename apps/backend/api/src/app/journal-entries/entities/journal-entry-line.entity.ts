@@ -13,6 +13,7 @@ import type { JournalEntry } from './journal-entry.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { JournalEntryLineValuation } from './journal-entry-line-valuation.entity';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import type { NarrativeRef } from '@virtex/shared/types';
 
 @Index('IDX_journal_entry_lines_entry', ['journalEntryId'])
 /**
@@ -29,6 +30,10 @@ import { numericTransformer, numericTransformerNotNull } from '../../common/data
   'CHK_journal_entry_lines_foreign_sign',
   'COALESCE("foreign_currency_debit", 0) >= 0 AND COALESCE("foreign_currency_credit", 0) >= 0 ' +
     'AND NOT (COALESCE("foreign_currency_debit", 0) > 0 AND COALESCE("foreign_currency_credit", 0) > 0)',
+)
+@Check(
+  'CHK_journal_entry_lines_description_narrative',
+  `("description_key" IS NULL AND "description_params" IS NULL) OR ("description_key" IS NOT NULL AND "description_params" IS NOT NULL AND "description_key" ~ '^[a-z0-9][a-z0-9_]*(\\.[a-z0-9_]+)+$' AND jsonb_typeof("description_params") = 'object')`,
 )
 @Entity({ name: 'journal_entry_lines' })
 @Index('IDX_journal_entry_lines_account', ['accountId'])
@@ -93,6 +98,13 @@ export class JournalEntryLine {
 
   @Column({ type: 'text', nullable: true })
   description?: string;
+
+  /** The message the system wrote the line's `description` from, and its values — see the entry's. */
+  @Column({ name: 'description_key', type: 'varchar', length: 160, nullable: true })
+  descriptionKey?: string | null;
+
+  @Column({ name: 'description_params', type: 'jsonb', nullable: true })
+  descriptionParams?: NarrativeRef['params'] | null;
   
   /**
    * When the amount originated, where that is not the entry's date (FIN-AC-04): the restatement for

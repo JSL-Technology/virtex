@@ -9,6 +9,7 @@ import { VxDateRangeComponent } from '../../../shared/components/date';
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBooksViewToggleComponent } from '../../../shared/components/books-view';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { DatasetExportService } from '../../../core/export/dataset-export';
 import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
@@ -35,7 +36,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ...VX_FORM_A11Y, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [CommonModule, FormsModule, ...VX_FORM_A11Y, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent, VxBooksViewToggleComponent],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -6,6 +6,9 @@ import {
   NEUTRAL_LOCALE,
   SUPPORTED_LANGUAGES,
   isLanguageCode,
+  isLocalizedName,
+  localizedNameIn,
+  MESSAGE_KEY_SHAPE,
   normalizeKey,
 } from '@virtex/shared/types';
 import { currentLanguage, currentLocaleContext } from './request-locale';
@@ -136,6 +139,12 @@ export class I18nService {
    * 3. **An ISO-8601 timestamp is formatted as a date.** `2026-03-01T00:00:00.000Z` is not a
    *    date to anybody; `1 de marzo de 2026` is.
    *
+   * 4. **A name kept in several languages is read in the message's.** An account's name is
+   *    `{ es: 'Bancos', en: 'Banks' }`; interpolated as it came, it printed «[object Object]» —
+   *    into a bank reconciliation's ledger line and into the errors that name an account. The
+   *    client applies the same test (`isLocalizedName`), so a message reads the same wherever it
+   *    is rendered.
+   *
    * Everything else passes through untouched. The conventions are keyed on the SHAPE of the
    * value, never on guesswork about the name alone, so a parameter that happens to be called
    * `amount` and holds a string is left exactly as it is.
@@ -162,6 +171,11 @@ export class I18nService {
 
       if (typeof value === 'string' && ISO_TIMESTAMP.test(value)) {
         out[name] = formatDate(value, target);
+        continue;
+      }
+
+      if (isLocalizedName(value)) {
+        out[name] = localizedNameIn(value, language, language);
         continue;
       }
 
@@ -263,9 +277,9 @@ export class I18nService {
  *
  * Two segments at least: a bare word is a word. `this.has()` decides in the end, so the shape test
  * only has to be cheap enough to skip the lookup for the parameters that are plainly prose — which
- * is almost all of them.
+ * is almost all of them. The shared one: the client renders a stored narrative by the same test.
  */
-const KEY_SHAPE = /^[a-z0-9][a-z0-9_]*(?:\.[a-z0-9_]+)+$/;
+const KEY_SHAPE = MESSAGE_KEY_SHAPE;
 
 /** An ISO-8601 instant, which is never something to show a reader as-is. */
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;

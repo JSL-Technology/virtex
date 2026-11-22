@@ -30,6 +30,7 @@ import { DEFAULT_DEPRECIATION_CONVENTION, type DepreciationConvention } from '@v
 import { closingThrough, resolvePostingPeriod } from '../accounting/period-status';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { narrated } from '../contracts/ledger-posting/ledger-text';
 
 /** Why an asset due a charge was left out of a run. */
 export type DepreciationSkipReason = 'missing_accounts';
@@ -453,7 +454,7 @@ export class DepreciationService extends DepreciationPort {
         em,
         {
           date: postOn,
-          description: await this.narrative.describe(em, organizationId, 'ledger.depreciation.entry', { month: toIsoMonth(postOn) }),
+          ...narrated(await this.narrative.describe(em, organizationId, 'ledger.depreciation.entry', { month: toIsoMonth(postOn) })),
           journalId: journal.id,
           lines: group.lines,
         } as CreateJournalEntryDto,
@@ -523,7 +524,7 @@ export class DepreciationService extends DepreciationPort {
         accountId: accounts.expenseAccountId,
         debit: amount,
         credit: 0,
-        description: words.expense,
+        ...narrated(words.expense),
         originDate,
         valuations: [{ ledgerId, debit: amount, credit: 0 }],
       },
@@ -531,7 +532,7 @@ export class DepreciationService extends DepreciationPort {
         accountId: accounts.accumulatedAccountId,
         debit: 0,
         credit: amount,
-        description: words.accumulated,
+        ...narrated(words.accumulated),
         originDate,
         valuations: [{ ledgerId, debit: 0, credit: amount }],
       },

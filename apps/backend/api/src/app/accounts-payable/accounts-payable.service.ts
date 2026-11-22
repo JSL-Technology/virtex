@@ -59,6 +59,7 @@ import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 import { addToAgingRow, agingRowsAndTotals, daysPastDue, emptyAgingRow, type AgingReport, type AgingRow } from '../shared/statements/aging-report';
 import { BudgetControlRegistry } from '../contracts/budget-control/budget-control.contract';
+import { described, LedgerText } from '../contracts/ledger-posting/ledger-text';
 
 /** Quantities carry six decimals, like the order lines they are matched against. */
 const roundQuantity = (value: number): number => Math.round(value * 1e6) / 1e6;
@@ -837,28 +838,28 @@ export class AccountsPayableService {
     }
 
     const lines: CreateJournalEntryLineDto[] = [];
-    const debit = (accountId: string, amount: number, description: string) => {
+    const debit = (accountId: string, amount: number, description: LedgerText | string) => {
       if (toCents(amount) === 0) return;
       lines.push({
         accountId,
         debit: amount,
         credit: 0,
-        description,
+        ...described(description),
         valuations: [{ ledgerId: ledger.id, debit: amount, credit: 0 }],
       });
     };
-    const credit = (accountId: string, amount: number, description: string) => {
+    const credit = (accountId: string, amount: number, description: LedgerText | string) => {
       if (toCents(amount) === 0) return;
       lines.push({
         accountId,
         debit: 0,
         credit: amount,
-        description,
+        ...described(description),
         valuations: [{ ledgerId: ledger.id, debit: 0, credit: amount }],
       });
     };
     /** A difference that can go either way: a debit when positive, a credit when negative. */
-    const signed = (accountId: string, amount: number, description: string) =>
+    const signed = (accountId: string, amount: number, description: LedgerText | string) =>
       amount >= 0 ? debit(accountId, amount, description) : credit(accountId, -amount, description);
     const rate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
 
@@ -1016,7 +1017,7 @@ export class AccountsPayableService {
       manager,
       {
         date: toIsoDate(bill.date),
-        description: words.entry,
+        ...described(words.entry),
         journalId: purchaseJournal.id,
         lines,
         currencyCode: bill.currencyCode,
@@ -1635,13 +1636,13 @@ export class AccountsPayableService {
         );
       }
 
-      const push = (accountId: string, debitAmount: number, creditAmount: number, description: string) => {
+      const push = (accountId: string, debitAmount: number, creditAmount: number, description: LedgerText | string) => {
         if (toCents(debitAmount) === 0 && toCents(creditAmount) === 0) return;
         entryLines.push({
           accountId,
           debit: debitAmount,
           credit: creditAmount,
-          description,
+          ...described(description),
           valuations: [
             { ledgerId: ledger.id, debit: debitAmount, credit: creditAmount },
           ],
@@ -1711,7 +1712,7 @@ export class AccountsPayableService {
         manager,
         {
           date: toIsoDate(dto.paymentDate),
-          description: paid.entry,
+          ...described(paid.entry),
           journalId: paymentJournal.id,
           lines: entryLines,
         } as CreateJournalEntryDto,

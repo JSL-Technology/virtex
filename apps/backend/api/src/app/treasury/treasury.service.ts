@@ -35,6 +35,7 @@ import { Page, resolvePaging, toPage } from '../common/pagination';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -359,14 +360,14 @@ export class TreasuryService {
       manager,
       {
         date: opening.date,
-        description: words.opening,
+        ...described(words.opening),
         journalId: journal.id,
         lines: [
           {
             accountId: account.glAccountId,
             debit: inLedgerCurrency,
             credit: 0,
-            description: words.opening,
+            ...described(words.opening),
             valuations: [{ ledgerId: ledger.id, debit: inLedgerCurrency, credit: 0 }],
             ...foreign,
             ...(account.currencyCode === ledger.currency
@@ -377,7 +378,7 @@ export class TreasuryService {
             accountId: opening.counterpartAccountId,
             debit: 0,
             credit: inLedgerCurrency,
-            description: words.counterpart,
+            ...described(words.counterpart),
             valuations: [{ ledgerId: ledger.id, debit: 0, credit: inLedgerCurrency }],
           },
         ],
