@@ -366,6 +366,47 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: (p) => `contabilidad:depreciation-run:${p['id']}`,
       load: () => import('../../../features/accounting/fixed-assets/depreciation-run-detail.page').then((m) => m.DepreciationRunDetailPage),
     },
+    // Asset categories and the tax book (FINB-16): what an asset starts with, the authority's
+    // categories and rates, and the period's tax depreciation against the books. Declared before
+    // `fixed-assets/:id`, so none of these paths is read as an asset.
+    {
+      path: 'fixed-assets/categories',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.fixed_asset_categories',
+      icon: 'Tag',
+      entityKeyFn: () => 'contabilidad:fixed-asset-categories',
+      menu: { group: 'configuration', labelKey: 'page_titles.fixed_asset_categories' },
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-categories.page').then((m) => m.FixedAssetCategoriesPage),
+    },
+    {
+      path: 'fixed-assets/categories/new',
+      kind: WindowKind.DRAFT,
+      permission: 'fixed_assets:manage',
+      titleKey: 'page_titles.fixed_asset_category_new',
+      icon: 'FilePlus',
+      entityKeyFn: () => 'contabilidad:fixed-asset-category:new',
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-category-form.page').then((m) => m.FixedAssetCategoryFormPage),
+    },
+    {
+      path: 'fixed-assets/categories/:id',
+      kind: WindowKind.DRAFT,
+      permission: 'fixed_assets:manage',
+      titleKey: 'page_titles.fixed_asset_category_edit',
+      icon: 'FilePen',
+      entityKeyFn: (p) => `contabilidad:fixed-asset-category:${p['id']}`,
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-category-form.page').then((m) => m.FixedAssetCategoryFormPage),
+    },
+    {
+      path: 'fixed-assets/tax-depreciation',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.tax_depreciation',
+      icon: 'Receipt',
+      entityKeyFn: () => 'contabilidad:tax-depreciation',
+      menu: { group: 'analysis', labelKey: 'page_titles.tax_depreciation' },
+      load: () => import('../../../features/accounting/fixed-assets/tax-depreciation.page').then((m) => m.TaxDepreciationPage),
+    },
     // Restatement for inflation (FIN-AC-04): statements in constant currency where the economy calls
     // for them (IAS 29). The close books it under the company's policy; this window shows the month's
     // restatement and the index it multiplies by, restates a month by hand and keeps the runs.

@@ -38,6 +38,7 @@
           <th class="numeric">{{ 'fixed_assets.runs.assets' | translate }}</th>
           <th class="numeric">{{ 'fixed_assets.runs.charges' | translate }}</th>
           <th class="numeric">{{ 'fixed_assets.run.total' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.run.tax_total' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -55,6 +56,13 @@
             <td class="numeric">{{ row.assetCount }}</td>
             <td class="numeric">{{ row.chargeCount }}</td>
             <td class="numeric"><vx-amount [value]="row.total" /></td>
+            <td class="numeric">
+              @if (row.taxChargeCount > 0) {
+                <vx-amount [value]="row.taxTotal" />
+              } @else {
+                —
+              }
+            </td>
           </tr>
         }
       </tbody>

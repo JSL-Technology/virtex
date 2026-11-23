@@ -1,0 +1,155 @@
+<vx-draft-shell
+  [title]="current() ? (current()!.code + ' · ' + current()!.name) : ('fixed_assets.categories.new' | translate)"
+  [subtitle]="'fixed_assets.categories.form_subtitle' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.form.identification' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field" for="fac-code">
+          <span>{{ 'fixed_assets.categories.code' | translate }} *</span>
+          <input id="fac-code" type="text" maxlength="40" formControlName="code" [placeholder]="'fixed_assets.categories.code_placeholder' | translate" />
+        </label>
+        <label class="field field--wide" for="fac-name">
+          <span>{{ 'fixed_assets.categories.name' | translate }} *</span>
+          <input id="fac-name" type="text" maxlength="200" formControlName="name" />
+        </label>
+        <vx-name-translations class="field--wide" formControlName="nameTranslations" idPrefix="fac-name" />
+        <label class="field field--wide" for="fac-description">
+          <span>{{ 'fixed_assets.form.description' | translate }}</span>
+          <textarea id="fac-description" rows="2" maxlength="2000" formControlName="description"></textarea>
+        </label>
+        @if (current()) {
+          <label class="doc-check">
+            <input type="checkbox" formControlName="isActive" />
+            {{ 'fixed_assets.categories.active_label' | translate }}
+          </label>
+        }
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.categories.defaults' | translate }}</h2>
+      <p class="form-hint">{{ 'fixed_assets.categories.defaults_hint' | translate }}</p>
+      <div class="form-grid">
+        <label class="field" for="fac-life">
+          <span>{{ 'fixed_assets.form.useful_life' | translate }}</span>
+          <input id="fac-life" type="number" step="1" min="1" max="1200" formControlName="usefulLifeMonths" />
+        </label>
+        <label class="field" for="fac-method">
+          <span>{{ 'fixed_assets.form.method' | translate }}</span>
+          <select id="fac-method" formControlName="depreciationMethod">
+            <option value="">{{ 'fixed_assets.categories.not_set' | translate }}</option>
+            @for (method of methods; track method) {
+              <option [value]="method">{{ 'fixed_assets.methods.' + method | translate }}</option>
+            }
+          </select>
+        </label>
+        @if (declining()) {
+          <label class="field" for="fac-declining-rate">
+            <span>{{ 'fixed_assets.form.declining_rate' | translate }} *</span>
+            <input id="fac-declining-rate" type="number" step="0.01" min="0.0001" max="100" formControlName="decliningRatePercent" />
+          </label>
+        }
+        <label class="field" for="fac-convention">
+          <span>{{ 'fixed_assets.form.convention' | translate }}</span>
+          <select id="fac-convention" formControlName="depreciationConvention">
+            <option value="">{{ 'fixed_assets.form.convention_company' | translate }}</option>
+            @for (convention of conventions; track convention) {
+              <option [value]="convention">{{ 'fixed_assets.conventions.' + convention | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="fac-residual">
+          <span>{{ 'fixed_assets.categories.residual' | translate }}</span>
+          <input id="fac-residual" type="number" step="0.01" min="0" max="99.9999" formControlName="residualPercent" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.form.accounts' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field field--wide" for="fac-asset-account">
+          <span>{{ 'fixed_assets.form.asset_account' | translate }}</span>
+          <vx-select inputId="fac-asset-account" formControlName="assetAccountId" [search]="searchCostAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="fixed_assets.categories.not_set" />
+        </label>
+        <label class="field field--wide" for="fac-accumulated-account">
+          <span>{{ 'fixed_assets.form.accumulated_account' | translate }}</span>
+          <vx-select inputId="fac-accumulated-account" formControlName="accumulatedDepreciationAccountId" [search]="searchAccumulatedAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="fixed_assets.form.company_default" />
+        </label>
+        <label class="field field--wide" for="fac-expense-account">
+          <span>{{ 'fixed_assets.form.expense_account' | translate }}</span>
+          <vx-select inputId="fac-expense-account" formControlName="depreciationExpenseAccountId" [search]="searchExpenseAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="fixed_assets.form.company_default" />
+        </label>
+        <label class="field field--wide" for="fac-gain-account">
+          <span>{{ 'fixed_assets.dispose.gain_account' | translate }}</span>
+          <vx-select inputId="fac-gain-account" formControlName="gainOnDisposalAccountId" [search]="searchGainAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="fixed_assets.categories.not_set" />
+        </label>
+        <label class="field field--wide" for="fac-loss-account">
+          <span>{{ 'fixed_assets.dispose.loss_account' | translate }}</span>
+          <vx-select inputId="fac-loss-account" formControlName="lossOnDisposalAccountId" [search]="searchLossAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="fixed_assets.categories.not_set" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.tax_book.title' | translate }}</h2>
+      <p class="form-hint">{{ 'fixed_assets.tax_book.category_hint' | translate }}</p>
+      <div class="form-grid">
+        @if (catalogue(); as tax) {
+          <label class="field field--wide" for="fac-tax-category">
+            <span>{{ 'fixed_assets.tax_book.category_of' | translate: { authority: tax.authority } }}</span>
+            <select id="fac-tax-category" formControlName="taxCategoryCode">
+              <option value="">{{ 'fixed_assets.tax_book.no_category' | translate }}</option>
+              @for (entry of tax.categories; track entry.code) {
+                <option [value]="entry.code">{{ entry.code }} · {{ entry.nameKey | translate }}</option>
+              }
+            </select>
+            @if (taxEntry(); as entry) {
+              <small class="form-hint">{{ entry.legalBasis }}</small>
+            }
+          </label>
+        } @else {
+          <label class="field" for="fac-tax-code">
+            <span>{{ 'fixed_assets.tax_book.category' | translate }}</span>
+            <input id="fac-tax-code" type="text" maxlength="40" formControlName="taxCategoryCode" />
+          </label>
+        }
+        <label class="field" for="fac-tax-method">
+          <span>{{ 'fixed_assets.tax_book.method' | translate }}</span>
+          <select id="fac-tax-method" formControlName="taxMethod">
+            <option value="">{{ 'fixed_assets.tax_book.none' | translate }}</option>
+            @for (method of taxMethods; track method) {
+              <option [value]="method">{{ 'fixed_assets.tax_methods.' + method | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="fac-tax-rate">
+          <span>{{ 'fixed_assets.tax_book.rate' | translate }}</span>
+          <input id="fac-tax-rate" type="number" step="0.01" min="0.0001" max="100" formControlName="taxRatePercent" />
+        </label>
+      </div>
+      @if (catalogue(); as tax) {
+        <p class="form-hint" role="note">{{ tax.caveatKey | translate }}</p>
+      }
+    </section>
+  </div>
+</vx-draft-shell>

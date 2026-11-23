@@ -1,0 +1,189 @@
+<vx-list-shell
+  titleKey="fixed_assets.tax_report.title"
+  subtitleKey="fixed_assets.tax_report.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <button listActions type="button" class="secondary-button" [disabled]="exporting() || !periodValid() || total() === 0" (click)="exportCsv()">
+    <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ (exporting() ? 'fixed_assets.tax_report.exporting' : 'fixed_assets.tax_report.export') | translate }}</span>
+  </button>
+
+  <div listFilters class="doc-filter">
+    <label for="td-from">{{ 'fixed_assets.tax_report.from' | translate }}</label>
+    <input id="td-from" type="month" [ngModel]="from()" (ngModelChange)="from.set($event); applyFilters()" />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="td-to">{{ 'fixed_assets.tax_report.to' | translate }}</label>
+    <input id="td-to" type="month" [ngModel]="to()" (ngModelChange)="to.set($event); applyFilters()" />
+  </div>
+  @if (catalogue(); as tax) {
+    <div listFilters class="doc-filter">
+      <label for="td-category">{{ 'fixed_assets.tax_book.category' | translate }}</label>
+      <select id="td-category" [ngModel]="taxCategory()" (ngModelChange)="taxCategory.set($event); applyFilters()">
+        <option value="">{{ 'fixed_assets.page.all' | translate }}</option>
+        @for (entry of tax.categories; track entry.code) {
+          <option [value]="entry.code">{{ entry.code }} · {{ entry.nameKey | translate }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  @if (!periodValid()) {
+    <p listCreate class="ls__state-help" role="alert">{{ 'fixed_assets.report_period_reversed' | translate: { from: from(), to: to() } }}</p>
+  }
+  @if (catalogue(); as tax) {
+    <p listCreate class="ls__state-help" role="note">
+      {{ 'fixed_assets.categories.authority_note' | translate: { authority: tax.authority } }}
+      {{ tax.caveatKey | translate }}
+    </p>
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'fixed_assets.tax_report.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'fixed_assets.tax_report.empty_help' | translate }}</p>
+  </div>
+
+  @if (report(); as data) {
+    <section class="card">
+      <dl class="doc-facts">
+        <div>
+          <dt>{{ 'fixed_assets.tax_book.basis' | translate }}</dt>
+          <dd><vx-amount [value]="data.totals.basis" /></dd>
+        </div>
+        <div>
+          <dt>{{ 'fixed_assets.tax_book.deduction' | translate }}</dt>
+          <dd><vx-amount [value]="data.totals.deduction" /></dd>
+        </div>
+        <div>
+          <dt>{{ 'fixed_assets.tax_book.tax_value' | translate }}</dt>
+          <dd><vx-amount [value]="data.totals.taxValue" /></dd>
+        </div>
+        <div>
+          <dt>{{ 'fixed_assets.tax_report.accounting_depreciation' | translate }}</dt>
+          <dd><vx-amount [value]="data.totals.accountingDepreciation" /></dd>
+        </div>
+        <div>
+          <dt>{{ 'fixed_assets.tax_report.difference' | translate }}</dt>
+          <dd><vx-amount [value]="data.totals.difference" /></dd>
+        </div>
+      </dl>
+      <p class="form-hint">{{ 'fixed_assets.tax_report.difference_hint' | translate }}</p>
+    </section>
+
+    @if (data.byTaxCategory.length > 0) {
+      <div class="table-container card">
+        <table class="data-table">
+          <caption>{{ 'fixed_assets.tax_report.by_category' | translate }}</caption>
+          <thead>
+            <tr>
+              <th>{{ 'fixed_assets.tax_book.category' | translate }}</th>
+              <th>{{ 'fixed_assets.tax_book.method' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.tax_report.assets' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.tax_book.basis' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.tax_report.opening' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.tax_book.deduction' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.tax_book.tax_value' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (group of data.byTaxCategory; track (group.taxCategoryCode ?? '') + group.method + group.annualRate) {
+              <tr>
+                <td>
+                  {{ group.taxCategoryCode ?? ('fixed_assets.tax_book.own_rate' | translate) }}
+                  @if (taxCategoryKey(group.taxCategoryCode); as key) {
+                    <small class="field__note"> · {{ key | translate }}</small>
+                  }
+                </td>
+                <td>{{ 'fixed_assets.tax_methods.' + group.method | translate }} · {{ asPercent(group.annualRate) }} %</td>
+                <td class="numeric">{{ group.assets }}</td>
+                <td class="numeric"><vx-amount [value]="group.basis" /></td>
+                <td class="numeric"><vx-amount [value]="group.openingAccumulated" /></td>
+                <td class="numeric"><vx-amount [value]="group.deduction" /></td>
+                <td class="numeric"><vx-amount [value]="group.taxValue" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <div class="table-container card">
+      <table class="data-table">
+        <caption>{{ 'fixed_assets.tax_report.by_asset' | translate }}</caption>
+        <thead>
+          <tr>
+            <th>{{ 'fixed_assets.page.number' | translate }}</th>
+            <th>{{ 'fixed_assets.page.name' | translate }}</th>
+            <th>{{ 'fixed_assets.tax_book.category' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_book.basis' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_report.opening' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_book.deduction' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_book.tax_value' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_report.accounting_carrying' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_report.difference' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.assetId) {
+            <tr>
+              <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', row.assetId]">{{ row.number }}</a></td>
+              <td>
+                {{ row.name }}
+                @if (row.disposalDate) {
+                  <small class="field__note"> · {{ 'fixed_assets.tax_report.left_on' | translate: { date: (row.disposalDate | vxDate: 'date' : true) } }}</small>
+                }
+              </td>
+              <td>{{ row.taxCategoryCode ?? '—' }} · {{ asPercent(row.annualRate) }} %</td>
+              <td class="numeric"><vx-amount [value]="row.basis" /></td>
+              <td class="numeric"><vx-amount [value]="row.openingAccumulated" /></td>
+              <td class="numeric"><vx-amount [value]="row.deduction" /></td>
+              <td class="numeric"><vx-amount [value]="row.taxValue" /></td>
+              <td class="numeric">
+                @if (row.accountingCarrying !== null) {
+                  <vx-amount [value]="row.accountingCarrying" />
+                } @else {
+                  —
+                }
+              </td>
+              <td class="numeric">
+                @if (row.difference !== null) {
+                  <vx-amount [value]="row.difference" />
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+        @if (rows().length > 0) {
+          <tfoot>
+            <tr>
+              <th colspan="3">{{ 'fixed_assets.tax_report.totals' | translate }}</th>
+              <th class="numeric"><vx-amount [value]="data.totals.basis" /></th>
+              <th class="numeric"><vx-amount [value]="data.totals.openingAccumulated" /></th>
+              <th class="numeric"><vx-amount [value]="data.totals.deduction" /></th>
+              <th class="numeric"><vx-amount [value]="data.totals.taxValue" /></th>
+              <th class="numeric"><vx-amount [value]="data.totals.accountingCarrying" /></th>
+              <th class="numeric"><vx-amount [value]="data.totals.difference" /></th>
+            </tr>
+          </tfoot>
+        }
+      </table>
+    </div>
+  }
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="pageSize()"
+    [total]="total()"
+    [pageSizes]="[100, 200, 500]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

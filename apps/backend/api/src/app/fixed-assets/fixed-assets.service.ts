@@ -16,6 +16,7 @@ import { AssetPostingService } from './asset-posting.service';
 import { DepreciationService } from './depreciation.service';
 import { TaxBookService, type TaxBookSchedule, type TaxBookSummary } from './tax-book.service';
 import { openingTerms, revisedTerms, type TaxBookAsset } from './tax-book-terms';
+import { assertDecliningOpeningAtYearEnd } from './fiscal-year-calendar';
 import { organizationDefaultAccounts } from '../organizations/contracts/default-accounts.contract';
 import { organizationMarket } from '../organizations/contracts/market.contract';
 import { marketFor, type MarketTaxDepreciation } from '../markets';
@@ -144,6 +145,7 @@ export class FixedAssetsService {
       };
       if (!values.usefulLifeMonths) throw new BadRequestError('fixed_assets.useful_life_required');
       const depreciatedThrough = this.validateValuation(values, dto.openingDepreciatedThrough ?? null);
+      await this.assertDecliningOpening(manager, organizationId, values.depreciationMethod, depreciatedThrough);
       await this.assertReferences(manager, organizationId, values);
       const taxTerms = openingTerms(dto.taxBook, taxBookAssetOf(values), category, await this.marketTaxDepreciation(manager, organizationId));
 
@@ -242,7 +244,10 @@ export class FixedAssetsService {
         journalEntryId: row.journalEntryId,
         runId: row.runId,
       })),
-      projected: asset.status === FixedAssetStatus.IN_USE ? remainingSchedule(asset) : [],
+      projected:
+        asset.status === FixedAssetStatus.IN_USE
+          ? remainingSchedule((await this.depreciation.depreciables(this.dataSource.manager, organizationId, [asset])).get(asset.id) ?? asset)
+          : [],
       taxBook: await this.taxBooks.schedule(this.dataSource.manager, asset),
     };
   }
@@ -350,6 +355,7 @@ export class FixedAssetsService {
         });
       } else {
         const depreciatedThrough = this.validateValuation(next, openingThrough);
+        await this.assertDecliningOpening(manager, organizationId, next.depreciationMethod, depreciatedThrough);
         await this.assertReferences(manager, organizationId, next);
         Object.assign(asset, next, {
           accumulatedDepreciation: next.openingAccumulatedDepreciation,
@@ -544,6 +550,20 @@ export class FixedAssetsService {
       [organizationId, assetId],
     );
     return Number(row?.months ?? 0);
+  }
+
+  /**
+   * A declining balance's opening — the month through which an opening balance was charged — is the
+   * close of a fiscal year, where its rate applies (`assertDecliningOpeningAtYearEnd`).
+   */
+  private async assertDecliningOpening(
+    manager: EntityManager,
+    organizationId: string,
+    method: DepreciationMethod,
+    openingThrough: IsoDate | null,
+  ): Promise<void> {
+    if (method !== DepreciationMethod.DECLINING_BALANCE || !openingThrough) return;
+    await assertDecliningOpeningAtYearEnd(manager, organizationId, openingThrough);
   }
 
   /** A category of the company that new assets may be registered in. */

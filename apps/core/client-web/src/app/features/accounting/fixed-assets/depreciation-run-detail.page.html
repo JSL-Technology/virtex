@@ -47,6 +47,12 @@
             <dt>{{ 'fixed_assets.run.total' | translate }}</dt>
             <dd><vx-amount [value]="doc.total" /></dd>
           </div>
+          @if (doc.taxChargeCount > 0) {
+            <div>
+              <dt>{{ 'fixed_assets.run.tax_total' | translate }}</dt>
+              <dd><vx-amount [value]="doc.taxTotal" /> · {{ 'fixed_assets.runs.tax_months' | translate: { count: doc.taxChargeCount } }}</dd>
+            </div>
+          }
         </dl>
       </section>
 
@@ -105,6 +111,39 @@
           </table>
         </div>
       </section>
+
+      @if (doc.taxCharges.length > 0) {
+        <section class="doc-card">
+          <h2 class="form-section-title">{{ 'fixed_assets.runs.tax_charged' | translate }}</h2>
+          <p class="form-hint">{{ 'fixed_assets.tax_book.memo_hint' | translate }}</p>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'fixed_assets.page.number' | translate }}</th>
+                  <th>{{ 'fixed_assets.page.name' | translate }}</th>
+                  <th>{{ 'fixed_assets.document.month' | translate }}</th>
+                  <th class="numeric">{{ 'fixed_assets.tax_book.deduction' | translate }}</th>
+                  <th class="numeric">{{ 'fixed_assets.tax_book.deducted' | translate }}</th>
+                  <th class="numeric">{{ 'fixed_assets.tax_book.tax_value' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (charge of doc.taxCharges; track charge.fixedAssetId + charge.periodEnd) {
+                  <tr>
+                    <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', charge.fixedAssetId]">{{ charge.number }}</a></td>
+                    <td>{{ charge.name }}</td>
+                    <td>{{ charge.periodEnd | vxDate: 'monthYear' : true }}</td>
+                    <td class="numeric"><vx-amount [value]="charge.amount" /></td>
+                    <td class="numeric"><vx-amount [value]="charge.accumulatedAfter" /></td>
+                    <td class="numeric"><vx-amount [value]="charge.bookValueAfter" /></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
     </div>
   }
 </vx-document-shell>

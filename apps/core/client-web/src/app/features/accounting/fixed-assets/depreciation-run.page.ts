@@ -48,13 +48,18 @@ export class DepreciationRunPage implements OnInit {
   readonly error = signal<string | null>(null);
 
   readonly rows = computed(() => this.preview()?.assets ?? []);
+  /** What the tax books are due: recorded by the run, posted nowhere (FINB-16). */
+  readonly taxRows = computed(() => this.preview()?.tax?.assets ?? []);
   /** Why the month on screen cannot be posted yet — it has not ended — or null. */
   readonly notPostable = computed(() => {
     const preview = this.preview();
     return preview && !preview.postable ? preview.notPostable : null;
   });
-  readonly canPost = computed(() => !this.running() && this.rows().length > 0 && this.preview()?.postable === true);
-  readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0 && !this.preview()?.skipped.length);
+  // A month only the tax books are due is run too: the run records it.
+  readonly canPost = computed(() => !this.running() && (this.rows().length > 0 || this.taxRows().length > 0) && this.preview()?.postable === true);
+  readonly empty = computed(
+    () => !this.loading() && !this.error() && this.rows().length === 0 && this.taxRows().length === 0 && !this.preview()?.skipped.length,
+  );
 
   ngOnInit(): void {
     this.load();
@@ -85,10 +90,14 @@ export class DepreciationRunPage implements OnInit {
   async run(): Promise<void> {
     const preview = this.preview();
     if (!preview || !this.canPost()) return;
+    const taxTotal = preview.tax?.total ?? 0;
+    // What the run posts, and what it records in the tax books alone.
+    const message =
+      preview.assets.length === 0 ? 'fixed_assets.run.confirm_tax_only_message' : taxTotal > 0 ? 'fixed_assets.run.confirm_message_with_tax' : 'fixed_assets.run.confirm_message';
     const confirmed = await this.dialog.confirm({
       title: 'fixed_assets.run.confirm_title',
-      message: 'fixed_assets.run.confirm_message',
-      messageParams: { count: preview.assets.length, total: preview.total, period: this.period() },
+      message,
+      messageParams: { count: preview.assets.length, total: preview.total, period: this.period(), taxTotal, taxCount: preview.tax?.assets.length ?? 0 },
       confirmText: 'fixed_assets.run.post',
     });
     if (!confirmed) return;
@@ -97,7 +106,11 @@ export class DepreciationRunPage implements OnInit {
       next: (result) => {
         this.running.set(false);
         this.posted.set(result);
-        this.notifications.showSuccess('fixed_assets.run.posted', { count: result.assets.length });
+        if (result.assets.length === 0 && (result.tax?.assets.length ?? 0) > 0) {
+          this.notifications.showSuccess('fixed_assets.run.posted_tax_only', { count: result.tax.assets.length });
+        } else {
+          this.notifications.showSuccess('fixed_assets.run.posted', { count: result.assets.length });
+        }
         this.load();
       },
       error: (error: unknown) => {

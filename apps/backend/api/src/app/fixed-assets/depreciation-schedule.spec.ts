@@ -288,7 +288,7 @@ describe('depreciation conventions', () => {
 
     it('resumes in the middle of a year on the value it started the year at', () => {
       const charges = chargesDue(
-        taxBook({ accumulatedDepreciation: 1_250, depreciatedThrough: '2026-06-30', decliningYearBase: 10_000 }),
+        taxBook({ accumulatedDepreciation: 1_250, depreciatedThrough: '2026-06-30', yearOpeningAccumulated: 0 }),
         '2026-12-31',
       );
       expect(charges[0]).toMatchObject({ periodEnd: '2026-07-31', amount: 208.33 });
@@ -301,6 +301,50 @@ describe('depreciation conventions', () => {
       expect(cents(charges.slice(0, 3).map((charge) => charge.amount))).toBe(625);
       // April: 25 % of the 9 375 left, a twelfth a month.
       expect(charges[3]).toMatchObject({ periodEnd: '2026-04-30', amount: 195.31 });
+    });
+  });
+
+  describe('a straight line over a life, year by year', () => {
+    const line = (overrides: Partial<DepreciableAsset> = {}) =>
+      asset({ cost: 12_000, usefulLifeMonths: 36, inServiceDate: '2026-01-01', ...overrides });
+    const year = (charges: Array<{ periodEnd: string; amount: number }>, from: string, to: string) =>
+      cents(charges.filter((row) => row.periodEnd >= from && row.periodEnd <= to).map((row) => row.amount));
+
+    it('adds up to each year\'s share to the cent: 12 000 over 36 months is 4 000.00 a year', () => {
+      const schedule = remainingSchedule(line());
+      // A month rounded on its own gave 333.33 twelve times: 3 999.96 in the first year.
+      expect(year(schedule, '2026-01-31', '2026-12-31')).toBe(4_000);
+      expect(year(schedule, '2027-01-31', '2027-12-31')).toBe(4_000);
+      expect(year(schedule, '2028-01-31', '2028-12-31')).toBe(4_000);
+      expect(schedule).toHaveLength(36);
+      expect(schedule.every((row) => [333.33, 333.34].includes(row.amount))).toBe(true);
+    });
+
+    it('picks a year up where it stands, month by month, as one run would in one go', () => {
+      const whole = remainingSchedule(line());
+      // The state after five months, charged by runs: the year's opening known, it carries on alike.
+      const resumed = chargesDue(
+        line({ accumulatedDepreciation: whole[4].accumulatedAfter, depreciatedThrough: '2026-05-31', yearOpeningAccumulated: 0 }),
+        '2026-12-31',
+      );
+      expect(resumed.map((row) => row.amount)).toEqual(whole.slice(5, 12).map((row) => row.amount));
+    });
+
+    it('starts the line again from what is left after a change of estimate', () => {
+      // Six months on a 36-month life, then the life is extended to 48: what is left, 10 000, over
+      // the 42 months left — prospectively, IAS 8.
+      const next = chargesDue(
+        line({ usefulLifeMonths: 48, accumulatedDepreciation: 2_000, depreciatedThrough: '2026-06-30', yearOpeningAccumulated: 0 }),
+        '2026-07-31',
+      );
+      expect(next).toEqual([expect.objectContaining({ periodEnd: '2026-07-31', amount: 238.1 })]);
+    });
+
+    it('follows the fiscal year: a year from April adds up from April', () => {
+      const schedule = remainingSchedule(line({ fiscalYearStartMonth: 4 }));
+      // January to March close the year that started in April 2025: three months of the 36.
+      expect(year(schedule, '2026-01-31', '2026-03-31')).toBe(1_000);
+      expect(year(schedule, '2026-04-30', '2027-03-31')).toBe(4_000);
     });
   });
 

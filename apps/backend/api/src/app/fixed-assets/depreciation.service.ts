@@ -25,13 +25,14 @@ import { roundAmount, toCents } from '../common/money';
 import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, toIsoMonth, type IsoDate } from '../common/dates';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
-import { chargesDue, disposalMonthCharge, ScheduledCharge } from './depreciation-schedule';
+import { chargesDue, disposalMonthCharge, ScheduledCharge, type DepreciableAsset } from './depreciation-schedule';
 import { DEFAULT_DEPRECIATION_CONVENTION, type DepreciationConvention } from '@virtex/shared/types';
 import { closingThrough, resolvePostingPeriod } from '../accounting/period-status';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 import { narrated } from '../contracts/ledger-posting/ledger-text';
 import { PlannedBookCharges, TaxBookService } from './tax-book.service';
+import { FiscalYearCalendar, yearOpenings } from './fiscal-year-calendar';
 
 /** Why an asset due a charge was left out of a run. */
 export type DepreciationSkipReason = 'missing_accounts';
@@ -349,15 +350,10 @@ export class DepreciationService extends DepreciationPort {
     const lastMonthBefore = previousDay(startOfMonthIso(disposalDate));
     const { planned, skipped } = await this.plan(manager, organizationId, [asset], lastMonthBefore);
 
-    // The disposal month, on the asset as the months before it leave it.
+    // The disposal month, projected on from the same state: the months before it charged as the
+    // catch-up charges them, in the year they fall in.
     const catchUp = planned[0]?.charges ?? [];
-    const caughtUp = catchUp.at(-1);
-    const stub = disposalMonthCharge(
-      caughtUp
-        ? { ...asset, accumulatedDepreciation: caughtUp.accumulatedAfter, depreciatedThrough: caughtUp.periodEnd }
-        : asset,
-      disposalDate,
-    );
+    const stub = disposalMonthCharge((await this.depreciables(manager, organizationId, [asset])).get(asset.id) ?? asset, disposalDate);
     // The tax book leaves with it: its months due before the disposal month and that month's own.
     const taxClosing = await this.taxBooks.planClosing(manager, asset, disposalDate);
     const taxCharges = taxClosing?.charges ?? [];
@@ -613,9 +609,10 @@ export class DepreciationService extends DepreciationPort {
     const planned: PlannedAsset[] = [];
     const skipped: DepreciationRunResult['skipped'] = [];
     let settings: Awaited<ReturnType<OrgSettingsService['getForOrg']>> | undefined;
+    const depreciables = await this.depreciables(em, organizationId, assets);
 
     for (const asset of assets) {
-      const charges = chargesDue(asset, periodEnd);
+      const charges = chargesDue(depreciables.get(asset.id) ?? asset, periodEnd);
       if (charges.length === 0) continue;
 
       if (settings === undefined) settings = await this.settingsOf(em, organizationId);
@@ -630,6 +627,45 @@ export class DepreciationService extends DepreciationPort {
       planned.push({ asset, charges, amount, expenseAccountId, accumulatedAccountId });
     }
     return { planned, skipped };
+  }
+
+  /**
+   * The assets as the calculation reads them: each with the company's fiscal year its next month
+   * falls in, and what it had accumulated when that year began — what a declining balance's yearly
+   * rate applies to, and what a straight line's year adds up from (FINB-16). One query per year
+   * start the assets share.
+   */
+  async depreciables(em: EntityManager, organizationId: string, assets: readonly FixedAsset[]): Promise<Map<string, DepreciableAsset>> {
+    const result = new Map<string, DepreciableAsset>();
+    if (assets.length === 0) return result;
+    const calendar = await FiscalYearCalendar.load(em, organizationId);
+    const openings = await yearOpenings(
+      calendar,
+      assets.map((asset) => ({
+        id: asset.id,
+        accumulatedDepreciation: asset.accumulatedDepreciation,
+        inServiceDate: toIsoDate(asset.inServiceDate),
+        depreciatedThrough: asset.depreciatedThrough ? toIsoDate(asset.depreciatedThrough) : null,
+      })),
+      async (yearStart, ids) => {
+        const rows: Array<{ fixed_asset_id: string; charged: string }> = await em.query(
+          `SELECT "fixed_asset_id", SUM("amount")::text AS charged FROM "fixed_asset_depreciations"
+            WHERE "organization_id" = $1 AND "fixed_asset_id" = ANY($2::uuid[]) AND "period_end" >= $3::date
+            GROUP BY "fixed_asset_id"`,
+          [organizationId, ids, yearStart],
+        );
+        return new Map(rows.map((row) => [row.fixed_asset_id, Number(row.charged)]));
+      },
+    );
+    for (const asset of assets) {
+      const year = openings.get(asset.id);
+      result.set(asset.id, {
+        ...asset,
+        fiscalYearStartMonth: year?.fiscalYearStartMonth ?? 1,
+        yearOpeningAccumulated: year?.opening ?? null,
+      });
+    }
+    return result;
   }
 
   /** Whether a past month can still take its own entry: its period exists and is open. */

@@ -16,6 +16,12 @@
  *    it posts names it and leads to it; running again charges nothing and records nothing. A
  *    disposal's entry is the register's, locked and leading to the asset; the months it was still
  *    due are charged by the disposal's own run, which names the asset.
+ *  - FINB-16: a Dominican company starts with the DGII's categories, named in its books language
+ *    and translated; a category of its own takes the authority's method and rate, and an asset
+ *    registered in it takes what it gives and opens its tax book; the run charges both books and
+ *    posts only the accounting one; the tax report gives the deduction, what is left and the
+ *    temporary difference; a book that has charged fixes its basis, keeps its history and closes
+ *    with the disposal; the fields a refusal names read in the reader's language.
  */
 import { DataSource } from 'typeorm';
 import { bootApplication, qaCompanySession } from './support/qa-company-session';
@@ -359,6 +365,196 @@ async function main() {
     'and that charge is in the sale\'s own entry, which leaves the books at the carrying amount on the day',
     Number(expenseLine?.debit ?? 0) === saleMonth?.amount && craneAfter.accumulatedDepreciation === cents(craneCharges.map((row) => row.amount)) / 100,
     `gasto ${expenseLine?.debit}, acumulada ${craneAfter.accumulatedDepreciation}`,
+  );
+
+  // ── FINB-16: categories and the tax book ───────────────────────────────────────────────────
+  interface Category {
+    id: string;
+    code: string;
+    name: string;
+    nameTranslations: Record<string, string>;
+    taxCategoryCode: string | null;
+    taxMethod: string | null;
+    taxAnnualRate: number | null;
+  }
+  interface TaxBook {
+    taxCategoryCode: string | null;
+    method: string;
+    annualRate: number;
+    cost: number;
+    accumulatedDepreciation: number;
+    closedOn: string | null;
+    chargedMonths: number;
+  }
+  interface Refusal {
+    messageKey?: string;
+    message?: string;
+    code?: string;
+    params?: Record<string, unknown>;
+  }
+  const seeded = (await company.call('GET', '/api/v1/fixed-assets/categories')).json<Category[]>();
+  const dgii = seeded.filter((row) => row.code.startsWith('DO-'));
+  check(
+    'a Dominican company starts with the DGII\'s three categories, at 5, 25 and 15 % on the declining balance (FINB-16)',
+    dgii.map((row) => `${row.code}:${row.taxMethod}:${row.taxAnnualRate}`).join() === 'DO-1:DECLINING_BALANCE:0.05,DO-2:DECLINING_BALANCE:0.25,DO-3:DECLINING_BALANCE:0.15',
+    dgii.map((row) => `${row.code} ${row.taxAnnualRate}`).join(', '),
+  );
+  const categoryTwo = dgii.find((row) => row.code === 'DO-2');
+  check(
+    'named in the books language, and translated for a reader in another',
+    Boolean(categoryTwo?.name.startsWith('Categoría 2')) && Boolean(categoryTwo?.nameTranslations['en']?.startsWith('Category 2')),
+    `${categoryTwo?.name} / ${categoryTwo?.nameTranslations['en']}`,
+  );
+  const catalogue = (await company.call('GET', '/api/v1/fixed-assets/tax-categories')).json<{ authority: string; categories: Array<{ code: string }> } | null>();
+  check('the market\'s catalogue is the DGII\'s', catalogue?.authority === 'DGII' && catalogue.categories.length === 3, catalogue?.authority);
+
+  const createdCategory = await company.call(
+    'POST',
+    '/api/v1/fixed-assets/categories',
+    {
+      code: 'qa-veh',
+      name: 'QA-Vehículos',
+      nameTranslations: { en: 'QA-Vehicles' },
+      usefulLifeMonths: 60,
+      depreciationMethod: 'STRAIGHT_LINE',
+      depreciationConvention: 'FULL_MONTH',
+      residualRate: 0.1,
+      assetAccountId: accounts['1210'],
+      accumulatedDepreciationAccountId: accounts['1220'],
+      depreciationExpenseAccountId: accounts['5500'],
+      taxCategoryCode: 'do-2',
+    },
+    freshKey(),
+  );
+  const vehicles = createdCategory.json<Category>();
+  check(
+    'a category of its own takes the authority\'s method and rate from its tax category',
+    createdCategory.statusCode === 201 && vehicles.code === 'QA-VEH' && vehicles.taxCategoryCode === 'DO-2' && vehicles.taxMethod === 'DECLINING_BALANCE' && vehicles.taxAnnualRate === 0.25,
+    `HTTP ${createdCategory.statusCode} ${vehicles.code} ${vehicles.taxMethod} ${vehicles.taxAnnualRate}`,
+  );
+  const duplicate = await company.call('POST', '/api/v1/fixed-assets/categories', { code: 'QA-VEH', name: 'Otra' }, freshKey());
+  check('its code is unique in the company', duplicate.statusCode === 409 && duplicate.json<Refusal>().messageKey === 'fixed_assets.category_code_taken', `HTTP ${duplicate.statusCode}`);
+  const unknown = await company.call('POST', '/api/v1/fixed-assets/categories', { code: 'QA-X', name: 'X', taxCategoryCode: 'DO-9' }, freshKey());
+  check(
+    'a tax category the DGII does not have is refused, naming the ones it has',
+    unknown.statusCode === 400 && unknown.json<Refusal>().messageKey === 'fixed_assets.tax_category_unknown' && unknown.json<Refusal>().params?.['known'] === 'DO-1, DO-2, DO-3',
+    `HTTP ${unknown.statusCode} ${JSON.stringify(unknown.json<Refusal>().params)}`,
+  );
+
+  const pickup = await company.call(
+    'POST',
+    '/api/v1/fixed-assets',
+    { name: 'QA-Camioneta categoría', acquisitionDate: `${month(-2)}-10`, cost: 120_000, categoryId: vehicles.id },
+    freshKey(),
+  );
+  const pickupAsset = pickup.json<Asset & { usefulLifeMonths: number; residualValue: number; depreciationConvention: string; taxBook: TaxBook | null }>();
+  check(
+    'an asset registered in it takes what it gives — life, residual share, convention, accounts — and opens its tax book',
+    pickup.statusCode === 201 &&
+      pickupAsset.usefulLifeMonths === 60 &&
+      pickupAsset.residualValue === 12_000 &&
+      pickupAsset.depreciationConvention === 'FULL_MONTH' &&
+      pickupAsset.taxBook?.taxCategoryCode === 'DO-2' &&
+      pickupAsset.taxBook.method === 'DECLINING_BALANCE' &&
+      pickupAsset.taxBook.cost === 120_000,
+    `HTTP ${pickup.statusCode} ${JSON.stringify(pickupAsset.taxBook)}`,
+  );
+
+  // The three months it is due, in each book: the accounting one on the depreciable base over the
+  // life, the tax one at 25 % of the value at the start of the fiscal year.
+  const months = [month(-2), month(-1), month(0)];
+  let taxExpected = 0;
+  let taxAccumulated = 0;
+  let yearBase = 120_000;
+  for (const [index, period] of months.entries()) {
+    if (index > 0 && period.endsWith('-01')) yearBase = 120_000 - taxAccumulated;
+    const charge = Math.round(yearBase * 0.25 * 100 / 12) / 100;
+    taxExpected = Math.round((taxExpected + charge) * 100) / 100;
+    taxAccumulated = taxExpected;
+  }
+  const thirdRun = await company.call('POST', '/api/v1/fixed-assets/depreciation-runs', { period: ended.slice(0, 7) }, freshKey());
+  const third = thirdRun.json<RunResult & { tax: { total: number; assets: Array<{ id: string; months: number; amount: number }> } }>();
+  const pickupBooks = third.assets.find((row) => row.id === pickupAsset.id);
+  const pickupTax = third.tax.assets.find((row) => row.id === pickupAsset.id);
+  check(
+    'the run charges both books: 1 800 a month in the books, 25 % of 120 000 a twelfth in the tax book',
+    thirdRun.statusCode === 201 && pickupBooks?.months === 3 && pickupBooks.amount === 5_400 && pickupTax?.months === 3 && Math.abs(pickupTax.amount - taxExpected) <= 0.02,
+    `libros ${pickupBooks?.amount}, fiscal ${pickupTax?.amount} (esperado ${taxExpected})`,
+  );
+  const thirdDetail = (await company.call('GET', `/api/v1/fixed-assets/depreciation-runs/${third.runId}`)).json<RunDetail & { taxTotal: number; taxCharges: unknown[] }>();
+  check(
+    'and posts only the accounting one: its entries add up to the books\' months, the tax months are recorded apart',
+    cents(thirdDetail.entries.map((row) => row.total)) === cents([third.total]) && thirdDetail.taxCharges.length === 3 && thirdDetail.taxTotal === pickupTax?.amount,
+    `asientos ${thirdDetail.entries.map((row) => row.total).join(' + ')}; fiscal ${thirdDetail.taxTotal}`,
+  );
+
+  interface TaxReport {
+    totals: { deduction: number };
+    byTaxCategory: Array<{ taxCategoryCode: string | null; deduction: number }>;
+    assets: { rows: Array<{ assetId: string; deduction: number; taxValue: number; accountingCarrying: number | null; difference: number | null; disposalDate: string | null }> };
+  }
+  const reportFrom = `${month(-2).slice(0, 4)}-01`;
+  const taxReport = (await company.call('GET', `/api/v1/fixed-assets/tax-depreciation?from=${reportFrom}&to=${ended.slice(0, 7)}`)).json<TaxReport>();
+  const pickupRow = taxReport.assets.rows.find((row) => row.assetId === pickupAsset.id);
+  const taxValue = Math.round((120_000 - (pickupTax?.amount ?? 0)) * 100) / 100;
+  check(
+    'the tax report gives its deduction, what is left to deduct, and the temporary difference against the books (IAS 12)',
+    pickupRow?.deduction === pickupTax?.amount &&
+      pickupRow?.taxValue === taxValue &&
+      pickupRow?.accountingCarrying === 114_600 &&
+      pickupRow?.difference === Math.round((114_600 - taxValue) * 100) / 100 &&
+      taxReport.byTaxCategory.some((group) => group.taxCategoryCode === 'DO-2'),
+    JSON.stringify(pickupRow),
+  );
+
+  const fixedBasis = await company.call('PATCH', `/api/v1/fixed-assets/${pickupAsset.id}`, { taxBook: { cost: 100_000 } });
+  const fields = fixedBasis.json<Refusal>().params?.['fields'] as Record<string, string> | undefined;
+  check(
+    'once it has charged, its basis is fixed — and the refusal names the field in every language, for each reader to read in theirs',
+    fixedBasis.statusCode === 409 &&
+      fixedBasis.json<Refusal>().messageKey === 'fixed_assets.tax_book_terms_fixed' &&
+      fields?.['es'] === 'Base fiscal' &&
+      fields?.['en'] === 'Tax basis' &&
+      fields?.['pt'] === 'Base fiscal',
+    JSON.stringify(fixedBasis.json<Refusal>().params),
+  );
+  const newRate = await company.call('PATCH', `/api/v1/fixed-assets/${pickupAsset.id}`, { taxBook: { annualRate: 0.15 } });
+  check(
+    'its rate changes from the next month on',
+    newRate.statusCode === 200 && newRate.json<{ taxBook: TaxBook }>().taxBook.annualRate === 0.15,
+    `HTTP ${newRate.statusCode}`,
+  );
+  const dropBook = await company.call('PATCH', `/api/v1/fixed-assets/${pickupAsset.id}`, { taxBook: null });
+  check(
+    'and a book that has charged is the record of what was deducted: it cannot be removed',
+    dropBook.statusCode === 409 && dropBook.json<Refusal>().messageKey === 'fixed_assets.tax_book_has_charges',
+    `HTTP ${dropBook.statusCode}`,
+  );
+  const deleteUsed = await company.call('DELETE', `/api/v1/fixed-assets/categories/${vehicles.id}`);
+  check(
+    'a category assets were registered in is not deleted: it says what uses it, and offers to deactivate it',
+    deleteUsed.statusCode === 409 && deleteUsed.json<Refusal>().messageKey === 'fixed_assets.category_in_use',
+    `HTTP ${deleteUsed.statusCode} ${deleteUsed.json<Refusal>().code}`,
+  );
+
+  const pickupSold = await company.call(
+    'POST',
+    `/api/v1/fixed-assets/${pickupAsset.id}/dispose`,
+    { disposalDate: today, salePrice: 100_000, disposalReason: 'Venta', cashAccountId: accounts['1120'], gainOnDisposalAccountId: accounts['4900'], lossOnDisposalAccountId: accounts['5900'] },
+    freshKey(),
+  );
+  const afterSale = (await company.call('GET', `/api/v1/fixed-assets/${pickupAsset.id}`)).json<{ taxBook: TaxBook }>();
+  check(
+    'the disposal closes its tax book on the day it leaves',
+    pickupSold.statusCode === 201 && afterSale.taxBook.closedOn === today,
+    `HTTP ${pickupSold.statusCode} cerrado ${afterSale.taxBook.closedOn}`,
+  );
+  const reportAfter = (await company.call('GET', `/api/v1/fixed-assets/tax-depreciation?from=${running}&to=${running}`)).json<TaxReport>();
+  const soldRow = reportAfter.assets.rows.find((row) => row.assetId === pickupAsset.id);
+  check(
+    'and the report shows it left: no carrying amount and no difference for it',
+    soldRow?.disposalDate === today && soldRow.accountingCarrying === null && soldRow.difference === null,
+    JSON.stringify(soldRow),
   );
 
   await app.close();

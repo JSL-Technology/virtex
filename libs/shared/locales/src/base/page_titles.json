@@ -279,6 +279,21 @@
     "en": "Fixed asset",
     "pt": "Ativo imobilizado"
   },
+  "page_titles.fixed_asset_categories": {
+    "es": "Categorías de activos fijos",
+    "en": "Fixed-asset categories",
+    "pt": "Categorias de ativos imobilizados"
+  },
+  "page_titles.fixed_asset_category_edit": {
+    "es": "Categoría de activos",
+    "en": "Asset category",
+    "pt": "Categoria de ativos"
+  },
+  "page_titles.fixed_asset_category_new": {
+    "es": "Nueva categoría de activos",
+    "en": "New asset category",
+    "pt": "Nova categoria de ativos"
+  },
   "page_titles.fixed_asset_dispose": {
     "es": "Baja de activo fijo",
     "en": "Fixed asset disposal",
@@ -643,6 +658,11 @@
     "es": "Proveedores",
     "en": "Suppliers",
     "pt": "Fornecedores"
+  },
+  "page_titles.tax_depreciation": {
+    "es": "Depreciación fiscal",
+    "en": "Tax depreciation",
+    "pt": "Depreciação fiscal"
   },
   "page_titles.tax_new": {
     "es": "Nuevo impuesto",

@@ -639,7 +639,8 @@
     "fixed_assets.methods": [
       "STRAIGHT_LINE",
       "DOUBLE_DECLINING_BALANCE",
-      "SUM_OF_YEARS_DIGITS"
+      "SUM_OF_YEARS_DIGITS",
+      "DECLINING_BALANCE"
     ],
     "fixed_assets.runs.trigger": [
       "SCHEDULE",
@@ -651,6 +652,15 @@
       "IN_USE",
       "SOLD",
       "DISPOSED"
+    ],
+    "fixed_assets.tax_book.states": [
+      "posted",
+      "projected",
+      "partial"
+    ],
+    "fixed_assets.tax_methods": [
+      "STRAIGHT_LINE",
+      "DECLINING_BALANCE"
     ],
     "hcm.employees.form.frequency_label": [
       "WEEKLY",

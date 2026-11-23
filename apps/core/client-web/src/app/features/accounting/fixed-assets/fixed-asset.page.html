@@ -78,8 +78,19 @@
           </div>
           <div>
             <dt>{{ 'fixed_assets.form.method' | translate }}</dt>
-            <dd>{{ 'fixed_assets.methods.' + doc.depreciationMethod | translate }}</dd>
+            <dd>
+              {{ 'fixed_assets.methods.' + doc.depreciationMethod | translate }}
+              @if (doc.decliningAnnualRate !== null) {
+                · {{ asPercent(doc.decliningAnnualRate) }} %
+              }
+            </dd>
           </div>
+          @if (doc.category; as category) {
+            <div>
+              <dt>{{ 'fixed_assets.form.category' | translate }}</dt>
+              <dd><a [routerLink]="['/accounting/fixed-assets/categories', category.id]">{{ category.code }} · {{ category.name | vxName: category.nameTranslations }}</a></dd>
+            </div>
+          }
           <div>
             <dt>{{ 'fixed_assets.form.convention' | translate }}</dt>
             <dd>{{ 'fixed_assets.conventions.' + doc.depreciationConvention | translate }}</dd>
@@ -175,6 +186,117 @@
           }
         }
       </section>
+
+      @if (doc.taxBook; as book) {
+        <section class="doc-card">
+          <h2 class="form-section-title">{{ 'fixed_assets.tax_book.title' | translate }}</h2>
+          <p class="form-hint">{{ 'fixed_assets.tax_book.memo_hint' | translate }}</p>
+          <dl class="doc-facts">
+            <div>
+              <dt>{{ 'fixed_assets.tax_book.category' | translate }}</dt>
+              <dd>{{ book.taxCategoryCode ?? ('fixed_assets.tax_book.own_rate' | translate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'fixed_assets.tax_book.method' | translate }}</dt>
+              <dd>{{ 'fixed_assets.tax_methods.' + book.method | translate }} · {{ asPercent(book.annualRate) }} %</dd>
+            </div>
+            <div>
+              <dt>{{ 'fixed_assets.tax_book.basis' | translate }}</dt>
+              <dd><vx-amount [value]="book.cost" /></dd>
+            </div>
+            <div>
+              <dt>{{ 'fixed_assets.tax_book.deducted' | translate }}</dt>
+              <dd><vx-amount [value]="book.accumulatedDepreciation" /></dd>
+            </div>
+            <div>
+              <dt>{{ 'fixed_assets.tax_book.tax_value' | translate }}</dt>
+              <dd><vx-amount [value]="book.taxValue" /></dd>
+            </div>
+            <div>
+              <dt>{{ 'fixed_assets.tax_book.deducted_through' | translate }}</dt>
+              <dd>{{ book.depreciatedThrough ? (book.depreciatedThrough | vxDate: 'monthYear' : true) : '—' }}</dd>
+            </div>
+            @if (book.openingAccumulated > 0) {
+              <div>
+                <dt>{{ 'fixed_assets.tax_book.opening_accumulated' | translate }}</dt>
+                <dd><vx-amount [value]="book.openingAccumulated" /> · {{ book.openingThrough }}</dd>
+              </div>
+            }
+            @if (book.closedOn) {
+              <div>
+                <dt>{{ 'fixed_assets.tax_book.closed_on' | translate }}</dt>
+                <dd>{{ book.closedOn | vxDate: 'date' : true }}</dd>
+              </div>
+            }
+          </dl>
+
+          @if (taxYears().length > 0) {
+            <div class="table-container">
+              <table class="data-table">
+                <caption class="sr-only">{{ 'fixed_assets.tax_book.by_year' | translate }}</caption>
+                <thead>
+                  <tr>
+                    <th>{{ 'fixed_assets.tax_book.fiscal_year' | translate }}</th>
+                    <th class="numeric">{{ 'fixed_assets.tax_book.deduction' | translate }}</th>
+                    <th class="numeric">{{ 'fixed_assets.tax_book.deducted' | translate }}</th>
+                    <th class="numeric">{{ 'fixed_assets.tax_book.tax_value' | translate }}</th>
+                    <th>{{ 'fixed_assets.tax_book.year_state' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (year of taxYears(); track year.label) {
+                    <tr [class.muted]="year.state === 'projected'">
+                      <td>{{ year.label }}</td>
+                      <td class="numeric"><vx-amount [value]="year.deduction" /></td>
+                      <td class="numeric"><vx-amount [value]="year.accumulatedAfter" /></td>
+                      <td class="numeric"><vx-amount [value]="year.taxValueAfter" /></td>
+                      <td>{{ 'fixed_assets.tax_book.states.' + year.state | translate }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          @if (schedule()?.taxBook; as taxSchedule) {
+            @if (taxSchedule.posted.length > 0) {
+              <button type="button" class="secondary-button" (click)="showTaxMonths.set(!showTaxMonths())" [attr.aria-expanded]="showTaxMonths()">
+                {{ (showTaxMonths() ? 'fixed_assets.tax_book.hide_months' : 'fixed_assets.tax_book.show_months') | translate: { count: taxSchedule.posted.length } }}
+              </button>
+              @if (showTaxMonths()) {
+                <div class="table-container">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>{{ 'fixed_assets.document.month' | translate }}</th>
+                        <th class="numeric">{{ 'fixed_assets.tax_book.deduction' | translate }}</th>
+                        <th class="numeric">{{ 'fixed_assets.tax_book.deducted' | translate }}</th>
+                        <th class="numeric">{{ 'fixed_assets.tax_book.tax_value' | translate }}</th>
+                        <th>{{ 'fixed_assets.document.run' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of taxSchedule.posted; track row.periodEnd) {
+                        <tr>
+                          <td>{{ row.periodEnd | vxDate: 'monthYear' : true }}</td>
+                          <td class="numeric"><vx-amount [value]="row.amount" /></td>
+                          <td class="numeric"><vx-amount [value]="row.accumulatedAfter" /></td>
+                          <td class="numeric"><vx-amount [value]="row.bookValueAfter" /></td>
+                          <td>
+                            @if (row.runId) {
+                              <a [routerLink]="['/accounting/fixed-assets/depreciation-runs', row.runId]">{{ 'fixed_assets.document.view_run' | translate }}</a>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          }
+        </section>
+      }
     </div>
   }
 </vx-document-shell>

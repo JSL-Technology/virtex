@@ -30,7 +30,11 @@ describe('fixed assets', () => {
     residualValue: 0,
     usefulLifeMonths: 60,
     depreciationMethod: 'STRAIGHT_LINE',
+    decliningAnnualRate: null,
     depreciationConvention: 'FULL_MONTH',
+    categoryId: null,
+    category: null,
+    taxBook: null,
     bookValue: 120_000,
     accumulatedDepreciation: 0,
     openingAccumulatedDepreciation: 0,
@@ -58,8 +62,11 @@ describe('fixed assets', () => {
     assetCount: 1,
     chargeCount: 2,
     total: 4_000,
+    taxChargeCount: 0,
+    taxTotal: 0,
     createdAt: '2026-04-02T14:00:00.000Z',
   });
+  const noTax = { total: 0, assets: [] };
 
   let api: Record<string, jest.Mock>;
   let notifications: Record<string, jest.Mock>;
@@ -73,10 +80,10 @@ describe('fixed assets', () => {
       update: jest.fn().mockReturnValue(of(asset())),
       dispose: jest.fn().mockReturnValue(of(asset({ status: 'SOLD' }))),
       previewDepreciation: jest.fn().mockReturnValue(
-        of({ periodEnd: '2026-03-31', journalEntryId: null, total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], postable: true, notPostable: null }),
+        of({ periodEnd: '2026-03-31', journalEntryId: null, total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], tax: noTax, postable: true, notPostable: null }),
       ),
       runDepreciation: jest.fn().mockReturnValue(
-        of({ periodEnd: '2026-03-31', runId: 'run-1', journalEntryId: 'je-1', total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], postable: true, notPostable: null }),
+        of({ periodEnd: '2026-03-31', runId: 'run-1', journalEntryId: 'je-1', total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], tax: noTax, postable: true, notPostable: null }),
       ),
       listRuns: jest.fn().mockReturnValue(of({ rows: [run()], page: 1, pageSize: 50, total: 1, hasMore: false })),
       getRun: jest.fn().mockReturnValue(
@@ -90,8 +97,11 @@ describe('fixed assets', () => {
             { id: 'je-2', entryNumber: 'DEPREC-2026-000002', date: '2026-02-28', total: 2_000 },
             { id: 'je-3', entryNumber: 'DEPREC-2026-000003', date: '2026-03-31', total: 2_000 },
           ],
+          taxCharges: [],
         }),
       ),
+      listCategories: jest.fn().mockReturnValue(of([])),
+      taxCategories: jest.fn().mockReturnValue(of(null)),
     };
     notifications = {
       httpErrorMessage: jest.fn().mockReturnValue('x'),
@@ -306,7 +316,7 @@ describe('fixed assets', () => {
   it('shows what a month still running would charge, and does not offer to post it', async () => {
     const blocked = { key: 'fixed_assets.depreciation_period_not_ended', params: { period: '2026-11', today: '2026-11-07' } };
     api['previewDepreciation'].mockReturnValue(
-      of({ periodEnd: '2026-11-30', journalEntryId: null, total: 2_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 1, amount: 2_000 }], skipped: [], postable: false, notPostable: blocked }),
+      of({ periodEnd: '2026-11-30', journalEntryId: null, total: 2_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 1, amount: 2_000 }], skipped: [], tax: noTax, postable: false, notPostable: blocked }),
     );
     const fixture = TestBed.createComponent(DepreciationRunPage);
     const page = fixture.componentInstance;

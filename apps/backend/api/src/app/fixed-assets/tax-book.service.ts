@@ -12,9 +12,10 @@ import {
   type ScheduledCharge,
 } from './depreciation-schedule';
 import { changedFixedTerms, termsOf, type FIXED_TAX_TERMS, type TaxBookTerms } from './tax-book-terms';
+import { assertDecliningOpeningAtYearEnd, FiscalYearCalendar, yearOpenings } from './fiscal-year-calendar';
 import { I18nService } from '../i18n/i18n.service';
 import { roundAmount, toCents } from '../common/money';
-import { addMonthsIso, endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, type IsoDate } from '../common/dates';
+import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, type IsoDate } from '../common/dates';
 import { Page, Paging, toPage } from '../common/pagination';
 import { BadRequestError, ConflictError } from '../i18n/localized.exception';
 
@@ -47,6 +48,8 @@ export interface TaxBookSummary {
 /** The book's months charged, and the rest of its schedule. */
 export interface TaxBookSchedule {
   book: TaxBookSummary;
+  /** The month (1–12) the company's fiscal year starts in: the years a tax return reads it by. */
+  fiscalYearStartMonth: number;
   posted: Array<{ periodEnd: string; amount: number; accumulatedAfter: number; bookValueAfter: number; runId: string | null }>;
   projected: ScheduledCharge[];
 }
@@ -229,11 +232,13 @@ export class TaxBookService {
       where: { organizationId, kind: FixedAssetBookKind.TAX, closedOn: IsNull(), fixedAssetId: In(assets.map((asset) => asset.id)) },
     });
     const byId = new Map(assets.map((asset) => [asset.id, asset]));
+    const depreciables = await this.depreciables(manager, organizationId, books, byId);
     const planned: PlannedBookCharges[] = [];
     for (const book of books) {
       const asset = byId.get(book.fixedAssetId);
-      if (!asset) continue;
-      const charges = chargesDue(await this.depreciable(manager, book, asset), periodEnd);
+      const depreciable = depreciables.get(book.id);
+      if (!asset || !depreciable) continue;
+      const charges = chargesDue(depreciable, periodEnd);
       if (charges.length === 0) continue;
       planned.push({ book, asset, charges, amount: total(charges) });
     }
@@ -275,19 +280,12 @@ export class TaxBookService {
     });
     if (!book) return null;
     const lastMonthBefore = previousDay(startOfMonthIso(disposalDate));
-    const depreciable = await this.depreciable(manager, book, asset);
+    const depreciable = (await this.depreciables(manager, asset.organizationId, [book], new Map([[asset.id, asset]]))).get(book.id);
+    if (!depreciable) return null;
     const catchUp = chargesDue(depreciable, lastMonthBefore);
-    const caughtUp = catchUp.at(-1);
-    // The disposal month resumes after the catch-up, on the base of the year it falls in.
-    const resumed: DepreciableAsset = caughtUp
-      ? {
-          ...depreciable,
-          accumulatedDepreciation: caughtUp.accumulatedAfter,
-          depreciatedThrough: caughtUp.periodEnd,
-          decliningYearBase: await this.yearBaseAfter(manager, book, depreciable, catchUp),
-        }
-      : depreciable;
-    const stub = disposalMonthCharge(resumed, disposalDate);
+    // The disposal month, projected on from the same state: the months before it charged as the
+    // catch-up charges them, in the year they fall in.
+    const stub = disposalMonthCharge(depreciable, disposalDate);
     const charges = stub ? [...catchUp, stub] : catchUp;
     return { book, asset, charges, amount: total(charges) };
   }
@@ -303,9 +301,14 @@ export class TaxBookService {
     const book = await this.bookOf(manager, asset.id);
     if (!book) return null;
     const posted = await manager.find(FixedAssetBookCharge, { where: { bookId: book.id }, order: { periodEnd: 'ASC' } });
-    const projected = book.closedOn ? [] : remainingSchedule(await this.depreciable(manager, book, asset));
+    const depreciable = book.closedOn
+      ? null
+      : (await this.depreciables(manager, asset.organizationId, [book], new Map([[asset.id, asset]]))).get(book.id);
+    const projected = depreciable ? remainingSchedule(depreciable) : [];
+    const calendar = await FiscalYearCalendar.load(manager, asset.organizationId);
     return {
       book: summaryOf(book, posted.length),
+      fiscalYearStartMonth: calendar.startMonthOf(toIsoDate(book.depreciatedThrough ?? asset.inServiceDate)),
       posted: posted.map((row) => ({
         periodEnd: toIsoDate(row.periodEnd),
         amount: row.amount,
@@ -428,84 +431,65 @@ export class TaxBookService {
    */
   private async assertOpeningAtYearEnd(manager: EntityManager, organizationId: string, terms: TaxBookTerms): Promise<void> {
     if (terms.method !== DepreciationMethod.DECLINING_BALANCE || terms.openingAccumulated <= 0 || !terms.openingThrough) return;
-    const next = endOfMonthIso(addMonthsIso(`${terms.openingThrough}-01`, 1));
-    const startMonth = await fiscalYearStartMonthOf(manager, organizationId, next);
-    if (Number(next.slice(5, 7)) === startMonth) return;
-    throw new BadRequestError('fixed_assets.tax_opening_not_year_end', {
-      month: terms.openingThrough,
-      yearEnd: previousDay(startOfYearContaining(next, startMonth)).slice(0, 7),
-    });
+    await assertDecliningOpeningAtYearEnd(manager, organizationId, terms.openingThrough);
   }
 
   /**
-   * The book as the calculation reads it: its basis, method, rate and state, on the asset's dates,
-   * with the company's fiscal year — what a declining balance's yearly rate applies to — and, when
-   * the book resumes in the middle of a year, the value it started that year at.
+   * The books as the calculation reads them: each one's basis, method, rate and state, on its
+   * asset's dates, with the company's fiscal year — what a declining balance's rate applies to and
+   * what each year's cents add up in — and what it had accumulated when that year began.
    */
-  private async depreciable(manager: EntityManager, book: FixedAssetBook, asset: Pick<FixedAsset, 'inServiceDate'>): Promise<DepreciableAsset> {
-    const declining = book.depreciationMethod === DepreciationMethod.DECLINING_BALANCE;
-    const inServiceDate = toIsoDate(asset.inServiceDate);
-    const depreciatedThrough = book.depreciatedThrough ? toIsoDate(book.depreciatedThrough) : null;
-    const next = depreciatedThrough ? endOfMonthIso(addMonthsIso(`${depreciatedThrough.slice(0, 7)}-01`, 1)) : endOfMonthIso(inServiceDate);
-    // The tax year: what a declining balance's rate applies to, and what each year's cents add up in.
-    const fiscalYearStartMonth = await fiscalYearStartMonthOf(manager, book.organizationId, next);
-    const base: DepreciableAsset = {
-      cost: book.cost,
-      residualValue: book.residualValue,
-      usefulLifeMonths: RATE_HORIZON_MONTHS,
-      depreciationMethod: book.depreciationMethod,
-      decliningAnnualRate: declining ? book.annualRate : null,
-      straightLineAnnualRate: declining ? null : book.annualRate,
-      fiscalYearStartMonth,
-      depreciationConvention: book.depreciationConvention,
-      inServiceDate,
-      accumulatedDepreciation: book.accumulatedDepreciation,
-      depreciatedThrough,
-    };
-    if (!declining || !depreciatedThrough) return base;
-    const yearStart = startOfYearContaining(next, fiscalYearStartMonth);
-    // What this book charged in the year the next month falls in: the value at the year's start is
-    // what is left now plus those months.
-    const decliningYearBase = roundAmount(book.cost - book.accumulatedDepreciation + (await this.chargedSince(manager, book.id, yearStart)));
-    return { ...base, decliningYearBase };
-  }
-
-  /** The year base after the catch-up months: the same year's, or a new year's when they crossed one. */
-  private async yearBaseAfter(
+  private async depreciables(
     manager: EntityManager,
-    book: FixedAssetBook,
-    depreciable: DepreciableAsset,
-    catchUp: ScheduledCharge[],
-  ): Promise<number | null> {
-    if (book.depreciationMethod !== DepreciationMethod.DECLINING_BALANCE || catchUp.length === 0) return null;
-    const startMonth = depreciable.fiscalYearStartMonth ?? 1;
-    const last = catchUp[catchUp.length - 1];
-    const next = endOfMonthIso(addMonthsIso(`${last.periodEnd.slice(0, 7)}-01`, 1));
-    const yearStart = startOfYearContaining(next, startMonth);
-    // The catch-up months inside the year the disposal month falls in, and the months already
-    // recorded in it before the catch-up.
-    const inYear = catchUp.filter((charge) => charge.periodEnd >= yearStart);
-    return roundAmount(book.cost - last.accumulatedAfter + total(inYear) + (await this.chargedSince(manager, book.id, yearStart)));
+    organizationId: string,
+    books: readonly FixedAssetBook[],
+    assets: ReadonlyMap<string, Pick<FixedAsset, 'inServiceDate'>>,
+  ): Promise<Map<string, DepreciableAsset>> {
+    const result = new Map<string, DepreciableAsset>();
+    if (books.length === 0) return result;
+    const calendar = await FiscalYearCalendar.load(manager, organizationId);
+    const positions = books.flatMap((book) => {
+      const asset = assets.get(book.fixedAssetId);
+      if (!asset) return [];
+      return [{
+        id: book.id,
+        accumulatedDepreciation: book.accumulatedDepreciation,
+        inServiceDate: toIsoDate(asset.inServiceDate),
+        depreciatedThrough: book.depreciatedThrough ? toIsoDate(book.depreciatedThrough) : null,
+      }];
+    });
+    const openings = await yearOpenings(calendar, positions, async (yearStart, ids) => {
+      const rows: Array<{ book_id: string; charged: string }> = await manager.query(
+        `SELECT "book_id", SUM("amount")::text AS charged FROM "fixed_asset_book_charges"
+          WHERE "organization_id" = $1 AND "book_id" = ANY($2::uuid[]) AND "period_end" >= $3::date
+          GROUP BY "book_id"`,
+        [organizationId, ids, yearStart],
+      );
+      return new Map(rows.map((row) => [row.book_id, Number(row.charged)]));
+    });
+    for (const book of books) {
+      const position = positions.find((entry) => entry.id === book.id);
+      const year = openings.get(book.id);
+      if (!position || !year) continue;
+      const declining = book.depreciationMethod === DepreciationMethod.DECLINING_BALANCE;
+      result.set(book.id, {
+        cost: book.cost,
+        residualValue: book.residualValue,
+        // Stated as a rate, the life is only a bound: see `RATE_HORIZON_MONTHS`.
+        usefulLifeMonths: RATE_HORIZON_MONTHS,
+        depreciationMethod: book.depreciationMethod,
+        decliningAnnualRate: declining ? book.annualRate : null,
+        straightLineAnnualRate: declining ? null : book.annualRate,
+        fiscalYearStartMonth: year.fiscalYearStartMonth,
+        yearOpeningAccumulated: year.opening,
+        depreciationConvention: book.depreciationConvention,
+        inServiceDate: position.inServiceDate,
+        accumulatedDepreciation: book.accumulatedDepreciation,
+        depreciatedThrough: position.depreciatedThrough,
+      });
+    }
+    return result;
   }
-
-  private async chargedSince(manager: EntityManager, bookId: string, since: IsoDate): Promise<number> {
-    const [{ charged }] = await manager.query<{ charged: string }[]>(
-      `SELECT COALESCE(SUM("amount"), 0)::text AS charged FROM "fixed_asset_book_charges" WHERE "book_id" = $1 AND "period_end" >= $2`,
-      [bookId, since],
-    );
-    return Number(charged);
-  }
-}
-
-/** The month (1–12) the company's fiscal year that holds `date` starts in; January when none does. */
-export async function fiscalYearStartMonthOf(manager: EntityManager, organizationId: string, date: IsoDate): Promise<number> {
-  const [row] = await manager.query<{ month: number }[]>(
-    `SELECT extract(month FROM "start_date")::int AS month FROM "fiscal_years"
-      WHERE "organization_id" = $1 AND "start_date" <= $2::date AND "end_date" >= $2::date
-      ORDER BY "start_date" DESC LIMIT 1`,
-    [organizationId, date],
-  );
-  return row?.month ?? 1;
 }
 
 function summaryOf(book: FixedAssetBook, chargedMonths: number): TaxBookSummary {
@@ -548,14 +532,6 @@ function rowOf(row: Record<string, unknown>): TaxDepreciationRow {
     accountingCarrying: row['accounting_carrying'] === null ? null : amount(row['accounting_carrying']),
     difference: row['difference'] === null ? null : amount(row['difference']),
   };
-}
-
-/** The first day of the year starting in `startMonth` that holds `date`. */
-function startOfYearContaining(date: IsoDate, startMonth: number): IsoDate {
-  const year = Number(date.slice(0, 4));
-  const month = Number(date.slice(5, 7));
-  const startYear = month >= startMonth ? year : year - 1;
-  return `${startYear}-${String(startMonth).padStart(2, '0')}-01`;
 }
 
 function totalsOf(row: Record<string, unknown> | undefined): TaxDepreciationTotals {
