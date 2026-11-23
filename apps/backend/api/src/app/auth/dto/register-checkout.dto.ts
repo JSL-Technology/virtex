@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsIn, IsOptional, Equals } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
 import { RegisterUserDto } from './register-user.dto';
 import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-period.enum';
 

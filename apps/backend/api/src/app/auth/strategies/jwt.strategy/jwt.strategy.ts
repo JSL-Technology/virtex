@@ -62,8 +62,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         }
       },
       algorithms: ['RS256'],
-      issuer: 'virteex-api',
-      audience: 'virteex-web',
+      issuer: 'virtex-api',
+      audience: 'virtex-web',
     } as unknown as ConstructorParameters<typeof Strategy>[0]);
   }
 

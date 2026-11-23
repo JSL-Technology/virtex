@@ -1,0 +1,377 @@
+{
+  "inflation_adjustment.closing_index_missing": {
+    "es": "Falta el índice {{series}} de {{period}}: regístralo o espera a que se publique.",
+    "en": "The {{series}} index for {{period}} is missing: record it or wait for it to be published.",
+    "pt": "Falta o índice {{series}} de {{period}}: registre-o ou aguarde sua publicação."
+  },
+  "inflation_adjustment.index_missing": {
+    "es": "Hay importes originados en meses sin índice {{series}}: {{months}}.",
+    "en": "There are amounts that originated in months with no {{series}} index: {{months}}.",
+    "pt": "Há valores originados em meses sem índice {{series}}: {{months}}."
+  },
+  "inflation_adjustment.later_period_restated": {
+    "es": "{{later}} ya está reexpresado, calculado sobre {{period}}: deshaz primero la reexpresión de {{later}}.",
+    "en": "{{later}} is already restated, computed on top of {{period}}: undo the restatement of {{later}} first.",
+    "pt": "{{later}} já está reexpresso, calculado sobre {{period}}: desfaça primeiro a reexpressão de {{later}}."
+  },
+  "inflation_adjustment.net_monetary_account_missing": {
+    "es": "Falta la cuenta del resultado por exposición a la inflación (Configuración › Cuentas por defecto).",
+    "en": "The account for the gain or loss on the net monetary position is missing (Settings › Default accounts).",
+    "pt": "Falta a conta do resultado da exposição à inflação (Configurações › Contas padrão)."
+  },
+  "inflation_adjustment.no_fiscal_year": {
+    "es": "Ningún ejercicio cubre el {{date}}.",
+    "en": "No fiscal year covers {{date}}.",
+    "pt": "Nenhum exercício cobre {{date}}."
+  },
+  "inflation_adjustment.no_ledger": {
+    "es": "La empresa no tiene un libro contable.",
+    "en": "The company has no ledger.",
+    "pt": "A empresa não tem livro contábil."
+  },
+  "inflation_adjustment.page.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "inflation_adjustment.page.accounts_caption": {
+    "es": "Cuentas reexpresadas del mes",
+    "en": "Accounts restated for the month",
+    "pt": "Contas reexpressas do mês"
+  },
+  "inflation_adjustment.page.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "inflation_adjustment.page.adjustment": {
+    "es": "Ajuste",
+    "en": "Adjustment",
+    "pt": "Ajuste"
+  },
+  "inflation_adjustment.page.already_posted": {
+    "es": "{{period}} ya estaba reexpresado.",
+    "en": "{{period}} was already restated.",
+    "pt": "{{period}} já estava reexpresso."
+  },
+  "inflation_adjustment.page.blocked": {
+    "es": "No se puede reexpresar este mes:",
+    "en": "This month cannot be restated:",
+    "pt": "Este mês não pode ser reexpresso:"
+  },
+  "inflation_adjustment.page.book": {
+    "es": "En libros",
+    "en": "In the books",
+    "pt": "Nos livros"
+  },
+  "inflation_adjustment.page.closing_index": {
+    "es": "Índice de cierre",
+    "en": "Closing index",
+    "pt": "Índice de fechamento"
+  },
+  "inflation_adjustment.page.company_value_unused": {
+    "es": "El valor que registró la empresa ({{value}}) no se usa: hay uno publicado.",
+    "en": "The value the company recorded ({{value}}) is not used: there is a published one.",
+    "pt": "O valor que a empresa registrou ({{value}}) não é usado: há um publicado."
+  },
+  "inflation_adjustment.page.due_at_close": {
+    "es": "El cierre de {{period}} lo contabiliza según la política de la empresa.",
+    "en": "The close of {{period}} posts it, as the company's policy says.",
+    "pt": "O fechamento de {{period}} o lança, conforme a política da empresa."
+  },
+  "inflation_adjustment.page.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "inflation_adjustment.page.historical": {
+    "es": "Histórico",
+    "en": "Historical",
+    "pt": "Histórico"
+  },
+  "inflation_adjustment.page.index_failed": {
+    "es": "No se pudo registrar el índice.",
+    "en": "The index could not be recorded.",
+    "pt": "Não foi possível registrar o índice."
+  },
+  "inflation_adjustment.page.index_missing": {
+    "es": "Aún no está cargado",
+    "en": "Not loaded yet",
+    "pt": "Ainda não carregado"
+  },
+  "inflation_adjustment.page.index_recorded": {
+    "es": "Índice de {{period}} registrado.",
+    "en": "Index for {{period}} recorded.",
+    "pt": "Índice de {{period}} registrado."
+  },
+  "inflation_adjustment.page.index_source.company": {
+    "es": "Registrado por la empresa (revisión {{revision}})",
+    "en": "Recorded by the company (revision {{revision}})",
+    "pt": "Registrado pela empresa (revisão {{revision}})"
+  },
+  "inflation_adjustment.page.index_source.platform": {
+    "es": "Publicado (revisión {{revision}})",
+    "en": "Published (revision {{revision}})",
+    "pt": "Publicado (revisão {{revision}})"
+  },
+  "inflation_adjustment.page.index_title": {
+    "es": "Índice de los últimos trece meses",
+    "en": "Index for the last thirteen months",
+    "pt": "Índice dos últimos treze meses"
+  },
+  "inflation_adjustment.page.index_unchanged": {
+    "es": "El índice de {{period}} ya tenía ese valor.",
+    "en": "The index for {{period}} already had that value.",
+    "pt": "O índice de {{period}} já tinha esse valor."
+  },
+  "inflation_adjustment.page.load_failed": {
+    "es": "No se pudo cargar la reexpresión del mes.",
+    "en": "The month's restatement could not be loaded.",
+    "pt": "Não foi possível carregar a reexpressão do mês."
+  },
+  "inflation_adjustment.page.local_accountant": {
+    "es": "Cálculo según la NIC 29 por fecha de origen de cada importe; verifica con tu contador local la serie, la clasificación de las cuentas y la presentación.",
+    "en": "Computed under IAS 29 from the origin date of each amount; confirm the series, the classification of the accounts and the presentation with your local accountant.",
+    "pt": "Cálculo segundo a IAS 29 pela data de origem de cada valor; confirme com seu contador local a série, a classificação das contas e a apresentação."
+  },
+  "inflation_adjustment.page.month": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "inflation_adjustment.page.net_monetary_result": {
+    "es": "Resultado por exposición a la inflación",
+    "en": "Gain or loss on the net monetary position",
+    "pt": "Resultado da exposição à inflação"
+  },
+  "inflation_adjustment.page.no_index_values": {
+    "es": "Aún no hay valores de la serie para estos meses.",
+    "en": "There are no values of the series for these months yet.",
+    "pt": "Ainda não há valores da série para estes meses."
+  },
+  "inflation_adjustment.page.no_series": {
+    "es": "Sin serie",
+    "en": "No series",
+    "pt": "Sem série"
+  },
+  "inflation_adjustment.page.nothing_help": {
+    "es": "No hay saldos en cuentas no monetarias en este mes.",
+    "en": "There are no balances on non-monetary accounts this month.",
+    "pt": "Não há saldos em contas não monetárias neste mês."
+  },
+  "inflation_adjustment.page.nothing_title": {
+    "es": "Nada que reexpresar",
+    "en": "Nothing to restate",
+    "pt": "Nada a reexpressar"
+  },
+  "inflation_adjustment.page.origin": {
+    "es": "Origen más antiguo",
+    "en": "Earliest origin",
+    "pt": "Origem mais antiga"
+  },
+  "inflation_adjustment.page.period": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "inflation_adjustment.page.policy": {
+    "es": "Política de la empresa",
+    "en": "Company policy",
+    "pt": "Política da empresa"
+  },
+  "inflation_adjustment.page.post": {
+    "es": "Contabilizar reexpresión",
+    "en": "Post restatement",
+    "pt": "Lançar reexpressão"
+  },
+  "inflation_adjustment.page.post_failed": {
+    "es": "No se pudo contabilizar la reexpresión.",
+    "en": "The restatement could not be posted.",
+    "pt": "Não foi possível lançar a reexpressão."
+  },
+  "inflation_adjustment.page.post_message": {
+    "es": "Se contabiliza la reexpresión de {{period}}: {{count}} líneas y un resultado por exposición a la inflación de {{result}}.",
+    "en": "The restatement of {{period}} is posted: {{count}} lines and a gain or loss on the net monetary position of {{result}}.",
+    "pt": "Será lançada a reexpressão de {{period}}: {{count}} linhas e um resultado da exposição à inflação de {{result}}."
+  },
+  "inflation_adjustment.page.post_title": {
+    "es": "Contabilizar la reexpresión",
+    "en": "Post the restatement",
+    "pt": "Lançar a reexpressão"
+  },
+  "inflation_adjustment.page.posted": {
+    "es": "Reexpresión de {{period}} contabilizada.",
+    "en": "Restatement of {{period}} posted.",
+    "pt": "Reexpressão de {{period}} lançada."
+  },
+  "inflation_adjustment.page.posted_to": {
+    "es": "Se contabiliza en {{code}}",
+    "en": "Posted to {{code}}",
+    "pt": "Lançado em {{code}}"
+  },
+  "inflation_adjustment.page.record": {
+    "es": "Registrar mes",
+    "en": "Record month",
+    "pt": "Registrar mês"
+  },
+  "inflation_adjustment.page.record_help": {
+    "es": "Registra un mes que la plataforma aún no cargó, tal como lo publicó el organismo; se usa solo mientras falte el publicado. Para muchos meses, importa el archivo de índices.",
+    "en": "Record a month the platform has not loaded yet, as the publisher released it; it is only used while the published one is missing. For many months, import the index file.",
+    "pt": "Registre um mês que a plataforma ainda não carregou, tal como o órgão o publicou; é usado só enquanto faltar o publicado. Para muitos meses, importe o arquivo de índices."
+  },
+  "inflation_adjustment.page.reference": {
+    "es": "Fuente (publicación)",
+    "en": "Source (publication)",
+    "pt": "Fonte (publicação)"
+  },
+  "inflation_adjustment.page.replace": {
+    "es": "Reemplazar reexpresión",
+    "en": "Replace restatement",
+    "pt": "Substituir reexpressão"
+  },
+  "inflation_adjustment.page.replace_message": {
+    "es": "Se revierte la reexpresión de {{period}} y se contabiliza la cifra de hoy: {{count}} líneas, resultado {{result}}.",
+    "en": "The restatement of {{period}} is reversed and today's figure posted: {{count}} lines, result {{result}}.",
+    "pt": "A reexpressão de {{period}} é estornada e o valor de hoje lançado: {{count}} linhas, resultado {{result}}."
+  },
+  "inflation_adjustment.page.replace_title": {
+    "es": "Reemplazar la reexpresión",
+    "en": "Replace the restatement",
+    "pt": "Substituir a reexpressão"
+  },
+  "inflation_adjustment.page.restated": {
+    "es": "Reexpresado",
+    "en": "Restated",
+    "pt": "Reexpresso"
+  },
+  "inflation_adjustment.page.reverse": {
+    "es": "Deshacer",
+    "en": "Undo",
+    "pt": "Desfazer"
+  },
+  "inflation_adjustment.page.reverse_failed": {
+    "es": "No se pudo deshacer la reexpresión.",
+    "en": "The restatement could not be undone.",
+    "pt": "Não foi possível desfazer a reexpressão."
+  },
+  "inflation_adjustment.page.reverse_message": {
+    "es": "Se revierte el asiento de la reexpresión de {{period}}, en su propia fecha.",
+    "en": "The entry of the restatement of {{period}} is reversed, on its own date.",
+    "pt": "O lançamento da reexpressão de {{period}} é estornado, em sua própria data."
+  },
+  "inflation_adjustment.page.reverse_reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "inflation_adjustment.page.reverse_title": {
+    "es": "Deshacer la reexpresión",
+    "en": "Undo the restatement",
+    "pt": "Desfazer a reexpressão"
+  },
+  "inflation_adjustment.page.reversed": {
+    "es": "Reexpresión de {{period}} deshecha.",
+    "en": "Restatement of {{period}} undone.",
+    "pt": "Reexpressão de {{period}} desfeita."
+  },
+  "inflation_adjustment.page.run_current": {
+    "es": "{{period}} está reexpresado (resultado {{result}}) y los libros no cambiaron desde entonces.",
+    "en": "{{period}} is restated (result {{result}}) and the books have not changed since.",
+    "pt": "{{period}} está reexpresso (resultado {{result}}) e os livros não mudaram desde então."
+  },
+  "inflation_adjustment.page.run_outdated": {
+    "es": "{{period}} se reexpresó (resultado {{result}}), pero un índice o un asiento cambió después: reemplázalo para que los libros digan la cifra de hoy.",
+    "en": "{{period}} was restated (result {{result}}), but an index or an entry changed afterwards: replace it so the books say today's figure.",
+    "pt": "{{period}} foi reexpresso (resultado {{result}}), mas um índice ou um lançamento mudou depois: substitua-o para que os livros digam o valor de hoje."
+  },
+  "inflation_adjustment.page.run_status.posted": {
+    "es": "En libros",
+    "en": "In the books",
+    "pt": "Nos livros"
+  },
+  "inflation_adjustment.page.run_status.reversed": {
+    "es": "Deshecha",
+    "en": "Undone",
+    "pt": "Desfeita"
+  },
+  "inflation_adjustment.page.runs_title": {
+    "es": "Reexpresiones contabilizadas",
+    "en": "Restatements posted",
+    "pt": "Reexpressões lançadas"
+  },
+  "inflation_adjustment.page.series": {
+    "es": "Serie de índices",
+    "en": "Index series",
+    "pt": "Série de índices"
+  },
+  "inflation_adjustment.page.series_failed": {
+    "es": "No se pudo guardar la serie.",
+    "en": "The series could not be saved.",
+    "pt": "Não foi possível salvar a série."
+  },
+  "inflation_adjustment.page.series_saved": {
+    "es": "Serie de índices guardada.",
+    "en": "Index series saved.",
+    "pt": "Série de índices salva."
+  },
+  "inflation_adjustment.page.source_header": {
+    "es": "Origen del valor",
+    "en": "Source of the value",
+    "pt": "Origem do valor"
+  },
+  "inflation_adjustment.page.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "inflation_adjustment.page.subtitle": {
+    "es": "Los libros en la moneda de cierre del mes: cada importe no monetario reexpresado desde que se originó, y el resultado por exposición a la inflación.",
+    "en": "The books in the month's closing currency: each non-monetary amount restated from when it originated, and the gain or loss on the net monetary position.",
+    "pt": "Os livros na moeda de fechamento do mês: cada valor não monetário reexpresso desde sua origem, e o resultado da exposição à inflação."
+  },
+  "inflation_adjustment.page.summary": {
+    "es": "Resumen del mes",
+    "en": "Month summary",
+    "pt": "Resumo do mês"
+  },
+  "inflation_adjustment.page.title": {
+    "es": "Ajuste por inflación",
+    "en": "Inflation adjustment",
+    "pt": "Ajuste pela inflação"
+  },
+  "inflation_adjustment.page.value": {
+    "es": "Índice",
+    "en": "Index",
+    "pt": "Índice"
+  },
+  "inflation_adjustment.page.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
+  },
+  "inflation_adjustment.period_invalid": {
+    "es": "«{{period}}» no es un mes (AAAA-MM).",
+    "en": "“{{period}}” is not a month (YYYY-MM).",
+    "pt": "«{{period}}» não é um mês (AAAA-MM)."
+  },
+  "inflation_adjustment.run_already_reversed": {
+    "es": "Esa reexpresión ya fue deshecha.",
+    "en": "That restatement was already undone.",
+    "pt": "Essa reexpressão já foi desfeita."
+  },
+  "inflation_adjustment.run_not_found": {
+    "es": "Esa reexpresión no existe.",
+    "en": "That restatement does not exist.",
+    "pt": "Essa reexpressão não existe."
+  },
+  "inflation_adjustment.series_currency_differs": {
+    "es": "La serie {{series}} mide el {{currency}} y el libro se lleva en {{ledgerCurrency}}: no se reexpresa con ella.",
+    "en": "Series {{series}} measures {{currency}} and the ledger is kept in {{ledgerCurrency}}: it is not restated with it.",
+    "pt": "A série {{series}} mede o {{currency}} e o livro é mantido em {{ledgerCurrency}}: não é reexpresso com ela."
+  },
+  "inflation_adjustment.series_not_configured": {
+    "es": "No hay una serie de índices elegida para reexpresar: elígela en Contabilidad › Ajuste por inflación.",
+    "en": "No price index series is chosen for the restatement: choose it in Accounting › Inflation adjustment.",
+    "pt": "Não há série de índices escolhida para a reexpressão: escolha-a em Contabilidade › Ajuste pela inflação."
+  }
+}

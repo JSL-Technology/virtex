@@ -6,8 +6,12 @@ import {
   NEUTRAL_LOCALE,
   SUPPORTED_LANGUAGES,
   isLanguageCode,
+  isLocalizedName,
+  localizedNameIn,
+  MESSAGE_KEY_SHAPE,
   normalizeKey,
-} from '@virteex/shared/types';
+  type LocalizedName,
+} from '@virtex/shared/types';
 import { currentLanguage, currentLocaleContext } from './request-locale';
 import es from './messages/es.json';
 import en from './messages/en.json';
@@ -136,6 +140,12 @@ export class I18nService {
    * 3. **An ISO-8601 timestamp is formatted as a date.** `2026-03-01T00:00:00.000Z` is not a
    *    date to anybody; `1 de marzo de 2026` is.
    *
+   * 4. **A name kept in several languages is read in the message's.** An account's name is
+   *    `{ es: 'Bancos', en: 'Banks' }`; interpolated as it came, it printed «[object Object]» —
+   *    into a bank reconciliation's ledger line and into the errors that name an account. The
+   *    client applies the same test (`isLocalizedName`), so a message reads the same wherever it
+   *    is rendered.
+   *
    * Everything else passes through untouched. The conventions are keyed on the SHAPE of the
    * value, never on guesswork about the name alone, so a parameter that happens to be called
    * `amount` and holds a string is left exactly as it is.
@@ -165,6 +175,11 @@ export class I18nService {
         continue;
       }
 
+      if (isLocalizedName(value)) {
+        out[name] = localizedNameIn(value, language, language);
+        continue;
+      }
+
       out[name] = value;
     }
     return out;
@@ -187,6 +202,37 @@ export class I18nService {
     return this.translate(key, currentLanguage(), params, {
       locale: currentLocaleContext()?.locale,
     });
+  }
+
+  /**
+   * A catalogue entry in every language but the books' — the translations a name the system writes
+   * (a journal, a payment method, the main warehouse) is provisioned with, beside the record it
+   * writes in the books language. A language whose catalogue lacks the entry is left out rather
+   * than filled with the key.
+   */
+  translationsOf(key: string, booksLanguage: LanguageCode, params: Record<string, unknown> = {}): LocalizedName {
+    const translations: LocalizedName = {};
+    const canonical = this.canonical(key);
+    for (const language of SUPPORTED_LANGUAGES) {
+      // Asked of each language's own table: `translate` falls back to the default language, and a
+      // Spanish text filed as the English translation is worse than none.
+      if (language === booksLanguage || !this.tables[language]?.has(canonical)) continue;
+      translations[language] = this.translate(key, language, params);
+    }
+    return translations;
+  }
+
+  /**
+   * Catalogue entries joined into one phrase, in every language: the list a message names — the
+   * fields it refuses to change — reads in the reader's language, whichever language raised it
+   * (it is a `LocalizedName`, which messages render in their own language).
+   */
+  listOf(keys: readonly string[], separator = ', '): LocalizedName {
+    const phrase: LocalizedName = {};
+    for (const language of SUPPORTED_LANGUAGES) {
+      phrase[language] = keys.map((key) => this.translate(key, language)).join(separator);
+    }
+    return phrase;
   }
 
   /** True when the key exists in any catalogue — used by the exception filter to tell a key from a sentence. */
@@ -263,9 +309,9 @@ export class I18nService {
  *
  * Two segments at least: a bare word is a word. `this.has()` decides in the end, so the shape test
  * only has to be cheap enough to skip the lookup for the parameters that are plainly prose — which
- * is almost all of them.
+ * is almost all of them. The shared one: the client renders a stored narrative by the same test.
  */
-const KEY_SHAPE = /^[a-z0-9][a-z0-9_]*(?:\.[a-z0-9_]+)+$/;
+const KEY_SHAPE = MESSAGE_KEY_SHAPE;
 
 /** An ISO-8601 instant, which is never something to show a reader as-is. */
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;

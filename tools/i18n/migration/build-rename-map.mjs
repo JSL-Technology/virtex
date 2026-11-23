@@ -47,7 +47,7 @@ const values = (o) => Object.values(o).flatMap((v) =>
 const ALLOWED_NON_WORDS = new Set(`sidebar masters einvoicing saas dash coa cxc cxp fcf uom p12 pfx idp jwt sod saft
 ncf rnc dgii encf cfdi sat afip cuit dian sii sunat sri rut ruc rfc nit nif ubigeo ncm cfop caf nfe ecf pos wms mrp
 psa hcm ap ar gl kpi ocr sso mfa otp qr pdf csv xml json api url uri env cli ui ux crud rbac rls tss infotep afp ars
-sfs srl webauthn oauth2 oauth recaptcha captcha stripe virteex e164 iso8601 f001 aria preheader roadmap rail
+sfs srl webauthn oauth2 oauth recaptcha captcha stripe virtex e164 iso8601 f001 aria preheader roadmap rail
 minlength maxlength colspan href src svg png webp html css scss ts js mjs hbs`.split(/\s+/).filter(Boolean));
 
 const isCode = (w) => /^[a-z]?\d+[a-z]?$/.test(w) || /^\d+$/.test(w) || w.length <= 2;

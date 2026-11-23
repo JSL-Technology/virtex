@@ -2,8 +2,16 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FixedAsset } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
+import { FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
+import { FixedAssetCategory } from './entities/fixed-asset-category.entity';
+import { FixedAssetBook } from './entities/fixed-asset-book.entity';
+import { FixedAssetBookCharge } from './entities/fixed-asset-book-charge.entity';
 import { FixedAssetsService } from './fixed-assets.service';
 import { FixedAssetsController } from './fixed-assets.controller';
+import { FixedAssetCategoriesService } from './fixed-asset-categories.service';
+import { FixedAssetCategoriesController } from './fixed-asset-categories.controller';
+import { FixedAssetCapitalizationService } from './capitalization.service';
+import { FixedAssetClosingBlockersProvider } from './fixed-asset-closing-blockers.provider';
 // DepreciationModule provides AssetPostingService, DepreciationService, and DepreciationPort.
 // Importing it here lets FixedAssetsModule reuse those providers without re-declaring them.
 import { DepreciationModule } from './depreciation.module';
@@ -21,12 +29,21 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
     // `DepreciationModule` does `forFeature([FixedAsset])` for its own use but does not re-export
     // TypeOrmModule, so importing it brought the services and not the repository — and Nest could
     // not resolve `FixedAssetsService` at all, which stopped the application booting.
-    TypeOrmModule.forFeature([FixedAsset, FixedAssetDepreciation]),
+    TypeOrmModule.forFeature([
+      FixedAsset,
+      FixedAssetDepreciation,
+      FixedAssetDepreciationRun,
+      FixedAssetCategory,
+      FixedAssetBook,
+      FixedAssetBookCharge,
+    ]),
     DepreciationModule,
     forwardRef(() => JournalEntriesModule),
   ],
-  controllers: [FixedAssetsController],
-  providers: [FixedAssetsService],
+  // The categories first: `fixed-assets/categories` is a path of its own, never an asset id.
+  controllers: [FixedAssetCategoriesController, FixedAssetsController],
+  // The close's checklist hears from the register through the closing-blocker contract.
+  providers: [FixedAssetsService, FixedAssetCategoriesService, FixedAssetCapitalizationService, FixedAssetClosingBlockersProvider],
   exports: [DepreciationModule, FixedAssetsService],
 })
 export class FixedAssetsModule {}

@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -22,19 +22,23 @@ import {
   DimensionsService,
   valueTree,
 } from '../data/dimensions.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { VxNameTranslationsComponent } from '../../../shared/components/name-translations';
+import { LANGUAGE_ENDONYMS, SUPPORTED_LANGUAGES, type LocalizedName } from '@virtex/shared/types';
 
 /** The dimension being edited: a copy, so the list does not change until it is saved. */
 interface Draft {
   id: string | null;
   name: string;
+  /** The name in the languages other than the books'. A dimension in use keeps its name, not these. */
+  nameTranslations: LocalizedName;
   description: string;
   isActive: boolean;
   inUse: boolean;
   values: DimensionValue[];
 }
 
-const emptyDraft = (): Draft => ({ id: null, name: '', description: '', isActive: true, inUse: false, values: [] });
+const emptyDraft = (): Draft => ({ id: null, name: '', nameTranslations: {}, description: '', isActive: true, inUse: false, values: [] });
 
 /**
  * Analytic dimensions (audit H-21): cost centres, projects, regions — whatever the company analyses
@@ -49,12 +53,21 @@ const emptyDraft = (): Draft => ({ id: null, name: '', description: '', isActive
 @Component({
   selector: 'app-dimensions-page',
   standalone: true,
-  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxBadgeComponent, HasPermissionDirective],
+  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxBadgeComponent, HasPermissionDirective, VxNameTranslationsComponent],
   templateUrl: './dimensions.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', '../../../shared/styles/document-form.scss', './dimensions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DimensionsPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
+  /** One column per language a value's label can be translated into: every language but the books'. */
+  protected readonly translationLanguages = computed(() =>
+    SUPPORTED_LANGUAGES.filter((language) => language !== this.locale.booksLanguage()).map((language) => ({
+      language,
+      label: LANGUAGE_ENDONYMS[language],
+    })),
+  );
   private readonly dimensions = inject(DimensionsService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
@@ -83,7 +96,7 @@ export class DimensionsPage implements OnInit {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounts.searchAccounts(query, limit).pipe(map((list) => (list ?? []).filter((account) => account.isPostable && account.isActive)));
   protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountId = (account: Account): string => account.id;
 
   ngOnInit(): void {
@@ -148,6 +161,12 @@ export class DimensionsPage implements OnInit {
     });
   }
 
+  /** One translation of a value's label, in one language. */
+  patchValueTranslation(index: number, language: string, text: string): void {
+    const current = this.draft()?.values[index]?.nameTranslations ?? {};
+    this.patchValue(index, { nameTranslations: { ...current, [language]: text } });
+  }
+
   addValue(): void {
     this.draft.update((draft) => (draft ? { ...draft, values: [...draft.values, { value: '', name: null, isActive: true, parent: null }] } : draft));
   }
@@ -193,14 +212,20 @@ export class DimensionsPage implements OnInit {
     this.problem.set(problem);
     if (problem) return;
 
+    const languages = this.translationLanguages().map(({ language }) => language);
+    // Every language shown, the empty ones too: an emptied field removes the translation.
+    const translationsOf = (names: LocalizedName | undefined): LocalizedName =>
+      Object.fromEntries(languages.map((language) => [language, ((names ?? {}) as Record<string, string>)[language]?.trim() ?? '']));
     const body = {
       name: draft.name.trim(),
+      nameTranslations: translationsOf(draft.nameTranslations),
       description: draft.description.trim() || null,
       isActive: draft.isActive,
       values: draft.values.map((value) => ({
         ...(value.id ? { id: value.id } : {}),
         value: value.value.trim(),
         name: value.name?.trim() || null,
+        nameTranslations: translationsOf(value.nameTranslations),
         isActive: value.isActive,
         parent: value.parent || null,
       })),
@@ -267,7 +292,7 @@ export class DimensionsPage implements OnInit {
   }
 
   accountName(name: unknown): string {
-    return accountNameOf(name as Parameters<typeof accountNameOf>[0]);
+    return this.locale.nameOf(name as Parameters<typeof accountNameOf>[0]);
   }
 
   activeCount(dimension: Dimension): number {
@@ -279,10 +304,11 @@ function toDraft(dimension: Dimension): Draft {
   return {
     id: dimension.id,
     name: dimension.name,
+    nameTranslations: { ...(dimension.nameTranslations ?? {}) },
     description: dimension.description ?? '',
     isActive: dimension.isActive,
     inUse: dimension.inUse,
-    values: dimension.values.map((value) => ({ ...value })),
+    values: dimension.values.map((value) => ({ ...value, nameTranslations: { ...(value.nameTranslations ?? {}) } })),
   };
 }
 

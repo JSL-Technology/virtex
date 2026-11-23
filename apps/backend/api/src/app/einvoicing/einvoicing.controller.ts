@@ -1,3 +1,4 @@
+import { UploadCertificateFieldsDto } from './dto/upload-certificate.dto';
 import { Controller, Get, Post, Delete, Query, Param, Body, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
@@ -7,26 +8,48 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
 import type { HttpResponse as Response } from '../common/http/http.types';
-import { EcfCertificateService } from './services/ecf-certificate.service';
-import { EcfSubmissionService } from './services/ecf-submission.service';
-import { EcfLifecycleService } from './services/ecf-lifecycle.service';
-import { CommercialApprovalDto } from './dto/commercial-approval.dto';
+import { SigningCertificateService } from './services/signing-certificate.service';
+import { FiscalSubmissionService, visibleSubmission } from './services/fiscal-submission.service';
+import { FiscalDocumentEventsService } from './services/fiscal-document-events.service';
+import { FiscalRegimeRegistry } from './regimes/fiscal-regime.registry';
+import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
+import { CounterpartyVerdictDto } from './dto/counterparty-verdict.dto';
 import { VoidSequenceRangeDto } from './dto/void-sequence-range.dto';
-import { EcfMessageKind } from './entities/ecf-lifecycle-message.entity';
+import { FiscalDocumentEvent, FiscalDocumentEventKind } from './entities/fiscal-document-event.entity';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 /**
- * Tenant-facing e-CF operations: manage the DGII signing certificate, inspect a document's e-CF
- * status, and trigger a (re)submission. Certificate mutations require company-settings permission;
- * document operations require the invoice permissions.
+ * Tenant-facing electronic-invoicing operations: manage the signing certificate, inspect where a
+ * document stands with its authority, and trigger a (re)submission. Certificate mutations require
+ * company-settings permission; document operations require the invoice permissions.
+ *
+ * One set of routes for every market: the Dominican e-CF had its own pipeline and its own table
+ * until its regime became an adapter like the others, and these routes answered for it alone.
  */
 @Controller('einvoicing')
 export class EinvoicingController {
   constructor(
-    private readonly certificates: EcfCertificateService,
-    private readonly submissions: EcfSubmissionService,
-    private readonly lifecycle: EcfLifecycleService,
+    private readonly certificates: SigningCertificateService,
+    private readonly submissions: FiscalSubmissionService,
+    private readonly events: FiscalDocumentEventsService,
+    private readonly regimes: FiscalRegimeRegistry,
+    private readonly organizations: TenantCountryResolver,
   ) {}
+
+  /**
+   * What this tenant's regime does with declarations about documents.
+   *
+   * Resolved through the registry: the door named the Dominican service, so a market whose
+   * authority receives these would have had to be added here rather than in its own package.
+   */
+  private async documentEvents(organizationId: string) {
+    const country = await this.organizations.resolve(organizationId);
+    const port = this.regimes.forCountry(country)?.documentEvents;
+    if (!port) {
+      throw new BadRequestError('einvoicing.market_receives_no_document_events', { country });
+    }
+    return port;
+  }
 
   @Post('certificates')
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
@@ -47,19 +70,15 @@ export class EinvoicingController {
   )
   async uploadCertificate(
     @UploadedFile() file: FastifyFile,
-    @Body() body: Record<string, unknown>,
+    @Body() body: UploadCertificateFieldsDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (!file?.buffer?.length) {
       throw new BadRequestError('einvoicing.you_must_attach_certificate_file_p12');
     }
 
-    // With attachFieldsToBody, text fields arrive either raw or wrapped as `{ value }`.
-    const password = this.field(body, 'password');
-    const alias = this.field(body, 'alias');
-    if (!password) throw new BadRequestError('einvoicing.certificate.password_required');
-
-    return this.certificates.upload(user.organizationId, { pfx: file.buffer, password, alias });
+    // FastifyFileInterceptor unwraps the multipart fields before the DTO is validated.
+    return this.certificates.upload(user.organizationId, { pfx: file.buffer, password: body.password, alias: body.alias ?? '' });
   }
 
   @Get('certificates')
@@ -94,17 +113,27 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    return submission ? this.toStatusView(submission) : null;
+    return submission ? visibleSubmission(submission) : null;
   }
 
+  /**
+   * Transmit it now, or ask again about one already transmitted.
+   *
+   * A verdict the authority has already given is not reopened: `retryNow` answers 409 for it,
+   * because a second transmission of an accepted document is a second fiscal document.
+   */
   @Post('invoices/:invoiceId/submit')
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   async submit(
     @Param('invoiceId', UuidParamPipe) invoiceId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const submission = await this.submissions.submitInvoice(invoiceId, user.organizationId);
-    return this.toStatusView(submission);
+    const existing = await this.submissions.findByInvoice(invoiceId, user.organizationId);
+    const submission = existing
+      ? await this.submissions.retryNow(existing.id, user.organizationId)
+      : await this.submissions.process(invoiceId, user.organizationId);
+    if (!submission) throw new NotFoundError('einvoicing.submission_not_found');
+    return visibleSubmission(submission);
   }
 
   @Get('invoices/:invoiceId/xml')
@@ -115,36 +144,34 @@ export class EinvoicingController {
     @Res() res: Response,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission?.signedXml) throw new NotFoundError('einvoicing.no_signed_cf_invoice');
+    if (!submission?.payload) throw new NotFoundError('einvoicing.no_signed_cf_invoice');
     res
       .header('Content-Type', 'application/xml; charset=utf-8')
-      .header('Content-Disposition', `attachment; filename="${submission.ncf}.xml"`)
-      .send(submission.signedXml);
+      .header('Content-Disposition', `attachment; filename="${submission.fiscalNumber ?? submission.invoiceId}.xml"`)
+      .send(submission.payload);
   }
 
-  // ── Aprobación comercial ───────────────────────────────────────────────────
+  // ── What a taxpayer tells the authority ABOUT documents ────────────────────
 
   /**
-   * Answer a comprobante a supplier issued to this tenant.
+   * Answer a document a counterparty issued to this tenant.
    *
-   * `INVOICES_VIEW` would be wrong: accepting a supplier's comprobante commits the tenant to the
-   * purchase and to the ITBIS credit it carries, and rejecting it is a formal dispute. It is an
-   * act on payables, so it takes the create permission.
+   * `INVOICES_VIEW` would be wrong: accepting a supplier's document commits the tenant to the
+   * purchase and to the tax credit it carries, and rejecting it is a formal dispute. It is an act
+   * on payables, so it takes the create permission.
    */
   @Post('received/approval')
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   async answerReceived(
-    @Body() dto: CommercialApprovalDto,
+    @Body() dto: CounterpartyVerdictDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const message = await this.lifecycle.answerReceived(user.organizationId, dto);
-    return this.toMessageView(message);
+    const port = await this.documentEvents(user.organizationId);
+    return this.toEventView(await port.answerReceived(user.organizationId, dto));
   }
 
-  // ── Anulación de e-NCF ─────────────────────────────────────────────────────
-
   /**
-   * Declare a stretch of an authorized e-NCF range as annulled.
+   * Declare a stretch of an authorised range as annulled.
    *
    * Guarded by `INVOICES_VOID`: it permanently removes fiscal numbers from circulation, which is
    * closer to voiding a document than to issuing one.
@@ -155,98 +182,49 @@ export class EinvoicingController {
     @Body() dto: VoidSequenceRangeDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const message = await this.lifecycle.voidRange(user.organizationId, dto);
-    return this.toMessageView(message);
+    const port = await this.documentEvents(user.organizationId);
+    return this.toEventView(await port.voidRange(user.organizationId, dto));
   }
 
-  /** Everything this tenant has sent outside the comprobante flow, newest first. */
+  /** Everything this tenant has declared about documents, newest first. */
   @Get('messages')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async listMessages(
     @CurrentUser() user: AuthenticatedUser,
     @Query('kind') kind?: string,
   ) {
-    if (kind && !(kind in EcfMessageKind)) {
+    if (kind && !(kind in FiscalDocumentEventKind)) {
       throw new BadRequestError('einvoicing.unknown_message_type_kind_use_commercial', { kind });
     }
-    const messages = await this.lifecycle.list(
-      user.organizationId,
-      kind ? (kind as EcfMessageKind) : undefined,
-    );
-    return messages.map((message) => this.toMessageView(message));
+    const events = await this.events.list(user.organizationId, kind ? (kind as FiscalDocumentEventKind) : undefined);
+    return events.map((event) => this.toEventView(event));
   }
 
   /**
    * The shape a client may see.
    *
-   * The signed XML is deliberately absent: it carries the tenant's signature over its own RNC and
-   * is served only by the explicit download route, which is permissioned separately.
+   * The sealed declaration is deliberately absent: it carries the tenant's signature over its own
+   * identifier and is served only by the explicit download route, which is permissioned separately.
    */
-  private toMessageView(m: {
-    id: string;
-    kind: EcfMessageKind;
-    issuerRnc?: string | null;
-    ncf?: string | null;
-    ecfType?: string | null;
-    sequenceFrom?: string | null;
-    sequenceTo?: string | null;
-    verdict?: string | null;
-    rejectionReason?: string | null;
-    status: string;
-    trackId?: string | null;
-    messages?: string[] | null;
-    sentAt?: Date | null;
-    respondedAt?: Date | null;
-    createdAt: Date;
-  }) {
+  private toEventView(event: FiscalDocumentEvent) {
     return {
-      id: m.id,
-      kind: m.kind,
-      issuerRnc: m.issuerRnc ?? null,
-      ncf: m.ncf ?? null,
-      ecfType: m.ecfType ?? null,
-      sequenceFrom: m.sequenceFrom ?? null,
-      sequenceTo: m.sequenceTo ?? null,
-      verdict: m.verdict ?? null,
-      rejectionReason: m.rejectionReason ?? null,
-      status: m.status,
-      trackId: m.trackId ?? null,
-      messages: m.messages ?? [],
-      sentAt: m.sentAt ?? null,
-      respondedAt: m.respondedAt ?? null,
-      createdAt: m.createdAt,
+      id: event.id,
+      countryCode: event.countryCode,
+      regime: event.regime,
+      kind: event.kind,
+      counterpartyTaxId: event.counterpartyTaxId ?? null,
+      documentNumber: event.documentNumber ?? null,
+      documentType: event.documentType ?? null,
+      sequenceFrom: event.sequenceFrom ?? null,
+      sequenceTo: event.sequenceTo ?? null,
+      verdict: event.verdict ?? null,
+      rejectionReason: event.rejectionReason ?? null,
+      status: event.status,
+      trackingId: event.trackingId ?? null,
+      messages: event.messages ?? [],
+      sentAt: event.sentAt ?? null,
+      respondedAt: event.respondedAt ?? null,
+      createdAt: event.createdAt,
     };
-  }
-
-  private toStatusView(s: {
-    ncf: string;
-    ecfType: string;
-    status: string;
-    trackId?: string;
-    securityCode?: string;
-    qrUrl?: string;
-    messages?: string[];
-    sentAt?: Date;
-    respondedAt?: Date;
-  }) {
-    return {
-      ncf: s.ncf,
-      ecfType: s.ecfType,
-      status: s.status,
-      trackId: s.trackId ?? null,
-      securityCode: s.securityCode ?? null,
-      qrUrl: s.qrUrl ?? null,
-      messages: s.messages ?? [],
-      sentAt: s.sentAt ?? null,
-      respondedAt: s.respondedAt ?? null,
-    };
-  }
-
-  private field(body: Record<string, unknown>, key: string): string {
-    const raw = body?.[key];
-    if (raw == null) return '';
-    if (typeof raw === 'string') return raw;
-    const wrapped = raw as { value?: unknown };
-    return typeof wrapped.value === 'string' ? wrapped.value : String(wrapped.value ?? '');
   }
 }

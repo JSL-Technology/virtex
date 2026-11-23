@@ -7,7 +7,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { isPlatformPermission } from '../security/platform-permissions';
 import { RoleDelegationPort } from '../auth/ports/role-delegation.port';
 /**

@@ -22,7 +22,7 @@ export class CreateProjectTaskDto {
   @IsOptional()
   assignedToUserId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   dueDate?: string;
 

@@ -23,7 +23,7 @@ export class VoidVendorBillDto {
    * during the close, before the month is locked, belongs in the month it corrects, so the date is
    * the caller's to state.
    */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   reversalDate?: string;
 }

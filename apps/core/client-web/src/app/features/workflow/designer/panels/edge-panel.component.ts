@@ -1,4 +1,4 @@
-import { TranslateModule, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxPluralKeyPipe } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertTriangle, ArrowRight, CircleAlert, LucideAngularModule, Spline, Trash2 } from 'lucide-angular';

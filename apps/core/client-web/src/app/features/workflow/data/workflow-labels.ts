@@ -1,6 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
+import { translateOrLiteral } from '@virtex/shared/ui-i18n';
 import {
   CircleDot,
   Clock,

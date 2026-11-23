@@ -25,10 +25,11 @@ export class VendorBillImportRowDto {
   @MaxLength(30, { message: 'validation.constraints.max_length|{"max":30}' })
   vendorTaxId!: string;
 
+  /** The number the authority assigned to the supplier's document, where its market has one. */
   @IsString()
   @IsOptional()
   @MaxLength(30, { message: 'validation.constraints.max_length|{"max":30}' })
-  ncf?: string;
+  supplierFiscalNumber?: string;
 
   /** The number on the supplier's own invoice. */
   @IsString()
@@ -36,10 +37,10 @@ export class VendorBillImportRowDto {
   @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })
   supplierInvoiceNumber?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   date!: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   dueDate!: string;
 
   @IsString()

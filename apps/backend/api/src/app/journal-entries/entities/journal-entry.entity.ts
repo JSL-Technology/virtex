@@ -19,6 +19,7 @@ import { JournalEntryAttachment } from './journal-entry-attachment.entity';
 import { Journal } from './journal.entity';
 import { Ledger } from '../../accounting/entities/ledger.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
+import type { NarrativeRef } from '@virtex/shared/types';
 
 export enum JournalEntryStatus {
   DRAFT = 'Draft',
@@ -48,6 +49,10 @@ export enum JournalEntryType {
   AUDIT_ADJUSTMENT = 'AUDIT_ADJUSTMENT',
 }
 
+@Check(
+  'CHK_journal_entries_description_narrative',
+  `("description_key" IS NULL AND "description_params" IS NULL) OR ("description_key" IS NOT NULL AND "description_params" IS NOT NULL AND "description_key" ~ '^[a-z0-9][a-z0-9_]*(\\.[a-z0-9_]+)+$' AND jsonb_typeof("description_params") = 'object')`,
+)
 @Entity({ name: 'journal_entries' })
 // Every balance in the product is a SUM over posted entries in a date range for one tenant.
 // Without this the ledger had no index at all beyond its primary key.
@@ -109,8 +114,20 @@ export class JournalEntry {
   @Column({ name: 'entry_number', type: 'varchar', length: 40, nullable: true })
   entryNumber: string | null;
 
+  /** The narrative as the books record it, in the books language: the record. */
   @Column()
   description: string;
+
+  /**
+   * The message the system wrote `description` from, and its values, so a reader in another
+   * language sees it in theirs (`LanguageAxis.Interface`) while `description` stays the record.
+   * Null for an entry a person narrated, and for one written before narratives were kept so.
+   */
+  @Column({ name: 'description_key', type: 'varchar', length: 160, nullable: true })
+  descriptionKey: string | null;
+
+  @Column({ name: 'description_params', type: 'jsonb', nullable: true })
+  descriptionParams: NarrativeRef['params'] | null;
 
   /**
    * Who posted this entry, and when.

@@ -7,13 +7,13 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { RolesService, Role } from '../../data/roles.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 export const APPROVAL_DOCUMENT_TYPES = ['VENDOR_BILL', 'PAYMENT_BATCH', 'JOURNAL_ENTRY', 'PERIOD_REOPENING', 'AUDIT_ADJUSTMENT'] as const;
 type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number];

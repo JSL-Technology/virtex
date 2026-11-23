@@ -28,6 +28,17 @@ export class AssetPostingService {
     return this.posting.createWithManager(manager, dto, organizationId, context);
   }
 
+  /** Reverse an entry the register posted, on the caller's transaction. */
+  reverse(
+    manager: EntityManager,
+    journalEntryId: string,
+    organizationId: string,
+    options: { reversalDate: string; reason: string },
+    context?: PostingContext,
+  ): Promise<JournalEntry> {
+    return this.posting.createSystemReversal(journalEntryId, organizationId, options, manager, context);
+  }
+
   createWithQueryRunner(
     queryRunner: QueryRunner,
     dto: CreateJournalEntryDto,

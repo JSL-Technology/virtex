@@ -1,3 +1,4 @@
+import { planFeatureLabelKey } from '@virtex/shared/types';
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TabModel, TabType, OpenTabConfig } from './tab.model';
@@ -100,9 +101,16 @@ export class TabStateService {
   openTab(config: OpenTabConfig): void {
     const { definition, params } = this.registry.resolve(config.route);
 
-    // §5.3 / §10: permisos (espejo de permissionsGuard).
-    if (!this.registry.canOpen(definition)) {
-      this.notify.showWarning('core.tabs.you_do_not_have_permission_open');
+    // §5.3 / §10: permisos y plan (espejo de permissionsGuard).
+    const denial = this.registry.denial(definition);
+    if (denial) {
+      if (denial === 'plan' && definition.feature) {
+        // A different answer from a missing permission, with a different remedy: the company's
+        // plan, not the person's role (IA-02).
+        this.notify.showWarning('core.tabs.not_in_plan', { feature: this.translate.instant(planFeatureLabelKey(definition.feature)) });
+      } else {
+        this.notify.showWarning('core.tabs.you_do_not_have_permission_open');
+      }
 
       /**
        * Una entrada EN FRÍO acaba en la página que lo explica, no en el escritorio.
@@ -115,7 +123,9 @@ export class TabStateService {
        * acceso, que es exactamente lo que hace falta saber.
        */
       if (this.tabsSignal().length === 0) {
-        void this.router.navigate(['/unauthorized'], { queryParams: { url: config.route } });
+        void this.router.navigate(['/unauthorized'], {
+          queryParams: { url: config.route, ...(denial === 'plan' && definition.feature ? { feature: definition.feature } : {}) },
+        });
       }
       return;
     }

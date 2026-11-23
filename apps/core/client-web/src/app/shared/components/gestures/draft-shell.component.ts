@@ -15,7 +15,7 @@ import {
 import { AbstractControl, FormGroupDirective } from '@angular/forms';
 import { Subscription, merge } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
 import { RelationshipMapLinkComponent } from '../relationship-map-link';
 

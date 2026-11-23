@@ -1,5 +1,5 @@
 import { RouterLink } from '@angular/router';
-import { TranslateModule, FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,

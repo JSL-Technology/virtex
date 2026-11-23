@@ -7,12 +7,14 @@ import { TaxType, taxTypeLabel } from '../../../../core/models/tax.model';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
+import { VxNameTranslationsComponent } from '../../../../shared/components/name-translations';
 @Component({
   selector: 'app-tax-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [VxNumberInputDirective, ReactiveFormsModule, TranslateModule, DraftShellComponent, VxDateFieldComponent, ...VX_FORM_A11Y, VxNameTranslationsComponent],
   templateUrl: './tax-form.page.html',
   styleUrls: ['./tax-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,11 +47,16 @@ export class TaxFormPage implements OnInit {
   ngOnInit(): void {
     this.taxForm = this.fb.group({
       name: ['', Validators.required],
+      nameTranslations: [{}],
       rate: [0, [Validators.required, Validators.min(0)]],
       type: [TaxType.PERCENTAGE, Validators.required],
       // The tenant's own country, not a hard-coded 'DO'.
       countryCode: [this.locale.tenantContext()?.countryCode || ''],
-    });
+      // The period the rate may be applied in (audit 2026-11-07, LOC-06): a document dated outside
+      // it cannot use it. A rate that changes by law is ended here and recorded again from the new date.
+      effectiveFrom: [null as string | null],
+      effectiveTo: [null as string | null],
+    }, { validators: dateOrder('effectiveFrom', 'effectiveTo') });
     // A percentage is at most 100 (QA M-04: a 150 % tax was accepted); a fixed amount has no cap.
     const applyRateCap = (type: TaxType) =>
       this.taxForm.get('rate')?.setValidators(
@@ -93,6 +100,8 @@ export class TaxFormPage implements OnInit {
           rate: 'masters.tax_form.rate',
           type: 'masters.tax_form.type',
           countryCode: 'masters.tax_form.country_code_optional',
+          effectiveFrom: 'masters.tax_form.effective_from',
+          effectiveTo: 'masters.tax_form.effective_to',
         }),
       );
       return;

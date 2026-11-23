@@ -30,7 +30,7 @@ export class CreateRunDto {
   @Max(12, { message: 'validation.constraints.max|{"max":12}' })
   periodMonth: number;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   payDate?: string;
 

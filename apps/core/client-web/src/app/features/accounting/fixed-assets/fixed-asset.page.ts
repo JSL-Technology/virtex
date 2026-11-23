@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { Router, RouterLink } from '@angular/router';
 
 import { Ban, LucideAngularModule, Pencil, Trash2 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 import { DocumentShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxBranchLabelComponent } from '../../../shared/components/branch-picker';
@@ -13,7 +13,47 @@ import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { BranchesService } from '../../../core/tenancy/branches.service';
-import { FixedAsset, FixedAssetSchedule, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
+import { FixedAsset, FixedAssetSchedule, FixedAssetsService, ScheduledCharge, asPercent, hasBeenDepreciated } from '../data/fixed-assets.service';
+
+/** A fiscal year of a tax book: what it deducted, and where it left the book. */
+export interface TaxYear {
+  /** `2026`, or `2025/2026` for a year that does not start in January. */
+  label: string;
+  deduction: number;
+  accumulatedAfter: number;
+  taxValueAfter: number;
+  /** Charged already, still projected, or both — a year in progress. */
+  state: 'posted' | 'projected' | 'partial';
+}
+
+/**
+ * A tax book's months grouped by the company's fiscal year — what a tax return reads — from the
+ * months charged and those projected.
+ */
+export function taxYearsOf(posted: readonly ScheduledCharge[], projected: readonly ScheduledCharge[], startMonth: number): TaxYear[] {
+  const years = new Map<number, { cents: number; last: ScheduledCharge; posted: boolean; projected: boolean }>();
+  const add = (charge: ScheduledCharge, kind: 'posted' | 'projected') => {
+    const year = Number(charge.periodEnd.slice(0, 4));
+    const month = Number(charge.periodEnd.slice(5, 7));
+    const startYear = month >= startMonth ? year : year - 1;
+    const entry = years.get(startYear) ?? { cents: 0, last: charge, posted: false, projected: false };
+    entry.cents += Math.round(charge.amount * 100);
+    entry.last = charge;
+    entry[kind] = true;
+    years.set(startYear, entry);
+  };
+  posted.forEach((charge) => add(charge, 'posted'));
+  projected.forEach((charge) => add(charge, 'projected'));
+  return [...years.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([startYear, entry]) => ({
+      label: startMonth === 1 ? String(startYear) : `${startYear}/${startYear + 1}`,
+      deduction: entry.cents / 100,
+      accumulatedAfter: entry.last.accumulatedAfter,
+      taxValueAfter: entry.last.bookValueAfter,
+      state: entry.posted && entry.projected ? 'partial' : entry.posted ? 'posted' : 'projected',
+    }));
+}
 import { FIXED_ASSET_TONE } from './fixed-assets.page';
 
 /**
@@ -24,7 +64,7 @@ import { FIXED_ASSET_TONE } from './fixed-assets.page';
 @Component({
   selector: 'app-fixed-asset-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
+  imports: [RouterLink, TranslateModule, VxLocalizedNamePipe, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
   templateUrl: './fixed-asset.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss', '../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,6 +103,15 @@ export class FixedAssetPage implements OnInit {
   readonly busy = signal(false);
   /** The projection is long — sixty months for a vehicle — so it opens folded. */
   readonly showProjection = signal(false);
+  /** The tax book's months, one by one; its years are what opens. */
+  readonly showTaxMonths = signal(false);
+  protected readonly asPercent = asPercent;
+
+  /** The tax book's years, in the company's fiscal years. */
+  readonly taxYears = computed(() => {
+    const book = this.schedule()?.taxBook;
+    return book ? taxYearsOf(book.posted, book.projected, book.fiscalYearStartMonth) : [];
+  });
 
   readonly tone = computed(() => FIXED_ASSET_TONE[this.asset()?.status ?? 'IN_USE']);
   readonly inUse = computed(() => this.asset()?.status === 'IN_USE');

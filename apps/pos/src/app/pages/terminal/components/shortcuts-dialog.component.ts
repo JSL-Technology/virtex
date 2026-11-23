@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, output } from '@angular/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { DialogComponent } from './dialog.component';
 
 /** Shortcuts, as listed to the cashier. The keys the terminal listens for (`TerminalComponent.onKey`). */

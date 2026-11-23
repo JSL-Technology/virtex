@@ -8,13 +8,14 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, MoreHorizontal, PlusCircle, RotateCw, Undo2 } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virtex/shared/ui-i18n';
 import {
   JournalEntriesApiService,
   JournalEntry,
   JournalEntryStatus,
 } from '../../../core/api/journal-entries.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBooksViewToggleComponent } from '../../../shared/components/books-view';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -42,7 +43,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
+  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent, VxBooksViewToggleComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

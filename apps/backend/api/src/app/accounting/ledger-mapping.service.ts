@@ -1,15 +1,49 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { Account } from '../chart-of-accounts/entities/account.entity';
 import { Ledger } from './entities/ledger.entity';
 import { LedgerMappingRule } from './entities/ledger-mapping-rule.entity';
 import { CreateOrUpdateLedgerMapDto } from './dto/ledger-mapping.dto';
-import { NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { LocalizedResult } from '../i18n/localized-message';
 
 @Injectable()
 export class LedgerMappingService {
+  /**
+   * Every rule names accounts of this company, and each source account once (FIN-AC-05).
+   *
+   * The rules were inserted as sent: an account of another company was stopped only by the
+   * database's same-tenant guard, as a bare foreign-key violation, and a source account named twice
+   * by the unique index, as a bare conflict — neither saying which rule. Checked here first, by its
+   * position in the list, before the existing rules are replaced.
+   */
+  private static async assertMappingsFit(
+    manager: EntityManager,
+    organizationId: string,
+    mappings: ReadonlyArray<{ sourceAccountId: string; parentAccountId: string }>,
+  ): Promise<void> {
+    const ids = [...new Set(mappings.flatMap((mapping) => [mapping.sourceAccountId, mapping.parentAccountId]))];
+    const own = new Set(
+      ids.length
+        ? (await manager.find(Account, { where: { organizationId, id: In(ids) }, select: { id: true } })).map((account) => account.id)
+        : [],
+    );
+    const firstLine = new Map<string, number>();
+    mappings.forEach((mapping, index) => {
+      const line = index + 1;
+      if (!own.has(mapping.sourceAccountId) || !own.has(mapping.parentAccountId)) {
+        throw new BadRequestError('accounting.ledger_mapping_account_not_found', { line });
+      }
+      const first = firstLine.get(mapping.sourceAccountId);
+      if (first !== undefined) {
+        throw new BadRequestError('accounting.ledger_mapping_source_repeated', { line, first });
+      }
+      firstLine.set(mapping.sourceAccountId, line);
+    });
+  }
+
   constructor(
     @InjectRepository(LedgerMappingRule)
     private readonly ruleRepository: Repository<LedgerMappingRule>,
@@ -44,6 +78,10 @@ export class LedgerMappingService {
       if (!sourceLedger || !targetLedger) {
         throw new NotFoundError('accounting.one_both_ledgers_not_found');
       }
+      if (sourceLedgerId === targetLedgerId) {
+        throw new BadRequestError('accounting.ledger_mapping_same_ledger');
+      }
+      await LedgerMappingService.assertMappingsFit(manager, organizationId, mappings);
 
 
       await manager.delete(LedgerMappingRule, {

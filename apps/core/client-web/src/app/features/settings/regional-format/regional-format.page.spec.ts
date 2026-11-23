@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { UsersService } from '../data/users.service';

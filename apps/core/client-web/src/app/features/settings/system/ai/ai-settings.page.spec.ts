@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of, throwError } from 'rxjs';
 import { AiSettingsPage } from './ai-settings.page';
 import { AiOverview, AiService } from '../../../ai/data/ai.service';
@@ -52,7 +51,7 @@ describe('AiSettingsPage', () => {
         { provide: NotificationService, useValue: notifications },
         {
           provide: AuthService,
-          useValue: { hasPermissions: () => true, getPermissions$: () => of(['ai_forecasts:run', 'ai_anomalies:resolve']) },
+          useValue: { hasPermissions: () => true, hasFeature: () => true, getPermissions$: () => of(['ai_forecasts:run', 'ai_anomalies:resolve']) },
         },
       ],
     }).compileComponents();

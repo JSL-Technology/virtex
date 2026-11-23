@@ -12,6 +12,7 @@ const item = (overrides: Partial<CollectionsWorklistItem> = {}): CollectionsWork
   customerId: 'c1',
   customerName: 'Tardío SRL',
   email: 'pagos@tardio.do',
+  addresses: ['pagos@tardio.do'],
   phone: null,
   issueDate: '2026-08-01',
   dueDate: '2026-09-01',
@@ -68,7 +69,7 @@ describe('CollectionsPage', () => {
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(draft ? { draft } : {}) } } },
         { provide: CollectionsApiService, useValue: api },
         { provide: NotificationService, useValue: notifications },
-        { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of(['ai_collections:act']), hasPermissions: () => true } },
+        { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of(['collections:act']), hasPermissions: () => true, hasFeature: () => true } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(CollectionsPage);
@@ -114,8 +115,10 @@ describe('CollectionsPage', () => {
     const draft: CollectionActivity = {
       id: 'd1', invoiceId: 'i1', kind: 'REMINDER', status: 'DRAFT', occurredAt: '2026-10-18T10:00:00Z', userId: null, userName: null,
       channel: 'email', outcome: null, promisedDate: null, promisedAmount: null, recipient: 'cxp@tardio.do', message: 'Borrador del asistente', tone: 'cordial',
+      scheduleStep: null,
     };
-    await setup([item({ draftReminderId: 'd1' })], [draft], 'd1');
+    // The draft names one of the customer's contacts: an address the reminder may go to.
+    await setup([item({ draftReminderId: 'd1', addresses: ['pagos@tardio.do', 'cxp@tardio.do'] })], [draft], 'd1');
 
     expect(page.selected()?.invoiceId).toBe('i1');
     expect(page.draftId()).toBe('d1');
@@ -125,6 +128,21 @@ describe('CollectionsPage', () => {
 
     page.send();
     expect(api['send']).toHaveBeenCalledWith('i1', expect.objectContaining({ draftId: 'd1' }));
+  });
+
+  it('a draft to an address no longer on the customer starts from the customer’s own (TES-21)', async () => {
+    const draft: CollectionActivity = {
+      id: 'd1', invoiceId: 'i1', kind: 'REMINDER', status: 'DRAFT', occurredAt: '2026-10-18T10:00:00Z', userId: null, userName: null,
+      channel: 'email', outcome: null, promisedDate: null, promisedAmount: null, recipient: 'ya-no@tardio.do', message: 'Borrador', tone: 'formal',
+      scheduleStep: null,
+    };
+    await setup([item({ draftReminderId: 'd1' })], [draft], 'd1');
+    expect(page.to()).toBe('pagos@tardio.do');
+  });
+
+  it('offers the assistant’s note only on a plan that includes it', async () => {
+    await setup([item()]);
+    expect(page.canCompose()).toBe(true);
   });
 
   it('records a call that ended in a promise, and asks for the date first', async () => {

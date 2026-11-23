@@ -1,6 +1,7 @@
 import { EntityManager } from 'typeorm';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { LoadedCertificate } from '../services/certificate-vault.service';
+import type { FiscalDocumentEventsPort } from './fiscal-document-events.port';
 
 /**
  * One country's electronic invoicing regime, from the document to the authority's verdict.
@@ -38,8 +39,38 @@ export interface SealedFiscalDocument {
    * The CUFE in Colombia, the clave de acceso in Ecuador, the chave de acesso in Brazil: a hash or
    * a check-digited string derived from the document's own fields, which the authority recomputes
    * and compares. Null in a regime that assigns the identifier itself on acceptance.
+   *
+   * A regime that derives it from the SEAL rather than from the document fills it in `seal`: the
+   * Dominican código de seguridad is the first characters of the signature's own digest.
    */
   documentKey: string | null;
+  /**
+   * Where the authority's portal verifies this document, as printed on it — the Dominican QR of
+   * the representación impresa, the NFC-e QR, the SRI's «consulta por clave de acceso». Absent in a
+   * regime that prints no such link.
+   */
+  verificationUrl?: string | null;
+  /**
+   * The number the AUTHORITY settles when the document is transmitted, where its regime assigns it
+   * then rather than from a range the taxpayer draws (`AUTHORITY_ON_TRANSMISSION`).
+   *
+   * AFIP is the case: the taxpayer asks for the next number of a punto de venta and AFIP authorises
+   * that number together with the CAE, so the document HAS no number until the exchange succeeds.
+   * The regime reports it here and the outbox records it on acceptance, which is what makes the
+   * number available to the printed document and to the notes that later refer to it — without it,
+   * the product never learns which number the authority authorised for its own document.
+   */
+  assignedNumber?: AuthorityAssignedNumber | null;
+}
+
+/** A number the authority itself assigned, in the three forms everything downstream needs. */
+export interface AuthorityAssignedNumber {
+  /** As a person reads it on the document: AFIP's `0004-00000123`. */
+  fiscalNumber: string;
+  /** The consecutive the authority counts, bare. */
+  sequence: number;
+  /** The series it belongs to: AFIP's punto de venta, an establishment's point. */
+  series: string;
 }
 
 /** What the authority answered, or what stopped us asking. */
@@ -51,8 +82,16 @@ export interface FiscalTransmissionResult {
    * certificate or the endpoint credentials this regime needs. The document is valid and stored;
    * it simply has not been sent. Distinguishing it from `REJECTED` matters because one is fixed in
    * settings and the other by correcting the invoice.
+   *
+   * `ACCEPTED_WITH_OBSERVATIONS` is the authority's own third verdict where it has one — «Aceptado
+   * Condicional» at the DGII, an accepted CDR carrying observations at SUNAT. The document stands;
+   * the observations are the taxpayer's to read, and flattening them into `ACCEPTED` loses them.
+   *
+   * `CONTINGENCY` is the document issued while the authority could not be reached. The sale
+   * happened and the number is spent, so it is owed to the authority and retried — never confused
+   * with a document nobody tried to send (`PENDING`) or one we failed to build (`ERROR`).
    */
-  status: 'ACCEPTED' | 'PENDING' | 'REJECTED' | 'NOT_CONFIGURED';
+  status: 'ACCEPTED' | 'ACCEPTED_WITH_OBSERVATIONS' | 'PENDING' | 'REJECTED' | 'NOT_CONFIGURED' | 'CONTINGENCY';
   /** The authority's tracking handle: trackId, CAE, número de autorización, protocolo. */
   trackingId?: string | null;
   /** The stamp the authority returned, where it returns one to keep. */
@@ -67,6 +106,14 @@ export interface FiscalRegimeContext {
   invoice: Invoice;
   organizationId: string;
   manager: EntityManager;
+  /**
+   * Which attempt this is, counting from 1.
+   *
+   * A regime that can ask the authority whether it already holds the document does so from the
+   * second attempt onwards: a retry after a dropped connection must not transmit a second time
+   * what the authority already accepted, which is how one sale ends with two fiscal documents.
+   */
+  attempt: number;
 }
 
 /**
@@ -97,8 +144,26 @@ export interface FiscalRegimeAdapter {
    */
   loadCertificate(context: FiscalRegimeContext): Promise<LoadedCertificate>;
 
-  /** The same document, sealed with the taxpayer's certificate. */
-  seal(document: SealedFiscalDocument, certificate: LoadedCertificate): SealedFiscalDocument;
+  /**
+   * What this regime does with a declaration ABOUT documents — a counterparty's verdict, a void of
+   * authorised numbers — where it has one. Absent in a regime whose authority receives none, and
+   * the door then says so instead of naming a country's service.
+   */
+  readonly documentEvents?: FiscalDocumentEventsPort;
+
+  /**
+   * The same document, sealed with the taxpayer's certificate.
+   *
+   * It takes the context, and may answer asynchronously, because sealing is where a regime learns
+   * things that depend on the signature itself: the Dominican código de seguridad is derived from
+   * it, and the QR printed on the document quotes both that code and the tenant's own timbre
+   * endpoint. A regime whose seal needs neither simply ignores them.
+   */
+  seal(
+    document: SealedFiscalDocument,
+    certificate: LoadedCertificate,
+    context: FiscalRegimeContext,
+  ): SealedFiscalDocument | Promise<SealedFiscalDocument>;
 
   /**
    * Send it. Returns `NOT_CONFIGURED` rather than throwing when the tenant has not supplied
@@ -114,6 +179,18 @@ export interface FiscalRegimeAdapter {
     trackingId: string,
     context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult>;
+
+  /**
+   * Whether this tenant can actually transmit — asked BEFORE a document is issued, because a
+   * number spent on a document the authority never receives cannot be unspent.
+   *
+   * Optional, and what it means differs by regime: most need an endpoint and a credential the
+   * tenant configures (`TransmissionConfigService`), which is what the caller falls back to. The
+   * DGII publishes its own endpoints and authenticates with the taxpayer's certificate, so its
+   * channel IS that certificate and asking for a configured endpoint would block every Dominican
+   * e-CF.
+   */
+  isTransmissionConfigured?(context: Pick<FiscalRegimeContext, 'organizationId' | 'manager'>): Promise<boolean>;
 }
 
 /** Thrown by a regime when the tenant has not configured what it needs. Never a 500. */

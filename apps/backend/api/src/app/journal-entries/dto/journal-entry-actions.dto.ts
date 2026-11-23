@@ -8,7 +8,7 @@ export class UpdateJournalEntryDto extends CreateJournalEntryDto {
 }
 
 export class ReverseJournalEntryDto {
-  @IsDateString({}, { message: 'validation.journal_entry_actions.reversal_date_must_valid_date'})
+  @IsDateString({ strict: true }, { message: 'validation.journal_entry_actions.reversal_date_must_valid_date'})
   @IsNotEmpty({ message: 'validation.journal_entry_actions.reversal_date_required'})
   reversalDate: string;
 

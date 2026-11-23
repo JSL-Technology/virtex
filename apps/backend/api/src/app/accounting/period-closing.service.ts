@@ -35,15 +35,12 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ClosingAutomationService } from './closing-automation.service';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
-import {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
+import { fiscalDate, organizationTimeZone, type TimeZoneBearingOrganization } from '../shared/fiscal-clock';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
-import { moduleStatusColumn } from './period-status';
+import { allowPostingsThrough, moduleStatusColumn } from './period-status';
 import { previousDay, toIsoDate } from '../common/dates';
 
 /**
@@ -165,10 +162,28 @@ export class PeriodClosingService {
   // Closing
   // ───────────────────────────────────────────────────────────────────────────
 
+  /**
+   * The tenant's country and time zone, as columns.
+   *
+   * Not the entity: the ledger must not depend on the identity module (`verify:boundaries`), and
+   * the zone is all that is needed to know what day it is for this company.
+   */
+  private async tenantCalendar(
+    manager: EntityManager,
+    organizationId: string,
+  ): Promise<TimeZoneBearingOrganization> {
+    const [row] = await manager.query<Array<{ country: string | null; timezone: string | null }>>(
+      `SELECT "country", "timezone" FROM "organizations" WHERE "id" = $1`,
+      [organizationId],
+    );
+    return row ?? {};
+  }
+
   async closePeriod(
     periodId: string,
     organizationId: string,
     actorUserId: string,
+    options: { closeBeforeItEnds?: boolean } = {},
   ): Promise<AccountingPeriod> {
     return this.dataSource.transaction(async (manager) => {
       // Exclusive: postings into this period hold it FOR SHARE (resolvePostingPeriod), so this waits
@@ -188,6 +203,20 @@ export class PeriodClosingService {
       }
       if (period.status === PeriodStatus.CLOSED) {
         throw new BadRequestError('accounting.period_already_closed');
+      }
+
+      // A period that has not ended is not a period that is ready to close. There was no check:
+      // «Noviembre 2026» closed on the 7th of November, and December closed before it began
+      // (FIN-AC-02). Closing it early refuses every posting in the rest of it — each sale,
+      // payment and payroll entry — so it is said out loud or not at all. In the tenant's own
+      // calendar, because in UTC the last day of the month is already over in Santo Domingo at
+      // 20:00 of the day before.
+      const today = fiscalDate(organizationTimeZone(await this.tenantCalendar(manager, organizationId)));
+      if (toIsoDate(period.endDate) >= today && !options.closeBeforeItEnds) {
+        throw new BadRequestError('accounting.period_has_not_ended_yet', {
+          name: period.name,
+          endDate: toIsoDate(period.endDate),
+        });
       }
 
       // Periods close in order. Closing March while January is still open would compute March's
@@ -234,11 +263,15 @@ export class PeriodClosingService {
 
       // Depreciation and FX revaluation post into the period being closed, before it is locked.
       // Because balances are read from the journal through this same transaction, everything they
-      // post is visible to the year-end result transfer later.
+      // post is visible to the year-end result transfer later. They are dated at the period's end,
+      // which a close made before it ends puts past the posting horizon: within this close, the
+      // horizon reaches it (`allowPostingsThrough`).
+      await allowPostingsThrough(manager, period.endDate);
       await this.closingAutomationService.runPreClosingTasks(
         period,
         organizationId,
         manager,
+        actorUserId,
       );
 
       // Deliberately no closing entry. See `ResultTransferService`: moving the result to retained
@@ -289,7 +322,7 @@ export class PeriodClosingService {
     // No fiscal year on record is not an error: a tenant may run periods without declaring years,
     // and the annual close is what creates the requirement, not the other way round.
     if (year && year.status !== FiscalYearStatus.OPEN) {
-      throw new ForbiddenError('accounting.fiscal_year_from_closed_reopen_before', {
+      throw new ConflictError('accounting.fiscal_year_from_closed_reopen_before', {
         from: toIsoDate(year.startDate),
         to: toIsoDate(year.endDate),
       });
@@ -349,7 +382,7 @@ export class PeriodClosingService {
         order: { startDate: 'ASC' },
       });
       if (laterClosed) {
-        throw new ForbiddenError('accounting.period_cannot_reopened_because_following_period');
+        throw new ConflictError('accounting.period_cannot_reopened_because_following_period');
       }
 
       // Open it first. The reversal below is a posting, and a posting into a closed period is

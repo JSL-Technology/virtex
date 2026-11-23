@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { FormatService } from '@virtex/shared/ui-i18n';
 import { AuthService } from './auth.service';
 import { PosSale, ShiftReport } from './pos-api.service';
 import { PrinterService } from './printer.service';

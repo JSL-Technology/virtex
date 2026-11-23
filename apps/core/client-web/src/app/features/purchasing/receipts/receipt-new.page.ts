@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';

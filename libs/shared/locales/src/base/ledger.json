@@ -1,4 +1,9 @@
 {
+  "ledger.account_label": {
+    "es": "{{code}} — {{name}}",
+    "en": "{{code}} — {{name}}",
+    "pt": "{{code}} — {{name}}"
+  },
   "ledger.adjustment.audit": {
     "es": "Ajuste de auditoría: {{description}}",
     "en": "Audit adjustment: {{description}}",
@@ -38,6 +43,26 @@
     "es": "Transferencia a la cuenta relacionada {{account}}",
     "en": "Transfer to related account {{account}}",
     "pt": "Transferência para a conta relacionada {{account}}"
+  },
+  "ledger.adjustment_type.accrual": {
+    "es": "devengo",
+    "en": "accrual",
+    "pt": "competência"
+  },
+  "ledger.adjustment_type.deferral": {
+    "es": "diferimiento",
+    "en": "deferral",
+    "pt": "diferimento"
+  },
+  "ledger.adjustment_type.general": {
+    "es": "general",
+    "en": "general",
+    "pt": "geral"
+  },
+  "ledger.adjustment_type.provision": {
+    "es": "provisión",
+    "en": "provision",
+    "pt": "provisão"
   },
   "ledger.collection.advance_applied": {
     "es": "Aplicación de anticipo de cliente",
@@ -118,6 +143,36 @@
     "es": "Baja de depreciación acumulada — {{asset}}",
     "en": "Accumulated depreciation written back — {{asset}}",
     "pt": "Baixa da depreciação acumulada — {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_accumulated": {
+    "es": "Depreciación acumulada inicial de {{asset}}",
+    "en": "Opening accumulated depreciation of {{asset}}",
+    "pt": "Depreciação acumulada inicial de {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_cost": {
+    "es": "Costo de {{asset}}",
+    "en": "Cost of {{asset}}",
+    "pt": "Custo de {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_entry": {
+    "es": "Alta de activo fijo: {{asset}}",
+    "en": "Fixed-asset acquisition: {{asset}}",
+    "pt": "Entrada de ativo imobilizado: {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_offset": {
+    "es": "Contrapartida del alta de {{asset}}",
+    "en": "Offset of the acquisition of {{asset}}",
+    "pt": "Contrapartida da entrada de {{asset}}"
+  },
+  "ledger.fixed_asset.capitalization_deleted": {
+    "es": "{{asset}} eliminado del registro de activos",
+    "en": "{{asset}} deleted from the asset register",
+    "pt": "{{asset}} excluído do registro de ativos"
+  },
+  "ledger.fixed_asset.capitalization_replaced": {
+    "es": "capitalización de {{asset}} corregida",
+    "en": "capitalization of {{asset}} corrected",
+    "pt": "capitalização de {{asset}} corrigida"
   },
   "ledger.fixed_asset.cost_reversal": {
     "es": "Baja de activo fijo: {{asset}}",
@@ -209,6 +264,16 @@
     "en": "Decrease on adjustment — {{product}}",
     "pt": "Saída por ajuste — {{product}}"
   },
+  "ledger.inventory.adjustment_revaluation_down": {
+    "es": "Revaluación de costo de inventario (baja)",
+    "en": "Inventory cost revaluation (decrease)",
+    "pt": "Reavaliação de custo de estoque (baixa)"
+  },
+  "ledger.inventory.adjustment_revaluation_up": {
+    "es": "Revaluación de costo de inventario (alza)",
+    "en": "Inventory cost revaluation (increase)",
+    "pt": "Reavaliação de custo de estoque (alta)"
+  },
   "ledger.inventory.adjustment_shortfall": {
     "es": "Faltante en ajuste de inventario",
     "en": "Shortfall found on stock adjustment",
@@ -259,11 +324,6 @@
     "en": "Opening balance",
     "pt": "Saldo inicial"
   },
-  "ledger.payroll.afp_payable": {
-    "es": "AFP por pagar (TSS)",
-    "en": "AFP payable (TSS)",
-    "pt": "AFP a pagar (TSS)"
-  },
   "ledger.payroll.bank_back": {
     "es": "Reingreso a banco por ajuste",
     "en": "Bank credit on payroll adjustment",
@@ -284,15 +344,15 @@
     "en": "Employer's contributions and benefits",
     "pt": "Contribuições patronais e benefícios"
   },
-  "ledger.payroll.infotep_payable": {
-    "es": "SRL/INFOTEP por pagar",
-    "en": "SRL/INFOTEP payable",
-    "pt": "SRL/INFOTEP a pagar"
+  "ledger.payroll.health_payable": {
+    "es": "Aportes de salud por pagar",
+    "en": "Health contributions payable",
+    "pt": "Contribuições de saúde a pagar"
   },
   "ledger.payroll.isr_payable": {
-    "es": "ISR retenido por pagar (DGII)",
-    "en": "ISR withheld, payable (DGII)",
-    "pt": "ISR retido a pagar (DGII)"
+    "es": "Impuesto sobre la renta retenido por pagar",
+    "en": "Income tax withheld, payable",
+    "pt": "Imposto de renda retido a pagar"
   },
   "ledger.payroll.net_adjusted": {
     "es": "Ajuste de pago de nómina",
@@ -309,6 +369,11 @@
     "en": "Net wages payable",
     "pt": "Vencimentos a pagar (líquido)"
   },
+  "ledger.payroll.other_contributions_payable": {
+    "es": "Otros aportes laborales por pagar",
+    "en": "Other payroll contributions payable",
+    "pt": "Outras contribuições trabalhistas a pagar"
+  },
   "ledger.payroll.other_deductions": {
     "es": "Otras deducciones por pagar",
     "en": "Other deductions payable",
@@ -319,6 +384,11 @@
     "en": "Payroll payment {{run}}",
     "pt": "Pagamento da folha {{run}}"
   },
+  "ledger.payroll.pension_payable": {
+    "es": "Aportes de pensión por pagar",
+    "en": "Pension contributions payable",
+    "pt": "Contribuições de previdência a pagar"
+  },
   "ledger.payroll.run": {
     "es": "Nómina {{run}}",
     "en": "Payroll {{run}}",
@@ -328,11 +398,6 @@
     "es": "Gasto de sueldos y salarios",
     "en": "Wages and salaries expense",
     "pt": "Gasto com vencimentos e salários"
-  },
-  "ledger.payroll.sfs_payable": {
-    "es": "SFS por pagar (TSS)",
-    "en": "SFS payable (TSS)",
-    "pt": "SFS a pagar (TSS)"
   },
   "ledger.pos.cash_in": {
     "es": "Efectivo cobrado en caja",
@@ -409,10 +474,20 @@
     "en": "Depreciation journal",
     "pt": "Diário de depreciação"
   },
+  "ledger.provisioning.journals.fixed_assets": {
+    "es": "Diario de activos fijos",
+    "en": "Fixed assets journal",
+    "pt": "Diário de ativo imobilizado"
+  },
   "ledger.provisioning.journals.general": {
     "es": "Diario general",
     "en": "General journal",
     "pt": "Diário geral"
+  },
+  "ledger.provisioning.journals.inflation_adjustment": {
+    "es": "Diario de ajuste por inflación",
+    "en": "Inflation adjustment journal",
+    "pt": "Diário de correção monetária"
   },
   "ledger.provisioning.journals.payments": {
     "es": "Diario de pagos",
@@ -654,6 +729,11 @@
     "en": "Reversal of {{number}}. Reason: {{reason}}",
     "pt": "Estorno de {{number}}. Motivo: {{reason}}"
   },
+  "ledger.reversal.line": {
+    "es": "Reversión: {{line}}",
+    "en": "Reversal: {{line}}",
+    "pt": "Estorno: {{line}}"
+  },
   "ledger.reversal.line_prefix": {
     "es": "Reversión: ",
     "en": "Reversal: ",
@@ -663,6 +743,11 @@
     "es": "Diferencia de redondeo por conversión de moneda",
     "en": "Rounding difference on currency conversion",
     "pt": "Diferença de arredondamento na conversão de moeda"
+  },
+  "ledger.sales.cancellation": {
+    "es": "Anulación de la factura {{number}}{{fiscal}} — {{customer}}",
+    "en": "Cancellation of invoice {{number}}{{fiscal}} — {{customer}}",
+    "pt": "Anulação da fatura {{number}}{{fiscal}} — {{customer}}"
   },
   "ledger.sales.cost_of": {
     "es": "Costo de {{document}}",
@@ -734,14 +819,9 @@
     "en": "Tax withheld from the supplier",
     "pt": "Retenções efetuadas ao fornecedor"
   },
-  "ledger.inventory.adjustment_revaluation_up": {
-    "es": "Revaluación de costo de inventario (alza)",
-    "en": "Inventory cost revaluation (increase)",
-    "pt": "Reavaliação de custo de estoque (alta)"
-  },
-  "ledger.inventory.adjustment_revaluation_down": {
-    "es": "Revaluación de costo de inventario (baja)",
-    "en": "Inventory cost revaluation (decrease)",
-    "pt": "Reavaliação de custo de estoque (baixa)"
+  "ledger.with_note": {
+    "es": "{{narrative}} — {{note}}",
+    "en": "{{narrative}} — {{note}}",
+    "pt": "{{narrative}} — {{note}}"
   }
 }

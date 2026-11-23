@@ -6,6 +6,7 @@
   [empty]="isEmpty()"
   (reload)="load()"
 >
+  <vx-books-view-toggle listActions />
   <a listActions [routerLink]="['/accounting/journal-entries/new']" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.journal_entries.new_entry' | translate }}</span>
@@ -37,7 +38,7 @@
                 {{ entry.entryNumber || ('accounting.journal_entries.unnumbered' | translate) }}
               </a>
             </td>
-            <td>{{ entry.description }}</td>
+            <td>{{ entry.description | vxNarrative: entry.descriptionKey : entry.descriptionParams }}</td>
             <td class="text-right">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-right">{{ creditTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-center">

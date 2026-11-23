@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { LanguageCode, matchLanguage } from '@virteex/shared/types';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { LanguageCode, matchLanguage } from '@virtex/shared/types';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 export interface DirectoryUser {
   id: string;

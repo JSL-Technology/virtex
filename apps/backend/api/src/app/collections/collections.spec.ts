@@ -31,6 +31,8 @@ describeWithDb('collections', () => {
   let likelihood: PaymentLikelihoodRegistry;
   const mail = { sendPaymentReminder: jest.fn().mockResolvedValue(undefined) };
   const ai = { available: jest.fn().mockReturnValue(true), compose: jest.fn(), extract: jest.fn() };
+  // The plan: AI collections included unless a test says otherwise.
+  const entitlements = { checkFeature: jest.fn().mockResolvedValue(true) };
   const renderer = {
     emailSummary: jest.fn().mockReturnValue({ language: 'es', total: 'USD 1,000.00', balance: 'USD 600.00', dueDate: '1 de octubre de 2026' }),
     renderPdf: jest.fn().mockResolvedValue(Buffer.from('%PDF-1.4')),
@@ -119,7 +121,9 @@ describeWithDb('collections', () => {
       mail as never,
       likelihood,
       ai as never,
+      entitlements as never,
     );
+    entitlements.checkFeature.mockResolvedValue(true);
     organizationId = await organization();
     otherOrganizationId = await organization();
     customerId = await customer(organizationId);
@@ -219,6 +223,36 @@ describeWithDb('collections', () => {
       ).rejects.toMatchObject({ messageKey: 'collections.promise_exceeds_balance' });
     });
 
+    it('a customer’s timeline shows only what was done on invoices of the person’s branches', async () => {
+      const branch = async (code: string): Promise<string> =>
+        (
+          await dataSource.query(`INSERT INTO branches (organization_id, code, name) VALUES ($1, $2, $2) RETURNING id`, [
+            organizationId,
+            code,
+          ])
+        )[0].id;
+      const [north, south] = [await branch(`N-${Date.now()}`), await branch(`S-${Date.now()}`)];
+      const inNorth = await invoice(organizationId, customerId, 600, -10);
+      const inSouth = await invoice(organizationId, customerId, 600, -10);
+      await dataSource.query(`UPDATE invoices SET branch_id = $2 WHERE id = $1`, [inNorth.id, north]);
+      await dataSource.query(`UPDATE invoices SET branch_id = $2 WHERE id = $1`, [inSouth.id, south]);
+      await service.log(organizationId, null as never, { invoiceId: inNorth.id, kind: 'NOTE', message: 'norte' });
+      await service.log(organizationId, null as never, { invoiceId: inSouth.id, kind: 'NOTE', message: 'sur' });
+
+      const northOnly = '55555555-5555-4555-8555-555555555555';
+      await dataSource.query(`INSERT INTO user_branch_access (user_id, branch_id, organization_id) VALUES ($1, $2, $3)`, [
+        northOnly,
+        north,
+        organizationId,
+      ]);
+
+      const limited = await service.activitiesForCustomer(organizationId, northOnly, customerId);
+      expect(limited.map((activity) => activity.message)).toEqual(['norte']);
+      // Someone with every branch sees both.
+      const everyone = await service.activitiesForCustomer(organizationId, null, customerId);
+      expect(everyone.map((activity) => activity.message).sort()).toEqual(['norte', 'sur']);
+    });
+
     it('does not reach another company’s invoice, or one already paid', async () => {
       const foreign = await invoice(otherOrganizationId, await customer(otherOrganizationId), 600, -10);
       const paid = await invoice(organizationId, customerId, 0, -10, InvoiceStatus.PAID);
@@ -265,6 +299,66 @@ describeWithDb('collections', () => {
       renderer.renderPdf.mockRejectedValueOnce(new Error('chromium down'));
       await service.sendReminder(organizationId, { id: null }, open.id, { message: null });
       expect(mail.sendPaymentReminder).toHaveBeenCalledWith(expect.objectContaining({ pdf: null }));
+    });
+
+    it('goes only to an address on the customer: its own, or one of its contacts’ (TES-21)', async () => {
+      const open = await invoice(organizationId, customerId, 600, -10);
+      await dataSource.query(
+        `INSERT INTO customer_contacts (customer_id, "firstName", "lastName", email, "isPrimary") VALUES ($1, 'Rosa', 'Peña', 'Rosa.Pena@Ejemplo.do', true)`,
+        [customerId],
+      );
+      const own = (await dataSource.getRepository(Customer).findOneByOrFail({ id: customerId })).email as string;
+
+      // Anyone else is refused, whether sending now or keeping a draft for later.
+      await expect(
+        service.sendReminder(organizationId, { id: null }, open.id, { to: 'cualquiera@otro.test', message: null }),
+      ).rejects.toMatchObject({ messageKey: 'collections.recipient_not_on_customer' });
+      await expect(service.saveDraft(organizationId, null, open.id, { to: 'cualquiera@otro.test' })).rejects.toMatchObject({
+        messageKey: 'collections.recipient_not_on_customer',
+      });
+      expect(mail.sendPaymentReminder).not.toHaveBeenCalled();
+
+      // A contact's address, whatever its case, is sent as the customer's record spells it.
+      const sent = await service.sendReminder(organizationId, { id: null }, open.id, { to: 'rosa.pena@ejemplo.do', message: null });
+      expect(sent.to).toBe('Rosa.Pena@Ejemplo.do');
+      // Without one, the customer's own address.
+      const byDefault = await service.sendReminder(organizationId, { id: null }, open.id, { message: null });
+      expect(byDefault.to).toBe(own);
+
+      // The worklist offers exactly those, the customer's own first.
+      const [item] = (await service.worklist(organizationId, null)).items;
+      expect(item.addresses).toEqual([own, 'Rosa.Pena@Ejemplo.do']);
+    });
+
+    it('a draft whose contact was removed is not sent to it', async () => {
+      const open = await invoice(organizationId, customerId, 600, -10);
+      const [contact]: Array<{ id: string }> = await dataSource.query(
+        `INSERT INTO customer_contacts (customer_id, "firstName", "lastName", email, "isPrimary") VALUES ($1, 'Luis', 'Mora', 'luis@ejemplo.do', false) RETURNING id`,
+        [customerId],
+      );
+      const draft = await service.saveDraft(organizationId, null, open.id, { to: 'luis@ejemplo.do', message: 'Hola' });
+      await dataSource.query(`DELETE FROM customer_contacts WHERE id = $1`, [contact.id]);
+
+      await expect(service.sendReminder(organizationId, { id: null }, open.id, { draftId: draft.id })).rejects.toMatchObject({
+        messageKey: 'collections.recipient_not_on_customer',
+      });
+    });
+
+    it('the assistant’s note needs the plan’s AI collections, wherever it is asked for', async () => {
+      const open = await invoice(organizationId, customerId, 600, -10);
+      entitlements.checkFeature.mockResolvedValue(false);
+
+      // The route checks it too; this is the copilot and the workflow step, which reach the service.
+      await expect(service.composeReminder(organizationId, { id: null }, open.id, 'formal')).rejects.toMatchObject({
+        messageKey: 'saas.feature_disabled',
+      });
+      expect(entitlements.checkFeature).toHaveBeenCalledWith(organizationId, 'ai_collections');
+      expect(ai.compose).not.toHaveBeenCalled();
+      // …while everything else in collections works on that plan.
+      await expect(service.worklist(organizationId, null)).resolves.toMatchObject({ total: 1 });
+      await expect(service.sendReminder(organizationId, { id: null }, open.id, { message: 'Le recordamos el saldo.' })).resolves.toMatchObject({
+        queued: true,
+      });
     });
 
     it('writes the note from the invoice’s own figures, and refuses when the assistant is off', async () => {

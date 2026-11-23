@@ -3,13 +3,20 @@ import { Entity, Column, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 @Index('IDX_warehouses_org_branch', ['organizationId', 'branchId'])
 @Index('UQ_warehouses_org_default', ['organizationId'], { unique: true, where: '"is_default" = true' })
 @Entity('warehouses')
+@NameTranslationsCheck('warehouses')
 export class Warehouse extends BaseEntity {
   @Column()
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ nullable: true })
   code: string;

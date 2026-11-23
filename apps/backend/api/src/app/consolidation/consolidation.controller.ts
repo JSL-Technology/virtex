@@ -1,5 +1,6 @@
 
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ConsolidationService } from './consolidation.service';
 import { RunConsolidationDto } from './dto/run-consolidation.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -27,10 +28,20 @@ export class ConsolidationController {
     @Body() runDto: RunConsolidationDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.consolidationService.runConsolidation(
-      user.organizationId,
-      runDto.asOfDate,
-      runDto.startDate,
-    );
+    return this.consolidationService.runAndRecord(user.organizationId, runDto.asOfDate, runDto.startDate, user.id);
+  }
+
+  /** The runs kept for the group, newest first: the history of its consolidated figures. */
+  @Get('runs')
+  @HasPermission(PERMISSIONS.FINANCIALS_CONSOLIDATE)
+  listRuns(@CurrentUser() user: AuthenticatedUser, @Query('limit') limit?: string) {
+    return this.consolidationService.listRuns(user.organizationId, Math.min(100, Math.max(1, Number(limit) || 25)));
+  }
+
+  /** One run, with the statements as they were computed. */
+  @Get('runs/:id')
+  @HasPermission(PERMISSIONS.FINANCIALS_CONSOLIDATE)
+  getRun(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.consolidationService.getRun(user.organizationId, id);
   }
 }

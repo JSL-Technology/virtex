@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -12,7 +12,7 @@ import { UNIT_CATEGORIES } from '../data/units-of-measure.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 

@@ -2,8 +2,11 @@
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm';
 import { DimensionValue } from './dimension-value.entity';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 @Entity({ name: 'dimensions' })
+@NameTranslationsCheck('dimensions')
 @Index(['organizationId', 'name'], { unique: true })
 export class Dimension {
   @PrimaryGeneratedColumn('uuid')
@@ -15,6 +18,10 @@ export class Dimension {
    */
   @Column()
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ type: 'text', nullable: true })
   description: string | null;

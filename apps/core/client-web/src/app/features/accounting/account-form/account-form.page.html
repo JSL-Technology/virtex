@@ -55,9 +55,22 @@
                 <input id="code" formControlName="code" [readonly]="isEditing()">
               </div>
               <div class="form-field">
-                <label for="name">{{ 'accounting.account_form.account_name' | translate }} *</label>
+                <label for="name">{{ 'accounting.account_form.account_name' | translate }} ({{ booksLanguageName() }}) *</label>
                 <input id="name" formControlName="name">
+                <small class="field-hint">{{ 'accounting.account_form.account_name_books_hint' | translate: { language: booksLanguageName() } }}</small>
               </div>
+              <fieldset class="form-field full-width" formGroupName="translations">
+                <legend>{{ 'accounting.account_form.translations' | translate }}</legend>
+                <div class="form-grid">
+                  @for (option of translationLanguages(); track option.language) {
+                    <div class="form-field">
+                      <label [for]="'name-' + option.language">{{ option.label }}</label>
+                      <input [id]="'name-' + option.language" [formControlName]="option.language" maxlength="255" [attr.lang]="option.language">
+                    </div>
+                  }
+                </div>
+                <small class="field-hint">{{ 'accounting.account_form.translations_hint' | translate }}</small>
+              </fieldset>
               @if (isEditing()) {
                 <div class="form-field full-width">
                   <label for="reasonForChange">{{ 'accounting.account_form.reason_for_change' | translate }} *</label>
@@ -72,14 +85,15 @@
               <div class="form-field">
                 <label for="parentId">{{ 'accounting.account_form.parent_account_grouping' | translate }}</label>
                 <!--
-                  Lista cerrada y corta a propósito: solo las cuentas de agrupación, que son las
-                  cabeceras del árbol. Por eso va en modo `[options]` —filtrado en el cliente— y no
-                  con búsqueda en el servidor como los selectores de catálogo.
+                  Lista cerrada y corta a propósito: solo las cuentas de agrupación del mismo tipo,
+                  que son las cabeceras de su rama, y nunca la propia cuenta ni sus subcuentas. Por
+                  eso va en modo `[options]` —filtrado en el cliente— y no con búsqueda en el
+                  servidor como los selectores de catálogo.
                 -->
                 <vx-select
                   inputId="parentId"
                   formControlName="parentId"
-                  [options]="stateService.parentAccountOptions()"
+                  [options]="parentOptions()"
                   [displayWith]="parentLabel"
                   [valueWith]="parentId"
                   placeholderKey="accounting.account_form.none_root_account"
@@ -149,34 +163,73 @@
             </section>
           }
 
-          @if (activeTab() === 'rules') {
-            <section formGroupName="rules"
+          @if (activeTab() === 'currency') {
+            <section
               role="tabpanel"
-              [id]="tabs.panelId('rules')"
-              [attr.aria-labelledby]="tabs.tabId('rules')"
+              [id]="tabs.panelId('currency')"
+              [attr.aria-labelledby]="tabs.tabId('currency')"
             >
-              <h3>{{ 'accounting.account_form.posting_rules' | translate }}</h3>
-              <p class="section-description">{{ 'accounting.account_form.set_restrictions_specific_behaviour_account' | translate }}</p>
+              <h3>{{ 'accounting.account_form.currency_and_revaluation' | translate }}</h3>
+              @if (!postable()) {
+                <!-- Una cuenta de agrupación no tiene saldo propio: lo tienen sus subcuentas. -->
+                <p class="section-description">{{ 'accounting.account_form.currency_summary_note' | translate }}</p>
+              }
               <div class="form-grid">
-                  <div class="form-field checkbox-field"><input type="checkbox" id="requiresReconciliation" formControlName="requiresReconciliation"><label for="requiresReconciliation">{{ 'accounting.account_form.requires_reconciliation' | translate }}</label></div>
-                  <div class="form-field checkbox-field"><input type="checkbox" id="isCashOrBank" formControlName="isCashOrBank"><label for="isCashOrBank">{{ 'accounting.account_form.cash_bank_account' | translate }}</label></div>
-                  <div class="form-field checkbox-field"><input type="checkbox" id="allowsIntercompany" formControlName="allowsIntercompany"><label for="allowsIntercompany">{{ 'accounting.account_form.allows_intercompany_transactions' | translate }}</label></div>
-                  <div class="form-field checkbox-field"><input type="checkbox" id="isFxRevaluation" formControlName="isFxRevaluation"><label for="isFxRevaluation">{{ 'accounting.account_form.subject_exchange_rate_revaluation' | translate }}</label></div>
+                <div class="form-field">
+                  <label for="fxTreatment">{{ 'accounting.account_form.fx_treatment' | translate }}</label>
+                  <select id="fxTreatment" formControlName="fxTreatment" aria-describedby="fxTreatment-help">
+                    @for (treatment of fxTreatments; track treatment) {
+                      <!-- Solo las cuentas de balance se revalúan: un gasto queda a la tasa de su día. -->
+                      <option [value]="treatment" [disabled]="treatment === 'REVALUED' && !revaluedAllowed()">
+                        {{ 'accounting.account_form.fx_treatment_option.' + treatment | translate }}
+                      </option>
+                    }
+                  </select>
+                  <small id="fxTreatment-help" class="field-hint">{{ 'accounting.account_form.fx_treatment_help' | translate }}</small>
+                </div>
+                <div class="form-field">
+                  <label for="currency">{{ 'accounting.account_form.account_currency' | translate }}</label>
+                  <select id="currency" formControlName="currency" aria-describedby="currency-help">
+                    <option [ngValue]="null">{{ 'accounting.account_form.account_currency_any' | translate }}</option>
+                    @for (code of currencyCodes(); track code) {
+                      <option [ngValue]="code">{{ code }}</option>
+                    }
+                  </select>
+                  <small id="currency-help" class="field-hint">{{ 'accounting.account_form.account_currency_help' | translate }}</small>
+                </div>
               </div>
-              <div class="form-field full-width" formArrayName="requiredDimensions">
-                  <span class="group-label">{{ 'accounting.account_form.required_dimensions' | translate }}</span>
-                  <div class="checkbox-group">
-                      @for(dim of allDimensions; track dim; let i = $index){
-                          <div class="checkbox-item">
-                              <input type="checkbox" [id]="'dim-' + i" [value]="dim" [checked]="isDimensionSelected(dim)" (change)="onDimensionChange($event)">
-                              <label [for]="'dim-' + i">{{ dim | titlecase }}</label>
-                          </div>
-                      }
+              @if (inflationApplies()) {
+                <!-- Reexpresión por inflación (NIC 29): solo en empresas que la aplican. -->
+                <h4>{{ 'accounting.account_form.inflation_title' | translate }}</h4>
+                <div class="form-grid">
+                  <div class="form-field checkbox-field">
+                    <input id="isInflationAdjustable" type="checkbox" formControlName="isInflationAdjustable" aria-describedby="isInflationAdjustable-help">
+                    <label for="isInflationAdjustable">{{ 'accounting.account_form.inflation_restated' | translate }}</label>
+                    <small id="isInflationAdjustable-help" class="field-hint">{{ 'accounting.account_form.inflation_restated_help' | translate }}</small>
                   </div>
-              </div>
+                  <div class="form-field">
+                    <label for="inflationAdjustmentAccountId">{{ 'accounting.account_form.inflation_account' | translate }}</label>
+                    <select id="inflationAdjustmentAccountId" formControlName="inflationAdjustmentAccountId" aria-describedby="inflationAdjustmentAccountId-help">
+                      <option [ngValue]="null">{{ 'accounting.account_form.inflation_account_self' | translate }}</option>
+                      @for (option of restatementTargets(); track option.id) {
+                        <option [ngValue]="option.id">{{ parentLabel(option) }}</option>
+                      }
+                    </select>
+                    <small id="inflationAdjustmentAccountId-help" class="field-hint">{{ 'accounting.account_form.inflation_account_help' | translate }}</small>
+                  </div>
+                </div>
+              }
+              <!--
+                Las dimensiones obligatorias tenían aquí tres casillas que el servidor descartaba:
+                se guardan como reglas por cuenta, en la pantalla de dimensiones.
+              -->
+              <p class="section-description">
+                {{ 'accounting.account_form.required_dimensions_elsewhere' | translate }}
+                <a routerLink="/accounting/dimensions" appCanOpen="/accounting/dimensions">{{ 'page_titles.dimensions' | translate }}</a>
+              </p>
             </section>
           }
-          
+
           @if (activeTab() === 'advanced') {
             <section formGroupName="advanced"
               role="tabpanel"
@@ -186,14 +239,6 @@
                 <h3>{{ 'accounting.account_form.advanced_settings' | translate }}</h3>
                 <p class="section-description">{{ 'accounting.account_form.control_audit_parameters_account' | translate }}</p>
                 <div class="form-grid">
-                    <div class="form-field">
-                        <label for="version">{{ 'accounting.account_form.chart_version' | translate }}</label>
-                        <input id="version" type="number" formControlName="version">
-                    </div>
-                    <div class="form-field">
-                        <label for="hierarchyType">{{ 'accounting.account_form.hierarchy_type' | translate }}</label>
-                        <input id="hierarchyType" formControlName="hierarchyType">
-                    </div>
                     <div class="form-field">
                         <label for="effectiveFrom">{{ 'accounting.account_form.effective_from' | translate }}</label>
                         <vx-date-field inputId="effectiveFrom" formControlName="effectiveFrom" />

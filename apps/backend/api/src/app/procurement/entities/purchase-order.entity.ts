@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { PurchaseOrderLine } from './purchase-order-line.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
@@ -14,6 +14,11 @@ export enum PurchaseOrderStatus {
   SENT = 'SENT',
   PARTIALLY_RECEIVED = 'PARTIALLY_RECEIVED',
   RECEIVED = 'RECEIVED',
+  /**
+   * Closed short (audit 2026-11-07, CMP-15): the outstanding balance will not be delivered. What
+   * was received stays received and can still be billed; nothing more can be received.
+   */
+  CLOSED = 'CLOSED',
   CANCELLED = 'CANCELLED',
 }
 
@@ -43,6 +48,7 @@ export enum PurchaseOrderStatus {
 @Entity('purchase_orders')
 @Index('IDX_purchase_orders_org_number', ['organizationId', 'number'], { unique: true })
 @Index('IDX_purchase_orders_org_status', ['organizationId', 'status'])
+@Index('IDX_purchase_orders_agreement', ['agreementId'], { where: '"agreement_id" IS NOT NULL' })
 export class PurchaseOrder extends BaseEntity {
   /** `PO-2026-000042`. Consecutive per tenant and year. */
   @Column()
@@ -84,7 +90,7 @@ export class PurchaseOrder extends BaseEntity {
     precision: 18,
     scale: 6,
     default: 1,
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
   })
   exchangeRate: number;
 
@@ -117,6 +123,31 @@ export class PurchaseOrder extends BaseEntity {
   @Column({ name: 'requisition_id', type: 'uuid', nullable: true })
   requisitionId: string | null;
 
+  /**
+   * The request for quotation and the quotation this order was awarded from, or the agreement it
+   * was released against (CMP-15). Such an order carries that document's terms.
+   */
+  @Column({ name: 'rfq_id', type: 'uuid', nullable: true })
+  rfqId: string | null;
+
+  @ManyToOne('PurchaseRfq', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'rfq_id', foreignKeyConstraintName: 'FK_purchase_orders_rfq' })
+  rfq?: unknown;
+
+  @Column({ name: 'supplier_quote_id', type: 'uuid', nullable: true })
+  supplierQuoteId: string | null;
+
+  @ManyToOne('SupplierQuote', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'supplier_quote_id', foreignKeyConstraintName: 'FK_purchase_orders_supplier_quote' })
+  supplierQuote?: unknown;
+
+  @Column({ name: 'agreement_id', type: 'uuid', nullable: true })
+  agreementId: string | null;
+
+  @ManyToOne('PurchaseAgreement', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'agreement_id', foreignKeyConstraintName: 'FK_purchase_orders_agreement' })
+  agreement?: unknown;
+
   @Column({ name: 'approved_by_user_id', type: 'uuid', nullable: true })
   approvedByUserId: string | null;
 
@@ -128,6 +159,13 @@ export class PurchaseOrder extends BaseEntity {
 
   @Column({ name: 'cancelled_at', type: 'timestamptz', nullable: true })
   cancelledAt: Date | null;
+
+  /** When and why the outstanding balance was closed (CMP-15). */
+  @Column({ name: 'closed_at', type: 'timestamptz', nullable: true })
+  closedAt: Date | null;
+
+  @Column({ name: 'close_reason', type: 'text', nullable: true })
+  closeReason: string | null;
 
   @Column({ name: 'cancellation_reason', type: 'text', nullable: true })
   cancellationReason: string | null;

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
   CashFlowStatementReport,
@@ -11,6 +11,9 @@ import {
 import { defaultPeriod } from '../report-period';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateRangeComponent } from '../../../../shared/components/date';
+import { ExportLanguagePreference } from '../../../../core/export/export-language';
+import { VxExportLanguageComponent } from '../../../../shared/components/export-language';
+import { NotificationService } from '../../../../core/services/notification';
 
 /**
  * The statement of cash flows.
@@ -24,7 +27,7 @@ import { VxDateRangeComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-cash-flow-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [VxExportLanguageComponent, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './cash-flow.page.html',
   styleUrls: ['../balance-sheet/balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +35,9 @@ import { VxDateRangeComponent } from '../../../../shared/components/date';
 export class CashFlowPage {
   private readonly reports = inject(FinancialReportingService);
   private readonly exporter = inject(StatementExportService);
+  /** The language this person exports statements in: theirs, the books', or both. */
+  protected readonly exportLanguage = inject(ExportLanguagePreference);
+  private readonly exportFailed = inject(NotificationService);
 
   protected readonly CalendarIcon = Calendar;
   protected readonly ExportIcon = FileDown;
@@ -84,6 +90,8 @@ export class CashFlowPage {
   exportCsv(): void {
     const data = this.report();
     if (!data) return;
-    this.exporter.exportCashFlow(data);
+    this.exporter.exportCashFlow(data, this.exportLanguage.language())
+      // An export that could not be prepared — the books language's words did not load — says so.
+      .catch(() => this.exportFailed.showError('reports.export.failed'));
   }
 }

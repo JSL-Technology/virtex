@@ -56,6 +56,10 @@ describe('NFe 4.00', () => {
     total: 1_180,
     discountTotal: 0,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '55',
+    fiscalSequence: 123,
+    fiscalSeries: '1',
     lineItems: [
       {
         description: 'Peça industrial',
@@ -69,6 +73,24 @@ describe('NFe 4.00', () => {
       },
     ],
   } as unknown as Invoice;
+
+  /**
+   * The NF-e a devolução or a complementar refers to, as `modifiedDocumentOf` resolves it.
+   *
+   * The chave de acesso is its identity: forty-four digits the issuer computed and the SEFAZ
+   * authorised the document under.
+   */
+  const REFERENCE = {
+    fiscalNumber: '77',
+    documentType: '55',
+    issueDate: '2026-06-01',
+    documentKey: '35260612345678000190550010000000771123456780',
+    authorityHandle: null,
+    sequence: 77,
+    series: '1',
+    reasonCode: null,
+    reasonText: null,
+  };
 
   const input = (overrides: Partial<NfeBuildInput> = {}): NfeBuildInput => ({
     invoice,
@@ -207,13 +229,65 @@ describe('NFe 4.00', () => {
       expect(xml).toContain('<vNF>1180.00</vNF>');
     });
 
-    it('issues a return as finality 4', () => {
+    /**
+     * A return and a complement refer to the NF-e they correct.
+     *
+     * The builder wrote no `NFref` at all (audit FAC-INV-05 / MP-10): a devolução was authorised
+     * as an operation of its own, and the SEFAZ had no way to tie it to the sale it reversed — so
+     * the taxpayer could not prove the reversal either.
+     */
+    it('issues a return as finality 4, referring to the NF-e it reverses', () => {
       const { xml } = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice, modifies: REFERENCE }),
       );
 
       expect(xml).toContain('<finNFe>4</finNFe>');
       expect(xml).toContain('Devolucao de venda');
+      expect(xml).toContain(
+        '<NFref><refNFe>35260612345678000190550010000000771123456780</refNFe></NFref>',
+      );
+      // The goods come back in: a return declared as a saída states the opposite of what happened.
+      expect(xml).toContain('<tpNF>0</tpNF>');
+      // Where the sequence puts it: after the município and before the print mode.
+      expect(xml.indexOf('<NFref>')).toBeGreaterThan(xml.indexOf('<cMunFG>'));
+      expect(xml.indexOf('<NFref>')).toBeLessThan(xml.indexOf('<tpImp>'));
+    });
+
+    it('issues a complement as finality 2, referring to the NF-e it completes', () => {
+      // Brazil has no debit note: an NF-e complementar adds value to a document already authorised,
+      // and names it the same way.
+      const { xml } = builder.build(
+        input({ invoice: { ...invoice, type: InvoiceType.DEBIT_NOTE } as Invoice, modifies: REFERENCE }),
+      );
+
+      expect(xml).toContain('<finNFe>2</finNFe>');
+      expect(xml).toContain('Complemento de valor');
+      expect(xml).toContain('<refNFe>35260612345678000190550010000000771123456780</refNFe>');
+      // A complement accompanies the same outbound operation, so it is still a saída.
+      expect(xml).toContain('<tpNF>1</tpNF>');
+    });
+
+    it('issues an ordinary sale as finality 1, referring to nothing', () => {
+      const { xml } = builder.build(input());
+
+      expect(xml).toContain('<finNFe>1</finNFe>');
+      expect(xml).not.toContain('NFref');
+      expect(xml).toContain('<tpNF>1</tpNF>');
+    });
+
+    it('refuses a return that names no NF-e, and one whose NF-e has no chave', () => {
+      expect(() =>
+        builder.build(input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice })),
+      ).toThrow(/note_must_name_the_document_it_modifies/);
+
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice,
+            modifies: { ...REFERENCE, documentKey: null },
+          }),
+        ),
+      ).toThrow(/modified_document_has_no_authority_key/);
     });
 
     it.each([

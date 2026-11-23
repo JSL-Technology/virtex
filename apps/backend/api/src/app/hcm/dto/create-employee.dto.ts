@@ -35,7 +35,7 @@ export class CreateEmployeeDto {
   @IsOptional()
   departmentId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   hireDate?: string;
 
@@ -152,7 +152,7 @@ export class CreateEmployeeDto {
   @IsOptional()
   contractType?: ContractType;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   terminationDate?: string;
 }

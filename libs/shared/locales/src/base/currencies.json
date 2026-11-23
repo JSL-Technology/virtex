@@ -64,6 +64,11 @@
     "en": "Invalid date range: {{startDate}} is later than {{endDate}}.",
     "pt": "Intervalo de datas inválido: {{startDate}} é posterior a {{endDate}}."
   },
+  "currencies.market_rate_used_without_official": {
+    "es": "No había tasa oficial de {{from}} a {{to}} para el {{date}}: se usó la de mercado de {{source}} del {{quotedOn}}. Registra la tasa oficial si el documento debe convertirse con ella.",
+    "en": "There was no official {{from}} to {{to}} rate for {{date}}: the {{source}} market rate of {{quotedOn}} was used. Record the official rate if the document must be converted at it.",
+    "pt": "Não havia taxa oficial de {{from}} para {{to}} em {{date}}: foi usada a taxa de mercado de {{source}} de {{quotedOn}}. Registre a taxa oficial se o documento deve ser convertido por ela."
+  },
   "currencies.no_currencies_update": {
     "es": "No hay divisas para actualizar.",
     "en": "There are no currencies to update.",
@@ -78,6 +83,56 @@
     "es": "No hay un proveedor de tasas de cambio configurado. Registra las tasas manualmente o configura las credenciales del proveedor.",
     "en": "No exchange rate provider is configured. Record rates manually or configure the provider credentials.",
     "pt": "Não há um provedor de taxas de câmbio configurado. Registre as taxas manualmente ou configure as credenciais do provedor."
+  },
+  "currencies.official_rates.feed_disabled": {
+    "es": "La fuente «{{feed}}» está desactivada: ponla en observación o actívala antes de leerla.",
+    "en": "The feed «{{feed}}» is switched off: put it in shadow or activate it before reading it.",
+    "pt": "A fonte «{{feed}}» está desativada: coloque-a em observação ou ative-a antes de lê-la."
+  },
+  "currencies.official_rates.feed_not_found": {
+    "es": "No hay una fuente de tasa oficial «{{feed}}».",
+    "en": "There is no official rate feed «{{feed}}».",
+    "pt": "Não há uma fonte de taxa oficial «{{feed}}»."
+  },
+  "currencies.official_rates.range_in_future": {
+    "es": "La publicación no tiene cifras del {{to}}: lo más adelante que fecha es el {{horizon}}.",
+    "en": "The publication has no figures for {{to}}: the latest day it dates is {{horizon}}.",
+    "pt": "A publicação não tem valores de {{to}}: o dia mais adiante que ela data é {{horizon}}."
+  },
+  "currencies.official_rates.range_inverted": {
+    "es": "El rango empieza el {{from}} y termina antes, el {{to}}.",
+    "en": "The range starts on {{from}} and ends earlier, on {{to}}.",
+    "pt": "O intervalo começa em {{from}} e termina antes, em {{to}}."
+  },
+  "currencies.official_rates.range_too_wide": {
+    "es": "Un rango de {{days}} días es más de lo que se lee de una vez (como máximo {{max}}).",
+    "en": "A range of {{days}} days is more than is read at once (at most {{max}}).",
+    "pt": "Um intervalo de {{days}} dias é mais do que se lê de uma vez (no máximo {{max}})."
+  },
+  "currencies.official_rates.reason.credential_missing": {
+    "es": "La fuente necesita una credencial y {{variable}} no está configurada.",
+    "en": "The feed needs a credential and {{variable}} is not configured.",
+    "pt": "A fonte precisa de uma credencial e {{variable}} não está configurada."
+  },
+  "currencies.official_rates.reason.external_effects_disabled": {
+    "es": "Este proceso no consulta fuentes externas (EXTERNAL_EFFECTS no incluye {{effect}}): no se le preguntó al publicador.",
+    "en": "This process does not query external sources (EXTERNAL_EFFECTS does not include {{effect}}): the publisher was not asked.",
+    "pt": "Este processo não consulta fontes externas (EXTERNAL_EFFECTS não inclui {{effect}}): o publicador não foi consultado."
+  },
+  "currencies.official_rates.reason.publication_unrecognised": {
+    "es": "La respuesta del publicador no tiene la forma esperada ({{reason}}); no se escribió nada.",
+    "en": "The publisher's response is not in the expected form ({{reason}}); nothing was written.",
+    "pt": "A resposta do publicador não tem a forma esperada ({{reason}}); nada foi gravado."
+  },
+  "currencies.official_rates.reason.publisher_refused": {
+    "es": "El publicador respondió con el estado {{status}}.",
+    "en": "The publisher answered with status {{status}}.",
+    "pt": "O publicador respondeu com o status {{status}}."
+  },
+  "currencies.official_rates.reason.publisher_unreachable": {
+    "es": "No se pudo contactar al publicador ({{error}}).",
+    "en": "The publisher could not be reached ({{error}}).",
+    "pt": "Não foi possível contatar o publicador ({{error}})."
   },
   "currencies.provider_account_plan_plan_which_returns": {
     "es": "La cuenta de {{provider}} está en el plan «{{plan}}», que devuelve tasas simuladas. No se almacenará ninguna tasa: contrata un plan con datos reales o registra las tasas oficiales manualmente.",
@@ -244,6 +299,11 @@
     "en": "Which rate would a document convert at?",
     "pt": "A que taxa um documento seria convertido?"
   },
+  "currencies.rates.market_instead_of_official": {
+    "es": "tasa de mercado: no había oficial para ese día",
+    "en": "market rate: there was no official one for that day",
+    "pt": "taxa de mercado: não havia oficial para esse dia"
+  },
   "currencies.rates.methods.direct": {
     "es": "cotización directa",
     "en": "direct quote",
@@ -268,6 +328,26 @@
     "es": "No hay tasa para ese par en esa fecha.",
     "en": "There is no rate for that pair on that date.",
     "pt": "Não há taxa para esse par nessa data."
+  },
+  "currencies.rates.official_source.automatic": {
+    "es": "Llega sola: {{publication}}, la más reciente del {{date}}.",
+    "en": "It arrives on its own: {{publication}}, the latest for {{date}}.",
+    "pt": "Chega sozinha: {{publication}}, a mais recente de {{date}}."
+  },
+  "currencies.rates.official_source.manual": {
+    "es": "El producto todavía no la lee solo: registra o importa las tasas oficiales que publica {{publisher}}.",
+    "en": "The product does not read it on its own yet: record or import the official rates {{publisher}} publishes.",
+    "pt": "O produto ainda não a lê sozinho: registre ou importe as taxas oficiais que {{publisher}} publica."
+  },
+  "currencies.rates.official_source.not_active": {
+    "es": "La lectura automática de {{publication}} todavía no está activa: registra o importa las tasas oficiales.",
+    "en": "Reading {{publication}} automatically is not active yet: record or import the official rates.",
+    "pt": "A leitura automática de {{publication}} ainda não está ativa: registre ou importe as taxas oficiais."
+  },
+  "currencies.rates.official_source.title": {
+    "es": "Tasa oficial",
+    "en": "Official rate",
+    "pt": "Taxa oficial"
   },
   "currencies.rates.pair": {
     "es": "Par",
@@ -345,9 +425,9 @@
     "pt": "Fonte"
   },
   "currencies.rates.source_placeholder": {
-    "es": "Ej.: BCRD, DGII, banco",
+    "es": "Ej.: banco central, autoridad fiscal, banco",
     "en": "E.g. central bank, tax authority, bank",
-    "pt": "Ex.: banco central, receita, banco"
+    "pt": "Ex.: banco central, autoridade fiscal, banco"
   },
   "currencies.rates.subtitle": {
     "es": "Las tasas a las que se convierten los documentos: las de la empresa, que tienen prioridad, y las compartidas del mercado.",

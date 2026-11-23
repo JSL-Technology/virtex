@@ -1,6 +1,6 @@
 # Deployment
 
-How a Virteex environment is built from source. Everything here is executable — if a step in this
+How a Virtex environment is built from source. Everything here is executable — if a step in this
 document does not work, the step is wrong, not the reader.
 
 ## What changed and why it matters
@@ -175,6 +175,60 @@ invoice.payment_failed
 
 Put its signing secret in `STRIPE_WEBHOOK_SECRET`. Plans and their limits are provisioned by
 migration, so no seeding flag is involved; the Stripe price ids belong in `STRIPE_PRICE_*`.
+
+Changing plan from inside the product opens Stripe's own confirmation of a **subscription update**
+(a customer-portal session with `flow_data.type = subscription_update_confirm`: the customer sees
+the upcoming invoice and the proration before agreeing). It runs on the customer portal, so
+configure the portal (Stripe dashboard → Settings → Billing → Customer portal) to let customers
+switch between the catalogue's prices, and try a plan change in Stripe's test mode before going
+live: CI runs without Stripe and does not exercise it. A company with no subscription in force is
+sent to Checkout instead.
+
+Two signals on `/metrics` deserve an alert in every environment that is not a developer's machine:
+
+| Alert when | Meaning |
+|---|---|
+| `payment_provider_info{provider="simulated"} == 1` | This process grants subscriptions without charging. The configuration refuses it outside `NODE_ENV=development\|test`, so it means a deployment was started with the wrong `NODE_ENV`. |
+| `increase(saas_webhook_failure_total[15m]) > 0` | Stripe deliveries are failing (`reason`: `rejected` — bad signature or payload; `unavailable` — the gateway is not configured; `failed` — the processing itself). Stripe redelivers for days, so a failure that repeats is a subscription the product is not following. |
+
+## 6b. Official exchange rates
+
+Each market declares who publishes the exchange rate its books and taxes take as official
+(`markets/<cc>/accounting.ts`, `officialExchangeRates`) and, where the product reads it, a **feed**
+(`markets/<cc>/accounting/official-rates.ts`): Colombia's TRM (`CO-TRM`, datos.gov.co), Mexico's FIX
+as published in the DOF (`MX-BANXICO-FIX-DOF`, Banco de México SIE), Argentina's Communication «A»
+3500 (`AR-BCRA-A3500`, BCRA), Peru's SBS selling rate (`PE-SBS-VENTA`, BCRP statistics) and Brazil's
+PTAX (`BR-BCB-PTAX-VENDA`, BCB Olinda). The other markets name their publisher and their companies
+enter or import the official rate, as before; every company sees which case it is in on
+Masters › Exchange rates.
+
+- **Reading a publisher is an external effect** (`reference_data`). `EXTERNAL_EFFECTS` unset is
+  `all` in a real deployment; a development or CI process reads nothing and records each reading as
+  skipped. The feeds' readings never leave a process that does not allow `reference_data`.
+- **Mexico needs a token**: `BANXICO_SIE_TOKEN`, free from Banco de México
+  (<https://www.banxico.org.mx/SieAPIRest/service/v1/token>). Without it its readings are skipped,
+  naming the variable.
+- **A feed starts in shadow.** Every feed's format was established from its publisher's
+  documentation, not from a live response, so in shadow it reads, compares with the official rates
+  on file, and writes nothing. Once its readings are right (`GET /exchange-rate-feeds/:code/runs`:
+  the figures it read, and any day that differs from what is on file), a platform operator activates
+  it: `PUT /exchange-rate-feeds/:code/status` `{ "status": "ACTIVE" }` — which takes the
+  `platform:reference_data:manage` right of the seeded *Platform Operations* role and is recorded in
+  the audit trail. Reading on demand (`POST /exchange-rate-feeds/:code/runs`, a range of up to 370
+  days) takes `platform:exchange_rates:refresh`.
+- **Active, it writes** each figure to `exchange_rate` as `OFFICIAL`, under its own code as the
+  source, on the day it is the official rate for (Mexico's: the day after the DOF publishes it, CFF
+  art. 20). A day another source already holds is left as it is and reported; a publisher's revision
+  is applied and reported; a move beyond the feed's daily bound (10 %; none for Argentina) is reported
+  and written only when an operator reads again with `acceptJumps`. A response the feed does not
+  recognise fails the reading with the reason and writes nothing.
+- **On schedule** every 30 minutes, one replica at a time, each feed is read once its day's figure is
+  out in the publisher's time zone, again after a failure with a growing backoff. Two log events
+  deserve an alert: `official_rate_feed_failing` (three failed readings in a row) and
+  `official_rate_feed_stale` (an active feed whose newest figure is more than five days old).
+
+Which publication is official for which purpose — books, invoices, taxes — and from which day is a
+question for a local accountant in each market; the feed definitions cite the basis they follow.
 
 ## 7. AI platform
 

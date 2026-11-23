@@ -1,11 +1,14 @@
 {
   "$locale": "pt-BR",
   "$note": "Brazil. The year-end payment is the 'décimo terceiro salário'; the tax identifiers are the CNPJ (companies) and CPF (individuals).",
+  "ai.policy.confirm_unmask": "Os identificadores (CNPJ, CPF, contas) serão enviados sem máscara ao provedor do modelo. A alteração é auditada.",
+  "branches.settings.not_subsidiary": "Uma filial é esta mesma empresa em outro local: mesmo CNPJ, mesmos livros. Uma empresa distinta que lhe pertence é uma subsidiária.",
   "hcm.employees.form.proportional_bonus": "Décimo terceiro proporcional",
   "hcm.employees.form.social_security_number": "NIT / PIS",
-  "invoice.pdf.tax_column_header": "ICMS",
-  "invoices.detail.ncf": "Chave de acesso (NF-e):",
-  "invoices.new.tax_column_header": "ICMS",
+  "invoices.detail.fiscal_number": "Chave de acesso (NF-e):",
+  "masters.tax_form.name_placeholder": "Ex.: ICMS padrão",
   "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
-  "permissions.groups.tss": "INSS (Previdência)"
+  "settings.sections_meta.einvoicing_regime.keywords": "faturamento eletrônico nfe sefaz danfe certificado",
+  "settings.sections_meta.profile.keywords": "empresa cnpj razão social endereço",
+  "settings.sections_meta.tax_jurisdictions.keywords": "jurisdições estados municípios nexo icms iss"
 }

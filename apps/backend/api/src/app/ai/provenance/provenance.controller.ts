@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../security/principal';
@@ -16,7 +16,7 @@ const READ_PERMISSION: Record<string, string> = {
   quote: PERMISSIONS.INVOICES_VIEW,
   purchase_order: PERMISSIONS.PROCUREMENT_VIEW,
   vendor_bill: PERMISSIONS.ACCOUNTS_PAYABLE_VIEW,
-  collection_draft: PERMISSIONS.AI_COLLECTIONS_VIEW,
+  collection_draft: PERMISSIONS.COLLECTIONS_VIEW,
   sales_order: PERMISSIONS.INVOICES_VIEW,
   reconciliation_match: PERMISSIONS.RECONCILIATION_VIEW,
 };

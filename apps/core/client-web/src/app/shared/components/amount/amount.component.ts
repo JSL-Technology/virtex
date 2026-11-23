@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { FormatService, LocaleStore } from '@virteex/shared/ui-i18n';
+import { FormatService, LocaleStore } from '@virtex/shared/ui-i18n';
 
 /**
  * A monetary figure.

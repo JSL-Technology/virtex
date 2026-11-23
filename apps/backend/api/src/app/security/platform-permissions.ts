@@ -1,4 +1,4 @@
-import { PLATFORM_PERMISSION_PREFIX } from '@virteex/shared/util-auth';
+import { PLATFORM_PERMISSION_PREFIX } from '@virtex/shared/util-auth';
 
 /**
  * Rights over the PLATFORM, as distinct from rights inside a tenant.
@@ -81,7 +81,7 @@ export const ALL_PLATFORM_PERMISSIONS: readonly string[] = Object.values(PLATFOR
 
 /**
  * The namespace every platform permission lives in, so a new one cannot be missed by a check.
- * One definition, shared with the browser and with `hasPermission` (`@virteex/shared/util-auth`).
+ * One definition, shared with the browser and with `hasPermission` (`@virtex/shared/util-auth`).
  */
 export { PLATFORM_PERMISSION_PREFIX };
 

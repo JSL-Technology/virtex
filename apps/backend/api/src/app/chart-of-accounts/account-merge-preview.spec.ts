@@ -18,7 +18,20 @@ describe('ChartOfAccountsService — vista previa de fusión', () => {
     ...over,
   });
 
-  const build = (source: unknown, destination: unknown, movements = { lines: 0, postedBalance: 0, linesInClosedPeriods: 0 }) => {
+  /** A summary as `JournalQueryService` answers it: posted history and drafts told apart. */
+  const summary = (over: Partial<{ lines: number; postedBalance: number; linesInClosedPeriods: number; postedLines: number }> = {}) => {
+    const lines = over.lines ?? 0;
+    const postedLines = over.postedLines ?? lines;
+    return {
+      lines,
+      postedBalance: over.postedBalance ?? 0,
+      linesInClosedPeriods: over.linesInClosedPeriods ?? 0,
+      postedLines,
+      unpostedLines: lines - postedLines,
+    };
+  };
+
+  const build = (source: unknown, destination: unknown, movements = summary()) => {
     const repository = {
       findOne: jest.fn(({ where }: { where: { id: string } }) =>
         Promise.resolve(where.id === 'a-1' ? source : where.id === 'a-2' ? destination : null),
@@ -27,7 +40,7 @@ describe('ChartOfAccountsService — vista previa de fusión', () => {
     };
     const journalQuery = {
       summarizeAccountMovements: jest.fn((id: string) =>
-        Promise.resolve(id === 'a-1' ? movements : { lines: 3, postedBalance: 900, linesInClosedPeriods: 0 }),
+        Promise.resolve(id === 'a-1' ? movements : summary({ lines: 3, postedBalance: 900 })),
       ),
     };
     const queue = { add: jest.fn(() => Promise.resolve({ id: 'job-1' })) };
@@ -42,19 +55,34 @@ describe('ChartOfAccountsService — vista previa de fusión', () => {
     return { service, queue };
   };
 
-  it('reports the real lines and balances of both accounts', async () => {
-    const { service } = build(account(), account({ id: 'a-2', code: '1102' }), {
-      lines: 12,
-      postedBalance: 1500.75,
-      linesInClosedPeriods: 0,
-    });
+  it('separates the drafts it will move from the history it will not', async () => {
+    // Ten of the twelve are in the ledger: those stay, and their balance is reclassified. The two
+    // that are still drafts are repointed, because a draft is not history.
+    const { service } = build(
+      account(),
+      account({ id: 'a-2', code: '1102' }),
+      summary({ lines: 12, postedLines: 10, postedBalance: 1500.75 }),
+    );
 
     const preview = await service.previewMerge('a-1', 'a-2', 'org-1');
 
-    expect(preview.linesToMove).toBe(12);
+    expect(preview.linesToMove).toBe(2);
+    expect(preview.postedLinesKept).toBe(10);
+    expect(preview.reclassifiedAmount).toBe(1500.75);
     expect(preview.source.postedBalance).toBe(1500.75);
     expect(preview.destination.postedBalance).toBe(900);
     expect(preview.blockers).toEqual([]);
+    expect(preview.warnings).toEqual(['chart_of_accounts.merge_reclassifies_posted_balance']);
+  });
+
+  it('an account with nothing posted is merged with no entry at all', async () => {
+    const { service } = build(account(), account({ id: 'a-2' }), summary({ lines: 4, postedLines: 0 }));
+
+    const preview = await service.previewMerge('a-1', 'a-2', 'org-1');
+
+    expect(preview.linesToMove).toBe(4);
+    expect(preview.postedLinesKept).toBe(0);
+    expect(preview.reclassifiedAmount).toBe(0);
     expect(preview.warnings).toEqual([]);
   });
 
@@ -85,18 +113,22 @@ describe('ChartOfAccountsService — vista previa de fusión', () => {
     );
   });
 
-  it('warns, without refusing, when closed periods would change', async () => {
-    const { service } = build(account(), account({ id: 'a-2' }), {
-      lines: 40,
-      postedBalance: 10,
-      linesInClosedPeriods: 25,
-    });
+  it('a closed period is never rewritten, so it is no longer a warning about moving lines', async () => {
+    // It used to warn that lines in closed periods WOULD MOVE, which is what the job then failed
+    // trying to do. Nothing moves: the warning now says what really happens to the balance.
+    const { service } = build(
+      account(),
+      account({ id: 'a-2' }),
+      summary({ lines: 40, postedBalance: 10, linesInClosedPeriods: 25 }),
+    );
 
     const preview = await service.previewMerge('a-1', 'a-2', 'org-1');
 
     expect(preview.blockers).toEqual([]);
-    expect(preview.warnings).toEqual(['chart_of_accounts.merge_moves_closed_periods']);
+    expect(preview.warnings).toEqual(['chart_of_accounts.merge_reclassifies_posted_balance']);
     expect(preview.linesInClosedPeriods).toBe(25);
+    expect(preview.postedLinesKept).toBe(40);
+    expect(preview.linesToMove).toBe(0);
   });
 
   it('queues an allowed merge and answers with a translatable message', async () => {

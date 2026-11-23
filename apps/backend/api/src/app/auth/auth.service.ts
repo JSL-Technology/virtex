@@ -687,8 +687,8 @@ export class AuthService extends SessionSwitchPort {
               expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION as `${number}m`,
               // A distinct audience prevents a step-up token from ever being accepted by the
               // access-token path (and vice versa) even if the secrets were misconfigured.
-              issuer: 'virteex-api',
-              audience: 'virteex-step-up',
+              issuer: 'virtex-api',
+              audience: 'virtex-step-up',
           },
       );
       return { stepUpToken, maxAgeMs: AuthConfig.STEP_UP_TOKEN_TTL };
@@ -700,8 +700,8 @@ export class AuthService extends SessionSwitchPort {
       try {
           const claims = this.jwtService.verify<StepUpClaims>(token, {
               secret: AuthConfig.JWT_STEP_UP_SECRET,
-              issuer: 'virteex-api',
-              audience: 'virteex-step-up',
+              issuer: 'virtex-api',
+              audience: 'virtex-step-up',
           });
           return claims.stepup && claims.sub === userId ? claims : null;
       } catch {

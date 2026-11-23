@@ -1,3 +1,5 @@
+import { SupplierBankAccount } from './entities/supplier-bank-account.entity';
+import { SupplierBankAccountsService } from './supplier-bank-accounts.service';
 import { SuppliersDuplicatesSource } from './suppliers-duplicates.source';
 import { SuppliersCopilotTools } from './suppliers.copilot-tools';
 import { Module } from '@nestjs/common';
@@ -12,12 +14,12 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Supplier]),
+    TypeOrmModule.forFeature([Supplier, SupplierBankAccount]),
     AuthModule,
     LocalizationProvisioningModule,
   ],
   controllers: [SuppliersController],
-  providers: [SuppliersDuplicatesSource, SuppliersCopilotTools, SuppliersService, SuppliersDataTransferProvider],
+  providers: [SupplierBankAccountsService, SuppliersDuplicatesSource, SuppliersCopilotTools, SuppliersService, SuppliersDataTransferProvider],
   exports: [SuppliersService],
 })
 export class SuppliersModule {}

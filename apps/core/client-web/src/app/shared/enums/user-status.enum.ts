@@ -1,4 +1,4 @@
-import type { UserStatusValue } from '@virteex/shared/types';
+import type { UserStatusValue } from '@virtex/shared/types';
 
 /**
  * Account status values.

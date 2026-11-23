@@ -18,7 +18,10 @@ concurrency:
 
 jobs:
   main:
-    runs-on: ubuntu-latest
+    # A named image, not `ubuntu-latest`: that label moved from 24.04 to 26.04 between 19 October and
+    # 19 November 2026, run by run, and the job changed under an unchanged commit (the AI engine's
+    # install began failing on the new image's Python). Moving to the next image is a commit here.
+    runs-on: ubuntu-26.04
 
     services:
       # The schema-drift check provisions a scratch database from the migrations and diffs it
@@ -31,7 +34,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: virteex_ci
+          POSTGRES_DB: virtex_ci
         ports:
           - 5432:5432
         options: >-
@@ -59,7 +62,7 @@ jobs:
       DB_PORT: '5432'
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
-      DB_NAME: virteex_ci
+      DB_NAME: virtex_ci
       DB_SSL: 'false'
 
       # `virtex_app` (the role `verify:rls` connects as to prove the policies) is created with
@@ -87,7 +90,7 @@ jobs:
       MAIL_HOST: localhost
       MAIL_PORT: '1025'
       MAIL_FROM_ADDRESS: ci@example.com
-      MAIL_FROM_NAME: Virteex CI
+      MAIL_FROM_NAME: Virtex CI
 
       JWT_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
       JWT_REFRESH_SECRET: ci-refresh-ci-refresh-ci-refresh-ci-refresh
@@ -116,7 +119,7 @@ jobs:
 
       # The e-CF vault refuses to start without it, and the invoicing verifier exercises the
       # certificate round-trip.
-      ECF_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
+      SIGNING_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
 
     steps:
       # Pinned by commit: a tag can be moved to other code, a SHA cannot. Dependabot keeps these
@@ -140,12 +143,15 @@ jobs:
       - run: npm run verify:package-families
 
       - run: npm ci
+      # The desktop shell's installer runtime has its own manifest and lockfile (apps/desktop), so
+      # nothing from the monorepo can be packaged into it. Its tests need that tree installed.
+      - run: npm ci --prefix apps/desktop --ignore-scripts
 
       # The schema every step below reads has to exist.
       #
       # `synchronize` is off everywhere on purpose, and nothing else in this job creates tables —
       # so the integration suites and every `verify:*` script that touches the database were
-      # running against an EMPTY `virteex_ci`. Running the migrations here is also the only thing
+      # running against an EMPTY `virtex_ci`. Running the migrations here is also the only thing
       # that proves they still apply cleanly from nothing, which is exactly what a deploy does.
       # Two migrations sharing a timestamp run in a machine-dependent order. Checked before they run.
       - run: npm run verify:migration-identities
@@ -228,6 +234,13 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:numeric-transformers
 
+      # A partial update carries what it changes: `PartialType` copies the create DTO's property
+      # initializers into every instance, so a default declared there made every PATCH that left
+      # the field out reset it — renaming an account turned it into a summary account.
+      - name: npm run verify:partial-update-defaults
+        if: ${{ !cancelled() }}
+        run: npm run verify:partial-update-defaults
+
       # Proves a calendar date is never declared as an instant. A `date` column has no time to
       # convert, and typing one `Date` builds it as `timestamp` — which is why every supplier bill
       # displayed the day before its own date for a tenant in UTC-4.
@@ -264,6 +277,13 @@ jobs:
       #                       Eran «los únicos dos» según un comentario, y había un tercero.
       #   session-revocation  todo validador de token de sesión consulta la lista de revocación.
       #                       El WebSocket tenía copia propia y era la copia la que divergía.
+      # The desktop shell's supply chain: Electron at or above the security baseline and inside the
+      # supported majors, no advisory in what the installer ships, and only time-boxed, documented
+      # acceptances in its build tooling (apps/desktop/security-baseline.json).
+      - name: npm run verify:desktop-supply-chain
+        if: ${{ !cancelled() }}
+        run: npm run verify:desktop-supply-chain
+
       - name: npm run verify:security
         if: ${{ !cancelled() }}
         run: npm run verify:security
@@ -285,24 +305,31 @@ jobs:
       # The forecasting and anomaly engine (apps/ai-engine, Python). Its unit tests check the
       # forecasting method and the detectors on data built to contain what they must find; its
       # integration tests run as the engine's own database role against the migrated schema and
-      # prove the row-level policies bind it like they bind the API. The runner's Python is used, so
-      # no unpinned action enters the job; dependencies are the locked ones the image installs.
-      - name: AI engine — install
+      # prove the row-level policies bind it like they bind the API.
+      #
+      # They run INSIDE the engine's image (`--target test` of its Dockerfile): the interpreter, the
+      # system libraries and the locked packages the worker ships with, and the package as installed.
+      # They used to run in the runner's own `python3`, which stopped being the production one when
+      # the runner image changed, and the install failed there (runs 494 and 498) while the image was
+      # fine. This also builds the deployed image on every change, which nothing did before. No
+      # action enters the job for it; the base image is the one the Dockerfile names.
+      - name: AI engine — one Python for the image, its lock and its tests
         if: ${{ !cancelled() }}
-        working-directory: apps/ai-engine
-        run: |
-          python3 -m venv .venv
-          .venv/bin/pip install --quiet -r requirements.lock
-          .venv/bin/pip install --quiet --no-deps -e .
+        run: npm run verify:ai-engine-image
 
+      - name: AI engine — image (the worker, and the same image with its tests)
+        if: ${{ !cancelled() }}
+        run: |
+          docker build --target test --tag virtex-ai-engine:test apps/ai-engine
+          docker build --tag virtex-ai-engine:ci apps/ai-engine
+
+      # `--network host`: the job's Postgres is published on the runner's localhost.
       - name: AI engine — tests (unit, and as its own role against the database)
         if: ${{ !cancelled() }}
-        working-directory: apps/ai-engine
         env:
-          NIXTLA_NUMBA_CACHE: '1'
-          AI_ENGINE_TEST_ADMIN_DSN: host=localhost port=5432 dbname=virteex_ci user=postgres password=postgres
-          AI_ENGINE_TEST_ENGINE_DSN: host=localhost port=5432 dbname=virteex_ci user=virtex_ai_engine password=ci-ai-engine-db-password
-        run: .venv/bin/python -m pytest -W ignore
+          AI_ENGINE_TEST_ADMIN_DSN: host=localhost port=5432 dbname=virtex_ci user=postgres password=postgres
+          AI_ENGINE_TEST_ENGINE_DSN: host=localhost port=5432 dbname=virtex_ci user=virtex_ai_engine password=ci-ai-engine-db-password
+        run: docker run --rm --network host -e AI_ENGINE_TEST_ADMIN_DSN -e AI_ENGINE_TEST_ENGINE_DSN virtex-ai-engine:test
 
       - name: tenant isolation holds through the application
         if: ${{ !cancelled() }}
@@ -333,6 +360,54 @@ jobs:
       - name: npm run verify:boundaries
         if: ${{ !cancelled() }}
         run: npm run verify:boundaries
+
+      # The product is sold across Latin America and the United States and must be native in each
+      # market. Country-specific vocabulary and `country === 'XX'` branches outside the regime
+      # adapters and the country data are how the next market gets another country's product:
+      # this ratchet freezes today's count and fails if it rises. Lowering it is free:
+      # `npm run verify:country-neutrality -- --update`.
+      - name: npm run verify:country-neutrality
+        if: ${{ !cancelled() }}
+        run: npm run verify:country-neutrality
+
+      # The product is called virtex. A single typo in a scaffold had spread to 729 places — the
+      # TypeScript path alias, the package name, environment variables, the test and CI databases,
+      # i18n keys — and a name that is right in some places and wrong in others breaks every tool
+      # that matches on it. The misspellings are banned outright; a line that must NAME one to
+      # explain it says so with `product-name-allow`.
+      - name: npm run verify:product-name
+        if: ${{ !cancelled() }}
+        run: npm run verify:product-name
+
+      # `config/env.validation.ts` is the complete description of what a deployment can set: the
+      # name, the shape, the default, and what is refused outside development. Fourteen variables
+      # were read straight from `process.env`, so the schema did not know they existed: a misspelt
+      # name was silent, the defaults lived in four files, and two of them decide whether an
+      # extension's code is scanned and whether it is signed with a key that survives a restart.
+      - name: npm run verify:env-schema
+        if: ${{ !cancelled() }}
+        run: npm run verify:env-schema
+
+      # A refusal reaches the browser as a KEY, never as a sentence: the API answers
+      # `{ statusCode, code, messageKey, params }` and the reader's own catalogue words it. A
+      # `throw new BadRequestException('La naturaleza de la cuenta…')` breaks that twice over — the
+      # reader gets Spanish whatever language they chose, and the wording cannot change without a
+      # release. This fails on any raw Nest exception carrying prose.
+      - name: npm run verify:localized-errors
+        if: ${{ !cancelled() }}
+        run: npm run verify:localized-errors
+
+      # A key whose text has a placeholder, sent without it, reaches the reader as a literal
+      # «{{imported}}» (FINB-04). Checked for every keyed answer and every localized error.
+      - name: npm run verify:message-params
+        if: ${{ !cancelled() }}
+        run: npm run verify:message-params
+
+      # A day that does not exist («2026-02-30») is refused at the door, not by a 500 from the
+      # database (FINB-14): every IsDateString strict, no date validated by its shape.
+      - name: npm run verify:date-validators
+        if: ${{ !cancelled() }}
+        run: npm run verify:date-validators
 
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
@@ -404,12 +479,111 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:invoicing
 
+      # Proves a new company can keep, reorganise and close its books: the chart is valid from the
+      # start of the open fiscal year (not from the signup date), merging an account moves its
+      # balance by reclassification and never rewrites a posted line, the annual close works with a
+      # mandatory dimension rule and returns every cost centre to zero, and a period that has not
+      # ended does not close by accident. Through the real queue, worker and posting path.
+      - name: npm run verify:ledger
+        if: ${{ !cancelled() }}
+        run: npm run verify:ledger
+
       # Buying keeps the inventory account and the kardex describing the same value: a bill against
       # an unapproved order is refused, its goods move in its own transaction, and a price that
       # differs from the order revalues the stock on hand instead of only the account (AP-05).
       - name: npm run verify:purchasing
         if: ${{ !cancelled() }}
         run: npm run verify:purchasing
+
+      # A company on the entry plan has collections: the session says what its plan includes, the
+      # assistant's note is the one part behind the AI feature, a reminder goes only to an address
+      # on the customer, and the reminder schedule sends each step once (SP-11). Mail goes to the
+      # development outbox; nothing leaves the runner.
+      - name: npm run verify:collections
+        if: ${{ !cancelled() }}
+        run: npm run verify:collections
+
+      # The journal-entry API contract, over HTTP: amounts are numbers, the create answers what a read
+      # answers (and a replay the same), a date past the company's horizon is refused and opens no
+      # fiscal year, and a closed period is a 409 — not a 403 the client reads as a missing permission.
+      - name: npm run verify:journal-api
+        if: ${{ !cancelled() }}
+        run: npm run verify:journal-api
+      - name: npm run verify:journal-api (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:journal-api
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # A chart of accounts imports through the product, whole or not at all: «Importar» opened a
+      # dataset that only exported, and «false» in a spreadsheet cell was true. Over the real HTTP
+      # API of a fresh company — template, a validation that refuses by line and column, a commit,
+      # the tree and the export — and again as `virtex_app`, so every write meets row-level security.
+      - name: npm run verify:chart-import
+        if: ${{ !cancelled() }}
+        run: npm run verify:chart-import
+      - name: npm run verify:chart-import (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:chart-import
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # The restatement for inflation (IAS 29, FIN-AC-04), over HTTP with an Argentine company and a
+      # Dominican one: provisioned from the market, each amount restated from the month it
+      # originated, the RECPAM equal to the loss on the money held, idempotent, refused out of order,
+      # replaced after a revised index, undone as a run — and again as `virtex_app`.
+      - name: npm run verify:inflation-adjustment
+        if: ${{ !cancelled() }}
+        run: npm run verify:inflation-adjustment
+      - name: npm run verify:inflation-adjustment (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:inflation-adjustment
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # Exchange rates (FINB-04..06), over the HTTP API of a QA company: the import says how many it
+      # imported; entering, importing, correcting and deleting a rate each leave their row in the
+      # trail; a conversion at the market rate for want of an official one says so in the response —
+      # and again as `virtex_app`.
+      - name: npm run verify:exchange-rates
+        if: ${{ !cancelled() }}
+        run: npm run verify:exchange-rates
+      - name: npm run verify:exchange-rates (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:exchange-rates
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # The books language and the reader's, over the HTTP API of a Dominican QA company read in
+      # English: the chart in every language, the official name kept as given, and the chart's and
+      # the journal's exports in the books language whoever exports them — and again as `virtex_app`.
+      - name: npm run verify:books-language
+        if: ${{ !cancelled() }}
+        run: npm run verify:books-language
+      - name: npm run verify:books-language (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:books-language
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
+      # Fixed assets (FINB-11, 13, 14, 17), over the HTTP API of a QA company: an impossible date is a
+      # 400; the accelerated methods charge their real life; a month that has not ended is previewed,
+      # not posted; a run is a document its entries lead to, and a disposal is the register's —
+      # and again as `virtex_app`.
+      - name: npm run verify:fixed-assets
+        if: ${{ !cancelled() }}
+        run: npm run verify:fixed-assets
+      - name: npm run verify:fixed-assets (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:fixed-assets
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
 
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this

@@ -67,8 +67,8 @@ export class SessionService extends SessionInvalidatorPort {
     try {
       const payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-        issuer: 'virteex-api',
-        audience: 'virteex-web',
+        issuer: 'virtex-api',
+        audience: 'virtex-web',
       });
 
       const user = await this.usersService.findUserByIdForAuth(payload.id);
@@ -681,8 +681,8 @@ export class SessionService extends SessionInvalidatorPort {
     try {
       payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-        issuer: 'virteex-api',
-        audience: 'virteex-web',
+        issuer: 'virtex-api',
+        audience: 'virtex-web',
         ignoreExpiration: true,
       });
     } catch {
@@ -797,8 +797,8 @@ export class SessionService extends SessionInvalidatorPort {
       const payload = this.jwtService.verify<JwtPayload>(token, {
         publicKey,
         algorithms: ['RS256'],
-        issuer: 'virteex-api',
-        audience: 'virteex-web',
+        issuer: 'virtex-api',
+        audience: 'virtex-web',
       });
 
       if (await this.sessionRegistry.isRevoked(payload.sessionId)) {

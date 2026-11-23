@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { DepreciationPort } from '../fixed-assets/depreciation.port';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
+import { InflationAdjustmentService } from './inflation-adjustment.service';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import { toIsoDate, type IsoDate } from '../common/dates';
 import { isLocalizedError } from '../i18n/localized.exception';
@@ -9,15 +10,18 @@ import { UnprocessableEntityError } from '../i18n/localized.exception';
 
 /** What a pre-closing task did, so the close can report it instead of only logging it. */
 export interface PreClosingOutcome {
-  task: 'depreciation' | 'currency-revaluation';
+  task: 'depreciation' | 'currency-revaluation' | 'inflation-adjustment';
   ranAt: IsoDate;
   /** False when the task was already claimed for this period, or had nothing to do. */
   performed: boolean;
   messageKey?: string;
+  /** For the revaluation: open foreign-currency positions found, and how many were restated. */
+  detail?: { positions: number; adjusted: number };
 }
 
 /**
- * The two things that must be in the books before a period's result can be computed.
+ * The things that must be in the books before a period's result can be computed: depreciation, the
+ * foreign-currency revaluation and — where the company applies it — the restatement for inflation.
  *
  * ## Why this used to fail, always
  *
@@ -47,12 +51,14 @@ export class ClosingAutomationService {
   constructor(
     private readonly depreciationService: DepreciationPort,
     private readonly currencyRevaluationService: CurrencyRevaluationService,
+    private readonly inflationAdjustment: InflationAdjustmentService,
   ) {}
 
   async runPreClosingTasks(
     period: AccountingPeriod,
     organizationId: string,
     manager: EntityManager,
+    closedByUserId: string | null = null,
   ): Promise<PreClosingOutcome[]> {
     // The one line this class exists for. `period.endDate` is a string at run time whatever its
     // declared type says; everything below is given an `IsoDate` and nothing re-derives it.
@@ -69,6 +75,7 @@ export class ClosingAutomationService {
         organizationId,
         { startDate: toIsoDate(period.startDate), endDate: periodEnd },
         manager,
+        closedByUserId,
       );
       outcomes.push({ task: 'depreciation', ranAt: periodEnd, performed: true });
     } catch (error) {
@@ -86,8 +93,18 @@ export class ClosingAutomationService {
     }
 
     try {
-      await this.currencyRevaluationService.run(periodEnd, organizationId, undefined, manager);
-      outcomes.push({ task: 'currency-revaluation', ranAt: periodEnd, performed: true });
+      const results = await this.currencyRevaluationService.run(periodEnd, organizationId, undefined, manager);
+      const positions = results.reduce((sum, result) => sum + result.positions, 0);
+      const adjusted = results.reduce((sum, result) => sum + result.adjusted, 0);
+      // "Performed" means something was restated; a period with no foreign position says so
+      // instead of claiming a revaluation that did not happen (FINB-01).
+      outcomes.push({
+        task: 'currency-revaluation',
+        ranAt: periodEnd,
+        performed: adjusted > 0,
+        detail: { positions, adjusted },
+        ...(positions === 0 ? { messageKey: 'accounting.revaluation.no_foreign_positions' } : {}),
+      });
     } catch (error) {
       this.logger.error(
         `Revaluación de moneda fallida en el cierre de ${period.name}: ${(error as Error).message}`,
@@ -95,6 +112,27 @@ export class ClosingAutomationService {
       );
       if (isLocalizedError(error)) throw error;
       throw new UnprocessableEntityError('accounting.period_close.revaluation_failed', {
+        period: period.name,
+      });
+    }
+
+    // The restatement for inflation, last: it restates the depreciation just charged and leaves the
+    // foreign-currency balances just revalued alone — they are money (IAS 29.12). Only where the
+    // company's policy calls for it at this close (FIN-AC-04). A missing index stops the close with
+    // the month named, like a missing closing rate does: a year closed without its restatement
+    // would transfer a result in mixed units to equity.
+    try {
+      const restatement = await this.inflationAdjustment.runForClose(organizationId, period, manager);
+      if (restatement.due) {
+        outcomes.push({ task: 'inflation-adjustment', ranAt: periodEnd, performed: restatement.performed });
+      }
+    } catch (error) {
+      this.logger.error(
+        `Reexpresión por inflación fallida en el cierre de ${period.name}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      if (isLocalizedError(error)) throw error;
+      throw new UnprocessableEntityError('accounting.period_close.inflation_adjustment_failed', {
         period: period.name,
       });
     }

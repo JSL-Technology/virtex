@@ -18,6 +18,8 @@
         <input id="name" formControlName="name" [placeholder]="'masters.tax_form.name_placeholder' | translate" />
       </div>
 
+      <vx-name-translations formControlName="nameTranslations" idPrefix="tax-name" />
+
       <div class="form-grid">
         <div class="form-field">
           <label for="rate">{{ 'masters.tax_form.rate' | translate }}</label>
@@ -36,6 +38,17 @@
       <div class="form-field">
         <label for="countryCode">{{ 'masters.tax_form.country_code_optional' | translate }}</label>
         <input id="countryCode" formControlName="countryCode" placeholder="DO, US, MX" />
+      </div>
+
+      <div class="form-field">
+        <label for="effectiveFrom">{{ 'masters.tax_form.effective_from' | translate }}</label>
+        <vx-date-field inputId="effectiveFrom" formControlName="effectiveFrom" />
+      </div>
+
+      <div class="form-field">
+        <label for="effectiveTo">{{ 'masters.tax_form.effective_to' | translate }}</label>
+        <vx-date-field inputId="effectiveTo" formControlName="effectiveTo" />
+        <p class="field-hint">{{ 'masters.tax_form.validity_help' | translate }}</p>
       </div>
     </div>
   </div>

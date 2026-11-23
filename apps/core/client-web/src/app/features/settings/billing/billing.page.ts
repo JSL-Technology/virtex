@@ -1,15 +1,15 @@
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { translateOrLiteral, FormatService } from '@virtex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BillingService, BillingOverview, BillingInvoice } from '../../../core/services/billing';
+import { BillingService, BillingOverview, BillingInvoice, UsageMetric } from '../../../core/services/billing';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPaymentCardComponent } from '../../../shared/components/payment-card';
 
@@ -39,7 +39,7 @@ export class BillingPage implements OnInit {
   protected readonly RefreshCwIcon = RefreshCw;
   protected readonly SettingsIcon = Settings;
 
-  usageMetrics = toSignal(this.billingService.getUsage(), { initialValue: [] as any[] });
+  usageMetrics = toSignal(this.billingService.getUsage(), { initialValue: [] as UsageMetric[] });
 
   overview = signal<BillingOverview | null>(null);
   overviewLoading = signal(true);
@@ -54,28 +54,65 @@ export class BillingPage implements OnInit {
   availablePlans = this.billingService.plans;
   plansState = this.billingService.plansState;
 
-  // True once the org has an active/trialing subscription managed by Stripe.
+  /**
+   * Whether the organization has a provider subscription in force. Only that one has a portal and a
+   * card behind it; one the platform granted is changed by subscribing. It decides the WORDING —
+   * «change» or «subscribe» — never the flow: the server picks the flow from the real subscription.
+   */
   hasActiveSubscription = computed(() => {
     const sub = this.overview()?.subscription;
-    // Only the provider's subscription has a portal and a card behind it; one the platform
-    // granted is changed by subscribing, not by managing.
-    return !!sub && sub.managedBy !== 'platform' && ['active', 'trialing', 'past_due'].includes(sub.status);
+    return !!sub && sub.managedBy === 'provider' && ['active', 'trialing', 'past_due'].includes(sub.status);
   });
+
+  /** The company this one is billed through; its plan, card and invoices are managed there. */
+  billedThrough = computed(() => this.overview()?.billedThrough ?? null);
 
   currentPlanSlug = computed(() => this.overview()?.plan?.slug ?? null);
 
+  /** The chosen plan's name, as the reader sees it on its card. */
+  selectedPlanName = computed(() => {
+    const plan = this.availablePlans().find(p => p.slug === this.selectedPlan());
+    return plan ? translateOrLiteral(this.translate, plan.name) : '';
+  });
+
   ngOnInit(): void {
-    // Returning from a successful Stripe Checkout adds ?session_id=...
+    // The provider sends the browser back with `?session_id=…` after buying a subscription, and
+    // with `?plan_change=confirmed` after changing the one in force.
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
-    if (sessionId) {
+    const planChanged = params.get('plan_change') === 'confirmed';
+    if (sessionId || planChanged) {
       // Clean the URL so a refresh doesn't re-run the confirmation or re-show the banner.
       window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (sessionId) {
       this.confirmCheckout(sessionId);
+      return;
+    }
+    if (planChanged) {
+      this.reconcilePlanChange();
       return;
     }
 
     this.refreshBillingData();
+  }
+
+  /**
+   * Record a plan change the customer just confirmed on the provider's page, without waiting for
+   * the webhook — the same reason `confirmCheckout` exists for a new subscription.
+   */
+  private reconcilePlanChange(): void {
+    this.overviewLoading.set(true);
+    this.billingService.reconcileSubscription().subscribe(overview => {
+      if (!overview) {
+        this.refreshBillingData();
+        return;
+      }
+      this.overview.set(overview);
+      this.overviewLoading.set(false);
+      this.successMessage.set(this.translate.instant('billing.plan_change.applied'));
+      this.loadInvoices(overview);
+    });
   }
 
   /**
@@ -96,7 +133,7 @@ export class BillingPage implements OnInit {
         this.overview.set(overview);
         this.overviewLoading.set(false);
         this.successMessage.set(this.translate.instant('billing.checkout.active'));
-        this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
+        this.loadInvoices(overview);
       } else {
         // Confirmation failed (Stripe unreachable, etc.) — fall back to whatever the API reports.
         this.refreshBillingData();
@@ -109,7 +146,16 @@ export class BillingPage implements OnInit {
     this.billingService.getOverview().subscribe(data => {
       this.overview.set(data);
       this.overviewLoading.set(false);
+      this.loadInvoices(data);
     });
+  }
+
+  /** The invoices are the paying company's: a company billed through its parent has none to list. */
+  private loadInvoices(overview: BillingOverview | null): void {
+    if (overview?.billedThrough) {
+      this.invoices.set([]);
+      return;
+    }
     this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
   }
 
@@ -123,20 +169,17 @@ export class BillingPage implements OnInit {
     this.checkoutError.set(null);
   }
 
-  startCheckout(): void {
+  /** Move to the selected plan. The server decides whether that changes a subscription or buys one. */
+  confirmPlanChange(): void {
     const planSlug = this.selectedPlan();
     if (!planSlug) return;
 
     this.isRedirecting.set(true);
     this.checkoutError.set(null);
 
-    // Existing subscribers manage plan changes through the Stripe portal
-    // (proration, downgrades, etc.); new customers go through Checkout.
-    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, () => {
-      return this.hasActiveSubscription()
-        ? this.billingService.openBillingPortal()
-        : this.billingService.startCheckout(planSlug);
-    }).subscribe({
+    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, () =>
+      this.billingService.changePlan(planSlug),
+    ).subscribe({
       next: (ok) => {
         if (!ok) {
           this.checkoutError.set(this.translate.instant('billing.checkout.start_failed'));
@@ -227,6 +270,14 @@ export class BillingPage implements OnInit {
       undefined,
       status,
     );
+  }
+
+  /** What an invoice was for: the provider's own description, or the reader's words for one. */
+  invoiceDescription(invoice: BillingInvoice): string {
+    if (invoice.description) return invoice.description;
+    return invoice.number
+      ? this.translate.instant('billing.invoice_numbered', { number: invoice.number })
+      : this.translate.instant('billing.subscription_invoice');
   }
 
   /** A billing-history invoice's Stripe status, in the reader's language; an unknown one as itself. */

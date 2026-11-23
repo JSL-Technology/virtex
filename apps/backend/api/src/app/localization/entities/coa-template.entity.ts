@@ -7,8 +7,14 @@ import type { FiscalRegion } from "./fiscal-region.entity";
 
 
 
-export interface AccountTemplateDto extends Omit<CreateAccountDto, 'parentId'> {
+export interface AccountTemplateDto extends Omit<CreateAccountDto, 'parentId' | 'inflationAdjustmentAccountId'> {
     children?: AccountTemplateDto[];
+    /**
+     * The code of the account this one's inflation restatement is posted to (capital → «Ajuste de
+     * capital»): a code, because no account has an id when the template is written. The template
+     * lists the target first, so it exists when this one is created and names it.
+     */
+    restatementAccountCode?: string;
 }
 
 

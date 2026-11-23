@@ -25,6 +25,7 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
+import { AgingQueryDto } from '../shared/statements/aging-query.dto';
 
 /**
  * Customer receipts.
@@ -72,14 +73,9 @@ export class CustomerPaymentsController {
   @Get('aging')
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   @ApiOperation({ summary: 'Antigüedad de saldos por cliente.' })
-  @ApiQuery({ name: 'asOfDate', required: false, type: String })
-  aging(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query('asOfDate') asOfDate?: string,
-    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
-  ) {
-    return this.customerPaymentsService.aging(user.organizationId, asOfDate ?? new Date(), {
-      branchId,
+  aging(@CurrentUser() user: AuthenticatedUser, @Query() query: AgingQueryDto) {
+    return this.customerPaymentsService.aging(user.organizationId, query.asOfDate ?? new Date(), {
+      branchId: query.branchId,
       actorUserId: user.id,
     });
   }

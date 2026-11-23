@@ -1,0 +1,8 @@
+# What a build copies is named in the Dockerfile; this keeps local leftovers out of the context.
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/

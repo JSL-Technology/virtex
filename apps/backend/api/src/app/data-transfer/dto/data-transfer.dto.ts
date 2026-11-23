@@ -1,3 +1,4 @@
+import { IsObject, IsOptional as IsOptionalField } from 'class-validator';
 import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 
 const DATASET_ID = /^[a-z][a-z0-9_-]{1,63}$/;
@@ -33,4 +34,15 @@ export class TemplateParamsDto {
   @MaxLength(64)
   @Matches(DATASET_ID)
   dataset: string;
+}
+
+/**
+ * The form fields beside an imported file. FastifyFileInterceptor parses a field that holds a JSON
+ * object, so the confirmed mapping arrives as an object — the controller used to JSON.parse it again
+ * and every import with a confirmed mapping failed with `mapping_invalid`.
+ */
+export class ImportFormDto {
+  @IsOptionalField()
+  @IsObject()
+  mapping?: Record<string, unknown>;
 }

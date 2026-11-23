@@ -1,8 +1,8 @@
 import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { Observable, map, of } from 'rxjs';
 import { VX_SELECT } from '../../../shared/components/select';
 import { WorkflowService, WorkflowVariable } from '../data/workflow.service';

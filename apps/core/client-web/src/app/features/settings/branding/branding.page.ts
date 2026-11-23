@@ -9,8 +9,9 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { LocaleStore, TranslateModule } from '@virtex/shared/ui-i18n';
+import { LANGUAGE_ENDONYMS } from '@virtex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 import { RegionalFormatPage } from '../regional-format/regional-format.page';
 
@@ -44,6 +45,12 @@ import { RegionalFormatPage } from '../regional-format/regional-format.page';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrandingPage implements OnInit {
+  /**
+   * The company's data in the reader's language, or as the books keep it: the account names and
+   * the narratives of the system's entries. Offered only where the books are in another language.
+   */
+  protected readonly locale = inject(LocaleStore);
+  protected readonly booksLanguageName = computed(() => LANGUAGE_ENDONYMS[this.locale.booksLanguage()]);
   private fb = inject(FormBuilder);
   public brandingService = inject(BrandingService);
   public themeService = inject(ThemeService);

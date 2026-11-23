@@ -6,7 +6,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import {
   TERMINAL_ID_PATTERN,
   TerminalConfigService,

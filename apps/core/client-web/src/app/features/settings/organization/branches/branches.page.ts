@@ -3,11 +3,11 @@ import { SettingsActionsDirective } from '../../shell';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { LucideAngularModule, MapPin, Plus } from 'lucide-angular';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { Branch, BranchesService, SaveBranch } from '../../../../core/tenancy/branches.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -46,7 +46,7 @@ const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslateModule, VxLocalizedNamePipe,
     LucideAngularModule,
     HasPermissionDirective,
     VxDialogComponent,

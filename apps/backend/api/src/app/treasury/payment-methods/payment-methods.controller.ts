@@ -24,7 +24,7 @@ export class PaymentMethodsController {
 
   @Get()
   @AuthenticatedOnly(
-    'The DGII payment-form catalogue the invoice, receipt and bill forms offer. It holds no balance ' +
+    'The payment-form catalogue the invoice, receipt and bill forms offer. It holds no balance ' +
       'or account data; a seller creating an invoice met a 403 reading it (QA R3-M04).',
   )
   @ApiOperation({ summary: 'Formas de pago de la empresa (incluye las retiradas salvo activeOnly=true).' })

@@ -3,7 +3,7 @@ import type {
   CheckoutSessionInfo,
   CheckoutSessionResult,
   CreateRegistrationCheckoutDto,
-} from '../../payment/interfaces/payment-gateway.interface';
+} from '../../payment/payment-gateway.port';
 
 /**
  * The payment surface registration needs during account signup.
@@ -31,14 +31,6 @@ export abstract class RegistrationPaymentPort {
 
   abstract createRegistrationCheckoutSession(
     dto: CreateRegistrationCheckoutDto,
-  ): Promise<CheckoutSessionResult>;
-
-  abstract createCheckoutSession(
-    organizationId: string,
-    userEmail: string,
-    priceId: string,
-    successUrl: string,
-    cancelUrl: string,
   ): Promise<CheckoutSessionResult>;
 
   abstract getCheckoutSession(sessionId: string): Promise<CheckoutSessionInfo>;

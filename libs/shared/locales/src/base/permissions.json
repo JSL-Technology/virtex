@@ -144,6 +144,11 @@
     "en": "Manage ledgers",
     "pt": "Gerir livros contábeis"
   },
+  "permissions.actions.manage_price_indices": {
+    "es": "Registrar índices de precios",
+    "en": "Record price indices",
+    "pt": "Registrar índices de preços"
+  },
   "permissions.actions.manage_rules": {
     "es": "Administrar reglas",
     "en": "Manage rules",
@@ -354,11 +359,6 @@
     "en": "Projected cash flow (AI)",
     "pt": "Fluxo de caixa projetado (IA)"
   },
-  "permissions.groups.ai_collections": {
-    "es": "Cobranza inteligente (IA)",
-    "en": "Smart collections (AI)",
-    "pt": "Cobrança inteligente (IA)"
-  },
   "permissions.groups.ai_copilot": {
     "es": "Asistente del ERP (IA)",
     "en": "ERP assistant (AI)",
@@ -433,6 +433,11 @@
     "es": "Plan de cuentas",
     "en": "Chart of accounts",
     "pt": "Plano de contas"
+  },
+  "permissions.groups.collections": {
+    "es": "Cobranza",
+    "en": "Collections",
+    "pt": "Cobrança"
   },
   "permissions.groups.crm": {
     "es": "Oportunidades de venta",
@@ -608,11 +613,6 @@
     "es": "Tesorería",
     "en": "Treasury",
     "pt": "Tesouraria"
-  },
-  "permissions.groups.tss": {
-    "en": "Social security",
-    "es": "Seguridad social",
-    "pt": "Segurança social"
   },
   "permissions.groups.units_of_measure": {
     "es": "Unidades de medida",

@@ -1,5 +1,5 @@
 import { LEDGER_STATUS_VALUES } from '../contracts/accounting/ledger-statuses.contract';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Budget } from './entities/budget.entity';
@@ -8,17 +8,32 @@ import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { AccountType } from '../chart-of-accounts/entities/account.entity';
 import { LocalizedMessage } from '../i18n/localized-message';
+import type { BudgetControlMode } from '../contracts/accounting/budget-control.contract';
+import {
+  BudgetControlRegistry,
+  budgetLimitsPosting,
+  type BudgetControlSource,
+  type BudgetDecision,
+  type BudgetPosting,
+} from '../contracts/budget-control/budget-control.contract';
 import { endOfMonthIso, startOfMonthIso, toIsoDate, toIsoMonth } from '../common/dates';
 import { roundAmount } from '../common/money';
 
 export interface BudgetCheckResult extends LocalizedMessage {
+  /** Past the line by more than the company's tolerance — whatever the control then does about it. */
   isExceeded: boolean;
+  /** What the company's control does with an exceeded line; only meaningful when `isExceeded`. */
+  enforcement?: Exclude<BudgetControlMode, 'none'>;
   budgetName?: string;
+  /** `YYYY-MM`: the month of the budget that covers the posting. */
+  period?: string;
+  accountCode?: string | null;
   budgetedAmount?: number;
   actualAmount?: number;
   /** Budget less actual: what is left before the line is exhausted. */
   variance?: number;
 }
+
 
 /**
  * Whether a posting fits inside the budget line that covers it.
@@ -43,7 +58,7 @@ export interface BudgetCheckResult extends LocalizedMessage {
  *    negative actual against a positive target and could never be exceeded.
  */
 @Injectable()
-export class BudgetControlService {
+export class BudgetControlService implements BudgetControlSource, OnModuleInit {
   private readonly logger = new Logger(BudgetControlService.name);
 
   constructor(
@@ -53,7 +68,38 @@ export class BudgetControlService {
     private readonly journalEntryLineRepository: Repository<JournalEntryLine>,
     @InjectRepository(Ledger)
     private readonly ledgerRepository: Repository<Ledger>,
+    private readonly registry: BudgetControlRegistry,
   ) {}
+
+  /** The journal and accounts payable reach budget control through the contract, not this class. */
+  onModuleInit(): void {
+    this.registry.provide(this);
+  }
+
+  /**
+   * The decision for one posting: within its line (plus the company's tolerance), past it under a
+   * control that warns, or past it under a control that refuses. Acting on it — refusing, or
+   * publishing the warning after the commit — is `BudgetControlRegistry`'s, the same for every caller.
+   */
+  async decide(manager: EntityManager, organizationId: string, posting: BudgetPosting): Promise<BudgetDecision> {
+    const check = await this.checkBudget(organizationId, posting.accountId, posting.amount, posting.date, posting.dimensions, manager);
+    if (!check.isExceeded) return { outcome: 'within' };
+    if (check.enforcement === 'block') {
+      return { outcome: 'block', messageKey: check.messageKey, params: check.messageParams ?? {} };
+    }
+    return {
+      outcome: 'warn',
+      exceeded: {
+        budgetName: check.budgetName ?? '',
+        period: check.period ?? '',
+        accountId: posting.accountId,
+        accountCode: check.accountCode ?? null,
+        budgeted: check.budgetedAmount ?? 0,
+        actual: roundAmount((check.actualAmount ?? 0) + posting.amount),
+        amount: posting.amount,
+      },
+    };
+  }
 
   /**
    * @param manager when the caller is inside a transaction — a posting is — so the check sees the
@@ -98,6 +144,7 @@ export class BudgetControlService {
         messageKey: 'budgets.account_dimensions_not_budgeted',
       };
     }
+
 
     const ledger = await em.findOne(Ledger, {
       where: { organizationId, isDefault: true },
@@ -148,11 +195,32 @@ export class BudgetControlService {
 
     const currentActual = roundAmount(natural);
     const budgetedAmount = Number(budgetLine.amount);
-    const projected = roundAmount(currentActual + amount);
 
-    if (projected > budgetedAmount) {
+    // A budget on revenue, a liability or equity is a target, not a ceiling: selling more than
+    // budgeted is the good outcome, and refusing to book the sale was the control turned upside
+    // down (FINB-20). It is measured — how far it is from being met — and never refused.
+    if (!budgetLimitsPosting(budgetLine.account?.type)) {
+      return {
+        isExceeded: false,
+        messageKey: 'budgets.target_not_a_limit',
+        budgetName: budget.name,
+        budgetedAmount,
+        actualAmount: currentActual,
+        variance: roundAmount(budgetedAmount - currentActual),
+      };
+    }
+
+    const projected = roundAmount(currentActual + amount);
+    const control = await this.controlOf(em, organizationId);
+    // The line plus the company's tolerance; nothing at all when the company only measures.
+    const limit = roundAmount(budgetedAmount * (1 + control.toleranceBps / 10_000));
+
+    if (control.mode !== 'none' && projected > limit) {
       return {
         isExceeded: true,
+        enforcement: control.mode,
+        period: periodKey,
+        accountCode: budgetLine.account?.code ?? null,
         messageKey: 'budgets.amount_exceeds_budget',
         // The amounts stay numbers: the catalogue formats them in the reader's locale and in the
         // books' currency. `toFixed(2)` produced "1234.50" for a reader whose decimal separator
@@ -174,10 +242,29 @@ export class BudgetControlService {
       isExceeded: false,
       messageKey: 'budgets.within_budget',
       budgetName: budget.name,
+      period: periodKey,
+      accountCode: budgetLine.account?.code ?? null,
       budgetedAmount,
       actualAmount: currentActual,
       variance: roundAmount(budgetedAmount - currentActual),
     };
+  }
+
+  /**
+   * The company's budget control: its mode and tolerance. Read as columns, not through the
+   * settings entity, which belongs to another module. A company with no settings row yet is
+   * controlled the way the product always controlled it: blocked, no tolerance.
+   */
+  private async controlOf(
+    em: EntityManager,
+    organizationId: string,
+  ): Promise<{ mode: BudgetControlMode; toleranceBps: number }> {
+    const [row]: Array<{ mode: BudgetControlMode; tolerance_bps: number }> = await em.query(
+      `SELECT budget_control_mode AS mode, budget_tolerance_bps AS tolerance_bps
+         FROM organization_settings WHERE organization_id = $1`,
+      [organizationId],
+    );
+    return { mode: row?.mode ?? 'block', toleranceBps: Math.max(0, Number(row?.tolerance_bps ?? 0)) };
   }
 
   /** Revenue and liability budgets are read in credit sense; everything else in debit sense. */

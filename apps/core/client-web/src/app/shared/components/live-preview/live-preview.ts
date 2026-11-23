@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 
 @Component({
   selector: 'app-live-preview',

@@ -1,34 +1,50 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
-import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
+import {
+  AccountSegmentDefinition,
+  ChartOfAccountsApiService,
+  CreateAccountDto,
+} from '../../../core/api/chart-of-accounts.service';
+import { CurrenciesService } from '../../../core/api/currencies.service';
+import { ChartOfAccountsStateService, ParentAccountOption } from '../state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
-import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
-import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
+import { accountNameOf, LocaleStore, tenantToday } from '@virtex/shared/ui-i18n';
+import { LANGUAGE_ENDONYMS, SUPPORTED_LANGUAGES, type LanguageCode } from '@virtex/shared/types';
+import {
+  ACCOUNT_CATEGORIES_BY_TYPE,
+  FX_TREATMENTS,
+  defaultFxTreatmentForType,
+  defaultInflationRestatement,
+  isCategoryAllowedForType,
+  isFxTreatmentAllowedForType,
+  isRestatableAccount,
+  type FxTreatment,
+} from '@virtex/shared/types';
+import { OrganizationSettingsService } from '../../settings/data/organization-settings.service';
+import { AccountType, AccountCategory, AccountNature, CashFlowCategory } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
-/** Una cuenta de agrupación, tal y como la ofrece el selector de cuenta padre. */
-type ParentOption = { id: string; name: string; code: string };
 
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    CanOpenDirective,
     LucideAngularModule,
     TranslateModule,
     DraftShellComponent,
@@ -39,9 +55,9 @@ type ParentOption = { id: string; name: string; code: string };
 })
 export class AccountFormPage implements OnInit {
   /** «1100 - Efectivo y equivalentes»: el código primero, que es por donde se busca. */
-  protected readonly parentLabel = (option: ParentOption): string =>
-    `${option.code} - ${accountNameOf(option.name)}`;
-  protected readonly parentId = (option: ParentOption): string => option.id;
+  protected readonly parentLabel = (option: ParentAccountOption): string =>
+    `${option.code} - ${this.locale.nameOf(option.name)}`;
+  protected readonly parentId = (option: ParentAccountOption): string => option.id;
 
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
@@ -52,22 +68,40 @@ export class AccountFormPage implements OnInit {
   private readonly apiService = inject(ChartOfAccountsApiService);
   public readonly stateService = inject(ChartOfAccountsStateService); // Hecho público para el template
   private readonly notificationService = inject(NotificationService);
+  private readonly currencies = inject(CurrenciesService);
+  private readonly settings = inject(OrganizationSettingsService);
+  private readonly locale = inject(LocaleStore);
+
+  /**
+   * The language the company keeps its books in: `name` is the account's name in it — the record,
+   * what the exports and the filings read — whatever language the person filling the form reads.
+   */
+  protected readonly booksLanguage = computed<LanguageCode>(() => this.locale.booksLanguage());
+  /** The other languages the product speaks: each may carry the account's name for its readers. */
+  protected readonly translationLanguages = computed(() =>
+    SUPPORTED_LANGUAGES.filter((language) => language !== this.booksLanguage()).map((language) => ({
+      language,
+      label: LANGUAGE_ENDONYMS[language],
+    })),
+  );
+  protected readonly booksLanguageName = computed(() => LANGUAGE_ENDONYMS[this.booksLanguage()]);
 
   public accountForm!: FormGroup;
   public isEditing = signal(false);
   public isLoading = signal(true);
-  public segmentDefinitions = signal<any[]>([]);
+  public segmentDefinitions = signal<AccountSegmentDefinition[]>([]);
   public isConfigMissing = signal(false);
   private accountId: string | null = null;
+  /** The account being edited, for the parent picker: it cannot sit under itself or below. */
+  private readonly editingId = signal<string | null>(null);
 
-  // --- Propiedades y Métodos Añadidos para Corregir Errores ---
-  public activeTab = signal<'general' | 'mappings' | 'rules' | 'advanced'>('general');
+  public activeTab = signal<'general' | 'mappings' | 'currency' | 'advanced'>('general');
 
   /** Las cuatro secciones del formulario de cuenta, como datos: `vx-tabs` las dibuja. */
   protected readonly TABS: VxTab[] = [
     { id: 'general', labelKey: 'accounting.account_form.general' },
     { id: 'mappings', labelKey: 'accounting.account_form.mappings' },
-    { id: 'rules', labelKey: 'accounting.account_form.rules' },
+    { id: 'currency', labelKey: 'accounting.account_form.currency_and_revaluation' },
     { id: 'advanced', labelKey: 'accounting.account_form.advanced' },
   ];
   public readonly SaveIcon = Save;
@@ -84,13 +118,59 @@ export class AccountFormPage implements OnInit {
   });
   public readonly accountNatures = Object.values(AccountNature);
   public readonly cashFlowCategories = Object.values(CashFlowCategory);
-  public readonly allDimensions: RequiredDimension[] = ['COST_CENTER', 'PROJECT', 'SEGMENT'];
-  // -----------------------------------------------------------
+
+  /**
+   * Where the account can sit (FIN-COA-05): summary accounts of its own type, and never itself or
+   * one of its sub-accounts. The server refuses every other parent; the picker does not offer them.
+   */
+  protected readonly parentOptions = computed(() =>
+    this.stateService.parentOptionsFor(this.selectedType(), this.editingId()),
+  );
+
+  /** The two foreign-currency treatments (IAS 21), in the order the picker shows them. */
+  protected readonly fxTreatments = FX_TREATMENTS;
+  /** Only balance-sheet accounts are revalued: an expense stays at the rate of the day it was incurred. */
+  protected readonly revaluedAllowed = computed(() => isFxTreatmentAllowedForType(this.selectedType(), 'REVALUED'));
+  /**
+   * Whether the account takes postings. A summary account carries no balance of its own — its
+   * sub-accounts do — so it has neither a currency nor a foreign-currency treatment to choose.
+   */
+  protected readonly postable = signal(true);
+  /** The company's currencies, for the account's currency. */
+  protected readonly currencyCodes = signal<string[]>([]);
+  /**
+   * Whether the treatment on the form is a choice — the person's, or the account's own when editing —
+   * rather than the default of the chosen type. Only a default follows the type.
+   */
+  private fxTreatmentChosen = false;
+
+  /**
+   * Whether the company restates its books for inflation (IAS 29): the restatement settings of the
+   * account are only shown, and only matter, when it does.
+   */
+  protected readonly inflationApplies = signal(false);
+  /** Whether «restated» on the form is a choice rather than the default for the account's nature. */
+  private inflationChosen = false;
+  /** The account being edited, as loaded: whether it already takes another account's restatement. */
+  private readonly editingAccountRestatementTarget = signal(false);
+  /**
+   * Where the account's restatement can go (capital → «Ajuste de capital»): a postable account of its
+   * own type that is not restated itself and takes no other account's restatement.
+   */
+  protected readonly restatementTargets = computed(() =>
+    this.stateService.restatementTargetsFor(this.selectedType(), this.editingId()),
+  );
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadSegmentDefinitions();
+    this.loadCurrencies();
+    this.loadInflationPolicy();
+    //  The parent picker reads the chart, and this page is not always opened from the list that
+    //  reads it: a link or a restored tab opens it on its own.
+    this.stateService.ensureLoaded();
     this.accountId = this.route.snapshot.paramMap.get('id');
+    this.editingId.set(this.accountId);
 
     if (this.accountId) {
       this.isEditing.set(true);
@@ -98,6 +178,24 @@ export class AccountFormPage implements OnInit {
     } else {
       this.isLoading.set(false);
     }
+  }
+
+  private loadCurrencies(): void {
+    this.currencies.getCurrencies().pipe(take(1)).subscribe({
+      next: (all) => this.currencyCodes.set(all.map((currency) => currency.code)),
+      error: () => this.currencyCodes.set([]),
+    });
+  }
+
+  private loadInflationPolicy(): void {
+    this.settings.get('closing').pipe(take(1)).subscribe({
+      next: (section) => {
+        const policy = section.fields['inflationAdjustmentPolicy'];
+        this.inflationApplies.set(typeof policy === 'string' && policy !== 'NONE');
+      },
+      // Without the company's settings the fields stay hidden; the server applies its defaults.
+      error: () => this.inflationApplies.set(false),
+    });
   }
 
   private loadSegmentDefinitions(): void {
@@ -119,6 +217,10 @@ export class AccountFormPage implements OnInit {
       // Pestaña General
       code: ['', [Validators.required, Validators.maxLength(20)]],
       name: ['', [Validators.required, Validators.maxLength(255)]],
+      // The name in the other languages, for whoever reads the screen in one of them.
+      translations: this.fb.group(
+        Object.fromEntries(SUPPORTED_LANGUAGES.map((language) => [language, ['', [Validators.maxLength(255)]]])),
+      ),
       description: [''],
       parentId: [null],
       type: [null, Validators.required],
@@ -133,20 +235,16 @@ export class AccountFormPage implements OnInit {
         incomeStatementCategory: [''],
         cashFlowCategory: [CashFlowCategory.NONE]
       }),
-  
-      // Pestaña Reglas (agrupado)
-      rules: this.fb.group({
-        requiresReconciliation: [false],
-        isCashOrBank: [false],
-        allowsIntercompany: [false],
-        isFxRevaluation: [false],
-        requiredDimensions: this.fb.array([])
-      }),
-  
+
+      // Pestaña Moneda y revaluación
+      fxTreatment: [defaultFxTreatmentForType(null) as FxTreatment, Validators.required],
+      currency: [null as string | null],
+      // Reexpresión por inflación (NIC 29)
+      isInflationAdjustable: [false],
+      inflationAdjustmentAccountId: [null as string | null],
+
       // Pestaña Avanzado (agrupado)
       advanced: this.fb.group({
-        version: [{ value: 1, disabled: true }],
-        hierarchyType: [{ value: 'LEGAL', disabled: true }],
         effectiveFrom: [tenantToday()],
         effectiveTo: [null]
       })
@@ -162,56 +260,142 @@ export class AccountFormPage implements OnInit {
       if (category?.value && !isCategoryAllowedForType(type, category.value)) {
         category.setValue(null);
       }
+      //  The parent is a summary account of the same type: one of another type no longer fits.
+      const parent = this.accountForm.get('parentId');
+      if (parent?.value && this.stateService.typeOf(parent.value) !== type) {
+        parent.setValue(null, { emitEvent: false });
+      }
+      this.applyFxTreatmentDefault();
+      this.applyInflationDefault();
     });
+
+    //  A sub-account has its parent's type, so choosing the parent first gives the type.
+    this.accountForm.get('parentId')?.valueChanges.subscribe((parentId: string | null) => {
+      const type = this.accountForm.get('type');
+      if (!parentId || !type || type.disabled || type.value) return;
+      const parentType = this.stateService.typeOf(parentId);
+      if (parentType) type.setValue(parentType);
+    });
+
+    this.accountForm.get('isPostable')?.valueChanges.subscribe((isPostable: boolean) => {
+      this.applyPostability(isPostable !== false);
+    });
+
+    //  Every value this page writes itself goes without an event, so an event here is a choice.
+    this.accountForm.get('fxTreatment')?.valueChanges.subscribe(() => {
+      this.fxTreatmentChosen = true;
+      this.applyInflationDefault();
+    });
+    this.accountForm.get('isInflationAdjustable')?.valueChanges.subscribe((restated: boolean) => {
+      this.inflationChosen = true;
+      if (!restated) this.accountForm.get('inflationAdjustmentAccountId')?.setValue(null, { emitEvent: false });
+    });
+  }
+
+  /**
+   * Restated for inflation by default when the account can be — postable, non-monetary — and never
+   * when it cannot (a monetary account restated would count its loss of purchasing power twice). A
+   * choice the person made is kept while it is still allowed.
+   */
+  private applyInflationDefault(): void {
+    const restated = this.accountForm.get('isInflationAdjustable');
+    const target = this.accountForm.get('inflationAdjustmentAccountId');
+    if (!restated || !target) return;
+    const facts = {
+      type: this.selectedType(),
+      fxTreatment: this.accountForm.get('fxTreatment')?.value as FxTreatment,
+      isPostable: this.postable(),
+      systemRole: null,
+    };
+    const allowed = isRestatableAccount(facts) && !this.editingAccountRestatementTarget();
+    if (!allowed) {
+      restated.setValue(false, { emitEvent: false });
+      target.setValue(null, { emitEvent: false });
+      restated.disable({ emitEvent: false });
+      target.disable({ emitEvent: false });
+      this.inflationChosen = false;
+      return;
+    }
+    restated.enable({ emitEvent: false });
+    target.enable({ emitEvent: false });
+    if (!this.inflationChosen) restated.setValue(defaultInflationRestatement(facts), { emitEvent: false });
+  }
+
+  /**
+   * The treatment for the chosen type, while the person has not chosen one: a liability is money
+   * owed in nearly every case and is revalued; an asset with nothing more said is held at its
+   * historical rate. A treatment the type cannot have (revaluing an expense) is never kept.
+   */
+  private applyFxTreatmentDefault(): void {
+    const control = this.accountForm.get('fxTreatment');
+    if (!control || control.disabled) return;
+    const type = this.selectedType();
+    if (!this.fxTreatmentChosen || !isFxTreatmentAllowedForType(type, control.value)) {
+      control.setValue(defaultFxTreatmentForType(type), { emitEvent: false });
+      this.fxTreatmentChosen = false;
+    }
+  }
+
+  /** A summary account has no currency and no treatment of its own: its sub-accounts have them. */
+  private applyPostability(isPostable: boolean): void {
+    this.postable.set(isPostable);
+    const fxTreatment = this.accountForm.get('fxTreatment');
+    const currency = this.accountForm.get('currency');
+    if (!fxTreatment || !currency) return;
+    if (isPostable) {
+      fxTreatment.enable({ emitEvent: false });
+      currency.enable({ emitEvent: false });
+      this.applyFxTreatmentDefault();
+    } else {
+      fxTreatment.setValue('HISTORICAL', { emitEvent: false });
+      currency.setValue(null, { emitEvent: false });
+      fxTreatment.disable({ emitEvent: false });
+      currency.disable({ emitEvent: false });
+      this.fxTreatmentChosen = false;
+    }
+    this.applyInflationDefault();
   }
 
   private loadAccountData(id: string): void {
     this.isLoading.set(true);
     this.apiService.getAccountById(id).pipe(take(1)).subscribe({
       next: (account) => {
-        const accountWithUiFields = {
-          ...account,
-          code: account.code ?? '',
-          // The server sends the name as `{ es: 'Bancos' }`, and a text input given an object
-          // renders `[object Object]` — which is also what a save would have written back as the
-          // account's name. `accountNameOf` is the existing fallback chain for exactly this ("a
-          // value written into a form control", in its own words); it was used by the list and the
-          // search box and never reached the edit form.
-          name: accountNameOf(account.name as Record<string, string> | string | null | undefined),
-          advanced: {
-            version: 1,
-            hierarchyType: 'LEGAL',
-            effectiveFrom: (account as any).effectiveFrom
-              ? new Date((account as any).effectiveFrom).toISOString().split('T')[0]
-              : tenantToday(),
-            effectiveTo: (account as any).effectiveTo
-              ? new Date((account as any).effectiveTo).toISOString().split('T')[0]
-              : null,
+        //  Written without events: what the account holds is not a choice made on this form, and
+        //  the type's defaults (its nature, its foreign-currency treatment) must not replace it.
+        this.accountForm.patchValue(
+          {
+            code: account.code ?? '',
+            // The server sends the name as `{ es: 'Bancos', en: 'Banks' }`. The field is the name in
+            // the BOOKS language, whatever the reader's: filled with the reader's, a save wrote the
+            // English name over the Spanish record. The other languages go to their own fields.
+            name: nameInBooks(account.name as Record<string, string> | string | null | undefined, this.booksLanguage()),
+            translations: translationsOf(account.name as Record<string, string> | string | null | undefined, this.booksLanguage()),
+            description: typeof account.description === 'string' ? account.description : '',
+            parentId: account.parentId ?? null,
+            type: account.type,
+            nature: account.nature,
+            category: account.category,
+            isPostable: account.isPostable,
+            isActive: account.isActive,
+            fxTreatment: account.fxTreatment ?? defaultFxTreatmentForType(account.type),
+            currency: account.currency ?? null,
+            isInflationAdjustable: account.isInflationAdjustable ?? false,
+            inflationAdjustmentAccountId: account.inflationAdjustmentAccountId ?? null,
+            statementMapping: account.statementMapping ?? {},
+            advanced: {
+              effectiveFrom: AccountFormPage.dateOnly(account.effectiveFrom) ?? tenantToday(),
+              effectiveTo: AccountFormPage.dateOnly(account.effectiveTo),
+            },
           },
-        };
+          { emitEvent: false },
+        );
 
-        // Usar patchValue para el formulario principal.
-        // TypeORM puede devolver entidades con campos extra que no están en el DTO.
-        this.accountForm.patchValue(accountWithUiFields);
-  
-        // Si la cuenta tiene datos anidados (que deberían venir del backend),
-        // los parcheamos explícitamente.
-        if (account.statementMapping) {
-          this.accountForm.get('statementMapping')?.patchValue(account.statementMapping);
-        }
-        if (account.rules) {
-          this.accountForm.get('rules')?.patchValue(account.rules);
-          // Manejar el FormArray de dimensiones
-          this.requiredDimensionsFormArray.clear();
-          account.rules.requiredDimensions?.forEach(dim => {
-            this.requiredDimensionsFormArray.push(this.fb.control(dim));
-          });
-        }
-        if (account.advanced) {
-          this.accountForm.get('advanced')?.patchValue(account.advanced);
-        }
-  
         this.selectedType.set(account.type ?? null);
+        //  What was loaded is what the account has, not a default still to apply.
+        this.fxTreatmentChosen = !!account.fxTreatment;
+        this.inflationChosen = account.isInflationAdjustable !== undefined;
+        this.editingAccountRestatementTarget.set(this.stateService.isRestatementTarget(account.id));
+        this.applyPostability(account.isPostable !== false);
         if (this.isEditing()) {
           this.accountForm.get('code')?.disable();
           this.accountForm.get('type')?.disable();
@@ -268,9 +452,12 @@ export class AccountFormPage implements OnInit {
     }
 
     const advanced = formData.advanced ?? {};
-    const payload: CreateAccountDto | UpdateAccountDto = {
-      ...(this.isEditing() ? {} : { segments }),
+    const account: Omit<CreateAccountDto, 'segments'> = {
       name: formData.name,
+      // Every other language, empty ones included: an empty field removes that translation.
+      translations: Object.fromEntries(
+        this.translationLanguages().map(({ language }) => [language, (formData.translations?.[language] ?? '').trim()]),
+      ),
       description: formData.description || undefined,
       parentId: formData.parentId || null,
       type: formData.type,
@@ -279,15 +466,25 @@ export class AccountFormPage implements OnInit {
       isPostable: formData.isPostable,
       isActive: formData.isActive,
       statementMapping: formData.statementMapping,
-      rules: formData.rules,
+      fxTreatment: formData.fxTreatment,
+      currency: formData.currency || null,
+      // Sent only where the company restates: elsewhere the server keeps the account's default.
+      ...(this.inflationApplies()
+        ? {
+            isInflationAdjustable: !!formData.isInflationAdjustable,
+            inflationAdjustmentAccountId: formData.isInflationAdjustable ? formData.inflationAdjustmentAccountId || null : null,
+          }
+        : {}),
       effectiveFrom: advanced.effectiveFrom || undefined,
       effectiveTo: advanced.effectiveTo || undefined,
-      ...(this.isEditing() ? { reasonForChange: String(formData.reasonForChange ?? '').trim() } : {}),
     };
-  
+
     const saveOperation = this.isEditing()
-      ? this.apiService.updateAccount(this.accountId!, payload)
-      : this.apiService.createAccount(payload as CreateAccountDto);
+      ? this.apiService.updateAccount(this.accountId!, {
+          ...account,
+          reasonForChange: String(formData.reasonForChange ?? '').trim(),
+        })
+      : this.apiService.createAccount({ ...account, segments });
   
     saveOperation.pipe(take(1)).subscribe({
       next: () => {
@@ -322,45 +519,30 @@ export class AccountFormPage implements OnInit {
     this.router.navigate(['/accounting/chart-of-accounts']);
   }
 
-  get requiredDimensionsFormArray(): FormArray {
-    return this.accountForm.get('rules.requiredDimensions') as FormArray;
+  /** `YYYY-MM-DD` of a date column as the server sends it, or null. */
+  private static dateOnly(value: string | Date | null | undefined): string | null {
+    if (!value) return null;
+    return typeof value === 'string' ? value.slice(0, 10) : value.toISOString().slice(0, 10);
   }
 
-  isDimensionSelected(dimension: RequiredDimension): boolean {
-    return this.requiredDimensionsFormArray.value.includes(dimension);
-  }
-
-  onDimensionChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const dimension = input.value as RequiredDimension;
-    if (input.checked) {
-      this.requiredDimensionsFormArray.push(this.fb.control(dimension));
-    } else {
-      const index = this.requiredDimensionsFormArray.controls.findIndex(c => c.value === dimension);
-      if (index !== -1) {
-        this.requiredDimensionsFormArray.removeAt(index);
-      }
-    }
-  }
-  
   private findAndFocusFirstInvalidTab(): void {
     const controls = this.accountForm.controls;
-    
+
     // Check general tab fields
-    for (const key of ['code', 'name', 'type', 'category', 'reasonForChange']) {
+    for (const key of ['code', 'name', 'parentId', 'type', 'category', 'reasonForChange']) {
       if (controls[key]?.invalid) {
         this.activeTab.set('general');
         return;
       }
     }
-    
+
     // Check other tabs by group
     if (this.accountForm.get('statementMapping')?.invalid) {
       this.activeTab.set('mappings');
       return;
     }
-    if (this.accountForm.get('rules')?.invalid) {
-      this.activeTab.set('rules');
+    if (controls['fxTreatment']?.invalid || controls['currency']?.invalid) {
+      this.activeTab.set('currency');
       return;
     }
     if (this.accountForm.get('advanced')?.invalid) {
@@ -385,8 +567,23 @@ const ACCOUNT_FIELD_LABELS: Record<string, string> = {
   balanceSheetCategory: 'accounting.account_form.balance_sheet_category',
   incomeStatementCategory: 'accounting.account_form.income_statement_category',
   cashFlowCategory: 'accounting.account_form.cash_flow_category',
-  version: 'accounting.account_form.chart_version',
-  hierarchyType: 'accounting.account_form.hierarchy_type',
+  fxTreatment: 'accounting.account_form.fx_treatment',
+  currency: 'accounting.account_form.account_currency',
   effectiveFrom: 'accounting.account_form.effective_from',
   effectiveTo: 'accounting.account_form.effective_until',
 };
+
+/** The account's name in the books language; a name kept in one language only, as it is. */
+function nameInBooks(name: Record<string, string> | string | null | undefined, booksLanguage: LanguageCode): string {
+  if (name == null) return '';
+  if (typeof name === 'string') return name;
+  return name[booksLanguage] ?? accountNameOf(name, [booksLanguage]);
+}
+
+/** The account's name in every language but the books one, empty where it has none. */
+function translationsOf(name: Record<string, string> | string | null | undefined, booksLanguage: LanguageCode): Record<string, string> {
+  const names = name && typeof name === 'object' ? name : {};
+  return Object.fromEntries(
+    SUPPORTED_LANGUAGES.map((language) => [language, language === booksLanguage ? '' : (names[language] ?? '')]),
+  );
+}

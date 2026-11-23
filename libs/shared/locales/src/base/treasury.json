@@ -250,6 +250,11 @@
     "en": "From",
     "pt": "Origem"
   },
+  "treasury.ledger_account_currency_differs": {
+    "es": "La cuenta contable {{code}} es de {{accountCurrency}}: no puede llevar un banco en {{currency}}.",
+    "en": "Ledger account {{code}} is in {{accountCurrency}}: it cannot carry a bank account in {{currency}}.",
+    "pt": "A conta contábil {{code}} é em {{accountCurrency}}: não pode levar um banco em {{currency}}."
+  },
   "treasury.ledger_account_given_does_not_exist": {
     "es": "La cuenta contable indicada no existe en esta organización.",
     "en": "The ledger account given does not exist in this organization.",
@@ -260,10 +265,25 @@
     "en": "The ledger account given is a summary account and cannot take movements.",
     "pt": "A conta contábil indicada é de agrupamento e não admite movimentos."
   },
+  "treasury.ledger_account_holds_other_currencies": {
+    "es": "La cuenta contable {{code}} tiene movimientos en otras monedas: un banco en {{currency}} necesita su propia cuenta contable.",
+    "en": "Ledger account {{code}} has lines in other currencies: a bank account in {{currency}} needs its own ledger account.",
+    "pt": "A conta contábil {{code}} tem lançamentos em outras moedas: um banco em {{currency}} precisa de sua própria conta contábil."
+  },
   "treasury.ledger_account_not_money_account": {
     "es": "La cuenta contable de un banco debe ser de efectivo o bancos, no de otro activo.",
     "en": "A bank account’s ledger account must be a cash or bank account, not another asset.",
     "pt": "A conta contábil de um banco deve ser de caixa ou bancos, não de outro ativo."
+  },
+  "treasury.ledger_account_shared_across_currencies": {
+    "es": "La cuenta contable {{code}} ya lleva un banco en {{currency}}: cada moneda necesita su propia cuenta contable.",
+    "en": "Ledger account {{code}} already carries a bank account in {{currency}}: each currency needs its own ledger account.",
+    "pt": "A conta contábil {{code}} já leva um banco em {{currency}}: cada moeda precisa de sua própria conta contábil."
+  },
+  "treasury.ledger_account_takes_restatement": {
+    "es": "La cuenta {{code}} recibe la reexpresión por inflación de {{other}}: no puede ser la cuenta de un banco, que es dinero.",
+    "en": "Account {{code}} takes the restatement for inflation of {{other}}: it cannot be a bank's account, which is money.",
+    "pt": "A conta {{code}} recebe a reexpressão pela inflação de {{other}}: não pode ser a conta de um banco, que é dinheiro."
   },
   "treasury.no_bank_accounts_have_registered": {
     "es": "No hay cuentas bancarias registradas.",

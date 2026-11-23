@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { Logger } from '@nestjs/common';
 
-import { DocumentLifecycle, canTransition, mainPath } from '@virteex/shared/types';
+import { DocumentLifecycle, canTransition, mainPath } from '@virtex/shared/types';
 import { LifecycleRegistry } from './lifecycle.registry';
 
 /**

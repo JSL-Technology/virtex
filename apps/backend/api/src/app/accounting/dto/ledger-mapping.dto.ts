@@ -1,6 +1,6 @@
 
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsUUID, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsUUID, ValidateNested } from 'class-validator';
 
 
 class MappingRuleItemDto {
@@ -12,7 +12,13 @@ class MappingRuleItemDto {
   @IsNotEmpty()
   parentAccountId: string;
 
-  @IsNumber()
+  /**
+   * What the target ledger records per unit the source ledger does. Positive: a valuation is a debit
+   * or a credit of zero or more, and a negative factor would turn every posting on the account into
+   * one the ledger refuses.
+   */
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @IsPositive()
   @IsOptional()
   multiplier?: number;
 }

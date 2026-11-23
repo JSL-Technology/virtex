@@ -1,10 +1,13 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export type JournalType = 'SALES' | 'PURCHASES' | 'CASH' | 'BANK' | 'GENERAL';
 
 @Entity({ name: 'journals' })
+@NameTranslationsCheck('journals')
 @Index(['organizationId', 'code'], { unique: true })
 export class Journal {
   @PrimaryGeneratedColumn('uuid')
@@ -29,6 +32,10 @@ export class Journal {
 
   @Column({ length: 100 })
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ type: 'varchar' })
   type: JournalType;

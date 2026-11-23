@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { InterpolatableTranslation, TranslateStore } from '@ngx-translate/core';
-import { normalizeKey } from '@virteex/shared/types';
+import { normalizeKey } from '@virtex/shared/types';
 
 /**
  * The one place a key is looked up, and therefore the one place it is normalised.

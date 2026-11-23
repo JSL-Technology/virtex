@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { FormatService, LocaleStore } from '@virteex/shared/ui-i18n';
+import { FormatService, LocaleStore } from '@virtex/shared/ui-i18n';
 
 /**
  * An accounting date is not an instant, and rendering it as one shows the day before.

@@ -232,6 +232,11 @@
     "en": "Something went wrong on the server. The team has been notified; try again in a few minutes.",
     "pt": "Ocorreu um problema no servidor. A equipe já foi notificada; tente novamente em alguns minutos."
   },
+  "errors.invalid_date": {
+    "es": "Una de las fechas no existe en el calendario.",
+    "en": "One of the dates does not exist on the calendar.",
+    "pt": "Uma das datas não existe no calendário."
+  },
   "errors.invalid_invitation_token": {
     "es": "El enlace de invitación no es válido o ya se usó. Pide uno nuevo a quien te invitó.",
     "en": "The invitation link is not valid or has already been used. Ask whoever invited you for a new one.",

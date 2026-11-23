@@ -9,10 +9,11 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBooksViewToggleComponent } from '../../../shared/components/books-view';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateRangeComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -20,16 +21,20 @@ import { AccountingService } from '../../../core/api/accounting.service';
 import { Account } from '../../../core/models/account.model';
 import { ChartOfAccountsApiService } from '../data/chart-of-accounts.service';
 import { StatementExportService } from '../../../core/export/statement-export.service';
+import { ExportLanguagePreference } from '../../../core/export/export-language';
+import { VxExportLanguageComponent } from '../../../shared/components/export-language';
 
 @Component({
   selector: 'app-general-ledger-page',
   standalone: true,
-  imports: [LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT],
+  imports: [VxExportLanguageComponent, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT, VxBooksViewToggleComponent],
   templateUrl: './general-ledger.page.html',
   styleUrls: ['./general-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneralLedgerPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   //  Quedaban aquí nueve iconos de los que la plantilla usaba dos; los otros
   //  siete —UserCog, PowerOff, Ban, Trash2, Edit, Key, Calendar— venían de una
   //  pantalla de usuarios de la que se copió este archivo.
@@ -44,6 +49,9 @@ export class GeneralLedgerPage implements OnInit {
   private readonly accounting = inject(AccountingService);
   private readonly chartOfAccounts = inject(ChartOfAccountsApiService);
   private readonly exporter = inject(StatementExportService);
+  /** The language this person exports statements in: theirs, the books', or both. */
+  protected readonly exportLanguage = inject(ExportLanguagePreference);
+  private readonly exportFailed = inject(NotificationService);
 
   /**
    * The account whose ledger is shown (QA A-13).
@@ -58,7 +66,7 @@ export class GeneralLedgerPage implements OnInit {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounting.searchAccounts(query, limit);
   protected readonly resolveAccount = (id: string): Observable<Account> => this.chartOfAccounts.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountValue = (account: Account): string => account.id;
 
   selectedAccount = signal<{ code: string; name: string } | null>(null);
@@ -133,7 +141,7 @@ export class GeneralLedgerPage implements OnInit {
           //  la URL es un UUID; el código y el nombre solo se conocen al responder el servidor.
           this.tab?.setTitle(
             `${this.translate.instant('page_titles.general_ledger')} · ` +
-              `${ledgerData.account.code} ${accountNameOf(ledgerData.account.name)}`,
+              `${ledgerData.account.code} ${this.locale.nameOf(ledgerData.account.name)}`,
           );
           this.initialBalance.set(ledgerData.initialBalance);
           this.finalBalance.set(ledgerData.finalBalance);
@@ -150,7 +158,9 @@ export class GeneralLedgerPage implements OnInit {
   export(): void {
     const ledger = this.ledger();
     if (!ledger) return;
-    this.exporter.exportGeneralLedger(ledger, this.startDate, this.endDate);
+    this.exporter.exportGeneralLedger(ledger, this.startDate, this.endDate, this.exportLanguage.language())
+      // An export that could not be prepared — the books language's words did not load — says so.
+      .catch(() => this.exportFailed.showError('reports.export.failed'));
   }
 
   private formatDate(date: Date): string {

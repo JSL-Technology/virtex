@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { CalendarClock, LucideAngularModule, PackageX, Pencil, PlusCircle, RotateCw, Trash2 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -16,8 +16,8 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { NotificationService } from '../../../core/services/notification';
 import { BranchesService } from '../../../core/tenancy/branches.service';
-import { FixedAsset, FixedAssetStatus, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { FixedAsset, FixedAssetCategory, FixedAssetStatus, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok', SOLD: 'neutral', DISPOSED: 'neutral' };
 
@@ -33,6 +33,7 @@ export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok'
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
+    VxLocalizedNamePipe,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ListShellComponent,
@@ -95,6 +96,9 @@ export class FixedAssetsPage implements OnInit {
   readonly search = signal('');
   readonly statusFilter = signal<FixedAssetStatus | ''>('IN_USE');
   readonly branchFilter = signal<string | null>(null);
+  readonly categoryFilter = signal<string | null>(null);
+  /** The categories the register can be narrowed by: every one, the inactive too. */
+  readonly categories = signal<FixedAssetCategory[]>([]);
   readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0);
 
   /** The register's totals on this page: what the visible assets cost and are carried at. */
@@ -109,6 +113,7 @@ export class FixedAssetsPage implements OnInit {
   });
 
   ngOnInit(): void {
+    this.assets.listCategories(true).subscribe({ next: (categories) => this.categories.set(categories), error: () => this.categories.set([]) });
     this.load();
   }
 
@@ -120,6 +125,7 @@ export class FixedAssetsPage implements OnInit {
         status: this.statusFilter() || null,
         search: this.search().trim() || null,
         branchId: this.branchFilter(),
+        categoryId: this.categoryFilter(),
         page: this.page(),
         pageSize: this.pageSize(),
       })

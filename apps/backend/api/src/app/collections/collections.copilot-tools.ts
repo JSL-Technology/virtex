@@ -28,8 +28,9 @@ export class CollectionsCopilotTools implements OnModuleInit {
           'Open invoices ranked by who to chase first: balance, days overdue, how likely each is to be paid within ' +
           '30 days without action, promises kept or broken, and the suggested next action (call, firm_reminder, ' +
           'reminder, courtesy_reminder, await_promise, wait). Use for "a quién cobro hoy", "cobranza", "who should I chase".',
-        permissions: [PERMISSIONS.AI_COLLECTIONS_VIEW, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW],
-        feature: 'ai_collections',
+        // Reading the worklist is collections, which every plan has; the copilot's own feature
+        // (`ai_assistant`) is what this tool needs, and the registry checks that for every tool.
+        permissions: [PERMISSIONS.COLLECTIONS_VIEW, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW],
         inputSchema: s.object({
           customer_id: s.nullable(s.string('Only this customer')),
           action: s.nullable(s.enum(WORKLIST_ACTIONS, 'Only invoices with this suggested action')),
@@ -80,7 +81,8 @@ export class CollectionsCopilotTools implements OnModuleInit {
           'Draft a payment reminder e-mail for one open invoice, in the given tone (cordial, formal, firm). The note is ' +
           'written from the invoice\'s own figures and saved as a draft in Sales › Collections, where a person reviews ' +
           'and sends it. Nothing is sent to the customer by this tool.',
-        permissions: [PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW],
+        // The note is written by the assistant: that is the AI half of collections.
+        permissions: [PERMISSIONS.COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW],
         feature: 'ai_collections',
         inputSchema: s.object({
           invoice_id: s.string('Invoice id, from collections_worklist or list_invoices'),

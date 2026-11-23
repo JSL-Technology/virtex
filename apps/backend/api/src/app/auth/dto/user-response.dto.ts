@@ -7,8 +7,9 @@ import type {
   RegionalFormat,
   OrganizationContract,
   RoleContract,
+  SaasFeatureKey,
   UserStatusValue,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 export class OrganizationResponseDto implements OrganizationContract {
   @ApiProperty()
@@ -69,6 +70,15 @@ export class OrganizationResponseDto implements OrganizationContract {
   @Expose()
   booksLanguage: LanguageCode | null;
 
+  /**
+   * What this company's plan includes, for the active company of a session — so the client offers
+   * only the screens the API will serve (IA-01, IA-02). Not on the entity: `PlanFeaturesInterceptor`
+   * stamps it at the edge, the way `localeContext` is, so no call site can forget it.
+   */
+  @ApiPropertyOptional({ type: [String] })
+  @Expose()
+  features?: SaasFeatureKey[];
+
   // NOT exposed, deliberately: stripeCustomerId / stripeSubscriptionId. The client has no use
   // for them and they are valuable to an attacker enumerating billing accounts.
 }
@@ -99,7 +109,7 @@ export class RoleResponseDto implements RoleContract {
  * Serialised representation of a user.
  *
  * `implements AuthUserContract` is the point of this class: the contract lives in
- * `@virteex/shared/types` and the frontend `User` interface extends the same declaration, so a
+ * `@virtex/shared/types` and the frontend `User` interface extends the same declaration, so a
  * field that exists on one side and not the other is now a compile error.
  *
  * Previously this DTO omitted `roles`, `avatarUrl`, `phone`, `jobTitle`, `department`,
@@ -246,4 +256,24 @@ function isoCountry(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const code = value.trim().toUpperCase();
   return /^[A-Z]{2}$/.test(code) ? code : null;
+}
+
+/**
+ * The serialised users in a response, one level deep — what the edge stamps session facts on
+ * (`LocaleInterceptor`, `PlanFeaturesInterceptor`).
+ *
+ * One level is enough for every shape the API actually returns — the DTO itself, `{ user }`,
+ * and `{ data: User[] }` — and a full deep walk over an arbitrary payload would be a cost paid
+ * on every request to catch a case that does not exist.
+ */
+export function serializedUsersIn(body: unknown): UserResponseDto[] {
+  if (body === null || typeof body !== 'object') return [];
+  if (body instanceof UserResponseDto) return [body];
+  const values = Array.isArray(body) ? body : Object.values(body as Record<string, unknown>);
+  const users: UserResponseDto[] = [];
+  for (const value of values) {
+    if (value instanceof UserResponseDto) users.push(value);
+    else if (Array.isArray(value)) for (const item of value) if (item instanceof UserResponseDto) users.push(item);
+  }
+  return users;
 }

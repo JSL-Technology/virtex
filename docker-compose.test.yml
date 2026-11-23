@@ -6,7 +6,7 @@
 # real with one command:
 #
 #   docker compose -f docker-compose.test.yml up -d
-#   DB_HOST=localhost DB_PORT=5432 DB_NAME=virteex_test \
+#   DB_HOST=localhost DB_PORT=5432 DB_NAME=virtex_test \
 #     DB_USERNAME=postgres DB_PASSWORD=postgres \
 #     REDIS_HOST=localhost REDIS_PORT=6379 \
 #     npx nx test api
@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: virteex_test
+      POSTGRES_DB: virtex_test
     ports:
       - '5432:5432'
     healthcheck:

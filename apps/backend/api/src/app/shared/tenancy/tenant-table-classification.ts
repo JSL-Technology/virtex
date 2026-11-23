@@ -64,7 +64,6 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
   { table: 'account_history', parent: 'accounts', foreignKey: 'account_id', why: 'Historial de una cuenta.' },
   { table: 'account_period_locks', parent: 'accounting_periods', foreignKey: '"periodId"', why: 'Bloqueo de un periodo contable.' },
   { table: 'account_segments', parent: 'accounts', foreignKey: 'account_id', why: 'Segmentos del código de una cuenta.' },
-  { table: 'accounts_closure', parent: 'accounts', foreignKey: 'id_descendant', why: 'Cierre transitivo del árbol de cuentas.' },
   { table: 'bank_transactions', parent: 'bank_statements', foreignKey: 'statement_id', why: 'Líneas de un extracto bancario.' },
   { table: 'budget_lines', parent: 'budgets', foreignKey: 'budget_id', why: 'Líneas de un presupuesto.' },
   { table: 'consolidation_maps', parent: 'accounts', foreignKey: 'subsidiary_account_id', why: 'Mapeo de consolidación; ver nota abajo.' },
@@ -96,7 +95,6 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
   { table: 'datasheet_sheets', parent: 'datasheet_books', foreignKey: '"bookId"', why: 'Hojas de un libro de cálculo.' },
   { table: 'datasheet_versions', parent: 'datasheet_books', foreignKey: '"bookId"', why: 'Versiones de un libro de cálculo.' },
   { table: 'datasheet_permissions', parent: 'datasheet_books', foreignKey: '"bookId"', why: 'Permisos sobre un libro de cálculo.' },
-  { table: 'dimension_values_closure', parent: 'dimension_values', foreignKey: 'id_descendant', why: 'Cierre transitivo del árbol de valores de dimensión.' },
   { table: 'locations', parent: 'warehouses', foreignKey: 'warehouse_id', why: 'Ubicaciones dentro de un almacén.' },
   { table: 'stock_movements', parent: 'products', foreignKey: 'product_id', why: 'Movimientos de existencias de un producto.' },
   { table: 'vendor_payment', parent: 'vendor_bills', foreignKey: 'vendor_bill_id', why: 'Pagos aplicados a una factura de proveedor.' },
@@ -108,6 +106,18 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
  */
 export const RETIRED_TENANT_TABLES: readonly UnscopedTableRef[] = [
   { table: 'stock_items', why: 'Nunca escrita; sustituida por stock_levels en StockByWarehouse1789009300000.' },
+  {
+    table: 'accounts_closure',
+    why: 'Cierre de TypeORM que solo guardaba cada cuenta como su propio ancestro; la jerarquía es parent_id (AccountFxTreatmentAndHierarchy1789750000000).',
+  },
+  {
+    table: 'dimension_values_closure',
+    why: 'Cierre mantenido y no leído por nada; eliminada en AccountFxTreatmentAndHierarchy1789750000000.',
+  },
+  {
+    table: 'inflation_indices',
+    why: 'Tasa mensual por empresa sin forma de cargarla (FIN-AC-04); sustituida por los índices de cada mercado (price_index_values, tenant_price_index_values) en InflationRestatement1789770000000.',
+  },
 ];
 
 interface UnscopedTableRef {
@@ -130,7 +140,16 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'currency', why: 'Catálogo de monedas ISO 4217.' },
   { table: 'dim_time', why: 'Dimensión de calendario del cubo analítico.' },
   { table: 'exchange_rate', why: 'Tipos de cambio publicados.' },
+  {
+    table: 'exchange_rate_feeds',
+    why: 'Estado de cada fuente automática de tasa oficial (observación, activa, desactivada); la cambia la plataforma (FINB-03).',
+  },
+  {
+    table: 'exchange_rate_feed_runs',
+    why: 'Bitácora de las lecturas de cada fuente de tasa oficial: qué publicó, qué se escribió y qué no cuadró (FINB-03).',
+  },
   { table: 'fiscal_document_type_definitions', why: 'Tipos de comprobante por régimen fiscal.' },
+  { table: 'fiscal_reason_codes', why: 'Catálogos de motivos de las autoridades fiscales (anulación), con vigencia y base legal.' },
   { table: 'fiscal_region_tax_templates', why: 'Plantillas de impuesto por región fiscal.' },
   { table: 'fiscal_regions', why: 'Regiones fiscales soportadas.' },
   { table: 'identity_document_types', why: 'Catálogo de tipos de documento de identidad.' },
@@ -138,6 +157,11 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'payroll_income_tax_brackets', why: 'Escalas de retención publicadas por la autoridad.' },
   { table: 'payroll_statutory_contributions', why: 'Contribuciones legales publicadas por la autoridad.' },
   { table: 'payroll_statutory_references', why: 'Referencias legales de nómina.' },
+  { table: 'statutory_tax_rates', why: 'Tasas de impuesto legales por país, con vigencia y norma (SP-03).' },
+  {
+    table: 'price_index_values',
+    why: 'Índices generales de precios publicados que prescribe cada mercado (NIC 29), versionados por revisión; los escribe la plataforma (FIN-AC-04).',
+  },
   { table: 'report_definitions', why: 'Definiciones de informe por región fiscal, no por inquilino.' },
   { table: 'saas_plan_features', why: 'Catálogo de planes del producto.' },
   { table: 'saas_plan_limits', why: 'Catálogo de planes del producto.' },

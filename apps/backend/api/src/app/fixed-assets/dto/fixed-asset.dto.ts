@@ -1,6 +1,8 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -11,13 +13,97 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
-import { DepreciationMethod, FixedAssetStatus } from '../entities/fixed-asset.entity';
+import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
+import { DepreciationMethod, FixedAssetCapitalization, FixedAssetStatus } from '../entities/fixed-asset.entity';
+import { DepreciationRunTrigger } from '../entities/fixed-asset-depreciation-run.entity';
+import { DEPRECIATION_CONVENTIONS, type DepreciationConvention } from '@virtex/shared/types';
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
-const DATE_MESSAGE = 'validation.constraints.is_iso_date';
+
+/** A yearly rate, as a fraction: more than nothing, at most all of it. */
+const RATE = { min: 0.000001, max: 1 };
+
+/**
+ * An asset's tax book (audit 2026-11-07, FINB-16): what the tax authority lets the company deduct,
+ * kept beside the accounting book and posted nowhere. Each field left out comes from the asset's
+ * category, and the category's from the market's tax category.
+ */
+export class TaxBookDto {
+  /** The authority's category: `DO-2`. Where the market fixes its categories, one of them. */
+  @IsString()
+  @MaxLength(40, { message: 'validation.constraints.max_length|{"max":40}' })
+  @IsOptional()
+  taxCategoryCode?: string | null;
+
+  @IsIn([DepreciationMethod.STRAIGHT_LINE, DepreciationMethod.DECLINING_BALANCE], { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  method?: DepreciationMethod.STRAIGHT_LINE | DepreciationMethod.DECLINING_BALANCE;
+
+  /** The yearly rate, as a fraction: 0.25 for 25 %. */
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(RATE.min, { message: `validation.constraints.min|{"min":${RATE.min}}` })
+  @Max(RATE.max, { message: `validation.constraints.max|{"max":${RATE.max}}` })
+  @IsOptional()
+  annualRate?: number;
+
+  /** The convention the book follows; the asset's when not stated. */
+  @IsIn(DEPRECIATION_CONVENTIONS, { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  convention?: DepreciationConvention;
+
+  /** The basis the book depreciates; the asset's cost when not stated. */
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @IsOptional()
+  cost?: number;
+
+  /** What was deducted before the asset entered this product — a migration's opening tax balance. */
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @IsOptional()
+  openingAccumulated?: number;
+
+  /** The last month that opening balance covers, `YYYY-MM`. Required with it. */
+  @Matches(ISO_MONTH)
+  @IsOptional()
+  openingThrough?: string | null;
+}
+
+/**
+ * How an asset's cost entered the ledger (audit 2026-11-07, FINB-15): the posted supplier bill that
+ * bought it, an entry already in the books, or the acquisition the register posts itself against
+ * the account named.
+ */
+export class CapitalizationDto {
+  @IsIn([FixedAssetCapitalization.VENDOR_BILL, FixedAssetCapitalization.JOURNAL_ENTRY, FixedAssetCapitalization.POSTED], {
+    message: 'validation.constraints.is_in',
+  })
+  method: FixedAssetCapitalization.VENDOR_BILL | FixedAssetCapitalization.JOURNAL_ENTRY | FixedAssetCapitalization.POSTED;
+
+  @IsUUID()
+  @IsOptional()
+  vendorBillId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  journalEntryId?: string;
+
+  /** `POSTED`: what the acquisition is credited to — the bank, a payable, opening equity. */
+  @IsUUID()
+  @IsOptional()
+  offsetAccountId?: string;
+
+  /** `POSTED`: the entry's date; the acquisition's when not stated. */
+  @IsIsoDate()
+  @IsOptional()
+  date?: string;
+}
 
 /**
  * Registering an asset.
@@ -32,6 +118,14 @@ export class CreateFixedAssetDto {
   @MaxLength(200)
   name: string;
 
+  /**
+   * The asset's category (FINB-16): what is not stated here — life, method, convention, residual
+   * share, accounts, tax book — is taken from it, and copied onto the asset.
+   */
+  @IsUUID()
+  @IsOptional()
+  categoryId?: string | null;
+
   @IsString()
   @IsOptional()
   @MaxLength(2000)
@@ -41,11 +135,11 @@ export class CreateFixedAssetDto {
   @IsOptional()
   branchId?: string | null;
 
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   acquisitionDate: string;
 
   /** Defaults to the acquisition date. */
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   @IsOptional()
   inServiceDate?: string;
 
@@ -60,30 +154,56 @@ export class CreateFixedAssetDto {
   @IsOptional()
   residualValue?: number;
 
+  /** Required unless the category gives it. */
   @Type(() => Number)
   @IsInt()
   @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @Max(1200, { message: 'validation.constraints.max|{"max":1200}' })
-  usefulLifeMonths: number;
+  @IsOptional()
+  usefulLifeMonths?: number;
 
   @IsEnum(DepreciationMethod)
   @IsOptional()
   depreciationMethod?: DepreciationMethod;
 
-  @IsUUID()
-  assetAccountId: string;
+  /** The yearly rate of a `DECLINING_BALANCE` method, as a fraction. Required with it. */
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(RATE.min, { message: `validation.constraints.min|{"min":${RATE.min}}` })
+  @Max(RATE.max, { message: `validation.constraints.max|{"max":${RATE.max}}` })
+  @IsOptional()
+  decliningAnnualRate?: number | null;
 
+  /** How the month it enters service, and the month it leaves, are charged. Defaults to the company's. */
+  @IsIn(DEPRECIATION_CONVENTIONS, { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  depreciationConvention?: DepreciationConvention;
+
+  /** Required unless the category gives it. */
   @IsUUID()
-  accumulatedDepreciationAccountId: string;
+  @IsOptional()
+  assetAccountId?: string;
+
+  /** The category's, or else the company's default, when not stated. */
+  @IsUUID()
+  @IsOptional()
+  accumulatedDepreciationAccountId?: string;
 
   /** Null charges the company's default depreciation expense account. */
   @IsUUID()
   @IsOptional()
   depreciationExpenseAccountId?: string | null;
 
+  /** Shorthand for a capitalization from this bill. */
   @IsUUID()
   @IsOptional()
   vendorBillId?: string | null;
+
+  /** How its cost entered the ledger. Required, unless `vendorBillId` names the bill. */
+  @ValidateNested()
+  @Type(() => CapitalizationDto)
+  @IsOptional()
+  capitalization?: CapitalizationDto;
 
   /** Depreciation charged before the asset entered this product — a migration's opening balance. */
   @Type(() => Number)
@@ -96,6 +216,15 @@ export class CreateFixedAssetDto {
   @Matches(ISO_MONTH)
   @IsOptional()
   openingDepreciatedThrough?: string;
+
+  /**
+   * The asset's tax book. Left out, the category's terms open it — or none, where the category has
+   * no tax rate; null keeps none.
+   */
+  @ValidateNested()
+  @Type(() => TaxBookDto)
+  @IsOptional()
+  taxBook?: TaxBookDto | null;
 }
 
 /**
@@ -109,6 +238,11 @@ export class UpdateFixedAssetDto {
   @IsOptional()
   name?: string;
 
+  /** Reclassifies the asset; nothing it was registered with changes. */
+  @IsUUID()
+  @IsOptional()
+  categoryId?: string | null;
+
   @IsString()
   @IsOptional()
   @MaxLength(2000)
@@ -118,11 +252,11 @@ export class UpdateFixedAssetDto {
   @IsOptional()
   branchId?: string | null;
 
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   @IsOptional()
   acquisitionDate?: string;
 
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   @IsOptional()
   inServiceDate?: string;
 
@@ -149,6 +283,17 @@ export class UpdateFixedAssetDto {
   @IsOptional()
   depreciationMethod?: DepreciationMethod;
 
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(RATE.min, { message: `validation.constraints.min|{"min":${RATE.min}}` })
+  @Max(RATE.max, { message: `validation.constraints.max|{"max":${RATE.max}}` })
+  @IsOptional()
+  decliningAnnualRate?: number | null;
+
+  @IsIn(DEPRECIATION_CONVENTIONS, { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  depreciationConvention?: DepreciationConvention;
+
   @IsUUID()
   @IsOptional()
   assetAccountId?: string;
@@ -161,9 +306,8 @@ export class UpdateFixedAssetDto {
   @IsOptional()
   depreciationExpenseAccountId?: string | null;
 
-  @IsUUID()
-  @IsOptional()
-  vendorBillId?: string | null;
+  // How it entered the ledger is changed by `POST /fixed-assets/:id/capitalization`, which checks
+  // the new source — not by an edit.
 
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -174,11 +318,21 @@ export class UpdateFixedAssetDto {
   @Matches(ISO_MONTH)
   @IsOptional()
   openingDepreciatedThrough?: string | null;
+
+  /**
+   * The asset's tax book: opened when it has none, edited when it has one, removed by null while
+   * nothing was charged in it. Once it was, its basis and opening balance are fixed; its method and
+   * rate change from the next month on.
+   */
+  @ValidateNested()
+  @Type(() => TaxBookDto)
+  @IsOptional()
+  taxBook?: TaxBookDto | null;
 }
 
 /** Retiring an asset: sold, scrapped, lost. */
 export class DisposeAssetDto {
-  @Matches(ISO_DATE, { message: DATE_MESSAGE })
+  @IsIsoDate()
   disposalDate: string;
 
   /** What it was sold for. Zero for a write-off. */
@@ -222,10 +376,82 @@ export class FixedAssetsQueryDto extends PaginationQueryDto {
   @IsUUID()
   @IsOptional()
   branchId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  categoryId?: string;
 }
 
 /** A month to depreciate, `YYYY-MM`. */
 export class DepreciationRunDto {
   @Matches(ISO_MONTH)
   period: string;
+}
+
+/** The runs on the board: what set them going, or the runs that charged one asset. */
+export class DepreciationRunsQueryDto extends PaginationQueryDto {
+  @IsEnum(DepreciationRunTrigger)
+  @IsOptional()
+  trigger?: DepreciationRunTrigger;
+
+  @IsUUID()
+  @IsOptional()
+  fixedAssetId?: string;
+}
+
+/** The categories on the board: the inactive ones too, when asked. */
+export class FixedAssetCategoriesQueryDto {
+  @Transform(({ value }) => value === true || value === 'true' || value === '1')
+  @IsBoolean()
+  @IsOptional()
+  includeInactive?: boolean;
+}
+
+/** The months a tax depreciation report covers, `YYYY-MM` through `YYYY-MM`. */
+export class TaxDepreciationReportQueryDto extends PaginationQueryDto {
+  @Matches(ISO_MONTH)
+  from: string;
+
+  @Matches(ISO_MONTH)
+  to: string;
+
+  /** Only the assets of one tax category: `DO-2`. */
+  @IsString()
+  @MaxLength(40, { message: 'validation.constraints.max_length|{"max":40}' })
+  @IsOptional()
+  taxCategoryCode?: string;
+}
+
+/** The purchases and entries waiting to be registered as assets. */
+export class CapitalizationSourcesQueryDto extends PaginationQueryDto {
+  @IsUUID()
+  @IsOptional()
+  accountId?: string;
+
+  /** What of one bill is waiting to be registered. */
+  @IsUUID()
+  @IsOptional()
+  vendorBillId?: string;
+
+  /** What of one entry is waiting to be registered. */
+  @IsUUID()
+  @IsOptional()
+  journalEntryId?: string;
+
+  @IsString()
+  @MaxLength(100)
+  @IsOptional()
+  search?: string;
+}
+
+/** The register against the ledger on a day. */
+export class FixedAssetReconciliationQueryDto {
+  @IsIsoDate()
+  asOf: string;
+}
+
+/** What explains the difference on a day — the assets with no source in the ledger, or the movements with no asset —, by page. */
+export class FixedAssetReconciliationListQueryDto extends PaginationQueryDto {
+  @IsIsoDate()
+  asOf: string;
 }

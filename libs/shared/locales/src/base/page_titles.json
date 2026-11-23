@@ -69,6 +69,11 @@
     "en": "Approvals",
     "pt": "Aprovações"
   },
+  "page_titles.audit_adjustment": {
+    "es": "Ajuste de auditoría",
+    "en": "Audit adjustment",
+    "pt": "Ajuste de auditoria"
+  },
   "page_titles.audit_adjustment_new": {
     "es": "Nuevo ajuste de auditoría",
     "en": "New audit adjustment",
@@ -199,6 +204,16 @@
     "en": "Run depreciation",
     "pt": "Executar depreciação"
   },
+  "page_titles.depreciation_run_detail": {
+    "es": "Corrida de depreciación",
+    "en": "Depreciation run",
+    "pt": "Execução de depreciação"
+  },
+  "page_titles.depreciation_runs": {
+    "es": "Corridas de depreciación",
+    "en": "Depreciation runs",
+    "pt": "Execuções de depreciação"
+  },
   "page_titles.dimensions": {
     "es": "Dimensiones analíticas",
     "en": "Analytic dimensions",
@@ -264,6 +279,26 @@
     "en": "Fixed asset",
     "pt": "Ativo imobilizado"
   },
+  "page_titles.fixed_asset_capitalization": {
+    "es": "Capitalización del activo",
+    "en": "Asset capitalization",
+    "pt": "Capitalização do ativo"
+  },
+  "page_titles.fixed_asset_categories": {
+    "es": "Categorías de activos fijos",
+    "en": "Fixed-asset categories",
+    "pt": "Categorias de ativos imobilizados"
+  },
+  "page_titles.fixed_asset_category_edit": {
+    "es": "Categoría de activos",
+    "en": "Asset category",
+    "pt": "Categoria de ativos"
+  },
+  "page_titles.fixed_asset_category_new": {
+    "es": "Nueva categoría de activos",
+    "en": "New asset category",
+    "pt": "Nova categoria de ativos"
+  },
   "page_titles.fixed_asset_dispose": {
     "es": "Baja de activo fijo",
     "en": "Fixed asset disposal",
@@ -278,6 +313,11 @@
     "es": "Nuevo activo fijo",
     "en": "New fixed asset",
     "pt": "Novo ativo imobilizado"
+  },
+  "page_titles.fixed_asset_reconciliation": {
+    "es": "Conciliación registro↔mayor",
+    "en": "Register↔ledger reconciliation",
+    "pt": "Conciliação registro↔razão"
   },
   "page_titles.fixed_assets": {
     "es": "Activos fijos",
@@ -313,6 +353,11 @@
     "es": "Estado de resultados",
     "en": "Income statement",
     "pt": "Demonstração do resultado"
+  },
+  "page_titles.inflation_adjustment": {
+    "es": "Ajuste por inflación",
+    "en": "Inflation adjustment",
+    "pt": "Ajuste pela inflação"
   },
   "page_titles.inventory_adjustment": {
     "es": "Ajuste de inventario",
@@ -378,6 +423,11 @@
     "es": "Diarios",
     "en": "Journals",
     "pt": "Diários"
+  },
+  "page_titles.landed_costs": {
+    "es": "Costos de importación",
+    "en": "Landed costs",
+    "pt": "Custos de importação"
   },
   "page_titles.ledger_edit": {
     "es": "Editar libro contable",
@@ -494,6 +544,11 @@
     "en": "Profitability by product",
     "pt": "Rentabilidade por produto"
   },
+  "page_titles.purchase_agreements": {
+    "es": "Acuerdos de compra",
+    "en": "Purchase agreements",
+    "pt": "Acordos de compra"
+  },
   "page_titles.purchase_order_edit": {
     "es": "Orden de compra",
     "en": "Purchase order",
@@ -523,6 +578,11 @@
     "es": "Requisiciones de compra",
     "en": "Purchase requisitions",
     "pt": "Requisições de compra"
+  },
+  "page_titles.purchase_rfqs": {
+    "es": "Solicitudes de cotización",
+    "en": "Requests for quotation",
+    "pt": "Pedidos de cotação"
   },
   "page_titles.quote": {
     "es": "Cotización",
@@ -609,6 +669,11 @@
     "en": "Suppliers",
     "pt": "Fornecedores"
   },
+  "page_titles.tax_depreciation": {
+    "es": "Depreciación fiscal",
+    "en": "Tax depreciation",
+    "pt": "Depreciação fiscal"
+  },
   "page_titles.tax_new": {
     "es": "Nuevo impuesto",
     "en": "New tax",
@@ -693,10 +758,5 @@
     "es": "Almacenes",
     "en": "Warehouses",
     "pt": "Depósitos"
-  },
-  "page_titles.audit_adjustment": {
-    "es": "Ajuste de auditoría",
-    "en": "Audit adjustment",
-    "pt": "Ajuste de auditoria"
   }
 }

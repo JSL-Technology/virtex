@@ -1,0 +1,27 @@
+// Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
+import type { MarketAccounting } from '../contracts';
+import { officialRateFeed } from './accounting/official-rates';
+
+/**
+ * Brazil: what the market adds to the neutral starting plan. Every name is a starting point a local
+ * accountant confirms: it names the institution an account is remitted to, which is a legal fact of
+ * the country.
+ */
+export const accounting: MarketAccounting = {
+  statutoryPlanRequired: null,
+  segments: null,
+  payrollAccounts: null,
+  exciseTaxAccount: null,
+  serviceChargeAccount: null,
+  fiscalGroupingCodes: null,
+  exclusiveTerms: [],
+  inflationAccounting: null,
+  officialExchangeRates: {
+    publisher: 'Banco Central do Brasil',
+    quoteCurrency: 'BRL',
+    legalBasis: 'Taxa PTAX divulgada pelo Banco Central do Brasil.',
+    feed: officialRateFeed,
+  },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
+};

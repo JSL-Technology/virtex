@@ -42,7 +42,10 @@ export async function createTestOrganization(dataSource: DataSource, label: stri
   return id;
 }
 
-/** Removes the tenant and, by cascade, everything the suite created for it. */
+/**
+ * Removes the tenant and, by cascade, everything the suite created for it — and CLOSES the data source.
+ * Call it once, last, in `afterAll`; a suite with several tenants deletes the others first.
+ */
 export async function dropTestOrganization(dataSource: DataSource | undefined, id: string | undefined): Promise<void> {
   if (!dataSource?.isInitialized) return;
   if (id) await dataSource.query(`DELETE FROM organizations WHERE id = $1`, [id]);

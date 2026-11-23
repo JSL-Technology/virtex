@@ -1,19 +1,17 @@
-import { TaxType } from '../../taxes/entities/tax.entity';
-import {
-  COUNTRY_FISCAL_PROFILES,
-  findCountryProfile,
-  supportedCountryCodes,
-} from './country-profiles';
 import {
   TAX_ID_VALIDATORS,
+  allMarkets,
+  coverageFor,
   fiscalIdentifierFor,
+  knownMarket,
+  marketCodes,
+  principalTaxName,
+  taxSchemeFor,
   validateTaxId,
-} from './identity-document-catalogue';
-import { COUNTRY_TAX_SCHEMES, findTaxScheme, principalTaxName } from './country-tax-schemes';
+} from '../../markets';
 import { STATUTORY_PLAN_REQUIRED, buildCountryCoaTemplate } from './coa-builder';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
 import { AccountNature, AccountType } from '../../chart-of-accounts/enums/account-enums';
-import { FISCAL_COVERAGE, coverageFor } from './fiscal-coverage';
 
 /**
  * A market is either fully supported or it is not offered.
@@ -28,7 +26,7 @@ import { FISCAL_COVERAGE, coverageFor } from './fiscal-coverage';
  * must be impossible to add one without all three.
  */
 describe('Fiscal coverage', () => {
-  const codes = supportedCountryCodes();
+  const codes = [...marketCodes()];
 
   function flatten(accounts: AccountTemplateDto[]): AccountTemplateDto[] {
     return accounts.flatMap((a) => [a, ...flatten(a.children ?? [])]);
@@ -42,7 +40,7 @@ describe('Fiscal coverage', () => {
   });
 
   describe.each(codes)('%s', (code) => {
-    const profile = findCountryProfile(code)!;
+    const profile = knownMarket(code)!.profile;
 
     it('has an algorithmic tax-id validator, not just a regex', () => {
       expect(TAX_ID_VALIDATORS[code]).toBeDefined();
@@ -60,7 +58,7 @@ describe('Fiscal coverage', () => {
     });
 
     it('has a tax scheme', () => {
-      const scheme = findTaxScheme(code);
+      const scheme = taxSchemeFor(code);
       expect(scheme).toBeDefined();
       // Either it seeds taxes, or it says explicitly why it cannot. Never silently neither.
       if (scheme!.taxes.length === 0) {
@@ -73,8 +71,10 @@ describe('Fiscal coverage', () => {
       // The bug this replaces: the seed wrote `type: 'VAT'` into a Postgres enum whose only values
       // are 'Porcentaje' and 'Fijo', so applying the fiscal package raised
       // `invalid input value for enum taxes_type_enum: "VAT"` and rolled back the registration.
-      for (const tax of findTaxScheme(code)!.taxes) {
-        expect(Object.values(TaxType)).toContain(tax.computation);
+      // The market states HOW a tax is computed, in the two ways the column can hold; the taxes
+      // module maps it onto the enum. A regime («VAT») is never a computation.
+      for (const tax of taxSchemeFor(code)!.taxes) {
+        expect(['PERCENTAGE', 'FIXED']).toContain(tax.computation);
       }
     });
 
@@ -103,7 +103,7 @@ describe('Fiscal coverage', () => {
     });
 
     it('names the tax accounts after the tax the country actually levies', () => {
-      const scheme = findTaxScheme(code)!;
+      const scheme = taxSchemeFor(code)!;
       if (scheme.configurationRequired) return; // US and BR have no single national rate.
 
       const tax = principalTaxName(code);
@@ -150,16 +150,16 @@ describe('Fiscal coverage', () => {
     // Orphans in either direction mean the lists have drifted apart, which is precisely how a
     // country ends up offered but unprovisioned.
     expect(Object.keys(TAX_ID_VALIDATORS).sort()).toEqual([...codes].sort());
-    expect(Object.keys(COUNTRY_TAX_SCHEMES).sort()).toEqual([...codes].sort());
+    expect(allMarkets().filter((market) => taxSchemeFor(market.code)).map((market) => market.code).sort()).toEqual([...codes].sort());
     for (const code of Object.keys(STATUTORY_PLAN_REQUIRED)) {
       expect(codes).toContain(code);
     }
   });
 
   it('keeps every profile immutable at the type level', () => {
-    // COUNTRY_FISCAL_PROFILES is the authority; a caller mutating it would change what every
-    // later signup validates against.
-    expect(Object.isFrozen(Object.freeze(COUNTRY_FISCAL_PROFILES))).toBe(true);
+    // The catalogue is the authority; a caller mutating it would change what every later signup
+    // validates against.
+    expect(Object.isFrozen(allMarkets())).toBe(true);
   });
 
   describe('contra-accounts', () => {
@@ -186,8 +186,8 @@ describe('Fiscal coverage', () => {
 
   describe('countries the product does not sell to', () => {
     it.each(['FR', 'DE', 'JP', 'ZZ', ''])('refuses %p at every layer', (code) => {
-      expect(findCountryProfile(code)).toBeUndefined();
-      expect(findTaxScheme(code)).toBeUndefined();
+      expect(knownMarket(code)).toBeNull();
+      expect(taxSchemeFor(code)).toBeUndefined();
       expect(validateTaxId(code, '12345678901')).toBe(false);
     });
   });
@@ -202,7 +202,7 @@ describe('Fiscal coverage', () => {
    * cost of that lands later than the bug: re-asking a paying customer for their address.
    */
   describe('administrative divisions', () => {
-    it.each(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p] as const))(
+    it.each(allMarkets().map((market) => [market.code, market.profile] as const))(
       '%s publishes a coded catalogue',
       (_code, profile) => {
         expect(profile.address.divisions).toBeDefined();
@@ -210,7 +210,7 @@ describe('Fiscal coverage', () => {
       },
     );
 
-    it.each(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p] as const))(
+    it.each(allMarkets().map((market) => [market.code, market.profile] as const))(
       '%s uses unique, non-empty codes',
       (_code, profile) => {
         const codes = (profile.address.divisions ?? []).map((d) => d.code);
@@ -219,7 +219,7 @@ describe('Fiscal coverage', () => {
       },
     );
 
-    it.each(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p] as const))(
+    it.each(allMarkets().map((market) => [market.code, market.profile] as const))(
       '%s names every division',
       (_code, profile) => {
         expect((profile.address.divisions ?? []).filter((d) => !d.name.trim())).toEqual([]);
@@ -234,14 +234,14 @@ describe('Fiscal coverage', () => {
    */
   describe('multi-valued fiscal fields', () => {
     it('models the DIAN fiscal responsibilities as a list', () => {
-      const colombia = COUNTRY_FISCAL_PROFILES.find((p) => p.countryCode === 'CO')!;
-      const field = colombia.fiscalFields!.find((f) => f.key === 'responsabilidadesFiscales')!;
+      const colombia = knownMarket('CO')!;
+      const field = colombia.identity.fiscalFields.find((f) => f.key === 'responsabilidadesFiscales')!;
       expect(field.multiple).toBe(true);
     });
 
     it('only marks select fields as multi-valued', () => {
-      for (const profile of COUNTRY_FISCAL_PROFILES) {
-        for (const field of profile.fiscalFields ?? []) {
+      for (const market of allMarkets()) {
+        for (const field of market.identity.fiscalFields) {
           if (field.multiple) expect(field.type).toBe('select');
         }
       }
@@ -273,7 +273,7 @@ describe('Fiscal coverage', () => {
     /** Markets where no sales document carries a fiscal stamp — a fact, not a gap. */
     const NO_STAMPING_REGIME = ['US'];
 
-    it.each(COUNTRY_FISCAL_PROFILES.filter((p) => p.marketStatus === 'available').map((p) => p.countryCode))(
+    it.each(allMarkets().filter((market) => market.profile.marketStatus === 'available').map((market) => market.code))(
       '%s claims availability and has a regime behind it',
       (code) => {
         expect([...REGIMES_IMPLEMENTED, ...NO_STAMPING_REGIME]).toContain(code);
@@ -283,13 +283,12 @@ describe('Fiscal coverage', () => {
     it.each(REGIMES_IMPLEMENTED)('%s is offered as available, since its regime exists', (code) => {
       // The reverse direction, which is the one that actually happened: an implemented regime
       // that nobody flipped, leaving a market described as a preview of itself.
-      expect(findCountryProfile(code)?.marketStatus).toBe('available');
+      expect(knownMarket(code)?.profile.marketStatus).toBe('available');
     });
 
     it.each([...REGIMES_IMPLEMENTED, ...NO_STAMPING_REGIME])(
       '%s states its coverage per capability rather than only a status flag',
       (code) => {
-        expect(FISCAL_COVERAGE[code]).toBeDefined();
         const invoicing = coverageFor(code).capabilities.find(
           (c) => c.capability === 'electronicInvoicing',
         );

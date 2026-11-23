@@ -156,9 +156,9 @@ export class OrgSettingsService extends MfaPolicyPort {
     salaryExpenseAccountId: string | null;
     employerContributionsExpenseAccountId: string | null;
     netPayableAccountId: string | null;
-    afpPayableAccountId: string | null;
-    sfsPayableAccountId: string | null;
-    infotepPayableAccountId: string | null;
+    pensionContributionsPayableAccountId: string | null;
+    healthContributionsPayableAccountId: string | null;
+    otherPayrollContributionsPayableAccountId: string | null;
     payrollTaxWithholdingPayableAccountId: string | null;
     accountsPayableId: string | null;
     baseCurrency: string;
@@ -168,9 +168,9 @@ export class OrgSettingsService extends MfaPolicyPort {
       salaryExpenseAccountId: s.defaultSalaryExpenseAccountId,
       employerContributionsExpenseAccountId: s.defaultEmployerContributionsExpenseAccountId,
       netPayableAccountId: s.defaultPayrollNetPayableAccountId,
-      afpPayableAccountId: s.defaultAfpPayableAccountId,
-      sfsPayableAccountId: s.defaultSfsPayableAccountId,
-      infotepPayableAccountId: s.defaultInfotepPayableAccountId,
+      pensionContributionsPayableAccountId: s.defaultPensionContributionsPayableAccountId,
+      healthContributionsPayableAccountId: s.defaultHealthContributionsPayableAccountId,
+      otherPayrollContributionsPayableAccountId: s.defaultOtherPayrollContributionsPayableAccountId,
       payrollTaxWithholdingPayableAccountId: s.defaultPayrollTaxWithholdingPayableAccountId,
       accountsPayableId: s.defaultAccountsPayableId,
       baseCurrency: s.baseCurrency,

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -13,7 +13,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../../../../shared/validators/password.validator';
 import { UsersService } from '../../data/users.service';
 import { SettingsShellService } from '../../shell';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The action types the trail records (`ActionType` on the server). */
 export const AUDIT_ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'LOGIN_FAILED', 'REFRESH', 'IMPERSONATE', 'READ', 'EXPORT'] as const;

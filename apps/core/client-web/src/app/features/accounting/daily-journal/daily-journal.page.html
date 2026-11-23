@@ -10,6 +10,7 @@
   [empty]="isEmpty()"
   (reload)="load()"
 >
+  <vx-books-view-toggle listActions />
   <button listActions class="primary-button" type="button"
     [disabled]="isEmpty() || exports.exporting() === 'journal_entry_lines'"
     [title]="exportHint() | translate"
@@ -86,7 +87,7 @@
               }
               <td class="account-cell">{{ accountLabel(line.accountId) }}</td>
               @if (isFirst) {
-                <td [attr.rowspan]="entry.lines.length">{{ entry.description }}</td>
+                <td [attr.rowspan]="entry.lines.length">{{ entry.description | vxNarrative: entry.descriptionKey : entry.descriptionParams }}</td>
               }
               <td class="text-right amount-cell">{{ line.debit | vxMoney: entry.currencyCode }}</td>
               <td class="text-right amount-cell">{{ line.credit | vxMoney: entry.currencyCode }}</td>

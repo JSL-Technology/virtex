@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FormatService } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { AlertTriangle, Copy, CircleAlert, LucideAngularModule, Plus, Trash2, ArrowRight } from 'lucide-angular';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { NODE_ICONS, issueMessage, nodeTypeKey, outcomeLabel } from '../../data/workflow-labels';

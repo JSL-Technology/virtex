@@ -2,7 +2,7 @@ import { IsString, IsOptional, MaxLength, IsIn, IsUrl, ValidateNested } from 'cl
 import { Type } from 'class-transformer';
 import { RegionalFormatDto } from '../../i18n/dto/regional-format.dto';
 import { IsE164PhoneNumber } from '../../common/validators/is-e164-phone-number.validator';
-import { LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
+import { LanguageCode, SUPPORTED_LANGUAGES } from '@virtex/shared/types';
 
 export class UpdateProfileDto {
   @IsOptional()

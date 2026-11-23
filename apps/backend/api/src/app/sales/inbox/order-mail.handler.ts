@@ -140,7 +140,7 @@ function toReview(read: ReadOrder, items: MatchedItem[], customer: { id: string;
   };
 }
 
-/** The draft quote: catalogue prices, today's date, the customer's reference and wishes in the notes. */
+/** The draft quote: the customer's prices (list or catalogue), today's date, the customer's reference and wishes in the notes. */
 export function quoteFrom(customerId: string, read: ReadOrder, items: MatchedItem[], message: Pick<InboundMailMessage, 'from' | 'subject'>, today = new Date()): CreateQuoteDto {
   const issueDate = today.toISOString().slice(0, 10);
   const notes = [
@@ -160,7 +160,7 @@ export function quoteFrom(customerId: string, read: ReadOrder, items: MatchedIte
       productId: item.product!.id,
       description: item.product!.name,
       quantity: item.quantity,
-      unitPrice: item.product!.price,
+      // No price: the quote takes the customer's list, then the default list, then the catalogue.
     })),
   } as CreateQuoteDto;
 }

@@ -24,7 +24,7 @@
       <tbody>
         @for (ledger of table.rows(); track ledger.id) {
           <tr>
-            <td>{{ ledger.name }}</td>
+            <td>{{ ledger.name | vxName: ledger.nameTranslations }}</td>
             <td>{{ ledger.description }}</td>
             <td class="text-center">
               @if (ledger.isDefault) {

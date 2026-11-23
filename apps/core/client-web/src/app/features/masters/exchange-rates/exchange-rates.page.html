@@ -55,6 +55,23 @@
        so «Importar» and «Registrar tasa» opened panels nobody could see, and a company with no
        rates of its own could never enter the first one (QA R3-M10). -->
   <div listCreate class="rate-panels">
+    @if (officialSource(); as source) {
+      <section class="doc-card rate-panel official-source" aria-labelledby="official-source-title">
+        <h2 id="official-source-title" class="official-source__title">{{ 'currencies.rates.official_source.title' | translate }}</h2>
+        <p class="official-source__publisher">{{ source.publisher }} — <span class="official-source__basis">{{ source.legalBasis }}</span></p>
+        @switch (officialSourceState()) {
+          @case ('automatic') {
+            <p class="official-source__state">{{ 'currencies.rates.official_source.automatic' | translate: { publication: source.feed!.publication, date: source.feed!.latestEffectiveOn ?? '—' } }}</p>
+          }
+          @case ('not_active') {
+            <p class="official-source__state">{{ 'currencies.rates.official_source.not_active' | translate: { publication: source.feed!.publication } }}</p>
+          }
+          @case ('manual') {
+            <p class="official-source__state">{{ 'currencies.rates.official_source.manual' | translate: { publisher: source.publisher } }}</p>
+          }
+        }
+      </section>
+    }
     @if (recording()) {
       <section class="doc-card rate-panel" [formGroup]="form">
         <h2 class="form-section-title">{{ 'currencies.rates.record_title' | translate }}</h2>
@@ -174,6 +191,9 @@
             1 {{ result.from }} = {{ result.rate | vxNumber: '1.2-6' }} {{ result.to }}
             · {{ 'currencies.rates.methods.' + result.method.toLowerCase() | translate: { via: result.via ?? '' } }}
             · {{ 'currencies.rates.quoted_on' | translate: { date: result.quotedOn, source: result.source } }}
+            @if (result.substitutedFor) {
+              · <strong>{{ 'currencies.rates.market_instead_of_official' | translate }}</strong>
+            }
           </span>
         }
         @if (resolveError(); as message) {

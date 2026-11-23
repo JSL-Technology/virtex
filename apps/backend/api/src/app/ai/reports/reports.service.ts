@@ -9,7 +9,7 @@ import { AiGatewayService, numbersNotInFacts } from '../gateway/ai-gateway.servi
 import { AiReport, AiReportAudience, AiReportKind } from '../entities/ai-report.entity';
 import { NotFoundError } from '../../i18n/localized.exception';
 import { MemberAccess, holdsAll, loadMemberAccess } from '../../roles/contracts/member-access.contract';
-import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { AI_PERMISSIONS } from '../../shared/permissions/ai.permissions';
 import { ServiceUnavailableError } from '../../i18n/localized.exception';
 
 export const AI_REPORTS_QUEUE = 'ai-reports';

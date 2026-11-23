@@ -121,6 +121,9 @@ describe('UserResponseDto serialization contract', () => {
         'currency',
         'timezone',
         'booksLanguage',
+        // What the company's plan includes, stamped at the edge (`PlanFeaturesInterceptor`): the
+        // client offers a screen only when the plan does (IA-01, IA-02). Capability names, no ids.
+        'features',
       ].sort(),
     );
   });

@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -12,6 +13,7 @@ import {
 } from '../fiscal-regime.types';
 import { RegimeAdapterBase } from '../regime-adapter.base';
 import { SriBuilder } from './sri.builder';
+import { modifiedDocumentOf } from '../modified-document';
 
 /**
  * Ecuador — comprobante electrónico, SRI.
@@ -64,6 +66,9 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       invoice: context.invoice,
       organization,
       customer,
+      // A nota de crédito or de débito names the comprobante it modifies: the SRI asks for its
+      // type, its number and its date, and refuses a note that carries none of them.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'EC'),
       // Not a typo and not shared with Colombia: the SRI numbers them the other way round.
       environment: this.environmentCode(settings, { production: '2', certification: '1' }) as
         | '1'
@@ -76,12 +81,22 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
     return { payload: xml, contentType: 'application/xml', documentKey: accessKey };
   }
 
-  /** XAdES-BES enveloped in the comprobante root, which is what the SRI's validator expects. */
-  seal(document: SealedFiscalDocument, certificate: LoadedCertificate): SealedFiscalDocument {
+  /**
+   * XAdES-BES enveloped in the comprobante root, which is what the SRI's validator expects.
+   *
+   * The root is the one the builder wrote — `factura`, `notaCredito` or `notaDebito` — and not the
+   * literal `factura`: appending a signature to an element the document does not have leaves the
+   * comprobante unsigned.
+   */
+  seal(
+    document: SealedFiscalDocument,
+    certificate: LoadedCertificate,
+    context: FiscalRegimeContext,
+  ): SealedFiscalDocument {
     return {
       ...document,
       payload: this.signatures.sign(document.payload, certificate, {
-        appendTo: 'factura',
+        appendTo: this.builder.rootElement(context.invoice),
         referenceUri: '',
       }),
     };
@@ -89,10 +104,10 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const received = await this.transport.send('EC', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       trackingKeys: ['claveAcceso', 'estado'],
     });
 
@@ -114,13 +129,13 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
   /** The second call: authorised, or refused with the SRI's own reasons. */
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send(
       'EC',
-      `<autorizacionComprobante><claveAccesoComprobante>${trackingId}` +
+      `<autorizacionComprobante><claveAccesoComprobante>${escapeXmlText(trackingId)}` +
         `</claveAccesoComprobante></autorizacionComprobante>`,
-      { contentType: 'application/xml', trackingKeys: ['numeroAutorizacion'] },
+      { organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml', trackingKeys: ['numeroAutorizacion'] },
     );
 
     return { ...result, authorization: result.trackingId ?? null, trackingId };

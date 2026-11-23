@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { of } from 'rxjs';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ExchangeRatesPage } from './exchange-rates.page';
 import { ExchangeRatesService, parseRateTable } from '../data/exchange-rates.service';
 import { CurrenciesService } from '../data/currencies.service';
@@ -28,8 +28,18 @@ describe('ExchangeRatesPage', () => {
   let rates: Record<string, jest.Mock>;
   const notifications = { showSuccess: jest.fn(), showError: jest.fn(), showHttpError: jest.fn(), httpErrorMessage: () => 'x' };
 
-  function create() {
+  type Source = { country: string; publisher: string; quoteCurrency: string; legalBasis: string; feed: unknown };
+  const dominican = (feed: unknown): Source => ({
+    country: 'DO',
+    publisher: 'Banco Central de la República Dominicana',
+    quoteCurrency: 'DOP',
+    legalBasis: 'Tasa de cambio de referencia del Banco Central.',
+    feed,
+  });
+
+  function create(sources: Source[] = [dominican(null)]) {
     rates = {
+      officialSources: jest.fn().mockReturnValue(of(sources)),
       history: jest.fn().mockReturnValue(of({ items: [], total: 0, page: 1, limit: 100, pages: 1 })),
       record: jest.fn().mockReturnValue(of({})),
       importRates: jest.fn().mockReturnValue(of({ imported: 1 })),
@@ -48,10 +58,52 @@ describe('ExchangeRatesPage', () => {
         { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of(['exchange_rates:manage']), hasPermissions: () => true } },
       ],
     });
-    const fixture = TestBed.createComponent(ExchangeRatesPage);
+    fixture = TestBed.createComponent(ExchangeRatesPage);
     fixture.detectChanges();
     return fixture.componentInstance;
   }
+  let fixture: ReturnType<typeof TestBed.createComponent<ExchangeRatesPage>>;
+
+  /**
+   * Where the company's official rate comes from, and whether it has to enter it (FINB-03): the
+   * source quoted in its currency, in one of three states.
+   */
+  describe('the official source of the company\'s rates', () => {
+    it('says the publisher\'s rate is entered here when the product does not read it', () => {
+      const page = create([dominican(null)]);
+      expect(page.officialSource()?.publisher).toBe('Banco Central de la República Dominicana');
+      expect(page.officialSourceState()).toBe('manual');
+      expect(fixture.nativeElement.querySelector('.official-source')).not.toBeNull();
+    });
+
+    it('says it arrives on its own once the feed is active', () => {
+      const page = create([dominican({ code: 'DO-X', publication: 'Tasa de referencia', status: 'ACTIVE', latestEffectiveOn: '2026-03-17' })]);
+      expect(page.officialSourceState()).toBe('automatic');
+    });
+
+    it('and that it does not yet while the feed is in shadow', () => {
+      const page = create([dominican({ code: 'DO-X', publication: 'Tasa de referencia', status: 'SHADOW', latestEffectiveOn: null })]);
+      expect(page.officialSourceState()).toBe('not_active');
+    });
+
+    it('shows nothing for a currency no market publishes an official rate for', () => {
+      const page = create([{ ...dominican(null), quoteCurrency: 'COP', country: 'CO' }]);
+      expect(page.officialSource()).toBeNull();
+      expect(fixture.nativeElement.querySelector('.official-source')).toBeNull();
+    });
+  });
+
+  it('says when the rate a document would use is the market one, for want of an official one (FINB-06)', () => {
+    const page = create();
+    rates['resolve'].mockReturnValue(
+      of({ rate: 0.39, from: 'JPY', to: 'DOP', date: '2026-01-08', rateType: 'MARKET', method: 'DIRECT', source: 'XE', quotedOn: '2026-01-06', substitutedFor: 'OFFICIAL' }),
+    );
+    page.lookup.patchValue({ from: 'JPY', to: 'DOP', date: '2026-01-08' });
+    page.resolve();
+    fixture.detectChanges();
+    expect(page.resolved()?.substitutedFor).toBe('OFFICIAL');
+    expect(fixture.nativeElement.querySelector('.lookup-result strong')).not.toBeNull();
+  });
 
   it('records a rate into the base currency by default', () => {
     const page = create();

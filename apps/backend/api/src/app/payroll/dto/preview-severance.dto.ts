@@ -2,7 +2,7 @@ import { IsDateString, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class PreviewSeveranceDto {
   /** Last day worked. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   endDate: string;
 
   /** Override the monthly salary; defaults to the employee's compensation in force at `endDate`. */

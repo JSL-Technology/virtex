@@ -27,11 +27,11 @@ export class CreateProjectDto {
   @IsOptional()
   status?: ProjectStatus;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   startDate?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   endDate?: string;
 

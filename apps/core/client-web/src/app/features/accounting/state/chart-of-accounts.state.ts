@@ -6,8 +6,15 @@ import { TreeService } from '../../../core/services/tree';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { NotificationService } from '../../../core/services/notification';
 import { AccountType } from '../../../core/models/account.model';
-import { accountNameFor } from '@virteex/shared/ui-i18n';
+import { accountNameFor } from '@virtex/shared/ui-i18n';
 type Sort = { field: keyof FlattenedAccount; direction: 'asc' | 'desc' };
+/** A summary account, as the parent picker offers it. */
+export interface ParentAccountOption {
+  id: string;
+  code: string;
+  name: Account['name'];
+  type: AccountType;
+}
 type Filters = { status: 'ALL' | 'ACTIVE' | 'INACTIVE'; type: 'ALL' | AccountType; };
 
 @Injectable({ providedIn: 'root' })
@@ -67,16 +74,87 @@ export class ChartOfAccountsStateService {
     );
   });
 
-  // Opciones para el selector de "Cuenta Padre" en el formulario
-  readonly parentAccountOptions = computed(() =>
-    this.allAccounts()
-      .filter(a => !a.isPostable) // Solo mostrar cuentas de agrupación
-      .map(a => ({ id: a.id, name: a.name, code: a.code }))
-  );
+  /**
+   * The accounts an account of `type` can sit under (FIN-COA-05): summary accounts of that same
+   * type. A revenue account under the assets, or a sub-account under an account that takes postings,
+   * makes every total of the tree wrong, and the server refuses both. Editing `accountId`, the account
+   * itself and its descendants are left out too: under one of them the tree would loop.
+   *
+   * No type chosen yet: every summary account, and choosing one gives the new account its type.
+   */
+  parentOptionsFor(type: AccountType | null, accountId: string | null): ParentAccountOption[] {
+    const accounts = this.allAccounts();
+    const excluded = accountId ? this.subtreeOf(accounts, accountId) : new Set<string>();
+    return accounts
+      .filter((account) => !account.isPostable && (!type || account.type === type) && !excluded.has(account.id))
+      .map((account) => ({ id: account.id, name: account.name, code: account.code, type: account.type }));
+  }
+
+  /**
+   * Where an account's inflation restatement can go (FIN-AC-04): a postable account of the same
+   * type, not restated itself, not the account's own, and taking no other account's restatement —
+   * the server refuses every other choice.
+   */
+  restatementTargetsFor(type: AccountType | null, accountId: string | null): ParentAccountOption[] {
+    if (!type) return [];
+    const accounts = this.allAccounts();
+    const taken = new Set(
+      accounts.filter((account) => account.inflationAdjustmentAccountId && account.id !== accountId).map((account) => account.inflationAdjustmentAccountId as string),
+    );
+    return accounts
+      .filter(
+        (account) =>
+          account.isPostable &&
+          account.type === type &&
+          account.id !== accountId &&
+          !account.isInflationAdjustable &&
+          !account.inflationAdjustmentAccountId &&
+          account.fxTreatment !== 'REVALUED' &&
+          account.systemRole !== 'INFLATION_ADJUSTMENT' &&
+          !taken.has(account.id),
+      )
+      .map((account) => ({ id: account.id, name: account.name, code: account.code, type: account.type }));
+  }
+
+  /** Whether the account takes another account's restatement (it is then never restated itself). */
+  isRestatementTarget(id: string): boolean {
+    return this.allAccounts().some((account) => account.inflationAdjustmentAccountId === id);
+  }
+
+  /** The type of the summary account `id`, to give a new sub-account the type of its parent. */
+  typeOf(id: string): AccountType | null {
+    return this.allAccounts().find((account) => account.id === id)?.type ?? null;
+  }
+
+  /** `rootId` and every account below it. */
+  private subtreeOf(accounts: readonly Account[], rootId: string): Set<string> {
+    const children = new Map<string, string[]>();
+    for (const account of accounts) {
+      if (!account.parentId) continue;
+      const siblings = children.get(account.parentId) ?? [];
+      siblings.push(account.id);
+      children.set(account.parentId, siblings);
+    }
+    const subtree = new Set<string>([rootId]);
+    const pending = [rootId];
+    while (pending.length > 0) {
+      for (const child of children.get(pending.pop() as string) ?? []) {
+        if (!subtree.has(child)) {
+          subtree.add(child);
+          pending.push(child);
+        }
+      }
+    }
+    return subtree;
+  }
 
   // --- Acciones Públicas ---
 
+  /** Whether the chart has been read, or is being read, in this session. A failed read clears it. */
+  private requested = false;
+
   public loadAccounts(): void {
+    this.requested = true;
     this.isLoading.set(true);
     this.error.set(null);
     this.apiService.getAccounts().pipe(take(1)).subscribe({
@@ -85,10 +163,22 @@ export class ChartOfAccountsStateService {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set('Could not load chart of accounts.');
+        this.requested = false;
+        //  A catalogue key: the list shell translates what it is given, and an English sentence
+        //  here reached every user as is.
+        this.error.set('accounting.chart_of_accounts.load_failed');
         this.isLoading.set(false);
       }
     });
+  }
+
+  /**
+   * Reads the chart unless it has been read already. The account form needs it for its parent
+   * picker, and it is not always opened from the list that reads it: a link or a restored tab opens
+   * it directly, and its parent picker then offered nothing.
+   */
+  public ensureLoaded(): void {
+    if (!this.requested) this.loadAccounts();
   }
 
   public refreshAccounts(): void {

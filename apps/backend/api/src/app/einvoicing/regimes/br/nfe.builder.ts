@@ -4,7 +4,8 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
-import { fiscalConsecutive } from '../fiscal-number';
+import { fiscalConsecutive, issuedDocumentType } from '../fiscal-number';
+import { ModifiedDocumentReference, requiredKey } from '../modified-document';
 import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
@@ -39,6 +40,8 @@ export interface NfeBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a devolução or a complementar: the NF-e it refers to, by its chave de acesso. */
+  modifies?: ModifiedDocumentReference | null;
   /** IBGE code of the issuer's state — `35` São Paulo, `33` Rio de Janeiro. */
   stateCode: string;
   /** IBGE code of the issuing municipality, seven digits. */
@@ -68,11 +71,22 @@ export class NfeBuilder {
    * with its own authorisation, its own série and a QR code this builder does not produce, so it is
    * not offered rather than being produced incorrectly.
    *
-   * A Brazilian credit note is not a document type at all: it is an NF-e of `finNFe` 4 (devolução)
-   * or a separate nota de débito, both still model `55`.
+   * A Brazilian credit or debit note is not a document type at all: it is an NF-e of `finNFe` 4
+   * (devolução) or `finNFe` 2 (complementar), both still model `55`, and both referring through
+   * `NFref/refNFe` to the NF-e they correct.
    */
-  documentType(): string {
-    return '55';
+  documentType(invoice: Invoice): string {
+    return issuedDocumentType(invoice, ['55']);
+  }
+
+  /** A note must name the NF-e it corrects: the SEFAZ refuses one that does not, and so does this. */
+  private requireModified(input: NfeBuildInput): ModifiedDocumentReference {
+    if (!input.modifies) {
+      throw new BadRequestError('einvoicing.note_must_name_the_document_it_modifies', {
+        document: input.invoice.invoiceNumber ?? '',
+      });
+    }
+    return input.modifies;
   }
 
   accessKey(input: NfeBuildInput): string {
@@ -125,21 +139,41 @@ export class NfeBuilder {
     const ide = inf.ele('ide');
     ide.ele('cUF', {}, input.stateCode.padStart(2, '0'));
     ide.ele('cNF', {}, accessKey.slice(35, 43));
-    ide.ele('natOp', {}, invoice.type === InvoiceType.CREDIT_NOTE ? 'Devolucao de venda' : 'Venda de mercadoria');
+    ide.ele('natOp', {}, NATURE[purposeOf(invoice)]);
     ide.ele('mod', {}, '55');
     ide.ele('serie', {}, String(Number(input.series.replace(/\D/g, '') || 1)));
     ide.ele('nNF', {}, String(Number(this.documentNumber(fiscalConsecutive(invoice)))));
     ide.ele('dhEmi', {}, this.timestamp(invoice.issueDate));
-    // `1` saída — a sale leaves the establishment.
-    ide.ele('tpNF', {}, '1');
+    // `1` saída, `0` entrada. A sale and a complemento accompany goods leaving the establishment;
+    // a devolução is the goods coming back in, and declaring that as a saída states the opposite of
+    // what happened.
+    //
+    // *Verificar con contabilidad/legal*: a return is often documented by the buyer's own NF-e de
+    // saída instead; this is the note the SELLER issues, which is an entrada.
+    ide.ele('tpNF', {}, purposeOf(invoice) === 'CREDIT_NOTE' ? '0' : '1');
     // `1` operação interna, `2` interestadual. Decided by the two states, not by the seller.
     ide.ele('idDest', {}, this.destination(input));
     ide.ele('cMunFG', {}, input.municipalityCode);
+
+    // ── The NF-e this one refers to ────────────────────────────────────────────────────────
+    //
+    // A devolução and a complementar are only intelligible beside the NF-e they correct, and the
+    // SEFAZ reads that from `NFref/refNFe`: the 44-digit chave de acesso of the referenced
+    // document. The builder wrote none (FAC-INV-05 / MP-10), so a return was authorised as an
+    // operation of its own, referring to nothing.
+    //
+    // Its place in the sequence is fixed: after `cMunFG` and before `tpImp`. The signature covers
+    // `infNFe`, so an element out of order is a rejection on receipt.
+    if (purposeOf(invoice) !== 'INVOICE') {
+      ide.ele('NFref').ele('refNFe', {}, requiredKey(this.requireModified(input)));
+    }
+
     ide.ele('tpImp', {}, '1');
     ide.ele('tpEmis', {}, '1');
     ide.ele('cDV', {}, accessKey.slice(-1));
     ide.ele('tpAmb', {}, input.environment);
-    ide.ele('finNFe', {}, invoice.type === InvoiceType.CREDIT_NOTE ? '4' : '1');
+    // `1` normal, `2` complementar, `4` devolução de mercadoria.
+    ide.ele('finNFe', {}, PURPOSE_CODE[purposeOf(invoice)]);
     ide.ele('indFinal', {}, '1');
     ide.ele('indPres', {}, '1');
     ide.ele('procEmi', {}, '0');
@@ -268,3 +302,29 @@ export class NfeBuilder {
 }
 
 const NFE_NS = 'http://www.portalfiscal.inf.br/nfe';
+
+/**
+ * What the NF-e is for, in the product's own terms.
+ *
+ * Brazil has no separate credit or debit note: the same model `55` carries a sale, a return of what
+ * was sold and a complement of its value, told apart by `finNFe` and by the NF-e each refers to.
+ */
+function purposeOf(invoice: Invoice): 'INVOICE' | 'CREDIT_NOTE' | 'DEBIT_NOTE' {
+  if (invoice.type === InvoiceType.CREDIT_NOTE) return 'CREDIT_NOTE';
+  if (invoice.type === InvoiceType.DEBIT_NOTE) return 'DEBIT_NOTE';
+  return 'INVOICE';
+}
+
+/** `finNFe`: 1 normal, 2 complementar, 4 devolução. */
+const PURPOSE_CODE: Readonly<Record<'INVOICE' | 'CREDIT_NOTE' | 'DEBIT_NOTE', string>> = {
+  INVOICE: '1',
+  CREDIT_NOTE: '4',
+  DEBIT_NOTE: '2',
+};
+
+/** `natOp`: the nature of the operation, which the SEFAZ prints and a person reads. */
+const NATURE: Readonly<Record<'INVOICE' | 'CREDIT_NOTE' | 'DEBIT_NOTE', string>> = {
+  INVOICE: 'Venda de mercadoria',
+  CREDIT_NOTE: 'Devolucao de venda',
+  DEBIT_NOTE: 'Complemento de valor',
+};

@@ -41,6 +41,17 @@ export interface ResolvedRate {
   via?: string;
   source: string;
   quotedOn: string;
+  /** The type asked for, when another answered: OFFICIAL asked, MARKET used for want of it (FINB-06). */
+  substitutedFor?: ExchangeRateType;
+}
+
+/** Who publishes a market's official rate, and whether it arrives on its own (FINB-03). */
+export interface OfficialRateSource {
+  country: string;
+  publisher: string;
+  quoteCurrency: string;
+  legalBasis: string;
+  feed: { code: string; publication: string; status: 'SHADOW' | 'ACTIVE' | 'DISABLED'; latestEffectiveOn: string | null } | null;
 }
 
 export interface RateHistoryQuery {
@@ -85,6 +96,10 @@ export class ExchangeRatesService {
 
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  officialSources(): Observable<OfficialRateSource[]> {
+    return this.http.get<OfficialRateSource[]>(`${this.url}/official-sources`);
   }
 
   resolve(from: string, to: string, date: string, rateType?: ExchangeRateType | null): Observable<ResolvedRate> {

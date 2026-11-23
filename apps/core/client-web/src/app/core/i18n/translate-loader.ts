@@ -2,10 +2,10 @@ import { inject } from '@angular/core';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { DEFAULT_LANGUAGE, LanguageCode, isLanguageCode } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, LanguageCode, isLanguageCode } from '@virtex/shared/types';
 import spanishCore from '../../../assets/i18n/es.core.json';
 import regionalOverrides from '../../../assets/i18n/regional.json';
-import { LocaleStore, RegionalCatalogue, applyRegionalCatalogue } from '@virteex/shared/ui-i18n';
+import { LocaleStore, RegionalCatalogue, applyRegionalCatalogue } from '@virtex/shared/ui-i18n';
 
 /**
  * Loads one message catalogue, and only the one being used, with the tenant's country applied.

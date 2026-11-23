@@ -2,7 +2,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LocaleStore, TranslateModule } from '@virteex/shared/ui-i18n';
+import { LocaleStore, TranslateModule } from '@virtex/shared/ui-i18n';
 import { VX_DATE, dateOrder, toCalendarDate } from './index';
 
 @Component({

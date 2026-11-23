@@ -13,6 +13,7 @@ import { currentTenantStore } from '../shared/tenancy/tenant-context';
 type Quote = Pick<ExchangeRate, 'rate' | 'rateType' | 'source'> & { date: Date | string };
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { BadRequestError } from '../i18n/localized.exception';
+import { addNotice } from '../i18n/request-notices';
 import { convert, roundAmount } from '../common/money';
 import { toIsoDate } from '../common/dates';
 import { differenceInCalendarDays } from 'date-fns';
@@ -30,6 +31,11 @@ export interface ResolvedRate {
   source: string;
   /** The day the underlying quote is from, which may be earlier than `date`. */
   quotedOn: string;
+  /**
+   * The type asked for, when a different one answered: an OFFICIAL request served by the MARKET
+   * quote because the company had no official one on file (FINB-06).
+   */
+  substitutedFor?: ExchangeRateType;
 }
 
 /**
@@ -192,13 +198,20 @@ export class ExchangeRateResolver {
 
     // A tenant whose books are kept at the official rate but who has only a market quote on file
     // is better served by the market quote and a warning than by a refusal — but never silently.
+    // The warning used to be a log line only (FINB-06): the person posting now reads it too, and the
+    // answer says which type it stands in for.
     if (type === ExchangeRateType.OFFICIAL) {
       const fallback = await this.resolveOrNull(em, from, to, date, ExchangeRateType.MARKET);
       if (fallback) {
         this.logger.warn(
           `Sin tasa ${type} de ${from} a ${to} al ${date}; se usa ${fallback.rateType} de ${fallback.source}.`,
         );
-        return fallback;
+        addNotice({
+          code: 'EXCHANGE_RATE_MARKET_FALLBACK',
+          messageKey: 'currencies.market_rate_used_without_official',
+          messageParams: { from, to, date, source: fallback.source, quotedOn: fallback.quotedOn },
+        });
+        return { ...fallback, substitutedFor: type };
       }
     }
 

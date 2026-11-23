@@ -14,6 +14,11 @@
     "en": "The code passes the admission pipeline (SBOM, heuristics, policy) and is signed before it can run.",
     "pt": "O código passa pelo processo de admissão (SBOM, heurísticas, políticas) e é assinado antes de poder ser executado."
   },
+  "extensions.consent_missing_for_capabilities": {
+    "es": "La empresa no ha consentido las capacidades que esta extensión necesita: {{capabilities}}.",
+    "en": "The company has not consented to the capabilities this extension needs: {{capabilities}}.",
+    "pt": "A empresa não consentiu as capacidades de que esta extensão precisa: {{capabilities}}."
+  },
   "extensions.direct_code_rejected_by_admission_policy": {
     "en": "The admission policy rejected directly submitted code.",
     "es": "La política de admisión rechazó el código enviado directamente.",
@@ -112,6 +117,21 @@
     "en": "No UI extensions are enabled for this tenant.",
     "pt": "Este inquilino não tem nenhuma extensão de interface ativada."
   },
+  "extensions.none_registered_below": {
+    "es": "Registra una en «Registrar extensión», debajo de esta lista.",
+    "en": "Register one in “Register extension”, below this list.",
+    "pt": "Registre uma em “Registrar extensão”, abaixo desta lista."
+  },
+  "extensions.none_registered_platform": {
+    "es": "El equipo de la plataforma publica las extensiones; cuando haya alguna, aparecerá aquí para que la actives.",
+    "en": "The platform team publishes extensions; when there is one, it will appear here for you to enable.",
+    "pt": "A equipe da plataforma publica as extensões; quando houver alguma, aparecerá aqui para você ativar."
+  },
+  "extensions.none_registered_title": {
+    "es": "Todavía no hay extensiones instaladas.",
+    "en": "No extensions installed yet.",
+    "pt": "Ainda não há extensões instaladas."
+  },
   "extensions.open_runtime": {
     "es": "Abrir ejecución",
     "en": "Open runtime",
@@ -158,6 +178,11 @@
     "en": "Register extension",
     "pt": "Registar extensão"
   },
+  "extensions.rejected_by_admission_policy": {
+    "es": "La política de admisión rechazó la extensión ({{reason}}).",
+    "en": "The admission policy rejected the extension ({{reason}}).",
+    "pt": "A política de admissão rejeitou a extensão ({{reason}})."
+  },
   "extensions.request_outside_granted_scope": {
     "es": "La extensión intentó leer datos que no se le han concedido.",
     "en": "The extension tried to read data it has not been granted.",
@@ -172,6 +197,11 @@
     "es": "Ejecutar en el aislamiento",
     "en": "Run in sandbox",
     "pt": "Executar no isolamento"
+  },
+  "extensions.run_in_sandbox_help": {
+    "es": "Prueba una extensión instalada sin que toque tus datos: se ejecuta aislada, con solo los permisos que le diste, y verás su resultado y su registro.",
+    "en": "Try an installed extension without it touching your data: it runs isolated, with only the permissions you granted, and you see its result and log.",
+    "pt": "Teste uma extensão instalada sem que ela toque seus dados: roda isolada, só com as permissões que você deu, e você vê o resultado e o log."
   },
   "extensions.run_status.execution_failed": {
     "es": "Falló la ejecución",
@@ -215,25 +245,5 @@
     "en": "We could not find that version of the extension.",
     "es": "No encontramos esa versión de la extensión.",
     "pt": "Não encontrámos essa versão da extensão."
-  },
-  "extensions.none_registered_title": {
-    "es": "Todavía no hay extensiones instaladas.",
-    "en": "No extensions installed yet.",
-    "pt": "Ainda não há extensões instaladas."
-  },
-  "extensions.none_registered_below": {
-    "es": "Registra una en «Registrar extensión», debajo de esta lista.",
-    "en": "Register one in “Register extension”, below this list.",
-    "pt": "Registre uma em “Registrar extensão”, abaixo desta lista."
-  },
-  "extensions.none_registered_platform": {
-    "es": "El equipo de la plataforma publica las extensiones; cuando haya alguna, aparecerá aquí para que la actives.",
-    "en": "The platform team publishes extensions; when there is one, it will appear here for you to enable.",
-    "pt": "A equipe da plataforma publica as extensões; quando houver alguma, aparecerá aqui para você ativar."
-  },
-  "extensions.run_in_sandbox_help": {
-    "es": "Prueba una extensión instalada sin que toque tus datos: se ejecuta aislada, con solo los permisos que le diste, y verás su resultado y su registro.",
-    "en": "Try an installed extension without it touching your data: it runs isolated, with only the permissions you granted, and you see its result and log.",
-    "pt": "Teste uma extensão instalada sem que ela toque seus dados: roda isolada, só com as permissões que você deu, e você vê o resultado e o log."
   }
 }

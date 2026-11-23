@@ -14,48 +14,34 @@ import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { PurchaseOrder } from '../../procurement/entities/purchase-order.entity';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
-
-/**
- * DGII 606 "Tipo de Bienes y Servicios Comprados". A purchase must be classified for the return;
- * without it the 606 cannot be produced at all.
- */
-export enum PurchaseCategory {
-  PERSONNEL_EXPENSES = '01',
-  WORK_GOODS_SERVICES = '02',
-  LEASING = '03',
-  FIXED_ASSET_LEASING = '04',
-  IMPROVEMENT_EXPENSES = '05',
-  MERCHANDISE_PURCHASES = '06',
-  RELATED_SERVICES = '07',
-  FINANCIAL_EXPENSES = '08',
-  EXTRAORDINARY_EXPENSES = '09',
-  COST_OF_SALES = '10',
-  ASSET_ACQUISITIONS = '11',
-  INSURANCE_EXPENSES = '12',
-}
-
-/** DGII 606 "Tipo de Retención en ISR". */
-export enum IsrRetentionType {
-  NONE = '',
-  RENT = '01',
-  FEES_FOR_SERVICES = '02',
-  OTHER_INCOME = '03',
-  PRESUMED_INCOME = '04',
-  UNDECLARED_MOVABLE_PROPERTY = '05',
-  OTHER = '06',
-}
 
 export enum VendorBillStatus {
   DRAFT = 'DRAFT',
   PENDING_APPROVAL = 'PENDING_APPROVAL',
+  /**
+   * Held by the three-way match (audit 2026-11-07, CMP-01): it bills more than was received, or a
+   * price outside the tolerance of the order. Not posted and not payable until someone other than
+   * the submitter releases it with a reason.
+   */
+  ON_HOLD = 'ON_HOLD',
   OPEN = 'OPEN',
   PARTIALLY_PAID = 'PARTIALLY_PAID',
   PAID = 'PAID',
   VOID = 'VOID',
   REJECTED = 'REJECTED',
+}
+
+/** One discrepancy between a bill line and its purchase-order line (CMP-01). */
+export interface MatchException {
+  kind: 'QUANTITY' | 'PRICE';
+  purchaseOrderLineId: string;
+  description: string;
+  /** QUANTITY: billed vs received-and-not-yet-billed. PRICE: billed unit price vs the order's. */
+  billed: number;
+  expected: number;
 }
 
 @Index('IDX_vendor_bills_org_branch', ['organizationId', 'branchId'])
@@ -64,6 +50,13 @@ export enum VendorBillStatus {
 @Index('UQ_vendor_bills_supplier_invoice', ['organizationId', 'vendorId', 'supplierInvoiceKey'], {
   unique: true,
   where: `"supplier_invoice_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
+})
+// One live bill per (issuer tax id, fiscal document number) — not per supplier record, which could
+// be duplicated (audit 2026-11-07, CMP-03/CMP-04). Both keys are kept by a database trigger, so an
+// import or direct SQL cannot skip the rule the service checks.
+@Index('UQ_vendor_bills_issuer_fiscal_number', ['organizationId', 'issuerTaxKey', 'supplierFiscalKey'], {
+  unique: true,
+  where: `"issuer_tax_key" IS NOT NULL AND "supplier_fiscal_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
 })
 @Entity({ name: 'vendor_bills' })
 export class VendorBill {
@@ -101,8 +94,25 @@ export class VendorBill {
   @JoinColumn({ name: 'purchase_order_id', foreignKeyConstraintName: 'FK_vendor_bills_purchase_order' })
   purchaseOrder?: PurchaseOrder | null;
 
-  @Column({ nullable: true })
-  ncf?: string;
+  /**
+   * The number the authority assigned to the supplier's document: a Dominican NCF, a Mexican folio
+   * fiscal, a Brazilian chave de acesso, a Colombian CUFE. What it is in each market, and how it is
+   * checked, is the market's own (`MarketPurchases.receivedDocument`).
+   *
+   * It was `ncf`, the DGII's name for it, on every purchase of every market.
+   */
+  @Column({ name: 'supplier_fiscal_number', type: 'varchar', nullable: true })
+  supplierFiscalNumber?: string | null;
+
+  /** `supplierFiscalNumber` normalized, and the issuer's tax id; written by the database trigger. */
+  // Wide enough for the longest number any market issues: a 96-character CUFE, a 44-digit NF-e
+  // access key. It was 40 — the length of an NCF and a little — so the first Colombian or Brazilian
+  // purchase would have failed on insert.
+  @Column({ name: 'supplier_fiscal_key', type: 'varchar', length: 128, nullable: true, insert: false, update: false, select: false })
+  supplierFiscalKey?: string | null;
+
+  @Column({ name: 'issuer_tax_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
+  issuerTaxKey?: string | null;
 
   /**
    * The number the supplier printed on their invoice (AP-03).
@@ -142,11 +152,11 @@ export class VendorBill {
   lines: VendorBillLine[];
 
   /**
-   * NCF of the comprobante this one modifies, on a supplier credit/debit note.
-   * The 606 has a dedicated column for it and it was never captured.
+   * The number of the supplier's document this one modifies, on a credit or debit note they issued.
+   * A purchases return has a column for it, and it was never captured.
    */
-  @Column({ name: 'ncf_modified', type: 'varchar', nullable: true })
-  ncfModified?: string | null;
+  @Column({ name: 'modified_supplier_fiscal_number', type: 'varchar', nullable: true })
+  modifiedSupplierFiscalNumber?: string | null;
 
   /** When the bill was actually paid; the 606 reports it separately from the document date. */
   @Column({ name: 'paid_at', type: 'date', nullable: true })
@@ -231,6 +241,10 @@ export class VendorBill {
   @Column({ name: 'withholding_override_reason', type: 'text', nullable: true })
   withholdingOverrideReason: string | null;
 
+  /** Why the tax differs from what the lines' rates produce, when it does (CMP-02). */
+  @Column({ name: 'tax_override_reason', type: 'text', nullable: true })
+  taxOverrideReason: string | null;
+
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @Column('decimal', {
     name: 'tax_to_cost',
@@ -278,20 +292,26 @@ export class VendorBill {
   })
   serviceCharge: number;
 
-  @Column({
-    name: 'purchase_category',
-    type: 'varchar',
-    length: 2,
-    default: PurchaseCategory.MERCHANDISE_PURCHASES,
-  })
-  purchaseCategory: string;
+  /**
+   * What this market's authority asks of the purchase beyond its figures and its document, by the
+   * keys the market declares (`MarketPurchases.fiscalAttributes`): the Dominican 606's kind of goods
+   * or services and kind of income-tax withholding, the Mexican DIOT's kind of third party.
+   *
+   * Three columns held the DGII's codes — `purchase_category`, `isr_retention_type`, `payment_form` —
+   * on every purchase of every market, and a market that asked for anything else had nowhere to put
+   * it. What is asked for is validated against the market's schema before this is written, so the
+   * column never holds a key its market does not ask for.
+   */
+  @Column({ name: 'fiscal_attributes', type: 'jsonb', default: {} })
+  fiscalAttributes: Record<string, string>;
 
-  @Column({ name: 'isr_retention_type', type: 'varchar', length: 2, nullable: true })
-  isrRetentionType?: string | null;
-
-  /** DGII "Forma de Pago" code (01 efectivo, 02 cheque/transferencia…). */
-  @Column({ name: 'payment_form', type: 'varchar', length: 2, default: '01' })
-  paymentForm: string;
+  /**
+   * Which of the company's payment methods settled it (`payment_methods.code`), as the invoice
+   * records on the sales side. The authority's own code for it, where a return asks for one, is the
+   * method's `fiscal_code`: this was the DGII's «forma de pago» written straight onto the purchase.
+   */
+  @Column({ name: 'payment_method_code', type: 'varchar', length: 20, nullable: true })
+  paymentMethodCode?: string | null;
 
   @Column('decimal', { precision: 12, scale: 2, transformer: numericTransformerNotNull })
   total: number;
@@ -308,6 +328,23 @@ export class VendorBill {
 
   @Column({ type: 'uuid', name: 'approval_request_id', nullable: true })
   approvalRequestId?: string;
+
+  /** What the three-way match found when the bill was submitted (CMP-01); null when nothing. */
+  @Column({ name: 'match_exceptions', type: 'jsonb', nullable: true })
+  matchExceptions: MatchException[] | null;
+
+  /** Who submitted the held bill: the one person who may not release it. */
+  @Column({ name: 'match_held_by', type: 'uuid', nullable: true })
+  matchHeldBy: string | null;
+
+  @Column({ name: 'match_released_by', type: 'uuid', nullable: true })
+  matchReleasedBy: string | null;
+
+  @Column({ name: 'match_released_at', type: 'timestamptz', nullable: true })
+  matchReleasedAt: Date | null;
+
+  @Column({ name: 'match_release_reason', type: 'text', nullable: true })
+  matchReleaseReason: string | null;
 
   /**
    * The entry that put this bill in the ledger, and the one that took it out.
@@ -359,7 +396,7 @@ export class VendorBill {
   @JoinColumn({ name: 'currency_code', referencedColumnName: 'code' })
   currency: Currency;
 
-  @Column('decimal', { precision: 18, scale: 6, default: 1.0, name: 'exchange_rate', transformer: numericTransformerNotNull })
+  @Column('decimal', { precision: 18, scale: 6, default: 1.0, name: 'exchange_rate', transformer: numericTransformerWithDefault })
   exchangeRate: number;
 
   @Column('decimal', { precision: 18, scale: 2, name: 'total_in_base_currency', transformer: numericTransformerNotNull })

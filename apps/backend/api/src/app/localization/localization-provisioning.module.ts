@@ -21,9 +21,8 @@ import { SharedModule } from '../shared/shared.module';
 import { HttpModule } from '@nestjs/axios';
 import { AccountingModule } from '../accounting/accounting.module';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
-import { DominicanRepublicStrategy } from './drivers/dominican-republic/dominican-republic.strategy';
-import { GenericFiscalStrategy } from './drivers/generic-fiscal.strategy';
-import { USStrategy } from './drivers/usa/usa.strategy';
+import { DominicanTaxIdRegistry } from './drivers/do/tax-id-registry';
+import { TaxIdRegistryRegistry } from './drivers/tax-id-registry-lookup';
 import { TenantJurisdictionProvider } from './fiscal/tax-determination/tenant-jurisdiction.provider';
 import { TaxDeterminationService } from './fiscal/tax-determination/tax-determination.service';
 
@@ -66,9 +65,10 @@ import { TaxDeterminationService } from './fiscal/tax-determination/tax-determin
   providers: [
     LocalizationService,
     IdentityDocumentService,
-    DominicanRepublicStrategy,
-    GenericFiscalStrategy,
-    USStrategy,
+    // The only file that may name a market's registry driver: it is what assembles them, as
+    // `einvoicing.module.ts` assembles the regime adapters (docs/ARQUITECTURA_MERCADOS.md §2.11).
+    DominicanTaxIdRegistry,
+    { provide: TaxIdRegistryRegistry, useFactory: (...drivers: DominicanTaxIdRegistry[]) => new TaxIdRegistryRegistry(drivers), inject: [DominicanTaxIdRegistry] },
     TenantJurisdictionProvider,
     TaxDeterminationService,
     { provide: LocalizationProvisioningPort, useExisting: LocalizationService },

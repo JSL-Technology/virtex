@@ -15,8 +15,8 @@ import { CustomerAddress } from './customer-address.entity';
 import { CustomerContact } from './customer-contact.entity';
 import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
-import type { LanguageCode } from '@virteex/shared/types';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import type { LanguageCode } from '@virtex/shared/types';
+import { TaxpayerType } from '../../markets';
 import {
   numericTransformer,
   numericTransformerNotNull,
@@ -277,6 +277,14 @@ export class Customer {
   @Column({ name: 'is_final_consumer', type: 'boolean', default: false })
   isFinalConsumer: boolean;
 
+  /**
+   * Whether the company's automatic payment reminders go to this customer. A government body that
+   * pays on its own calendar, a key account handled by a person: the company takes them out of the
+   * schedule and keeps reminding them by hand.
+   */
+  @Column({ name: 'automatic_reminders', type: 'boolean', default: true })
+  automaticReminders: boolean;
+
   @Column({ name: 'payment_term_days', type: 'int', nullable: true })
   paymentTermDays?: number | null;
 
@@ -291,4 +299,18 @@ export class Customer {
 
   @Column({ name: 'default_sales_account_id', type: 'uuid', nullable: true })
   defaultSalesAccountId?: string;
+
+  /**
+   * The price list this customer buys at. When it is not active, not in force on the document's
+   * date, or in another currency, the organization's default list for the currency applies, and
+   * then the catalogue price (see `PriceResolver`).
+   */
+  @Index('IDX_customers_price_list', { where: '"price_list_id" IS NOT NULL' })
+  @Column({ name: 'price_list_id', type: 'uuid', nullable: true })
+  priceListId?: string | null;
+
+  /** Declared so the schema and the entity agree on the constraint (SET NULL when a list is deleted). */
+  @ManyToOne('PriceList', { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'price_list_id', foreignKeyConstraintName: 'FK_customers_price_list' })
+  priceList?: unknown;
 }

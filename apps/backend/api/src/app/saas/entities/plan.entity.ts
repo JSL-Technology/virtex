@@ -16,9 +16,6 @@ export class Plan {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ name: 'stripe_product_id', nullable: true })
-  externalProductId: string;
-
   @Column({ name: 'monthly_price_id', nullable: true })
   monthlyPriceId: string;
 

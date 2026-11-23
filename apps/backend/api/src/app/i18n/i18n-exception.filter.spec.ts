@@ -42,3 +42,35 @@ describe('I18nExceptionFilter: duplicates', () => {
     expect(body['messageKey']).toBe('errors.record_with_data_already_exists');
   });
 });
+
+/**
+ * A day the calendar does not have reached the database and answered a 500 (FINB-14: an asset
+ * bought on the 30th of February). The DTOs refuse it now; the filter is the net under any that
+ * does not, and it says what is wrong.
+ */
+describe('I18nExceptionFilter: impossible dates', () => {
+  function reply(code: string) {
+    const sent: Array<{ body: Record<string, unknown>; status: number }> = [];
+    const adapter = {
+      reply: (_res: unknown, body: Record<string, unknown>, status: number) => sent.push({ body, status }),
+      getRequestUrl: () => '/api/v1/fixed-assets',
+    };
+    const filter = new I18nExceptionFilter({ httpAdapter: adapter } as unknown as HttpAdapterHost, new I18nService());
+    const host = {
+      switchToHttp: () => ({ getRequest: () => ({ method: 'POST' }), getResponse: () => ({}) }),
+    } as unknown as ArgumentsHost;
+    filter.catch(
+      new QueryFailedError('INSERT …', [], Object.assign(new Error('date/time field value out of range: "2026-02-30"'), { code })),
+      host,
+    );
+    return sent[0];
+  }
+
+  it.each(['22008', '22007'])('answers %s as a 400 that names the date, not a 500', (code) => {
+    const { status, body } = reply(code);
+    expect(status).toBe(400);
+    expect(body['code']).toBe('INVALID_DATE');
+    expect(body['messageKey']).toBe('errors.invalid_date');
+    expect(JSON.stringify(body)).not.toContain('2026-02-30"');
+  });
+});

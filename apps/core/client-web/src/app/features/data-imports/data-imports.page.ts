@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CheckCircle, Download, File, Loader, LucideAngularModule, ShieldCheck, UploadCloud } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES, translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, translateOrLiteral } from '@virtex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import {
   ColumnMappingProposal,

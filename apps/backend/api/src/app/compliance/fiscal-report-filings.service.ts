@@ -6,19 +6,12 @@ import { FiscalReportFiling, FiscalReportFilingStatus } from './entities/fiscal-
 import { NotFoundError } from '../i18n/localized.exception';
 
 /**
- * The periodic returns whose filing is tracked month by month.
- *
- * The Dominican 606/607/608/609 are monthly obligations, and so are Mexico's Balanza and its
- * Catálogo (filed with the first Balanza and whenever it changes). The Pólizas file is not: the
- * SAT asks for it, for an audit or a refund, and it is answered when asked — tracking it as a
- * monthly filing would show eleven months «not filed» that were never due.
+ * Which returns are tracked month by month is each market's to declare
+ * (`MarketReturnFiling.tracked`), not a list in this module: the Dominican 606/607/608/609 and
+ * Mexico's Balanza and Catálogo are monthly obligations, while the Pólizas file is answered when
+ * the SAT asks for it — tracking that as monthly would show eleven months «not filed» that were
+ * never due. The list used to live here, so adding a market's returns meant editing it.
  */
-export const TRACKED_FISCAL_REPORTS = ['606', '607', '608', '609', 'catalogo', 'balanza'] as const;
-export type TrackedFiscalReport = (typeof TRACKED_FISCAL_REPORTS)[number];
-
-export function isTrackedFiscalReport(kind: string): kind is TrackedFiscalReport {
-  return (TRACKED_FISCAL_REPORTS as readonly string[]).includes(kind);
-}
 
 /** One month's report as the filing calendar shows it. */
 export interface FiscalReportFilingView {
@@ -41,7 +34,8 @@ export interface FiscalReportFilingView {
 
 export interface FilingPeriod {
   organizationId: string;
-  kind: TrackedFiscalReport;
+  /** The authority's own name for the filing, as its market declares it (`606`, `balanza`). */
+  kind: string;
   year: number;
   month: number;
 }
@@ -66,6 +60,7 @@ export class FiscalReportFilingsService {
   async recordGeneration(
     period: FilingPeriod,
     body: string,
+    records: number,
     actorUserId: string | null,
   ): Promise<FiscalReportFilingView> {
     await this.filings.upsert(
@@ -74,7 +69,7 @@ export class FiscalReportFilingsService {
         kind: period.kind,
         year: period.year,
         month: period.month,
-        recordCount: countRecords(period.kind, body),
+        recordCount: records,
         lastHash: sha256(body),
         lastGeneratedAt: new Date(),
         lastGeneratedByUserId: actorUserId,
@@ -171,21 +166,6 @@ export class FiscalReportFilingsService {
 
 function sha256(body: string): string {
   return createHash('sha256').update(body, 'utf8').digest('hex');
-}
-
-/**
- * How many records the file declares: the lines after the header of a DGII text format, the
- * accounts of a SAT XML document.
- */
-export function countRecords(kind: TrackedFiscalReport, body: string): number {
-  switch (kind) {
-    case 'catalogo':
-      return (body.match(/<catalogocuentas:Ctas\b/g) ?? []).length;
-    case 'balanza':
-      return (body.match(/<BCE:Ctas\b/g) ?? []).length;
-    default:
-      return Math.max(0, body.split('\n').filter((line) => line.length > 0).length - 1);
-  }
 }
 
 function toView(filing: FiscalReportFiling): FiscalReportFilingView {

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 
 /**
  * A country's fiscal vocabulary belongs to the country, not to the reader's language.

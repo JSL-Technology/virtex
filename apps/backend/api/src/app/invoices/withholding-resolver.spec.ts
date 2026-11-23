@@ -3,7 +3,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { Customer } from '../customers/entities/customer.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { TenantWithholdingRegime } from '../localization/fiscal/entities/tenant-withholding-regime.entity';
-import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../markets';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 
 /**
@@ -94,7 +94,7 @@ describeWithDb('withholding resolution', () => {
     scope: 'SERVICES' | 'GOODS',
     request: Record<string, unknown> = {},
   ) =>
-    resolver.resolve(dataSource.manager, organizationId, customer, scope, request);
+    resolver.resolve(dataSource.manager, organizationId, customer, scope, { documentDate: '2026-08-01', ...request });
 
   describe('the built-in catalogue', () => {
     beforeEach(() => tenantIn('DO'));

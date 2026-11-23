@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import { PriceListFormPage } from './price-list-form.page';
 
 /** A new price list is in the company's currency, not USD (QA A-12). */

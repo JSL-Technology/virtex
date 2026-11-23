@@ -60,7 +60,7 @@ const UNMODELLED_OBJECTS = [
 ];
 
 const env = { ...process.env };
-const baseName = env.DB_NAME || 'virteex';
+const baseName = env.DB_NAME || 'virtex';
 const driftDb = `${baseName}_drift`;
 
 const psql = (sql, db = 'postgres') =>

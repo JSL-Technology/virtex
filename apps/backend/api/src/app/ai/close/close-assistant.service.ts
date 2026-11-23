@@ -44,6 +44,7 @@ const PRIORITY: Record<string, number> = {
   'unposted-journal-entries': 1,
   'pending-general-approvals': 2,
   'pending-accrual-reversals': 3,
+  'fixed-assets-reconciliation': 4,
   'currency-revaluation': 8,
   'fixed-assets-depreciation': 8,
 };

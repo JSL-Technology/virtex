@@ -181,6 +181,20 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:partner-ledger',
       load: () => import('../../../features/accounting/partner-ledger/partner-ledger.page').then((m) => m.PartnerLedgerPage),
     },
+    // Group consolidation (audit 2026-11-07, FINB-33): the engine had no screen. Behind the plan
+    // capability on the server (`group_consolidation`) as well as the permission.
+    {
+      path: 'consolidation',
+      kind: WindowKind.LIST,
+      permission: 'financials:consolidate',
+      // On the plans that include group consolidation, as the API (`@CheckFeature`).
+      feature: 'group_consolidation',
+      titleKey: 'consolidation.page.title',
+      icon: 'GitMerge',
+      entityKeyFn: () => 'contabilidad:consolidation',
+      menu: { group: 'analysis', labelKey: 'consolidation.page.title' },
+      load: () => import('../../../features/accounting/consolidation/consolidation.page').then((m) => m.ConsolidationPage),
+    },
     // Recurring entries and entry templates (audit H-21): the server scheduled and stored them;
     // no screen listed, created, paused or used one.
     {
@@ -333,6 +347,90 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       menu: { group: 'documents', labelKey: 'page_titles.depreciation_run' },
       load: () => import('../../../features/accounting/fixed-assets/depreciation-run.page').then((m) => m.DepreciationRunPage),
     },
+    // The runs that charged something, and each one (FINB-17): a run's entries lead here.
+    {
+      path: 'fixed-assets/depreciation-runs',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.depreciation_runs',
+      icon: 'History',
+      entityKeyFn: () => 'contabilidad:depreciation-runs',
+      load: () => import('../../../features/accounting/fixed-assets/depreciation-runs.page').then((m) => m.DepreciationRunsPage),
+    },
+    {
+      path: 'fixed-assets/depreciation-runs/:id',
+      kind: WindowKind.DOCUMENT,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.depreciation_run_detail',
+      icon: 'CalendarClock',
+      entityKeyFn: (p) => `contabilidad:depreciation-run:${p['id']}`,
+      load: () => import('../../../features/accounting/fixed-assets/depreciation-run-detail.page').then((m) => m.DepreciationRunDetailPage),
+    },
+    // Asset categories and the tax book (FINB-16): what an asset starts with, the authority's
+    // categories and rates, and the period's tax depreciation against the books. Declared before
+    // `fixed-assets/:id`, so none of these paths is read as an asset.
+    {
+      path: 'fixed-assets/categories',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.fixed_asset_categories',
+      icon: 'Tag',
+      entityKeyFn: () => 'contabilidad:fixed-asset-categories',
+      menu: { group: 'configuration', labelKey: 'page_titles.fixed_asset_categories' },
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-categories.page').then((m) => m.FixedAssetCategoriesPage),
+    },
+    {
+      path: 'fixed-assets/categories/new',
+      kind: WindowKind.DRAFT,
+      permission: 'fixed_assets:manage',
+      titleKey: 'page_titles.fixed_asset_category_new',
+      icon: 'FilePlus',
+      entityKeyFn: () => 'contabilidad:fixed-asset-category:new',
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-category-form.page').then((m) => m.FixedAssetCategoryFormPage),
+    },
+    {
+      path: 'fixed-assets/categories/:id',
+      kind: WindowKind.DRAFT,
+      permission: 'fixed_assets:manage',
+      titleKey: 'page_titles.fixed_asset_category_edit',
+      icon: 'FilePen',
+      entityKeyFn: (p) => `contabilidad:fixed-asset-category:${p['id']}`,
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-category-form.page').then((m) => m.FixedAssetCategoryFormPage),
+    },
+    // The register against the ledger (FINB-15): what each account holds in each, and why not alike.
+    {
+      path: 'fixed-assets/reconciliation',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.fixed_asset_reconciliation',
+      icon: 'GitCompareArrows',
+      entityKeyFn: () => 'contabilidad:fixed-asset-reconciliation',
+      menu: { group: 'analysis', labelKey: 'page_titles.fixed_asset_reconciliation' },
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-reconciliation.page').then((m) => m.FixedAssetReconciliationPage),
+    },
+    {
+      path: 'fixed-assets/tax-depreciation',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.tax_depreciation',
+      icon: 'Receipt',
+      entityKeyFn: () => 'contabilidad:tax-depreciation',
+      menu: { group: 'analysis', labelKey: 'page_titles.tax_depreciation' },
+      load: () => import('../../../features/accounting/fixed-assets/tax-depreciation.page').then((m) => m.TaxDepreciationPage),
+    },
+    // Restatement for inflation (FIN-AC-04): statements in constant currency where the economy calls
+    // for them (IAS 29). The close books it under the company's policy; this window shows the month's
+    // restatement and the index it multiplies by, restates a month by hand and keeps the runs.
+    {
+      path: 'inflation-adjustment',
+      kind: WindowKind.LIST,
+      permission: 'accounting:view',
+      titleKey: 'page_titles.inflation_adjustment',
+      icon: 'TrendingUp',
+      entityKeyFn: () => 'contabilidad:inflation-adjustment',
+      menu: { group: 'documents', labelKey: 'page_titles.inflation_adjustment' },
+      load: () => import('../../../features/accounting/inflation-adjustment/inflation-adjustment.page').then((m) => m.InflationAdjustmentPage),
+    },
     {
       path: 'fixed-assets/:id',
       kind: WindowKind.DOCUMENT,
@@ -350,6 +448,15 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       icon: 'FilePen',
       entityKeyFn: (p) => `contabilidad:fixed-asset:${p['id']}:edit`,
       load: () => import('../../../features/accounting/fixed-assets/fixed-asset-form.page').then((m) => m.FixedAssetFormPage),
+    },
+    {
+      path: 'fixed-assets/:id/capitalization',
+      kind: WindowKind.DRAFT,
+      permission: 'fixed_assets:manage',
+      titleKey: 'page_titles.fixed_asset_capitalization',
+      icon: 'FilePen',
+      entityKeyFn: (p) => `contabilidad:fixed-asset:${p['id']}:capitalization`,
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-capitalization.page').then((m) => m.FixedAssetCapitalizationPage),
     },
     {
       path: 'fixed-assets/:id/dispose',

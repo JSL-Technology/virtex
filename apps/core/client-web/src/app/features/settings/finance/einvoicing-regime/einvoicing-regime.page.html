@@ -1,10 +1,12 @@
 <div class="s-page">
 
-  @if (countryCode() === 'DO') {
-    <!-- The Dominican regime lives in its own section. Reached by a link, this page used to say the
-         product had no regime for the country, contradicting that section (QA R3-M03). -->
+  @if (configuredWithCertificate()) {
+    <!-- A regime that authenticates with the taxpayer's own certificate has no endpoint and no
+         credential to configure: both live in the fiscal section, with the certificate and the
+         authorised ranges. Reached by a link, this page used to say the product had no regime for
+         the country, contradicting that section (QA R3-M03). -->
     <p class="e-empty">
-      {{ 'settings.pages.einvoicing.dominican_elsewhere' | translate }}
+      {{ 'settings.pages.einvoicing.configured_elsewhere' | translate }}
       <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.modal.electronic_invoicing' | translate }}</a>
     </p>
   } @else if (!hasRegime()) {
@@ -102,142 +104,63 @@
       </form>
     </section>
 
-    <section class="card e-ranges">
-      <h2>{{ 'settings.pages.einvoicing.ranges_title' | translate }}</h2>
-      <p class="e-note">{{ 'settings.pages.einvoicing.ranges_note' | translate }}</p>
-
-      <button class="primary-button" type="button" (click)="toggleRangeForm()">
-        {{ (showRangeForm() ? 'settings.pages.einvoicing.cancel'
-                            : 'settings.pages.einvoicing.add_range') | translate }}
-      </button>
-
-      @if (showRangeForm()) {
-        <form class="e-form" [formGroup]="rangeForm" (ngSubmit)="registerRange()">
-          <div class="e-grid">
-            <label class="form-field">
-              <span>{{ 'settings.pages.einvoicing.document_type' | translate }}</span>
-              <select formControlName="documentType">
-                <option value="" disabled>{{ 'settings.pages.einvoicing.choose_document_type' | translate }}</option>
-                @for (type of rangeDocumentTypes(); track type.code) {
-                  <option [value]="type.code">{{ type.code }} · {{ (type.labelKey ?? type.name) | translate }}</option>
-                }
-              </select>
-            </label>
-            <label class="form-field">
-              <span>{{ 'settings.pages.einvoicing.series' | translate }}</span>
-              <input formControlName="series" maxlength="16" />
-              <small class="field-hint">
-                {{ 'settings.pages.einvoicing.f001_peru_resolution_prefix_colombia_serie' | translate }}
-              </small>
-            </label>
-            <label class="form-field">
-              <span>{{ 'settings.pages.einvoicing.from' | translate }}</span>
-              <input type="number" min="1" formControlName="startsAt" />
-            </label>
-            <label class="form-field">
-              <span>{{ 'settings.pages.einvoicing.ends_at' | translate }}</span>
-              <input type="number" min="1" formControlName="endsAt" />
-            </label>
-            <label class="form-field" for="validUntil">
-              <span>{{ 'settings.pages.einvoicing.valid_until' | translate }}</span>
-              <vx-date-field inputId="validUntil" formControlName="validUntil" />
-              <small class="field-hint">
-                {{ 'settings.pages.einvoicing.dian_resolution_sii_caf_both_expire' | translate }}
-              </small>
-            </label>
-            <label class="form-field">
-              <span>{{ 'settings.pages.einvoicing.authorization' | translate }}</span>
-              <input formControlName="authorizationCode" maxlength="128" />
-            </label>
-          </div>
-
-          @if (secretKind()) {
-            <!--
-              The CAF holds the RSA key that seals this taxpayer's folios, and Colombia's technical
-              key is what makes a CUFE theirs. It goes in and never comes back out: the list below
-              says only whether one is on file.
-            -->
-            <label class="form-field e-secret">
-              <span>{{ 'settings.pages.einvoicing.secret' | translate }}</span>
-              <textarea formControlName="secret" rows="5"></textarea>
-              <small class="field-hint">
-                {{ 'settings.pages.einvoicing.whole_caf_file_chile_technical_key' | translate }}
-              </small>
-            </label>
-          }
-
-          <button class="primary-button" type="submit" [disabled]="savingRange()">
-            {{ 'settings.pages.einvoicing.register' | translate }}
-          </button>
-        </form>
+    <section class="card e-transmission" aria-labelledby="e-transmission-title">
+      <h2 id="e-transmission-title">{{ 'settings.pages.einvoicing.transmission.title' | translate }}</h2>
+      <p class="field-hint">{{ 'settings.pages.einvoicing.transmission.intro' | translate }}</p>
+      @if (transmission(); as current) {
+        <p class="e-transmission-state" [class.is-ready]="current.configured" role="status">
+          {{ (current.configured ? 'settings.pages.einvoicing.transmission.configured' : 'settings.pages.einvoicing.transmission.not_configured') | translate }}
+        </p>
       }
-
-      @if (loading()) {
-        <p class="e-empty">{{ 'common.loading' | translate }}</p>
-      } @else if (ranges().length === 0) {
-        <p class="e-empty">{{ 'settings.pages.einvoicing.no_ranges' | translate }}</p>
-      } @else {
-        <div class="table-wrapper">
-          <table [appSort]="table.sort" class="data-table">
-            <thead>
-              <tr>
-                <th appSortHeader="documentType">{{ 'settings.pages.einvoicing.document_type' | translate }}</th>
-                <th appSortHeader="series">{{ 'settings.pages.einvoicing.series' | translate }}</th>
-                <th appSortHeader="startsAt">{{ 'settings.pages.einvoicing.range' | translate }}</th>
-                <th appSortHeader="remaining">{{ 'settings.pages.einvoicing.remaining' | translate }}</th>
-                <th appSortHeader="validUntil">{{ 'settings.pages.einvoicing.valid_until' | translate }}</th>
-                <th appSortHeader="authorizationCode">{{ 'settings.pages.einvoicing.authorization' | translate }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (range of table.rows(); track range.id) {
-                <tr [class.e-inactive]="!range.isActive">
-                  <td>{{ range.documentType }} · {{ documentTypeLabel(range.documentType) | translate }}</td>
-                  <td>{{ range.series || '—' }}</td>
-                  <td>{{ range.startsAt }}–{{ range.endsAt }}</td>
-                  <td [class.e-warning]="runningOut(range)">
-                    {{ range.remaining }}
-                    @if (runningOut(range)) {
-                      <span class="e-flag">
-                        {{ 'settings.pages.einvoicing.running_out' | translate }}
-                      </span>
-                    }
-                  </td>
-                  <td [class.e-warning]="expired(range)">
-                    {{ range.validUntil ?? '—' }}
-                    @if (expired(range)) {
-                      <span class="e-flag">
-                        {{ 'settings.pages.einvoicing.expired' | translate }}
-                      </span>
-                    }
-                  </td>
-                  <td>
-                    {{ range.authorizationCode ?? '—' }}
-                    @if (range.hasSecret) {
-                      <span class="e-badge">
-                        {{ 'settings.pages.einvoicing.has_secret' | translate }}
-                      </span>
-                    }
-                  </td>
-                  <td>
-                    @if (range.isActive) {
-                      <button class="link-button" type="button" (click)="retire(range)">
-                        {{ 'settings.pages.einvoicing.retire' | translate }}
-                      </button>
-                    } @else {
-                      <span class="e-retired">
-                        {{ 'settings.pages.einvoicing.retired' | translate }}
-                      </span>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+      <form [formGroup]="transmissionForm" (ngSubmit)="saveTransmission()">
+        <div class="e-grid">
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.endpoint' | translate }}</span>
+            <input formControlName="transmissionEndpoint" type="url" inputmode="url" maxlength="512" placeholder="https://" />
+            <small class="field-hint">{{ 'settings.pages.einvoicing.transmission.endpoint_hint' | translate }}</small>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.status_endpoint' | translate }}</span>
+            <input formControlName="statusEndpoint" type="url" inputmode="url" maxlength="512" placeholder="https://" />
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.soap_action' | translate }}</span>
+            <input formControlName="soapAction" maxlength="256" />
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.scheme' | translate }}</span>
+            <select formControlName="credentialScheme">
+              <option value="BEARER">{{ 'settings.pages.einvoicing.transmission.scheme_bearer' | translate }}</option>
+              <option value="BASIC">{{ 'settings.pages.einvoicing.transmission.scheme_basic' | translate }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.credential' | translate }}</span>
+            <input formControlName="credential" type="password" autocomplete="new-password" maxlength="4096" />
+            <small class="field-hint">
+              {{ (transmission()?.hasCredential ? 'settings.pages.einvoicing.transmission.credential_stored' : 'settings.pages.einvoicing.transmission.credential_hint') | translate }}
+            </small>
+          </label>
         </div>
-      }
+        <button class="primary-button" type="submit" [disabled]="savingTransmission()">
+          {{ 'settings.pages.einvoicing.transmission.save' | translate }}
+        </button>
+        @if (transmission()?.hasCredential) {
+          <button class="secondary-button" type="button" [disabled]="savingTransmission()" (click)="saveTransmission(true)">
+            {{ 'settings.pages.einvoicing.transmission.remove_credential' | translate }}
+          </button>
+        }
+      </form>
     </section>
+
+    <!-- The ranges the authority granted: the same card, and the same rules, in every market. -->
+    <vx-fiscal-ranges-card
+      [documentTypes]="documentTypes()"
+      [emissionMode]="emissionMode()"
+      [emissionModeApplies]="invoicing()?.emissionModeApplies === true"
+      [secretKind]="secretKind()"
+      (changed)="loadInvoicingState()"
+    />
 
     <!-- The certificate that signs this market's documents, filed under its regime. -->
     <vx-signing-certificate-card [context]="invoicing()" (changed)="loadInvoicingState()" />

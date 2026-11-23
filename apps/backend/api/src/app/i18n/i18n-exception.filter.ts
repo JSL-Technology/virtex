@@ -10,7 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 import { I18nService } from './i18n.service';
 import { isLocalizedError } from './localized.exception';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { currentLanguage } from './request-locale';
 import { fieldLabel, fieldLabelKey } from './validation-messages';
 
@@ -318,6 +318,19 @@ const POSTGRES_CODES: Readonly<Record<string, { status: number; code: string; me
     status: HttpStatus.BAD_REQUEST,
     code: 'VALUE_OUT_OF_RANGE',
     messageKey: 'errors.value_out_of_range',
+  },
+  // A day the calendar does not have («2026-02-30»), or a date the column cannot read. Every DTO
+  // refuses them now (`verify:date-validators`); this is the net under anything that does not
+  // (FINB-14: registering an asset bought on the 30th of February answered a 500).
+  '22008': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'INVALID_DATE',
+    messageKey: 'errors.invalid_date',
+  },
+  '22007': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'INVALID_DATE',
+    messageKey: 'errors.invalid_date',
   },
   // A text longer than its column. Most DTOs cap lengths already; this is the net under the ones
   // that do not (QA A-17: a 300-character product name).

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { mainPath } from '@virteex/shared/types';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { mainPath } from '@virtex/shared/types';
 import { DocumentLifecycleService } from '../../../core/lifecycle/document-lifecycle.service';
 
 /** Una etapa ya dibujada: dónde cae respecto de donde está el documento. */

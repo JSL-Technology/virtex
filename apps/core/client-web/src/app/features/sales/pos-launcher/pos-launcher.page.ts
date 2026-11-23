@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { LucideAngularModule, ExternalLink, ScanBarcode, Banknote, ClipboardCheck, Printer } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { POS_URL } from '../../../core/tokens/pos-url';
 
 /**

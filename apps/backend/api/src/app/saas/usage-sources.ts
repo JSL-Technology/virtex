@@ -3,10 +3,11 @@ import { SaasResource } from './enums/saas-resource.enum';
 /**
  * Where each metered resource is counted from: the rows themselves.
  *
- * Lifetime quotas are a count of what exists. The counters in `saas_usage_metrics` are corrected
- * to these by the nightly reconciliation, and nothing increments them when a customer, supplier
- * or member is created — so a screen reading the counter showed 0 customers to a tenant with
- * hundreds until the next night (QA M-10). The billing screen reads these instead.
+ * A lifetime quota is a count of what exists, and it is ENFORCED and SHOWN from these counts —
+ * there is no counter for it. A counter started at zero whatever the tenant already had and had to
+ * be «released» by every deletion; a screen reading it showed 0 customers to a tenant with hundreds
+ * (QA M-10), and enforcement let a tenant past its plan. Each query runs on the caller's connection,
+ * inside the tenant's context: under the row-level policies, outside it, it counts nothing.
  */
 export const LIFETIME_USAGE_SOURCES: ReadonlyArray<{ resource: SaasResource; sql: string }> = [
   {

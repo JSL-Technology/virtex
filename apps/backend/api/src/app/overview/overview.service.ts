@@ -9,7 +9,7 @@ import {
   AccountingPeriod,
   PeriodStatus,
 } from '../accounting/entities/accounting-period.entity';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { PERMISSIONS } from '../shared/permissions';
 import {
   ActivityItemDto,
@@ -51,7 +51,7 @@ const ACTIVITY_SOURCES: Record<
   },
   vendor_bills: {
     permission: PERMISSIONS.ACCOUNTS_PAYABLE_VIEW,
-    reference: ['ncf', 'billNumber'],
+    reference: ['supplierFiscalNumber', 'supplierInvoiceNumber', 'billNumber'],
     counterparty: ['supplierName', 'vendorName'],
     amount: ['total'],
     currency: ['currencyCode'],
@@ -240,7 +240,7 @@ export class OverviewService {
           id: `bill:${bill.id}`,
           kind: isoDate(bill.dueDate) < isoDate(today) ? 'PAYABLE_OVERDUE' : 'PAYABLE_DUE',
           date: isoDate(bill.dueDate),
-          reference: bill.ncf ?? null,
+          reference: bill.supplierFiscalNumber ?? null,
           counterparty: null,
           amount: Number(bill.balance),
           currencyCode: null,

@@ -1,0 +1,116 @@
+<vx-list-shell
+  titleKey="purchasing.landed_costs.title"
+  subtitleKey="purchasing.landed_costs.subtitle"
+  [count]="applied().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="false"
+  (reload)="load()"
+>
+  <section class="form-section" *appHasPermission="'procurement:manage'">
+    <h2 class="form-section__title">{{ 'purchasing.landed_costs.apply_title' | translate }}</h2>
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="lc-type">{{ 'purchasing.landed_costs.type' | translate }}</label>
+        <select id="lc-type" [ngModel]="draft().landedCostId" (ngModelChange)="patch({ landedCostId: $event })">
+          <option value="">{{ 'purchasing.landed_costs.choose_type' | translate }}</option>
+          @for (type of types(); track type.id) {
+            <option [value]="type.id" [disabled]="!type.isActive || !type.glAccountId">
+              {{ type.name }} — {{ 'purchasing.landed_costs.method.' + type.allocationMethod | translate }}
+            </option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="lc-amount">{{ 'purchasing.landed_costs.amount' | translate }}</label>
+        <input id="lc-amount" type="number" min="0.01" step="0.01" [ngModel]="draft().amount" (ngModelChange)="patch({ amount: $event })" />
+      </div>
+      <div class="form-field">
+        <label for="lc-reference">{{ 'purchasing.landed_costs.reference' | translate }}</label>
+        <input id="lc-reference" maxlength="120" [ngModel]="draft().reference" (ngModelChange)="patch({ reference: $event })" />
+      </div>
+    </div>
+    <fieldset class="form-field">
+      <legend>{{ 'purchasing.landed_costs.receipts' | translate }}</legend>
+      @for (receipt of receipts(); track receipt.id) {
+        <label class="checkbox-row">
+          <input type="checkbox" [checked]="draft().receiptIds.includes(receipt.id)" (change)="toggleReceipt(receipt.id, $any($event.target).checked)" />
+          <span>{{ receipt.number }} · {{ receipt.supplierName }} · {{ receipt.receivedAt | vxDate }} · {{ receipt.value | vxMoney }}</span>
+        </label>
+      } @empty {
+        <p class="field-hint">{{ 'purchasing.landed_costs.no_receipts' | translate }}</p>
+      }
+    </fieldset>
+    <p class="field-hint">{{ 'purchasing.landed_costs.how_it_works' | translate }}</p>
+    <button type="button" class="primary-button" [disabled]="!canApply()" (click)="apply()">{{ 'purchasing.landed_costs.apply' | translate }}</button>
+  </section>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'purchasing.landed_costs.date' | translate }}</th>
+          <th>{{ 'purchasing.landed_costs.type' | translate }}</th>
+          <th>{{ 'purchasing.landed_costs.reference' | translate }}</th>
+          <th class="numeric">{{ 'purchasing.landed_costs.amount' | translate }}</th>
+          <th class="numeric">{{ 'purchasing.landed_costs.to_inventory' | translate }}</th>
+          <th>{{ 'purchasing.landed_costs.status' | translate }}</th>
+          <th>{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of applied(); track row.id) {
+          <tr>
+            <td>{{ row.date | vxDate }}</td>
+            <td>{{ typeName(row.landedCostId) }}</td>
+            <td>{{ row.reference ?? '—' }}</td>
+            <td class="numeric">{{ row.amount | vxMoney }}</td>
+            <td class="numeric">{{ absorbedOf(row) | vxMoney }}</td>
+            <td>{{ (row.status === 'VOID' ? 'purchasing.landed_costs.status_void' : 'purchasing.landed_costs.status_posted') | translate }}</td>
+            <td>
+              @if (row.status === 'POSTED') {
+                <button type="button" class="link-button" *appHasPermission="'procurement:manage'" (click)="voidApplication(row.id)">
+                  {{ 'purchasing.landed_costs.void' | translate }}
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <section class="form-section" *appHasPermission="'procurement:manage'">
+    <h2 class="form-section__title">{{ 'purchasing.landed_costs.types_title' | translate }}</h2>
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="lct-name">{{ 'purchasing.landed_costs.type_name' | translate }}</label>
+        <input id="lct-name" maxlength="120" [ngModel]="typeDraft().name" (ngModelChange)="patchType({ name: $event })" />
+      </div>
+      <div class="form-field">
+        <label for="lct-method">{{ 'purchasing.landed_costs.method_label' | translate }}</label>
+        <select id="lct-method" [ngModel]="typeDraft().allocationMethod" (ngModelChange)="patchType({ allocationMethod: $event })">
+          @for (method of methods; track method) {
+            <option [value]="method">{{ 'purchasing.landed_costs.method.' + method | translate }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="lct-account">{{ 'purchasing.landed_costs.credit_account' | translate }}</label>
+        <vx-select
+          inputId="lct-account"
+          [ngModel]="typeDraft().glAccountId"
+          (ngModelChange)="patchType({ glAccountId: $event })"
+          [search]="searchAccounts"
+          [resolveWith]="resolveAccount"
+          [displayWith]="accountLabel"
+          [valueWith]="accountId"
+          placeholderKey="accounts_payable.form.select_account"
+        />
+      </div>
+      <div class="form-field">
+        <button type="button" class="secondary-button" (click)="createType()">{{ 'purchasing.landed_costs.add_type' | translate }}</button>
+      </div>
+    </div>
+  </section>
+</vx-list-shell>

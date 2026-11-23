@@ -16,12 +16,12 @@ const drawn: CopilotChart = {
 };
 
 describe('PinnedChartsComponent', () => {
-  const setup = (api: Record<string, jest.Mock>, permitted = true) => {
+  const setup = (api: Record<string, jest.Mock>, permitted = true, inPlan = true) => {
     TestBed.configureTestingModule({
       imports: [PinnedChartsComponent],
       providers: [
         { provide: CopilotApiService, useValue: api },
-        { provide: AuthService, useValue: { hasPermissions: () => permitted } },
+        { provide: AuthService, useValue: { hasPermissions: () => permitted, hasFeature: () => inPlan } },
         { provide: NotificationService, useValue: { showHttpError: jest.fn() } },
       ],
     });
@@ -45,6 +45,13 @@ describe('PinnedChartsComponent', () => {
     fixture.detectChanges();
     expect(api.unpin).toHaveBeenCalledWith('g-1');
     expect(fixture.nativeElement.querySelector('app-copilot-chart')).toBeNull();
+  });
+
+  it('asks nothing when the company’s plan has no assistant, whatever the role (IA-01)', () => {
+    // It used to ask, and every overview load answered 403 into the console.
+    const api = { pinnedCharts: jest.fn().mockReturnValue(throwError(() => ({ status: 403 }))), unpin: jest.fn() };
+    expect(setup(api, true, false).nativeElement.textContent.trim()).toBe('');
+    expect(api.pinnedCharts).not.toHaveBeenCalled();
   });
 
   it('shows nothing, and asks nothing, without the assistant', () => {

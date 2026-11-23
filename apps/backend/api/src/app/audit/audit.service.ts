@@ -13,7 +13,7 @@ export type AuditTrailRow = AuditLog & { actorName: string | null; recordLabel: 
  * The fields that name a record, in the order a person would recognise it by. A document is known
  * by its number, a master record by its code and name, a person by their e-mail.
  */
-const NUMBER_FIELDS = ['number', 'documentNumber', 'entryNumber', 'invoiceNumber', 'reference', 'code', 'sequenceNumber', 'ncf'];
+const NUMBER_FIELDS = ['number', 'documentNumber', 'entryNumber', 'invoiceNumber', 'reference', 'code', 'sequenceNumber', 'fiscalNumber', 'supplierFiscalNumber'];
 const NAME_FIELDS = ['name', 'legalName', 'title', 'description', 'email'];
 
 /**
@@ -140,6 +140,31 @@ export class AuditTrailService {
         organizationId: event.organizationId ?? null,
       }),
     );
+  }
+
+  /**
+   * Many rows at once, through the caller's transaction — what a bulk write (an import, an upsert of
+   * a month of rates) records: one row per record it changed, not one for the batch, so "who set
+   * this figure" has an answer for each of them. Inserted in chunks to stay within the driver's
+   * parameter limit.
+   */
+  async recordManyWithManager(
+    manager: EntityManager,
+    events: Array<Parameters<AuditTrailService['recordWithManager']>[1]>,
+  ): Promise<void> {
+    const rows = events.map((event) => ({
+      userId: event.userId ?? null,
+      entity: event.entity,
+      entityId: event.entityId,
+      actionType: event.actionType,
+      newValue: event.newValue,
+      previousValue: event.previousValue,
+      ipAddress: event.ipAddress,
+      organizationId: event.organizationId ?? null,
+    }));
+    for (let start = 0; start < rows.length; start += 500) {
+      await manager.insert(AuditLog, rows.slice(start, start + 500));
+    }
   }
 
   async getLastLogin(userId: string): Promise<AuditLog | null> {

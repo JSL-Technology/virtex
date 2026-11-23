@@ -5,9 +5,10 @@ import {
   LanguageCode,
   LocaleTag,
   NUMBER_FORMAT_SYMBOLS,
+  isLocalizedName,
   withNumberSymbols,
   writeNumericDate,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 import { LocaleStore } from './locale.store';
 
 /**
@@ -263,12 +264,17 @@ export class FormatService {
    * «(2026-10-30)» beside screens in `1.234,56` and `30/10/2026`. A calendar date is always a date;
    * a number is formatted only when its name says it measures something, because a year or a line
    * number is a number that must not be grouped.
+   *
+   * A name kept in several languages — an account's, `{ es: 'Bancos', en: 'Banks' }` — is read in
+   * the language the company's data is shown in. Interpolated as it came it printed
+   * «[object Object]»; the server applies the same test to the messages it renders itself.
    */
   localizeParams(params: Record<string, unknown> | null | undefined): Record<string, unknown> {
     const out: Record<string, unknown> = { ...(params ?? {}) };
     for (const [name, value] of Object.entries(out)) {
       if (typeof value === 'number' && MEASURED_PARAM.test(name)) out[name] = this.number(value, '1.0-6');
       else if (isCalendarDate(value)) out[name] = this.date(value as string);
+      else if (isLocalizedName(value)) out[name] = this.store.nameOf(value as Record<string, string>);
     }
     return out;
   }

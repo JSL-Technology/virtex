@@ -7,6 +7,8 @@
   [empty]="ledgerLines().length === 0"
   (reload)="loadLedgerData()"
 >
+  <vx-books-view-toggle listActions />
+  <vx-export-language listActions />
   <button listActions class="primary-button" type="button" [disabled]="loading() || !selectedAccount()" (click)="export()">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.general_ledger.export' | translate }}</span>
@@ -102,7 +104,7 @@
           <tr>
             <td>{{ line.date | vxDate: 'date' }}</td>
             <td>{{ line.reference }}</td>
-            <td>{{ line.description }}</td>
+            <td>{{ line.description | vxNarrative: line.descriptionKey : line.descriptionParams }}</td>
             <td class="text-right amount-cell"><vx-amount [value]="line.debit" /></td>
             <td class="text-right amount-cell"><vx-amount [value]="line.credit" /></td>
             <td class="text-right balance-cell"><vx-amount [value]="line.balance" /></td>

@@ -24,7 +24,14 @@ export interface JournalEntryLine {
   accountId: string;
   debit: number | string;
   credit: number | string;
+  /** The narrative as the books record it, in the books language. */
   description?: string;
+  /**
+   * The message the system wrote it from, when the system wrote it: shown in the reader's
+   * language by `vxNarrative`, while `description` stays the record. Null on what a person typed.
+   */
+  descriptionKey?: string | null;
+  descriptionParams?: Record<string, unknown> | null;
   /** Analytic tags: `{"Centro de Costo": "VENTAS"}`. */
   dimensions?: Record<string, string> | null;
 }
@@ -45,7 +52,10 @@ export interface JournalEntry {
   entryNumber: string | null;
   /** `YYYY-MM-DD`. A posting date: a calendar date, with no time and no zone. */
   date: string;
+  /** The narrative as the books record it; `descriptionKey/Params` as on the lines. */
   description: string;
+  descriptionKey?: string | null;
+  descriptionParams?: Record<string, unknown> | null;
   currencyCode?: string;
   status: JournalEntryStatus;
   /** Why the system posted it — set on every entry a document produced, absent on a person's. */

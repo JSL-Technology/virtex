@@ -94,5 +94,7 @@
       input, select, textarea { @include ds.input-base; width: 100%; }
     }
 
+    // A group that takes a row of its own — the name in other languages, under the fields.
+    > .inline-row__wide { flex: 1 1 100%; min-width: 0; }
   }
 }

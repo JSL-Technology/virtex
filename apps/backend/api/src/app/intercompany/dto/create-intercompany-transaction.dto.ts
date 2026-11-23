@@ -15,7 +15,7 @@ export class CreateIntercompanyTransactionDto {
   @IsNotEmpty()
   toOrganizationId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string;
 

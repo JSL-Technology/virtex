@@ -1,5 +1,8 @@
 {
   "es-DO": {
+    "pos.accounting_setup_incomplete": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e ITBIS en Ajustes › Contabilidad.",
+    "pos.ticket.fiscal_number": "NCF: {{number}}",
+    "pos.ticket.tax_id": "RNC: {{taxId}}",
     "validation.create_employee.social_security_number_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
   },
   "es-MX": {

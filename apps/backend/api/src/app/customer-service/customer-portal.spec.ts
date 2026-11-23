@@ -59,9 +59,9 @@ describeWithDb('customer portal identity', () => {
     await dataSource.query(`DELETE FROM customer_portal_accounts WHERE organization_id IN ($1, $2)`, [organizationId, otherOrganizationId]);
     await dataSource.query(`DELETE FROM user_organizations WHERE user_id IN ($1, $2)`, [portalUser, outsider]);
     await dataSource.query(`DELETE FROM users WHERE id IN ($1, $2)`, [portalUser, outsider]);
+    // `dropTestOrganization` also closes the connection, so the second tenant goes first.
+    await dataSource.query(`DELETE FROM organizations WHERE id = $1`, [otherOrganizationId]);
     await dropTestOrganization(dataSource, organizationId);
-    await dropTestOrganization(dataSource, otherOrganizationId);
-    await dataSource.destroy();
   });
 
   it('refuses a portal user who is no customer', async () => {

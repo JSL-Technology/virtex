@@ -5,7 +5,7 @@ import { EngineRunsService } from '../engine/engine-runs.service';
 import { AiCashflowItem } from '../entities/ai-cashflow-item.entity';
 import { AiReport } from '../entities/ai-report.entity';
 import { ReportBrief, ReportBuilder, ReportsService } from '../reports/reports.service';
-import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { AI_PERMISSIONS } from '../../shared/permissions/ai.permissions';
 import { MemberAccess } from '../../roles/contracts/member-access.contract';
 
 const money = (value: unknown) => Math.round(Number(value ?? 0) * 100) / 100;

@@ -2265,9 +2265,9 @@
     "pt": "Mesmo telefone"
   },
   "ai.data_quality.reason.same_tax_id": {
-    "es": "Mismo RNC / identificación",
-    "en": "Same tax id",
-    "pt": "Mesmo identificador fiscal"
+    "es": "Misma identificación fiscal",
+    "en": "Same tax ID",
+    "pt": "Mesma identificação fiscal"
   },
   "ai.data_quality.reason.similar_name": {
     "es": "Nombre muy parecido",
@@ -3400,9 +3400,9 @@
     "pt": "A partir de agora, partes dos dados da empresa sairão para o provedor do modelo quando esta função for usada. A alteração é auditada e você pode desativá-la quando quiser."
   },
   "ai.policy.confirm_unmask": {
-    "es": "Los identificadores (RNC, cédulas, cuentas) se enviarán sin enmascarar al proveedor del modelo. El cambio queda auditado.",
+    "es": "Los identificadores (identificaciones fiscales, documentos de identidad, cuentas) se enviarán sin enmascarar al proveedor del modelo. El cambio queda auditado.",
     "en": "Identifiers (tax IDs, ID numbers, accounts) will be sent unmasked to the model provider. The change is audited.",
-    "pt": "Os identificadores (CNPJ, CPF, contas) serão enviados sem máscara ao provedor do modelo. A alteração é auditada."
+    "pt": "Os identificadores (identificações fiscais, documentos de identidade, contas) serão enviados sem máscara ao provedor do modelo. A alteração é auditada."
   },
   "ai.policy.confirm_action": {
     "es": "Sí, permitir",

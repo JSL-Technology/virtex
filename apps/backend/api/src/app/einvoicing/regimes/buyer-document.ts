@@ -1,7 +1,5 @@
 import { Customer } from '../../customers/entities/customer.entity';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
-import { TaxpayerKind } from '../../localization/fiscal/tax-id-validators';
-import { regimeDocumentCode } from '../../localization/fiscal/identity-document-catalogue';
+import { TaxpayerKind, TaxpayerType, regimeDocumentCode } from '../../markets';
 
 /**
  * The buyer's document type as an e-invoicing regime names it, read from the catalogue.

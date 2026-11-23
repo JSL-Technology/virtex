@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { provideTranslateService } from '@ngx-translate/core';
-import { LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { LocaleStore, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 
 @Component({
   standalone: true,

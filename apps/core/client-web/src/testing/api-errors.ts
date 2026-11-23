@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService, TranslateStore } from '@ngx-translate/core';
-import { VirtexTranslateStore } from '@virteex/shared/ui-i18n';
+import { VirtexTranslateStore } from '@virtex/shared/ui-i18n';
 
 /**
  * API errors as the API actually sends them.

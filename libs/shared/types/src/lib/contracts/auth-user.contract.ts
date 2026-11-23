@@ -22,6 +22,7 @@
  * Frontend: `User extends AuthUserContract`.
  */
 
+import type { SaasFeatureKey } from './plan-features.contract';
 import type { LanguageCode, LocaleContextContract } from '../i18n/locale.contract';
 import type { RegionalFormat } from '../i18n/regional-format.contract';
 
@@ -73,6 +74,12 @@ export interface OrganizationContract {
   timezone?: string | null;
   /** Statutory language of the ledger — see `LanguageAxis.Books`. Fixed at provisioning. */
   booksLanguage?: LanguageCode | null;
+  /**
+   * What this company's plan includes, for the active company of a session: the screens and
+   * buttons the client may offer. The API still decides every request; this is so the client does
+   * not offer a door the API will close (IA-01, IA-02). Absent means nothing gated is offered.
+   */
+  features?: SaasFeatureKey[];
 }
 
 export interface AuthUserContract {

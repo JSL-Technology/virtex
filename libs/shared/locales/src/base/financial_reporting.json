@@ -9,6 +9,11 @@
     "en": "Account {{code}} is not valid until {{effectiveFrom}}.",
     "pt": "A conta {{code}} não é válida até {{effectiveFrom}}."
   },
+  "financial_reporting.account_not_in_this_company": {
+    "es": "Una de las cuentas del asiento no es de esta empresa.",
+    "en": "One of the accounts on the entry does not belong to this company.",
+    "pt": "Uma das contas do lançamento não pertence a esta empresa."
+  },
   "financial_reporting.ledger_ledger_id_not_found_does": {
     "es": "No encontramos el libro contable con ID «{{ledgerId}}», o no pertenece a tu organización.",
     "en": "Ledger \"{{ledgerId}}\" was not found, or does not belong to your organization.",

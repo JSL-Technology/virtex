@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification';
 import { McpGrant, McpService } from './mcp.service';
@@ -45,7 +45,9 @@ import { McpGrant, McpService } from './mcp.service';
 export class McpAgentsPanelComponent implements OnInit {
   private readonly api = inject(McpService);
   private readonly notifications = inject(NotificationService);
-  readonly allowed = inject(AuthService).hasPermissions(['ai_copilot:use']);
+  // External agents act through the assistant: on the plans that include it.
+  private readonly auth = inject(AuthService);
+  readonly allowed = this.auth.hasPermissions(['ai_copilot:use']) && this.auth.hasFeature('ai_assistant');
   readonly endpoint = this.api.endpoint;
   readonly grants = signal<McpGrant[]>([]);
 

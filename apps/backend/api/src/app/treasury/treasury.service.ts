@@ -34,6 +34,8 @@ import { FiscalCalendarService } from '../accounting/fiscal-calendar.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -153,6 +155,7 @@ export class TreasuryService {
       if (glAccount.type !== 'ASSET' || (role !== null && !MONEY_ROLES.has(role))) {
         throw new BadRequestError('treasury.ledger_account_not_money_account');
       }
+      await this.claimLedgerAccount(manager, organizationId, glAccount, dto.currencyCode.toUpperCase());
 
       const openingBalance = roundAmount(dto.openingBalance ?? 0);
       const opening = await this.validateOpeningBalance(
@@ -197,6 +200,75 @@ export class TreasuryService {
       account.openingJournalEntryId = entry.id;
       return manager.save(account);
     });
+  }
+
+  /**
+   * A bank account's ledger account is money, in the bank's currency (FIN-AC-03).
+   *
+   * It is marked as a monetary item — its foreign-currency balance is restated at each period end —
+   * and given the bank's currency, so every line on it is in that currency: a dollar bank account's
+   * ledger account takes dollars only, a peso one pesos only (`JournalEntriesService` refuses the
+   * rest). Refused, with the reason, when the account already has another currency, belongs to a
+   * bank account in another currency, or holds lines in one: one ledger account mixing currencies
+   * cannot be reconciled against either bank, nor restated as either.
+   */
+  private async claimLedgerAccount(manager: EntityManager, organizationId: string, glAccount: Account, currency: string): Promise<void> {
+    if (glAccount.currency && glAccount.currency.toUpperCase() !== currency) {
+      throw new BadRequestError('treasury.ledger_account_currency_differs', {
+        code: glAccount.code,
+        accountCurrency: glAccount.currency.toUpperCase(),
+        currency,
+      });
+    }
+    const [other] = await manager.query(
+      `SELECT upper(currency_code) AS currency FROM bank_accounts
+        WHERE organization_id = $1 AND gl_account_id = $2 AND upper(currency_code) <> $3 LIMIT 1`,
+      [organizationId, glAccount.id, currency],
+    );
+    if (other) {
+      throw new BadRequestError('treasury.ledger_account_shared_across_currencies', { code: glAccount.code, currency: other.currency });
+    }
+    if (!glAccount.currency) {
+      const [mixed] = await manager.query(
+        `SELECT 1 FROM journal_entry_lines l
+          WHERE l.account_id = $1
+            AND upper(coalesce(l.currency_code,
+                  (SELECT s.base_currency FROM organization_settings s WHERE s.organization_id = $2))) <> $3
+          LIMIT 1`,
+        [glAccount.id, organizationId, currency],
+      );
+      if (mixed) {
+        throw new BadRequestError('treasury.ledger_account_holds_other_currencies', { code: glAccount.code, currency });
+      }
+    }
+    // An account that takes another account's restatement for inflation is that account's
+    // restatement — non-monetary by definition — and cannot become a bank's money.
+    const [restates] = await manager.query(
+      `SELECT code FROM accounts WHERE organization_id = $1 AND inflation_adjustment_account_id = $2 LIMIT 1`,
+      [organizationId, glAccount.id],
+    );
+    if (restates) {
+      throw new BadRequestError('treasury.ledger_account_takes_restatement', { code: glAccount.code, other: restates.code });
+    }
+    if (
+      glAccount.currency !== currency ||
+      glAccount.fxTreatment !== 'REVALUED' ||
+      glAccount.isInflationAdjustable ||
+      glAccount.inflationAdjustmentAccountId
+    ) {
+      // Money is never restated for inflation either (IAS 29.12): marked monetary, the account stops
+      // being restated — the database refuses a restated monetary account
+      // (`CHK_accounts_inflation_restatement_non_monetary`) — and passes no restatement on.
+      await manager.update(
+        Account,
+        { id: glAccount.id, organizationId },
+        { currency, fxTreatment: 'REVALUED', isInflationAdjustable: false, inflationAdjustmentAccountId: null },
+      );
+      glAccount.currency = currency;
+      glAccount.fxTreatment = 'REVALUED';
+      glAccount.isInflationAdjustable = false;
+      glAccount.inflationAdjustmentAccountId = null;
+    }
   }
 
   /**
@@ -256,7 +328,7 @@ export class TreasuryService {
       throw new BadRequestError('treasury.no_default_ledger_has_configured_organization');
     }
 
-    const journal = await manager.findOneBy(Journal, { organizationId, code: 'BANCOS' });
+    const journal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.banks.code });
     if (!journal) {
       throw new BadRequestError('treasury.banks_journal_bancos_not_found');
     }
@@ -288,14 +360,14 @@ export class TreasuryService {
       manager,
       {
         date: opening.date,
-        description: words.opening,
+        ...described(words.opening),
         journalId: journal.id,
         lines: [
           {
             accountId: account.glAccountId,
             debit: inLedgerCurrency,
             credit: 0,
-            description: words.opening,
+            ...described(words.opening),
             valuations: [{ ledgerId: ledger.id, debit: inLedgerCurrency, credit: 0 }],
             ...foreign,
             ...(account.currencyCode === ledger.currency
@@ -306,7 +378,7 @@ export class TreasuryService {
             accountId: opening.counterpartAccountId,
             debit: 0,
             credit: inLedgerCurrency,
-            description: words.counterpart,
+            ...described(words.counterpart),
             valuations: [{ ledgerId: ledger.id, debit: 0, credit: inLedgerCurrency }],
           },
         ],
@@ -532,7 +604,7 @@ export class TreasuryService {
 
       const bankJournal = await manager.findOneBy(Journal, {
         organizationId,
-        code: 'BANCOS',
+        code: SYSTEM_JOURNALS.banks.code,
       });
       if (!bankJournal) {
         throw new BadRequestError('treasury.banks_journal_bancos_not_found');

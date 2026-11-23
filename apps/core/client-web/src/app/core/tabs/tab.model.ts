@@ -1,4 +1,5 @@
 import { Type } from '@angular/core';
+import type { SaasFeatureKey } from '@virtex/shared/types';
 
 export enum TabType {
   PINNED = 'PINNED',
@@ -89,6 +90,8 @@ export interface TabDefinition {
   /** `false` = never opens as the reusable preview tab (see `RouteManifest.previewable`). */
   previewable?: boolean;
   permissions?: string[];                            // espejo del permissionsGuard
+  /** The plan capability the window needs (`ModuleRoute.feature`); the guard checks it too. */
+  feature?: SaasFeatureKey;
   entityKeyFn?: (params: Record<string, string>, q?: Record<string, string>) => string;
   titleFn?: (params: Record<string, string>, data?: unknown) => string;
   /**

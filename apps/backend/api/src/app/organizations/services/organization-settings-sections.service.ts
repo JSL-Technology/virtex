@@ -190,7 +190,11 @@ export class OrganizationSettingsSectionsService {
     for (const field of fields) {
       const column = this.repo.metadata.findColumnWithPropertyName(field);
       const raw = column?.default;
-      out[field] = typeof raw === 'function' ? null : raw === undefined ? null : raw;
+      if (typeof raw === 'function' || raw === undefined) out[field] = null;
+      // An array column declares its default as PostgreSQL writes it, `{-3,1,7}`; the screen
+      // compares it with the array the row holds.
+      else if (column?.isArray && typeof raw === 'string') out[field] = arrayLiteral(raw, column.type === 'int');
+      else out[field] = raw;
     }
     return out;
   }
@@ -211,4 +215,11 @@ export class OrganizationSettingsSectionsService {
     );
     return new Map(rows.map((row) => [row.id, row]));
   }
+}
+
+/** `{a,b,c}` as PostgreSQL writes an array constant, as the values it holds. */
+function arrayLiteral(literal: string, numeric: boolean): Array<string | number> {
+  const body = literal.trim().replace(/^\{|\}$/g, '');
+  if (!body) return [];
+  return body.split(',').map((item) => (numeric ? Number(item.trim()) : item.trim()));
 }

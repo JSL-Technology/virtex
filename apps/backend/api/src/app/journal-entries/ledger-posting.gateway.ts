@@ -13,6 +13,7 @@ import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { JournalLookupService } from './services/journal-lookup.service';
 import { BadRequestError } from '../i18n/localized.exception';
+import type { LedgerText } from '../contracts/ledger-posting/ledger-text';
 
 const MODULES: Record<LedgerPostingModule, ModuleSlug> = {
   'general-ledger': ModuleSlug.GL,
@@ -48,6 +49,7 @@ export class LedgerPostingGatewayImpl implements LedgerPostingGateway, OnModuleI
     const dto: CreateJournalEntryDto = {
       date: new Date(`${request.date}T00:00:00.000Z`).toISOString(),
       description: request.description,
+      narrative: request.narrative,
       journalId: journal.id,
       currencyCode: request.currencyCode,
       exchangeRate: request.exchangeRate ?? 1,
@@ -73,7 +75,7 @@ export class LedgerPostingGatewayImpl implements LedgerPostingGateway, OnModuleI
     );
   }
 
-  describeAll<K extends string>(manager: EntityManager, organizationId: string, words: LedgerWords<K>): Promise<Record<K, string>> {
+  describeAll<K extends string>(manager: EntityManager, organizationId: string, words: LedgerWords<K>): Promise<Record<K, LedgerText>> {
     return this.narrative.describeAll(manager, organizationId, words);
   }
 
@@ -83,6 +85,7 @@ export class LedgerPostingGatewayImpl implements LedgerPostingGateway, OnModuleI
       systemReason: context.systemReason,
       idempotencyKey: context.idempotencyKey,
       module: context.module ? MODULES[context.module] : undefined,
+      tagsFromLedger: context.tagsFromLedger,
     };
   }
 }

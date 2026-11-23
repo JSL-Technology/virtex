@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import {
   LucideAngularModule,
   Puzzle,
@@ -20,7 +20,7 @@ import {
   ExtensionSummary,
   ExtensionsService,
 } from './extensions.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { NotificationService } from '../../core/services/notification';
 import { VX_SORT, sortable } from '../../shared/components/sort';
 

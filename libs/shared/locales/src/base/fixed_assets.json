@@ -34,10 +34,475 @@
     "en": "The branch named does not exist or is inactive.",
     "pt": "A filial indicada não existe ou está inativa."
   },
+  "fixed_assets.capitalization.change": {
+    "es": "Cambiar",
+    "en": "Change",
+    "pt": "Alterar"
+  },
+  "fixed_assets.capitalization.current": {
+    "es": "Ahora: {{method}}.",
+    "en": "Now: {{method}}.",
+    "pt": "Agora: {{method}}."
+  },
+  "fixed_assets.capitalization.date": {
+    "es": "Fecha del asiento",
+    "en": "Entry date",
+    "pt": "Data do lançamento"
+  },
+  "fixed_assets.capitalization.date_hint": {
+    "es": "Vacía, la de adquisición. Para un activo migrado, la de los saldos de apertura.",
+    "en": "Empty, the acquisition date. For a migrated asset, the opening balances date.",
+    "pt": "Vazia, a de aquisição. Para um ativo migrado, a dos saldos de abertura."
+  },
+  "fixed_assets.capitalization.hint": {
+    "es": "El costo del activo está en el mayor por una compra ya contabilizada, o lo registra aquí su asiento de alta. Sin esto, el registro y el mayor no se pueden conciliar.",
+    "en": "The asset's cost is in the ledger through a purchase already posted, or its acquisition entry posts it here. Without this, the register and the ledger cannot be reconciled.",
+    "pt": "O custo do ativo está no razão por uma compra já contabilizada, ou seu lançamento de entrada o registra aqui. Sem isso, o registro e o razão não podem ser conciliados."
+  },
+  "fixed_assets.capitalization.how": {
+    "es": "Origen del costo",
+    "en": "Where the cost came from",
+    "pt": "Origem do custo"
+  },
+  "fixed_assets.capitalization.link_now": {
+    "es": "Vincular con el mayor",
+    "en": "Link to the ledger",
+    "pt": "Vincular ao razão"
+  },
+  "fixed_assets.capitalization.methods.journal_entry": {
+    "es": "Asiento ya contabilizado",
+    "en": "Entry already posted",
+    "pt": "Lançamento já contabilizado"
+  },
+  "fixed_assets.capitalization.methods.posted": {
+    "es": "Asiento de alta registrado aquí",
+    "en": "Acquisition entry posted here",
+    "pt": "Lançamento de entrada registrado aqui"
+  },
+  "fixed_assets.capitalization.methods.unlinked": {
+    "es": "Sin vincular con el mayor",
+    "en": "Not linked to the ledger",
+    "pt": "Sem vínculo com o razão"
+  },
+  "fixed_assets.capitalization.methods.vendor_bill": {
+    "es": "Factura de proveedor",
+    "en": "Supplier bill",
+    "pt": "Fatura de fornecedor"
+  },
+  "fixed_assets.capitalization.mode_posted": {
+    "es": "Registrar aquí el asiento de alta",
+    "en": "Post the acquisition entry here",
+    "pt": "Registrar aqui o lançamento de entrada"
+  },
+  "fixed_assets.capitalization.mode_source": {
+    "es": "De una compra ya contabilizada (factura o asiento)",
+    "en": "From a purchase already posted (bill or entry)",
+    "pt": "De uma compra já contabilizada (fatura ou lançamento)"
+  },
+  "fixed_assets.capitalization.no_sources": {
+    "es": "No hay compras pendientes de registrar en esa cuenta",
+    "en": "No purchases waiting to be registered on that account",
+    "pt": "Não há compras pendentes de registro nessa conta"
+  },
+  "fixed_assets.capitalization.offset": {
+    "es": "Contrapartida del alta",
+    "en": "Acquisition offset",
+    "pt": "Contrapartida da entrada"
+  },
+  "fixed_assets.capitalization.offset_hint": {
+    "es": "A qué se acredita: el banco o la caja, una cuenta por pagar, el patrimonio de apertura de un activo migrado.",
+    "en": "What it is credited to: the bank or cash, a payable, the opening equity of a migrated asset.",
+    "pt": "A que é creditado: o banco ou o caixa, uma conta a pagar, o patrimônio de abertura de um ativo migrado."
+  },
+  "fixed_assets.capitalization.page_subtitle": {
+    "es": "Registra o corrige cómo entró al mayor el costo del activo. No cambia nada de su valoración.",
+    "en": "Record or correct how the asset's cost entered the ledger. Nothing it is valued on changes.",
+    "pt": "Registre ou corrija como o custo do ativo entrou no razão. Nada de sua avaliação muda."
+  },
+  "fixed_assets.capitalization.replaces_posted": {
+    "es": "El asiento de alta registrado aquí se revertirá y se registrará el nuevo.",
+    "en": "The acquisition entry posted here will be reversed and the new one posted.",
+    "pt": "O lançamento de entrada registrado aqui será revertido e o novo registrado."
+  },
+  "fixed_assets.capitalization.save_failed": {
+    "es": "No se pudo guardar la capitalización.",
+    "en": "The capitalization could not be saved.",
+    "pt": "Não foi possível salvar a capitalização."
+  },
+  "fixed_assets.capitalization.saved": {
+    "es": "Capitalización del activo {{number}} guardada.",
+    "en": "Capitalization of asset {{number}} saved.",
+    "pt": "Capitalização do ativo {{number}} salva."
+  },
+  "fixed_assets.capitalization.source": {
+    "es": "Compra",
+    "en": "Purchase",
+    "pt": "Compra"
+  },
+  "fixed_assets.capitalization.source_hint": {
+    "es": "Facturas y asientos que cargaron una cuenta de activo fijo, con lo que falta por registrar de cada uno.",
+    "en": "Bills and entries that debited a fixed-asset account, with what is left to register of each.",
+    "pt": "Faturas e lançamentos que debitaram uma conta de ativo imobilizado, com o que falta registrar de cada um."
+  },
+  "fixed_assets.capitalization.source_placeholder": {
+    "es": "Busca la factura o el asiento",
+    "en": "Search the bill or the entry",
+    "pt": "Busque a fatura ou o lançamento"
+  },
+  "fixed_assets.capitalization.source_required": {
+    "es": "Elige la compra de la que viene el activo.",
+    "en": "Choose the purchase the asset comes from.",
+    "pt": "Escolha a compra de onde vem o ativo."
+  },
+  "fixed_assets.capitalization.title": {
+    "es": "Cómo entró al mayor",
+    "en": "How it entered the ledger",
+    "pt": "Como entrou no razão"
+  },
+  "fixed_assets.capitalization.unlinked_banner": {
+    "es": "Este activo se registró sin decir cómo entró su costo al mayor: la conciliación lo cuenta como diferencia.",
+    "en": "This asset was registered without saying how its cost entered the ledger: the reconciliation counts it as a difference.",
+    "pt": "Este ativo foi registrado sem dizer como seu custo entrou no razão: a conciliação o conta como diferença."
+  },
+  "fixed_assets.capitalization_before_acquisition": {
+    "es": "El asiento de alta no puede ser anterior a la fecha de adquisición.",
+    "en": "The acquisition entry cannot be dated before the acquisition date.",
+    "pt": "O lançamento de entrada não pode ser anterior à data de aquisição."
+  },
+  "fixed_assets.capitalization_bill_not_posted": {
+    "es": "La factura {{bill}} no está contabilizada: un activo se capitaliza de una factura que ya llegó al mayor.",
+    "en": "Bill {{bill}} is not posted: an asset is capitalized from a bill that has reached the ledger.",
+    "pt": "A fatura {{bill}} não está contabilizada: um ativo é capitalizado a partir de uma fatura que já chegou ao razão."
+  },
+  "fixed_assets.capitalization_bill_required": {
+    "es": "Elige la factura de proveedor que compró el activo.",
+    "en": "Choose the supplier bill that bought the asset.",
+    "pt": "Escolha a fatura de fornecedor que comprou o ativo."
+  },
+  "fixed_assets.capitalization_entry_not_found": {
+    "es": "El asiento no existe en esta empresa.",
+    "en": "That entry does not exist in this company.",
+    "pt": "O lançamento não existe nesta empresa."
+  },
+  "fixed_assets.capitalization_entry_not_posted": {
+    "es": "El asiento {{entry}} no está en los libros: está sin contabilizar o fue revertido.",
+    "en": "Entry {{entry}} is not in the books: it is unposted or was reversed.",
+    "pt": "O lançamento {{entry}} não está nos livros: não foi contabilizado ou foi revertido."
+  },
+  "fixed_assets.capitalization_entry_of_register": {
+    "es": "El asiento {{entry}} es del propio registro de activos (alta, depreciación o baja): no es la compra de un activo.",
+    "en": "Entry {{entry}} belongs to the asset register itself (acquisition, depreciation or disposal): it is not the purchase of an asset.",
+    "pt": "O lançamento {{entry}} é do próprio registro de ativos (entrada, depreciação ou baixa): não é a compra de um ativo."
+  },
+  "fixed_assets.capitalization_entry_required": {
+    "es": "Elige el asiento que registró el costo del activo.",
+    "en": "Choose the entry that recorded the asset's cost.",
+    "pt": "Escolha o lançamento que registrou o custo do ativo."
+  },
+  "fixed_assets.capitalization_exceeds_source": {
+    "es": "{{source}} cargó la cuenta {{account}} por menos de lo que ya se registró de ella: quedan {{available}} por registrar.",
+    "en": "{{source}} debited account {{account}} by less than has been registered from it: {{available}} is left to register.",
+    "pt": "{{source}} debitou a conta {{account}} por menos do que já foi registrado dela: restam {{available}} a registrar."
+  },
+  "fixed_assets.capitalization_offset_is_asset_account": {
+    "es": "La contrapartida del alta no puede ser la cuenta del activo ni la de su depreciación acumulada.",
+    "en": "The acquisition's offset cannot be the asset account or its accumulated depreciation account.",
+    "pt": "A contrapartida da entrada não pode ser a conta do ativo nem a de sua depreciação acumulada."
+  },
+  "fixed_assets.capitalization_offset_required": {
+    "es": "Indica la cuenta contra la que se registra el alta: el banco, una cuenta por pagar, el patrimonio de apertura.",
+    "en": "State the account the acquisition is posted against: the bank, a payable, opening equity.",
+    "pt": "Indique a conta contra a qual a entrada é registrada: o banco, uma conta a pagar, o patrimônio de abertura."
+  },
+  "fixed_assets.capitalization_required": {
+    "es": "Indica cómo entró el costo del activo al mayor: la factura de proveedor que lo compró, un asiento que ya lo registró, o el asiento de alta que se registra aquí.",
+    "en": "State how the asset's cost entered the ledger: the supplier bill that bought it, an entry that already recorded it, or the acquisition entry posted here.",
+    "pt": "Indique como o custo do ativo entrou no razão: a fatura de fornecedor que o comprou, um lançamento que já o registrou, ou o lançamento de entrada registrado aqui."
+  },
+  "fixed_assets.capitalization_source_not_on_account": {
+    "es": "{{source}} no cargó la cuenta {{account}} del activo: el costo no entró por ahí.",
+    "en": "{{source}} did not debit the asset's account {{account}}: the cost did not come in through it.",
+    "pt": "{{source}} não debitou a conta {{account}} do ativo: o custo não entrou por ali."
+  },
+  "fixed_assets.categories.activate": {
+    "es": "Activar",
+    "en": "Activate",
+    "pt": "Ativar"
+  },
+  "fixed_assets.categories.activated": {
+    "es": "La categoría {{code}} vuelve a ofrecerse.",
+    "en": "Category {{code}} is offered again.",
+    "pt": "A categoria {{code}} volta a ser oferecida."
+  },
+  "fixed_assets.categories.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "fixed_assets.categories.active_label": {
+    "es": "Se ofrece para activos nuevos",
+    "en": "Offered for new assets",
+    "pt": "Oferecida para ativos novos"
+  },
+  "fixed_assets.categories.authority_note": {
+    "es": "Las categorías y tasas fiscales son las de {{authority}}.",
+    "en": "The tax categories and rates are {{authority}}'s.",
+    "pt": "As categorias e taxas fiscais são as de {{authority}}."
+  },
+  "fixed_assets.categories.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "fixed_assets.categories.code_placeholder": {
+    "es": "VEH, EQ-COMP…",
+    "en": "VEH, EQ-COMP…",
+    "pt": "VEH, EQ-COMP…"
+  },
+  "fixed_assets.categories.created": {
+    "es": "Categoría {{code}} creada.",
+    "en": "Category {{code}} created.",
+    "pt": "Categoria {{code}} criada."
+  },
+  "fixed_assets.categories.deactivate": {
+    "es": "Desactivar",
+    "en": "Deactivate",
+    "pt": "Desativar"
+  },
+  "fixed_assets.categories.deactivated": {
+    "es": "La categoría {{code}} ya no se ofrece para activos nuevos.",
+    "en": "Category {{code}} is no longer offered for new assets.",
+    "pt": "A categoria {{code}} não é mais oferecida para ativos novos."
+  },
+  "fixed_assets.categories.defaults": {
+    "es": "Valores por defecto",
+    "en": "Defaults",
+    "pt": "Valores padrão"
+  },
+  "fixed_assets.categories.defaults_hint": {
+    "es": "Lo que se deja vacío lo indica cada activo, o lo toma de la empresa.",
+    "en": "What is left empty is stated on each asset, or taken from the company.",
+    "pt": "O que ficar vazio é informado em cada ativo, ou vem da empresa."
+  },
+  "fixed_assets.categories.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "fixed_assets.categories.delete_failed": {
+    "es": "No se pudo eliminar la categoría.",
+    "en": "The category could not be deleted.",
+    "pt": "Não foi possível excluir a categoria."
+  },
+  "fixed_assets.categories.delete_message": {
+    "es": "Se eliminará la categoría {{code}} · {{name}}. Si hay activos registrados en ella, desactívala en su lugar.",
+    "en": "Category {{code}} · {{name}} will be deleted. If assets are registered in it, deactivate it instead.",
+    "pt": "A categoria {{code}} · {{name}} será excluída. Se houver ativos registrados nela, desative-a."
+  },
+  "fixed_assets.categories.delete_title": {
+    "es": "Eliminar la categoría",
+    "en": "Delete the category",
+    "pt": "Excluir a categoria"
+  },
+  "fixed_assets.categories.deleted": {
+    "es": "Categoría {{code}} eliminada.",
+    "en": "Category {{code}} deleted.",
+    "pt": "Categoria {{code}} excluída."
+  },
+  "fixed_assets.categories.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "fixed_assets.categories.empty_help": {
+    "es": "Crea una para no repetir la vida útil, el método y las cuentas en cada alta.",
+    "en": "Create one so the useful life, method and accounts are not typed in for every asset.",
+    "pt": "Crie uma para não repetir a vida útil, o método e as contas em cada cadastro."
+  },
+  "fixed_assets.categories.empty_title": {
+    "es": "Aún no hay categorías",
+    "en": "No categories yet",
+    "pt": "Ainda não há categorias"
+  },
+  "fixed_assets.categories.form_subtitle": {
+    "es": "Un activo nuevo de esta categoría empieza con estos valores; los ya registrados no cambian.",
+    "en": "A new asset of this category starts with these values; those already registered do not change.",
+    "pt": "Um novo ativo desta categoria começa com estes valores; os já registrados não mudam."
+  },
+  "fixed_assets.categories.inactive": {
+    "es": "Desactivada",
+    "en": "Inactive",
+    "pt": "Desativada"
+  },
+  "fixed_assets.categories.include_inactive": {
+    "es": "Incluir las desactivadas",
+    "en": "Include inactive ones",
+    "pt": "Incluir as desativadas"
+  },
+  "fixed_assets.categories.load_failed": {
+    "es": "No se pudieron cargar las categorías.",
+    "en": "The categories could not be loaded.",
+    "pt": "Não foi possível carregar as categorias."
+  },
+  "fixed_assets.categories.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "fixed_assets.categories.new": {
+    "es": "Nueva categoría",
+    "en": "New category",
+    "pt": "Nova categoria"
+  },
+  "fixed_assets.categories.not_set": {
+    "es": "Sin indicar",
+    "en": "Not set",
+    "pt": "Não informado"
+  },
+  "fixed_assets.categories.residual": {
+    "es": "Residual (% del costo)",
+    "en": "Residual (% of cost)",
+    "pt": "Residual (% do custo)"
+  },
+  "fixed_assets.categories.save_failed": {
+    "es": "No se pudo guardar la categoría.",
+    "en": "The category could not be saved.",
+    "pt": "Não foi possível salvar a categoria."
+  },
+  "fixed_assets.categories.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "fixed_assets.categories.subtitle": {
+    "es": "Lo que un activo de cada categoría trae por defecto, y la categoría fiscal que sigue su libro fiscal.",
+    "en": "What an asset of each category starts with, and the tax category its tax book follows.",
+    "pt": "O que um ativo de cada categoria traz por padrão, e a categoria fiscal que seu livro fiscal segue."
+  },
+  "fixed_assets.categories.title": {
+    "es": "Categorías de activos fijos",
+    "en": "Fixed-asset categories",
+    "pt": "Categorias de ativos imobilizados"
+  },
+  "fixed_assets.categories.updated": {
+    "es": "Categoría {{code}} actualizada. Los activos ya registrados conservan sus valores.",
+    "en": "Category {{code}} updated. Assets already registered keep their values.",
+    "pt": "Categoria {{code}} atualizada. Os ativos já registrados mantêm seus valores."
+  },
+  "fixed_assets.category_code_format": {
+    "es": "El código de la categoría empieza por una letra o un número y solo lleva letras, números, puntos, guiones y guiones bajos.",
+    "en": "A category code starts with a letter or a digit and holds only letters, digits, dots, hyphens and underscores.",
+    "pt": "O código da categoria começa por uma letra ou um número e só contém letras, números, pontos, hifens e sublinhados."
+  },
+  "fixed_assets.category_code_taken": {
+    "es": "Ya hay una categoría con el código {{code}}.",
+    "en": "There is already a category with the code {{code}}.",
+    "pt": "Já existe uma categoria com o código {{code}}."
+  },
+  "fixed_assets.category_in_use": {
+    "es": "No se puede eliminar la categoría: hay activos registrados en ella ({{summary}}). Desactívala para que deje de ofrecerse a los nuevos.",
+    "en": "The category cannot be deleted: assets are registered in it ({{summary}}). Deactivate it so it is no longer offered for new ones.",
+    "pt": "A categoria não pode ser excluída: há ativos registrados nela ({{summary}}). Desative-a para que deixe de ser oferecida aos novos."
+  },
+  "fixed_assets.category_inactive": {
+    "es": "La categoría {{code}} está desactivada: no se registran activos nuevos en ella.",
+    "en": "Category {{code}} is inactive: new assets are not registered in it.",
+    "pt": "A categoria {{code}} está desativada: não se registram ativos novos nela."
+  },
+  "fixed_assets.category_not_found": {
+    "es": "La categoría de activos fijos no existe en esta empresa.",
+    "en": "That fixed-asset category does not exist in this company.",
+    "pt": "A categoria de ativos imobilizados não existe nesta empresa."
+  },
+  "fixed_assets.closing.depreciation_nothing": {
+    "es": "Ningún activo fijo tiene depreciación pendiente en el período.",
+    "en": "No fixed asset has depreciation left to charge in the period.",
+    "pt": "Nenhum ativo imobilizado tem depreciação pendente no período."
+  },
+  "fixed_assets.closing.depreciation_ready": {
+    "es": "El cierre cargará la depreciación del período a {{count}} activos: {{amount}}.",
+    "en": "The close will charge the period's depreciation to {{count}} assets: {{amount}}.",
+    "pt": "O fechamento lançará a depreciação do período em {{count}} ativos: {{amount}}."
+  },
+  "fixed_assets.closing.depreciation_ready_one": {
+    "es": "El cierre cargará la depreciación del período a {{count}} activo: {{amount}}.",
+    "en": "The close will charge the period's depreciation to {{count}} asset: {{amount}}.",
+    "pt": "O fechamento lançará a depreciação do período em {{count}} ativo: {{amount}}."
+  },
+  "fixed_assets.closing.depreciation_skipped": {
+    "es": "El cierre no puede depreciar {{count}} activos porque les faltan cuentas: {{assets}}.",
+    "en": "The close cannot depreciate {{count}} assets because they lack accounts: {{assets}}.",
+    "pt": "O fechamento não pode depreciar {{count}} ativos porque lhes faltam contas: {{assets}}."
+  },
+  "fixed_assets.closing.depreciation_skipped_one": {
+    "es": "El cierre no puede depreciar {{count}} activo porque le faltan cuentas: {{assets}}.",
+    "en": "The close cannot depreciate {{count}} asset because it lacks accounts: {{assets}}.",
+    "pt": "O fechamento não pode depreciar {{count}} ativo porque lhe faltam contas: {{assets}}."
+  },
+  "fixed_assets.closing.register_not_reconciled": {
+    "es": "El registro de activos fijos no coincide con el mayor al {{date}}: diferencia {{difference}}. Activos sin su costo en el mayor: {{unlinked}}; movimientos del mayor sin activo detrás: {{untraced}}.",
+    "en": "The fixed-asset register does not agree with the ledger on {{date}}: difference {{difference}}. Assets without their cost in the ledger: {{unlinked}}; ledger movements with no asset behind them: {{untraced}}.",
+    "pt": "O registro do ativo imobilizado não coincide com o razão em {{date}}: diferença {{difference}}. Ativos sem seu custo no razão: {{unlinked}}; movimentos do razão sem ativo por trás: {{untraced}}."
+  },
+  "fixed_assets.closing.register_note": {
+    "es": "Es un control: el cierre no lo corrige. La conciliación dice qué explica cada diferencia.",
+    "en": "This is a control: the close does not correct it. The reconciliation says what explains each difference.",
+    "pt": "É um controle: o fechamento não o corrige. A conciliação diz o que explica cada diferença."
+  },
+  "fixed_assets.closing.register_reconciled": {
+    "es": "El registro de activos fijos coincide con el mayor al {{date}}.",
+    "en": "The fixed-asset register agrees with the ledger on {{date}}.",
+    "pt": "O registro do ativo imobilizado coincide com o razão em {{date}}."
+  },
+  "fixed_assets.conventions.daily": {
+    "es": "Por días en servicio",
+    "en": "By days in service",
+    "pt": "Por dias em serviço"
+  },
+  "fixed_assets.conventions.full_month": {
+    "es": "Mes completo",
+    "en": "Full month",
+    "pt": "Mês completo"
+  },
+  "fixed_assets.conventions.mid_month": {
+    "es": "Medio mes",
+    "en": "Mid-month",
+    "pt": "Meio mês"
+  },
+  "fixed_assets.conventions.next_month": {
+    "es": "Desde el mes siguiente",
+    "en": "From the following month",
+    "pt": "A partir do mês seguinte"
+  },
+  "fixed_assets.declining_opening_not_year_end": {
+    "es": "El saldo inicial de un saldo decreciente se declara al cierre de un año fiscal, que es donde se aplica la tasa: {{month}} no lo es. El año fiscal anterior cerró en {{yearEnd}}.",
+    "en": "A declining balance's opening is stated at the close of a fiscal year, where its rate applies: {{month}} is not one. The fiscal year before it closed in {{yearEnd}}.",
+    "pt": "O saldo inicial de um saldo decrescente é declarado no encerramento de um ano fiscal, onde a taxa se aplica: {{month}} não é um. O ano fiscal anterior encerrou em {{yearEnd}}."
+  },
+  "fixed_assets.declining_rate_only_for_declining": {
+    "es": "Solo el saldo decreciente lleva una tasa anual.",
+    "en": "Only a declining balance takes a yearly rate.",
+    "pt": "Só o saldo decrescente leva uma taxa anual."
+  },
+  "fixed_assets.declining_rate_required": {
+    "es": "El saldo decreciente necesita su tasa anual.",
+    "en": "A declining balance needs its yearly rate.",
+    "pt": "O saldo decrescente precisa de sua taxa anual."
+  },
   "fixed_assets.depreciation_journal_deprec_not_found_create": {
     "es": "Diario de Depreciación (DEPREC) no encontrado. Crea un diario con este código para continuar.",
     "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
     "pt": "O diário de Depreciação (DEPREC) não foi encontrado. Crie um diário com esse código para continuar."
+  },
+  "fixed_assets.depreciation_period_not_ended": {
+    "es": "El mes {{period}} todavía no ha terminado (hoy es {{today}}): se deprecia cuando termina, o al cerrarlo.",
+    "en": "The month {{period}} has not ended yet (today is {{today}}): it is depreciated once it ends, or when it is closed.",
+    "pt": "O mês {{period}} ainda não terminou (hoje é {{today}}): ele é depreciado quando terminar, ou ao fechá-lo."
+  },
+  "fixed_assets.depreciation_run_not_found": {
+    "es": "La corrida de depreciación {{id}} no existe.",
+    "en": "Depreciation run {{id}} does not exist.",
+    "pt": "A execução de depreciação {{id}} não existe."
   },
   "fixed_assets.disposal_before_acquisition": {
     "es": "La baja no puede ser anterior a la adquisición ({{date}}).",
@@ -48,6 +513,11 @@
     "es": "El activo {{number}} ya se depreció hasta el {{through}}: la baja debe ser posterior a ese mes, o anula antes esa depreciación.",
     "en": "Asset {{number}} has been depreciated through {{through}}: the disposal must fall after that month, or that depreciation must be reversed first.",
     "pt": "O ativo {{number}} já foi depreciado até {{through}}: a baixa deve ser posterior a esse mês, ou essa depreciação deve ser estornada antes."
+  },
+  "fixed_assets.disposal_depreciation_accounts_missing": {
+    "es": "El activo {{number}} tiene depreciación pendiente hasta su baja y ni él ni la empresa tienen cuenta de gasto por depreciación: indícala antes de darlo de baja.",
+    "en": "Asset {{number}} still has depreciation due up to its disposal, and neither it nor the company has a depreciation expense account: set one before disposing of it.",
+    "pt": "O ativo {{number}} ainda tem depreciação a lançar até a baixa e nem ele nem a empresa têm conta de despesa de depreciação: informe-a antes de baixá-lo."
   },
   "fixed_assets.dispose.before_acquisition": {
     "es": "La baja no puede ser anterior a la adquisición.",
@@ -149,11 +619,6 @@
     "en": "Back to fixed assets",
     "pt": "Voltar aos ativos imobilizados"
   },
-  "fixed_assets.document.bill": {
-    "es": "Factura de compra",
-    "en": "Purchase bill",
-    "pt": "Fatura de compra"
-  },
   "fixed_assets.document.charge": {
     "es": "Cargo",
     "en": "Charge",
@@ -224,6 +689,11 @@
     "en": "{{count}} months",
     "pt": "{{count}} meses"
   },
+  "fixed_assets.document.months_one": {
+    "es": "{{count}} mes",
+    "en": "{{count}} month",
+    "pt": "{{count}} mês"
+  },
   "fixed_assets.document.nothing_charged": {
     "es": "Aún no se ha registrado depreciación de este activo.",
     "en": "No depreciation has been posted for this asset yet.",
@@ -248,6 +718,11 @@
     "es": "Quedan {{months}} meses por depreciar; termina en {{end}}.",
     "en": "{{months}} months left to depreciate; it ends in {{end}}.",
     "pt": "Restam {{months}} meses para depreciar; termina em {{end}}."
+  },
+  "fixed_assets.document.run": {
+    "es": "Corrida",
+    "en": "Run",
+    "pt": "Execução"
   },
   "fixed_assets.document.schedule": {
     "es": "Tabla de depreciación",
@@ -279,15 +754,15 @@
     "en": "View entry",
     "pt": "Ver lançamento"
   },
+  "fixed_assets.document.view_run": {
+    "es": "corrida",
+    "en": "run",
+    "pt": "execução"
+  },
   "fixed_assets.fixed_asset_id_not_found": {
     "es": "Activo fijo con ID \"{{id}}\" no encontrado.",
     "en": "Fixed asset \"{{id}}\" was not found.",
     "pt": "Ativo imobilizado \"{{id}}\" não encontrado."
-  },
-  "fixed_assets.fixed_assets_journal_act_fijos_not": {
-    "es": "Diario de Activos Fijos (ACT-FIJOS) no encontrado.",
-    "en": "The Fixed Assets journal (ACT-FIJOS) was not found.",
-    "pt": "O diário de Ativo Imobilizado (ACT-FIJOS) não foi encontrado."
   },
   "fixed_assets.form.accounts": {
     "es": "Cuentas",
@@ -309,10 +784,40 @@
     "en": "Asset account",
     "pt": "Conta do ativo"
   },
+  "fixed_assets.form.category": {
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
+  },
+  "fixed_assets.form.category_hint": {
+    "es": "Elegir una categoría completa la vida útil, el método, el residual, las cuentas y el libro fiscal; puedes cambiar cualquiera.",
+    "en": "Choosing a category fills in the useful life, method, residual value, accounts and tax book; you can change any of them.",
+    "pt": "Escolher uma categoria preenche a vida útil, o método, o residual, as contas e o livro fiscal; você pode alterar qualquer um."
+  },
+  "fixed_assets.form.category_reclassify_hint": {
+    "es": "Cambiar la categoría reclasifica el activo: conserva los valores con que se registró.",
+    "en": "Changing the category reclassifies the asset: it keeps the values it was registered with.",
+    "pt": "Mudar a categoria reclassifica o ativo: ele mantém os valores com que foi registrado."
+  },
   "fixed_assets.form.company_default": {
     "es": "La predeterminada de la empresa",
     "en": "The company's default",
     "pt": "A padrão da empresa"
+  },
+  "fixed_assets.form.convention": {
+    "es": "Convención de prorrata",
+    "en": "Proration convention",
+    "pt": "Convenção de rateio"
+  },
+  "fixed_assets.form.convention_company": {
+    "es": "La de la empresa",
+    "en": "The company's",
+    "pt": "A da empresa"
+  },
+  "fixed_assets.form.convention_help": {
+    "es": "Cuánto se deprecia del mes en que entra en servicio y del mes en que se da de baja: mes completo (todo el primero, nada el de la baja), desde el mes siguiente (nada el primero, todo el de la baja), medio mes (la mitad de cada uno) o por días. Queda fija tras la primera depreciación.",
+    "en": "How much of the month it enters service in, and of the month it is disposed of in, is depreciated: full month (all of the first, none of the last), from the following month (none of the first, all of the last), mid-month (half of each) or by days. It is fixed once the asset has been depreciated.",
+    "pt": "Quanto se deprecia do mês em que entra em serviço e do mês em que é baixado: mês completo (todo o primeiro, nada o da baixa), a partir do mês seguinte (nada o primeiro, todo o da baixa), meio mês (metade de cada um) ou por dias. Fica fixa após a primeira depreciação."
   },
   "fixed_assets.form.cost": {
     "es": "Costo",
@@ -323,6 +828,16 @@
     "es": "Activo {{number}} registrado.",
     "en": "Asset {{number}} registered.",
     "pt": "Ativo {{number}} registrado."
+  },
+  "fixed_assets.form.declining_rate": {
+    "es": "Tasa anual (%)",
+    "en": "Yearly rate (%)",
+    "pt": "Taxa anual (%)"
+  },
+  "fixed_assets.form.declining_rate_help": {
+    "es": "Se aplica al valor pendiente al inicio de cada año fiscal.",
+    "en": "Applied to the value left at the start of each fiscal year.",
+    "pt": "Aplicada ao valor pendente no início de cada ano fiscal."
   },
   "fixed_assets.form.description": {
     "es": "Descripción",
@@ -399,6 +914,11 @@
     "en": "Registering it posts nothing: the cost reached the books with the bill that bought it.",
     "pt": "Registrá-lo não gera lançamento: o custo entrou nos livros com a fatura que o comprou."
   },
+  "fixed_assets.form.no_category": {
+    "es": "Sin categoría",
+    "en": "No category",
+    "pt": "Sem categoria"
+  },
   "fixed_assets.form.opening_accumulated": {
     "es": "Depreciación acumulada inicial",
     "en": "Opening accumulated depreciation",
@@ -469,6 +989,11 @@
     "en": "The sale falls short of the carrying amount: name the loss account.",
     "pt": "A venda fica abaixo do valor contábil: indique a conta de perda."
   },
+  "fixed_assets.methods.declining_balance": {
+    "es": "Saldo decreciente a tasa anual",
+    "en": "Declining balance at a yearly rate",
+    "pt": "Saldo decrescente a taxa anual"
+  },
   "fixed_assets.methods.double_declining_balance": {
     "es": "Saldo decreciente doble",
     "en": "Double declining balance",
@@ -523,6 +1048,11 @@
     "es": "Valor en libros",
     "en": "Book value",
     "pt": "Valor contábil"
+  },
+  "fixed_assets.page.categories": {
+    "es": "Categorías",
+    "en": "Categories",
+    "pt": "Categorias"
   },
   "fixed_assets.page.cost": {
     "es": "Costo",
@@ -594,6 +1124,11 @@
     "en": "What the company owns, what it cost, what has been depreciated and what it is worth today.",
     "pt": "O que a empresa possui, quanto custou, o que foi depreciado e quanto vale hoje."
   },
+  "fixed_assets.page.tax_depreciation": {
+    "es": "Depreciación fiscal",
+    "en": "Tax depreciation",
+    "pt": "Depreciação fiscal"
+  },
   "fixed_assets.page.title": {
     "es": "Activos fijos",
     "en": "Fixed assets",
@@ -603,6 +1138,206 @@
     "es": "Indica la cuenta donde entra el importe de la venta.",
     "en": "Name the account the sale proceeds go to.",
     "pt": "Indique a conta onde entra o valor da venda."
+  },
+  "fixed_assets.reconciliation.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "fixed_assets.reconciliation.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "fixed_assets.reconciliation.as_of": {
+    "es": "Al",
+    "en": "As of",
+    "pt": "Em"
+  },
+  "fixed_assets.reconciliation.available": {
+    "es": "Por registrar",
+    "en": "Left to register",
+    "pt": "A registrar"
+  },
+  "fixed_assets.reconciliation.by_account": {
+    "es": "Por cuenta",
+    "en": "By account",
+    "pt": "Por conta"
+  },
+  "fixed_assets.reconciliation.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "fixed_assets.reconciliation.debited": {
+    "es": "Cargado",
+    "en": "Debited",
+    "pt": "Debitado"
+  },
+  "fixed_assets.reconciliation.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "fixed_assets.reconciliation.disposed_on": {
+    "es": "Dado de baja el {{date}}",
+    "en": "Disposed of on {{date}}",
+    "pt": "Baixado em {{date}}"
+  },
+  "fixed_assets.reconciliation.empty_help": {
+    "es": "Cuando registres activos, aquí verás cada cuenta frente al mayor.",
+    "en": "Once assets are registered, each account is set against the ledger here.",
+    "pt": "Quando houver ativos registrados, aqui você verá cada conta frente ao razão."
+  },
+  "fixed_assets.reconciliation.empty_title": {
+    "es": "El registro aún no tiene activos",
+    "en": "The register has no assets yet",
+    "pt": "O registro ainda não tem ativos"
+  },
+  "fixed_assets.reconciliation.explained": {
+    "es": "Diferencia = lo que el mayor tiene sin activo detrás − lo que el registro tiene sin su costo en el mayor. El registro cuenta cada activo desde que se adquiere hasta su baja; cada cargo de depreciación, desde su asiento.",
+    "en": "Difference = what the ledger holds with no asset behind it − what the register holds without its cost in the ledger. The register counts each asset from its acquisition to its disposal, and each depreciation charge from its entry.",
+    "pt": "Diferença = o que o razão tem sem ativo por trás − o que o registro tem sem seu custo no razão. O registro conta cada ativo desde a aquisição até a baixa, e cada encargo de depreciação desde seu lançamento."
+  },
+  "fixed_assets.reconciliation.ledger": {
+    "es": "Mayor",
+    "en": "Ledger",
+    "pt": "Razão"
+  },
+  "fixed_assets.reconciliation.load_failed": {
+    "es": "No se pudo cargar la conciliación.",
+    "en": "The reconciliation could not be loaded.",
+    "pt": "Não foi possível carregar a conciliação."
+  },
+  "fixed_assets.reconciliation.net_totals": {
+    "es": "Valor neto en libros",
+    "en": "Net carrying amount",
+    "pt": "Valor contábil líquido"
+  },
+  "fixed_assets.reconciliation.reason": {
+    "es": "Por qué",
+    "en": "Why",
+    "pt": "Por quê"
+  },
+  "fixed_assets.reconciliation.reasons.never_linked": {
+    "es": "Nunca se dijo cómo entró su costo al mayor",
+    "en": "Nobody ever said how its cost entered the ledger",
+    "pt": "Nunca se disse como seu custo entrou no razão"
+  },
+  "fixed_assets.reconciliation.reasons.source_later": {
+    "es": "Su asiento {{entry}} es del {{date}}, después de esta fecha",
+    "en": "Its entry {{entry}} is dated {{date}}, after this date",
+    "pt": "Seu lançamento {{entry}} é de {{date}}, depois desta data"
+  },
+  "fixed_assets.reconciliation.reasons.source_not_posted": {
+    "es": "Su factura o su asiento no está contabilizado",
+    "en": "Its bill or its entry is not posted",
+    "pt": "Sua fatura ou seu lançamento não está contabilizado"
+  },
+  "fixed_assets.reconciliation.reasons.source_reversed": {
+    "es": "Su asiento {{entry}} se revirtió, o su factura se anuló",
+    "en": "Its entry {{entry}} was reversed, or its bill voided",
+    "pt": "Seu lançamento {{entry}} foi estornado, ou sua fatura cancelada"
+  },
+  "fixed_assets.reconciliation.reconciled": {
+    "es": "El registro y el mayor coinciden en todas las cuentas.",
+    "en": "The register and the ledger agree on every account.",
+    "pt": "O registro e o razão coincidem em todas as contas."
+  },
+  "fixed_assets.reconciliation.register": {
+    "es": "Registro",
+    "en": "Register",
+    "pt": "Registro"
+  },
+  "fixed_assets.reconciliation.register_asset": {
+    "es": "Registrar como activo",
+    "en": "Register as an asset",
+    "pt": "Registrar como ativo"
+  },
+  "fixed_assets.reconciliation.registered": {
+    "es": "Registrado",
+    "en": "Registered",
+    "pt": "Registrado"
+  },
+  "fixed_assets.reconciliation.role": {
+    "es": "Qué guarda",
+    "en": "What it holds",
+    "pt": "O que guarda"
+  },
+  "fixed_assets.reconciliation.roles.accumulated": {
+    "es": "Depreciación acumulada",
+    "en": "Accumulated depreciation",
+    "pt": "Depreciação acumulada"
+  },
+  "fixed_assets.reconciliation.roles.both": {
+    "es": "Costo y depreciación",
+    "en": "Cost and depreciation",
+    "pt": "Custo e depreciação"
+  },
+  "fixed_assets.reconciliation.roles.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "fixed_assets.reconciliation.source": {
+    "es": "Compra",
+    "en": "Purchase",
+    "pt": "Compra"
+  },
+  "fixed_assets.reconciliation.subtitle": {
+    "es": "Lo que el registro de activos dice de cada cuenta frente a su saldo en el mayor, y qué explica la diferencia.",
+    "en": "What the asset register says of each account against its ledger balance, and what explains the difference.",
+    "pt": "O que o registro de ativos diz de cada conta frente a seu saldo no razão, e o que explica a diferença."
+  },
+  "fixed_assets.reconciliation.title": {
+    "es": "Conciliación registro↔mayor",
+    "en": "Register↔ledger reconciliation",
+    "pt": "Conciliação registro↔razão"
+  },
+  "fixed_assets.reconciliation.unlinked": {
+    "es": "Sin costo en el mayor",
+    "en": "Not in the ledger",
+    "pt": "Sem custo no razão"
+  },
+  "fixed_assets.reconciliation.unlinked_assets": {
+    "es": "{{count}} activos sin su costo en el mayor a esta fecha",
+    "en": "{{count}} assets without their cost in the ledger on this date",
+    "pt": "{{count}} ativos sem seu custo no razão nesta data"
+  },
+  "fixed_assets.reconciliation.unlinked_assets_one": {
+    "es": "{{count}} activo sin su costo en el mayor a esta fecha",
+    "en": "{{count}} asset without its cost in the ledger on this date",
+    "pt": "{{count}} ativo sem seu custo no razão nesta data"
+  },
+  "fixed_assets.reconciliation.untraced": {
+    "es": "Sin activo detrás",
+    "en": "No asset behind",
+    "pt": "Sem ativo por trás"
+  },
+  "fixed_assets.reconciliation.untraced_postings": {
+    "es": "{{count}} movimientos del mayor sin activo detrás",
+    "en": "{{count}} ledger movements with no asset behind them",
+    "pt": "{{count}} movimentos do razão sem ativo por trás"
+  },
+  "fixed_assets.reconciliation.untraced_postings_one": {
+    "es": "{{count}} movimiento del mayor sin activo detrás",
+    "en": "{{count}} ledger movement with no asset behind it",
+    "pt": "{{count}} movimento do razão sem ativo por trás"
+  },
+  "fixed_assets.reconciliation.waiting": {
+    "es": "{{count}} compras pendientes de registrar como activo",
+    "en": "{{count}} purchases waiting to be registered as assets",
+    "pt": "{{count}} compras pendentes de registro como ativo"
+  },
+  "fixed_assets.reconciliation.waiting_one": {
+    "es": "{{count}} compra pendiente de registrar como activo",
+    "en": "{{count}} purchase waiting to be registered as an asset",
+    "pt": "{{count}} compra pendente de registro como ativo"
+  },
+  "fixed_assets.report_period_reversed": {
+    "es": "El período termina ({{to}}) antes de empezar ({{from}}).",
+    "en": "The period ends ({{to}}) before it starts ({{from}}).",
+    "pt": "O período termina ({{to}}) antes de começar ({{from}})."
   },
   "fixed_assets.residual_above_cost": {
     "es": "El valor residual no puede superar el costo.",
@@ -624,6 +1359,16 @@
     "en": "A depreciation entry of {{total}} for {{count}} asset(s), through {{period}}, will be posted.",
     "pt": "Será lançado um lançamento de depreciação de {{total}} para {{count}} ativo(s), até {{period}}."
   },
+  "fixed_assets.run.confirm_message_with_tax": {
+    "es": "Se registrará un asiento de depreciación de {{total}} para {{count}} activo(s), hasta {{period}}. En los libros fiscales se registrará una deducción de {{taxTotal}}, que no se contabiliza.",
+    "en": "A depreciation entry of {{total}} will be posted for {{count}} asset(s), through {{period}}. A deduction of {{taxTotal}} will be recorded in the tax books, which is not posted.",
+    "pt": "Será registrado um lançamento de depreciação de {{total}} para {{count}} ativo(s), até {{period}}. Nos livros fiscais será registrada uma dedução de {{taxTotal}}, que não é contabilizada."
+  },
+  "fixed_assets.run.confirm_tax_only_message": {
+    "es": "Hasta {{period}} solo los libros fiscales tienen meses pendientes: se registrará una deducción de {{taxTotal}} para {{taxCount}} activo(s). No se contabiliza nada.",
+    "en": "Through {{period}} only the tax books have months due: a deduction of {{taxTotal}} will be recorded for {{taxCount}} asset(s). Nothing is posted.",
+    "pt": "Até {{period}} só os livros fiscais têm meses pendentes: será registrada uma dedução de {{taxTotal}} para {{taxCount}} ativo(s). Nada é contabilizado."
+  },
   "fixed_assets.run.confirm_title": {
     "es": "Registrar depreciación",
     "en": "Post depreciation",
@@ -633,6 +1378,11 @@
     "es": "No se pudo registrar la depreciación.",
     "en": "Depreciation could not be posted.",
     "pt": "Não foi possível lançar a depreciação."
+  },
+  "fixed_assets.run.history": {
+    "es": "Corridas anteriores",
+    "en": "Past runs",
+    "pt": "Execuções anteriores"
   },
   "fixed_assets.run.load_failed": {
     "es": "No se pudo calcular la depreciación del mes.",
@@ -674,6 +1424,11 @@
     "en": "Depreciation was posted for {{count}} asset(s).",
     "pt": "Foi lançada a depreciação de {{count}} ativo(s)."
   },
+  "fixed_assets.run.posted_tax_only": {
+    "es": "Deducción fiscal registrada para {{count}} activo(s); no se contabilizó nada.",
+    "en": "Tax deduction recorded for {{count}} asset(s); nothing was posted.",
+    "pt": "Dedução fiscal registrada para {{count}} ativo(s); nada foi contabilizado."
+  },
   "fixed_assets.run.posting": {
     "es": "Registrando…",
     "en": "Posting…",
@@ -694,6 +1449,16 @@
     "en": "Each asset is charged every month it is due through the chosen month, in one entry. Running it twice charges nothing twice.",
     "pt": "Cada ativo é depreciado todos os meses pendentes até o mês escolhido, em um único lançamento. Executar duas vezes não duplica nada."
   },
+  "fixed_assets.run.tax_caption": {
+    "es": "Libro fiscal: se registra, no se contabiliza",
+    "en": "Tax book: recorded, not posted",
+    "pt": "Livro fiscal: registrado, não contabilizado"
+  },
+  "fixed_assets.run.tax_total": {
+    "es": "Deducción fiscal",
+    "en": "Tax deduction",
+    "pt": "Dedução fiscal"
+  },
   "fixed_assets.run.title": {
     "es": "Ejecutar depreciación",
     "en": "Run depreciation",
@@ -708,6 +1473,141 @@
     "es": "Ver asiento",
     "en": "View entry",
     "pt": "Ver lançamento"
+  },
+  "fixed_assets.run.view_run": {
+    "es": "Ver la corrida",
+    "en": "View the run",
+    "pt": "Ver a execução"
+  },
+  "fixed_assets.runs.assets": {
+    "es": "Activos",
+    "en": "Assets",
+    "pt": "Ativos"
+  },
+  "fixed_assets.runs.back": {
+    "es": "Corridas",
+    "en": "Runs",
+    "pt": "Execuções"
+  },
+  "fixed_assets.runs.by_system": {
+    "es": "El sistema",
+    "en": "The system",
+    "pt": "O sistema"
+  },
+  "fixed_assets.runs.charged": {
+    "es": "Lo que cargó, activo por activo y mes por mes",
+    "en": "What it charged, asset by asset and month by month",
+    "pt": "O que lançou, ativo por ativo e mês a mês"
+  },
+  "fixed_assets.runs.charges": {
+    "es": "Meses cargados",
+    "en": "Months charged",
+    "pt": "Meses lançados"
+  },
+  "fixed_assets.runs.disposed_asset": {
+    "es": "Activo dado de baja",
+    "en": "Asset disposed of",
+    "pt": "Ativo baixado"
+  },
+  "fixed_assets.runs.document_title": {
+    "es": "Depreciación hasta {{month}}",
+    "en": "Depreciation through {{month}}",
+    "pt": "Depreciação até {{month}}"
+  },
+  "fixed_assets.runs.empty_help": {
+    "es": "Aparecen aquí cuando una corrida carga depreciación: la mensual, la de un cierre, la que lanzas desde el tablero o la de una baja.",
+    "en": "They appear here once a run charges depreciation: the monthly one, a close's, the one you start from the board, or a disposal's.",
+    "pt": "Aparecem aqui quando uma execução lança depreciação: a mensal, a de um fechamento, a que você inicia no painel ou a de uma baixa."
+  },
+  "fixed_assets.runs.empty_title": {
+    "es": "Todavía no hay corridas",
+    "en": "No runs yet",
+    "pt": "Ainda não há execuções"
+  },
+  "fixed_assets.runs.entries": {
+    "es": "Asientos",
+    "en": "Entries",
+    "pt": "Lançamentos"
+  },
+  "fixed_assets.runs.entry_date": {
+    "es": "Fecha del asiento",
+    "en": "Entry date",
+    "pt": "Data do lançamento"
+  },
+  "fixed_assets.runs.load_failed": {
+    "es": "No se pudieron cargar las corridas.",
+    "en": "The runs could not be loaded.",
+    "pt": "Não foi possível carregar as execuções."
+  },
+  "fixed_assets.runs.load_one_failed": {
+    "es": "No se pudo cargar la corrida.",
+    "en": "The run could not be loaded.",
+    "pt": "Não foi possível carregar a execução."
+  },
+  "fixed_assets.runs.ran_at": {
+    "es": "Fecha de la corrida",
+    "en": "Ran at",
+    "pt": "Data da execução"
+  },
+  "fixed_assets.runs.ran_by": {
+    "es": "Ejecutada por",
+    "en": "Run by",
+    "pt": "Executada por"
+  },
+  "fixed_assets.runs.subtitle": {
+    "es": "Cada corrida que cargó depreciación: cuándo, por qué, quién, hasta qué mes y cuánto.",
+    "en": "Every run that charged depreciation: when, why, who, through which month and how much.",
+    "pt": "Cada execução que lançou depreciação: quando, por quê, quem, até qual mês e quanto."
+  },
+  "fixed_assets.runs.tax_charged": {
+    "es": "Lo que registró en los libros fiscales",
+    "en": "What it recorded in the tax books",
+    "pt": "O que registrou nos livros fiscais"
+  },
+  "fixed_assets.runs.tax_months": {
+    "es": "{{count}} meses",
+    "en": "{{count}} months",
+    "pt": "{{count}} meses"
+  },
+  "fixed_assets.runs.tax_months_one": {
+    "es": "{{count}} mes",
+    "en": "{{count}} month",
+    "pt": "{{count}} mês"
+  },
+  "fixed_assets.runs.through": {
+    "es": "Hasta el mes",
+    "en": "Through",
+    "pt": "Até o mês"
+  },
+  "fixed_assets.runs.title": {
+    "es": "Corridas de depreciación",
+    "en": "Depreciation runs",
+    "pt": "Execuções de depreciação"
+  },
+  "fixed_assets.runs.trigger.disposal": {
+    "es": "Baja de un activo",
+    "en": "Asset disposal",
+    "pt": "Baixa de um ativo"
+  },
+  "fixed_assets.runs.trigger.manual": {
+    "es": "Manual",
+    "en": "Manual",
+    "pt": "Manual"
+  },
+  "fixed_assets.runs.trigger.period_close": {
+    "es": "Cierre de período",
+    "en": "Period close",
+    "pt": "Fechamento de período"
+  },
+  "fixed_assets.runs.trigger.schedule": {
+    "es": "Programada (mensual)",
+    "en": "Scheduled (monthly)",
+    "pt": "Agendada (mensal)"
+  },
+  "fixed_assets.runs.trigger_label": {
+    "es": "Origen",
+    "en": "Started by",
+    "pt": "Origem"
   },
   "fixed_assets.status.disposed": {
     "es": "Dado de baja",
@@ -724,10 +1624,420 @@
     "en": "Sold",
     "pt": "Vendido"
   },
+  "fixed_assets.tax_book.basis": {
+    "es": "Base fiscal",
+    "en": "Tax basis",
+    "pt": "Base fiscal"
+  },
+  "fixed_assets.tax_book.basis_placeholder": {
+    "es": "El costo",
+    "en": "The cost",
+    "pt": "O custo"
+  },
+  "fixed_assets.tax_book.by_year": {
+    "es": "El libro fiscal por año fiscal",
+    "en": "The tax book by fiscal year",
+    "pt": "O livro fiscal por ano fiscal"
+  },
+  "fixed_assets.tax_book.category": {
+    "es": "Categoría fiscal",
+    "en": "Tax category",
+    "pt": "Categoria fiscal"
+  },
+  "fixed_assets.tax_book.category_hint": {
+    "es": "Lo que la autoridad fiscal deja deducir: su categoría y su tasa, que el libro fiscal de cada activo sigue.",
+    "en": "What the tax authority lets the company deduct: its category and its rate, which each asset's tax book follows.",
+    "pt": "O que a autoridade fiscal permite deduzir: sua categoria e sua taxa, que o livro fiscal de cada ativo segue."
+  },
+  "fixed_assets.tax_book.category_of": {
+    "es": "Categoría fiscal de {{authority}}",
+    "en": "{{authority}} tax category",
+    "pt": "Categoria fiscal de {{authority}}"
+  },
+  "fixed_assets.tax_book.closed_on": {
+    "es": "Cerrado el",
+    "en": "Closed on",
+    "pt": "Encerrado em"
+  },
+  "fixed_assets.tax_book.convention": {
+    "es": "Convención fiscal",
+    "en": "Tax convention",
+    "pt": "Convenção fiscal"
+  },
+  "fixed_assets.tax_book.deducted": {
+    "es": "Deducido",
+    "en": "Deducted",
+    "pt": "Deduzido"
+  },
+  "fixed_assets.tax_book.deducted_through": {
+    "es": "Deducido hasta",
+    "en": "Deducted through",
+    "pt": "Deduzido até"
+  },
+  "fixed_assets.tax_book.deduction": {
+    "es": "Deducción",
+    "en": "Deduction",
+    "pt": "Dedução"
+  },
+  "fixed_assets.tax_book.fiscal_year": {
+    "es": "Año fiscal",
+    "en": "Fiscal year",
+    "pt": "Ano fiscal"
+  },
+  "fixed_assets.tax_book.hide_months": {
+    "es": "Ocultar los {{count}} meses",
+    "en": "Hide the {{count}} months",
+    "pt": "Ocultar os {{count}} meses"
+  },
+  "fixed_assets.tax_book.hide_months_one": {
+    "es": "Ocultar el mes",
+    "en": "Hide the month",
+    "pt": "Ocultar o mês"
+  },
+  "fixed_assets.tax_book.hint": {
+    "es": "Se carga en las mismas corridas que la depreciación contable y no se contabiliza: es lo que lee la declaración y el impuesto diferido.",
+    "en": "It is charged by the same runs as the accounting depreciation and is not posted: it is what the tax return and the deferred tax read.",
+    "pt": "É calculado nas mesmas execuções da depreciação contábil e não é contabilizado: é o que a declaração e o imposto diferido leem."
+  },
+  "fixed_assets.tax_book.keep": {
+    "es": "Llevar libro fiscal",
+    "en": "Keep a tax book",
+    "pt": "Manter livro fiscal"
+  },
+  "fixed_assets.tax_book.locked_hint": {
+    "es": "El libro fiscal ya registró {{count}} meses: su base, su saldo inicial y su convención ya no cambian. La tasa y el método sí, desde el mes siguiente.",
+    "en": "The tax book has recorded {{count}} months: its basis, opening and convention no longer change. Its rate and method can, from the next month.",
+    "pt": "O livro fiscal já registrou {{count}} meses: sua base, seu saldo inicial e sua convenção não mudam mais. A taxa e o método sim, a partir do mês seguinte."
+  },
+  "fixed_assets.tax_book.locked_hint_one": {
+    "es": "El libro fiscal ya registró {{count}} mes: su base, su saldo inicial y su convención ya no cambian. La tasa y el método sí, desde el mes siguiente.",
+    "en": "The tax book has recorded {{count}} month: its basis, opening and convention no longer change. Its rate and method can, from the next month.",
+    "pt": "O livro fiscal já registrou {{count}} mês: sua base, seu saldo inicial e sua convenção não mudam mais. A taxa e o método sim, a partir do mês seguinte."
+  },
+  "fixed_assets.tax_book.memo_hint": {
+    "es": "Memoria fiscal: se registra, no se contabiliza.",
+    "en": "Tax memorandum: recorded, not posted.",
+    "pt": "Memória fiscal: é registrada, não contabilizada."
+  },
+  "fixed_assets.tax_book.method": {
+    "es": "Método fiscal",
+    "en": "Tax method",
+    "pt": "Método fiscal"
+  },
+  "fixed_assets.tax_book.no_category": {
+    "es": "Ninguna (tasa propia)",
+    "en": "None (own rate)",
+    "pt": "Nenhuma (taxa própria)"
+  },
+  "fixed_assets.tax_book.none": {
+    "es": "Sin libro fiscal",
+    "en": "No tax book",
+    "pt": "Sem livro fiscal"
+  },
+  "fixed_assets.tax_book.opening_accumulated": {
+    "es": "Depreciación fiscal inicial",
+    "en": "Opening tax depreciation",
+    "pt": "Depreciação fiscal inicial"
+  },
+  "fixed_assets.tax_book.opening_through": {
+    "es": "Deducido hasta",
+    "en": "Deducted through",
+    "pt": "Deduzido até"
+  },
+  "fixed_assets.tax_book.own_rate": {
+    "es": "Tasa propia",
+    "en": "Own rate",
+    "pt": "Taxa própria"
+  },
+  "fixed_assets.tax_book.rate": {
+    "es": "Tasa fiscal anual (%)",
+    "en": "Yearly tax rate (%)",
+    "pt": "Taxa fiscal anual (%)"
+  },
+  "fixed_assets.tax_book.same_convention": {
+    "es": "La del libro contable",
+    "en": "The accounting book's",
+    "pt": "A do livro contábil"
+  },
+  "fixed_assets.tax_book.show_months": {
+    "es": "Ver los {{count}} meses registrados",
+    "en": "Show the {{count}} months recorded",
+    "pt": "Ver os {{count}} meses registrados"
+  },
+  "fixed_assets.tax_book.show_months_one": {
+    "es": "Ver el mes registrado",
+    "en": "Show the month recorded",
+    "pt": "Ver o mês registrado"
+  },
+  "fixed_assets.tax_book.states.partial": {
+    "es": "En curso",
+    "en": "In progress",
+    "pt": "Em andamento"
+  },
+  "fixed_assets.tax_book.states.posted": {
+    "es": "Registrado",
+    "en": "Recorded",
+    "pt": "Registrado"
+  },
+  "fixed_assets.tax_book.states.projected": {
+    "es": "Proyectado",
+    "en": "Projected",
+    "pt": "Projetado"
+  },
+  "fixed_assets.tax_book.tax_value": {
+    "es": "Valor fiscal",
+    "en": "Tax value",
+    "pt": "Valor fiscal"
+  },
+  "fixed_assets.tax_book.title": {
+    "es": "Libro fiscal",
+    "en": "Tax book",
+    "pt": "Livro fiscal"
+  },
+  "fixed_assets.tax_book.year_state": {
+    "es": "Estado",
+    "en": "State",
+    "pt": "Situação"
+  },
+  "fixed_assets.tax_book_closed": {
+    "es": "El libro fiscal del activo {{number}} se cerró el {{date}}, con su baja.",
+    "en": "The tax book of asset {{number}} closed on {{date}}, with its disposal.",
+    "pt": "O livro fiscal do ativo {{number}} foi encerrado em {{date}}, com sua baixa."
+  },
+  "fixed_assets.tax_book_has_charges": {
+    "es": "El libro fiscal del activo {{number}} ya registró {{months}} meses de deducción: es el registro de lo deducido y no se puede quitar.",
+    "en": "The tax book of asset {{number}} has recorded {{months}} months of deductions: it is the record of what was deducted and cannot be removed.",
+    "pt": "O livro fiscal do ativo {{number}} já registrou {{months}} meses de dedução: é o registro do que foi deduzido e não pode ser removido."
+  },
+  "fixed_assets.tax_book_method_unsupported": {
+    "es": "El libro fiscal deprecia en línea recta o por saldo decreciente.",
+    "en": "The tax book depreciates by straight line or by declining balance.",
+    "pt": "O livro fiscal deprecia em linha reta ou por saldo decrescente."
+  },
+  "fixed_assets.tax_book_rate_required": {
+    "es": "El libro fiscal necesita su método y su tasa anual: indícalos, o elige una categoría fiscal que los tenga.",
+    "en": "The tax book needs its method and its yearly rate: state them, or choose a tax category that has them.",
+    "pt": "O livro fiscal precisa de seu método e de sua taxa anual: informe-os, ou escolha uma categoria fiscal que os tenha."
+  },
+  "fixed_assets.tax_book_terms_fixed": {
+    "es": "El libro fiscal del activo {{number}} ya registró meses de deducción: estos campos ya no cambian: {{fields}}. El método, la tasa y la categoría fiscal sí, desde el mes siguiente.",
+    "en": "The tax book of asset {{number}} has already recorded deductions: these fields no longer change: {{fields}}. Its method, rate and tax category still can, from the next month on.",
+    "pt": "O livro fiscal do ativo {{number}} já registrou meses de dedução: estes campos não mudam mais: {{fields}}. O método, a taxa e a categoria fiscal ainda podem mudar, a partir do mês seguinte."
+  },
+  "fixed_assets.tax_categories.do_1": {
+    "es": "Categoría 1 — Edificaciones y sus componentes estructurales (5 %)",
+    "en": "Category 1 — Buildings and their structural components (5 %)",
+    "pt": "Categoria 1 — Edificações e seus componentes estruturais (5 %)"
+  },
+  "fixed_assets.tax_categories.do_2": {
+    "es": "Categoría 2 — Automóviles y camiones livianos, mobiliario y equipo de oficina, computadoras y equipo de procesamiento de datos (25 %)",
+    "en": "Category 2 — Cars and light trucks, office furniture and equipment, computers and data-processing equipment (25 %)",
+    "pt": "Categoria 2 — Automóveis e caminhões leves, mobiliário e equipamento de escritório, computadores e equipamento de processamento de dados (25 %)"
+  },
+  "fixed_assets.tax_categories.do_3": {
+    "es": "Categoría 3 — Cualquier otra propiedad depreciable (15 %)",
+    "en": "Category 3 — Any other depreciable property (15 %)",
+    "pt": "Categoria 3 — Qualquer outro bem depreciável (15 %)"
+  },
+  "fixed_assets.tax_categories.do_caveat": {
+    "es": "La DGII deprecia las categorías 2 y 3 en cuentas agrupadas, sobre el saldo de la cuenta al cierre del ejercicio (Ley 11-92, art. 287). Este libro calcula activo por activo a la misma tasa: coincide salvo en las bajas, donde la ley resta lo cobrado del saldo de la cuenta en lugar de reconocer una ganancia o una pérdida. Verificar con un contador local.",
+    "en": "The DGII depreciates categories 2 and 3 in pooled accounts, on the account's balance at the close of the year (Law 11-92, art. 287). This book works asset by asset at the same rate: it agrees except on disposals, where the law takes the proceeds off the account's balance instead of recognising a gain or a loss. Check with a local accountant.",
+    "pt": "A DGII deprecia as categorias 2 e 3 em contas agrupadas, sobre o saldo da conta no fechamento do exercício (Lei 11-92, art. 287). Este livro calcula ativo por ativo à mesma taxa: coincide exceto nas baixas, em que a lei desconta o valor recebido do saldo da conta em vez de reconhecer ganho ou perda. Verificar com um contador local."
+  },
+  "fixed_assets.tax_categories.mx_34_i": {
+    "es": "Construcciones (5 %)",
+    "en": "Buildings (5 %)",
+    "pt": "Construções (5 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_iii": {
+    "es": "Mobiliario y equipo de oficina (10 %)",
+    "en": "Office furniture and equipment (10 %)",
+    "pt": "Mobiliário e equipamento de escritório (10 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_vi": {
+    "es": "Automóviles, autobuses, camiones de carga, tractocamiones, montacargas y remolques (25 %)",
+    "en": "Cars, buses, freight trucks, tractor-trailers, forklifts and trailers (25 %)",
+    "pt": "Automóveis, ônibus, caminhões de carga, cavalos mecânicos, empilhadeiras e reboques (25 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_vii": {
+    "es": "Computadoras personales, servidores, impresoras y equipo periférico de cómputo (30 %)",
+    "en": "Personal computers, servers, printers and computer peripherals (30 %)",
+    "pt": "Computadores pessoais, servidores, impressoras e periféricos de informática (30 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_viii": {
+    "es": "Dados, troqueles, moldes, matrices y herramental (35 %)",
+    "en": "Dies, punches, moulds, matrices and tooling (35 %)",
+    "pt": "Matrizes, punções, moldes e ferramental (35 %)"
+  },
+  "fixed_assets.tax_categories.mx_caveat": {
+    "es": "Son los porcentajes máximos de la LISR (art. 34) sobre el monto original de la inversión, en línea recta; la maquinaria y el equipo se deprecian según la actividad (art. 35). La deducción de cada ejercicio se actualiza con el factor del INPC (art. 31), que este libro no aplica. Verificar con un contador local.",
+    "en": "These are the LISR's maximum rates (art. 34) on the original investment, straight line; machinery and equipment are depreciated by activity (art. 35). Each year's deduction is restated by the INPC factor (art. 31), which this book does not apply. Verify with a local accountant.",
+    "pt": "São as taxas máximas da LISR (art. 34) sobre o valor original do investimento, em linha reta; máquinas e equipamentos se depreciam conforme a atividade (art. 35). A dedução de cada exercício é atualizada pelo fator do INPC (art. 31), que este livro não aplica. Verificar com um contador local."
+  },
+  "fixed_assets.tax_category_unknown": {
+    "es": "{{code}} no es una categoría de {{authority}}. Sus categorías son: {{known}}.",
+    "en": "{{code}} is not a {{authority}} category. Its categories are: {{known}}.",
+    "pt": "{{code}} não é uma categoria de {{authority}}. Suas categorias são: {{known}}."
+  },
+  "fixed_assets.tax_method_and_rate_together": {
+    "es": "El método fiscal y la tasa fiscal van juntos: indica los dos o ninguno.",
+    "en": "The tax method and the tax rate go together: state both or neither.",
+    "pt": "O método fiscal e a taxa fiscal andam juntos: informe os dois ou nenhum."
+  },
+  "fixed_assets.tax_methods.declining_balance": {
+    "es": "Saldo decreciente",
+    "en": "Declining balance",
+    "pt": "Saldo decrescente"
+  },
+  "fixed_assets.tax_methods.straight_line": {
+    "es": "Línea recta",
+    "en": "Straight line",
+    "pt": "Linha reta"
+  },
+  "fixed_assets.tax_opening_above_basis": {
+    "es": "La depreciación fiscal inicial no puede superar la base fiscal ({{maximum}}).",
+    "en": "The opening tax depreciation cannot exceed the tax basis ({{maximum}}).",
+    "pt": "A depreciação fiscal inicial não pode superar a base fiscal ({{maximum}})."
+  },
+  "fixed_assets.tax_opening_through_before_service": {
+    "es": "La depreciación fiscal inicial no puede cubrir meses anteriores a la puesta en servicio.",
+    "en": "The opening tax depreciation cannot cover months before the asset entered service.",
+    "pt": "A depreciação fiscal inicial não pode cobrir meses anteriores à entrada em serviço."
+  },
+  "fixed_assets.tax_opening_through_required": {
+    "es": "Indica hasta qué mes cubre la depreciación fiscal inicial.",
+    "en": "State the month the opening tax depreciation covers through.",
+    "pt": "Informe até que mês cobre a depreciação fiscal inicial."
+  },
+  "fixed_assets.tax_report.accounting_carrying": {
+    "es": "Valor en libros",
+    "en": "Carrying amount",
+    "pt": "Valor contábil"
+  },
+  "fixed_assets.tax_report.accounting_depreciation": {
+    "es": "Depreciación contable del período",
+    "en": "The period's accounting depreciation",
+    "pt": "Depreciação contábil do período"
+  },
+  "fixed_assets.tax_report.assets": {
+    "es": "Activos",
+    "en": "Assets",
+    "pt": "Ativos"
+  },
+  "fixed_assets.tax_report.by_asset": {
+    "es": "Por activo",
+    "en": "By asset",
+    "pt": "Por ativo"
+  },
+  "fixed_assets.tax_report.by_category": {
+    "es": "Por categoría fiscal",
+    "en": "By tax category",
+    "pt": "Por categoria fiscal"
+  },
+  "fixed_assets.tax_report.closing": {
+    "es": "Deducido al cierre",
+    "en": "Deducted at the end",
+    "pt": "Deduzido no fechamento"
+  },
+  "fixed_assets.tax_report.difference": {
+    "es": "Diferencia temporaria",
+    "en": "Temporary difference",
+    "pt": "Diferença temporária"
+  },
+  "fixed_assets.tax_report.difference_hint": {
+    "es": "Valor en libros menos valor fiscal de los activos que siguen en uso al cierre: la base del impuesto diferido (NIC 12).",
+    "en": "Carrying amount less tax value of the assets still in use at the end: the base of deferred tax (IAS 12).",
+    "pt": "Valor contábil menos valor fiscal dos ativos ainda em uso no fechamento: a base do imposto diferido (IAS 12)."
+  },
+  "fixed_assets.tax_report.disposal_date": {
+    "es": "Fecha de baja",
+    "en": "Disposal date",
+    "pt": "Data da baixa"
+  },
+  "fixed_assets.tax_report.empty_help": {
+    "es": "Un activo lleva libro fiscal cuando su categoría tiene tasa fiscal, o cuando se le indica al registrarlo.",
+    "en": "An asset keeps a tax book when its category has a tax rate, or when one is stated as it is registered.",
+    "pt": "Um ativo mantém livro fiscal quando sua categoria tem taxa fiscal, ou quando é indicado no cadastro."
+  },
+  "fixed_assets.tax_report.empty_title": {
+    "es": "Ningún activo lleva libro fiscal en el período",
+    "en": "No asset keeps a tax book in the period",
+    "pt": "Nenhum ativo mantém livro fiscal no período"
+  },
+  "fixed_assets.tax_report.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "fixed_assets.tax_report.export_failed": {
+    "es": "No se pudo exportar el informe.",
+    "en": "The report could not be exported.",
+    "pt": "Não foi possível exportar o relatório."
+  },
+  "fixed_assets.tax_report.exporting": {
+    "es": "Exportando…",
+    "en": "Exporting…",
+    "pt": "Exportando…"
+  },
+  "fixed_assets.tax_report.file": {
+    "es": "depreciacion-fiscal",
+    "en": "tax-depreciation",
+    "pt": "depreciacao-fiscal"
+  },
+  "fixed_assets.tax_report.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "fixed_assets.tax_report.left_on": {
+    "es": "dado de baja el {{date}}",
+    "en": "disposed of on {{date}}",
+    "pt": "baixado em {{date}}"
+  },
+  "fixed_assets.tax_report.load_failed": {
+    "es": "No se pudo cargar la depreciación fiscal.",
+    "en": "The tax depreciation could not be loaded.",
+    "pt": "Não foi possível carregar a depreciação fiscal."
+  },
+  "fixed_assets.tax_report.opening": {
+    "es": "Deducido al inicio",
+    "en": "Deducted at the start",
+    "pt": "Deduzido no início"
+  },
+  "fixed_assets.tax_report.period": {
+    "es": "Período: {{from}} a {{to}}",
+    "en": "Period: {{from}} to {{to}}",
+    "pt": "Período: {{from}} a {{to}}"
+  },
+  "fixed_assets.tax_report.subtitle": {
+    "es": "La deducción del período por activo y por categoría fiscal, lo que queda por deducir y la diferencia con los libros.",
+    "en": "The period's deduction by asset and by tax category, what is left to deduct and the difference against the books.",
+    "pt": "A dedução do período por ativo e por categoria fiscal, o que resta deduzir e a diferença com os livros."
+  },
+  "fixed_assets.tax_report.title": {
+    "es": "Depreciación fiscal",
+    "en": "Tax depreciation",
+    "pt": "Depreciação fiscal"
+  },
+  "fixed_assets.tax_report.to": {
+    "es": "Hasta",
+    "en": "Through",
+    "pt": "Até"
+  },
+  "fixed_assets.tax_report.totals": {
+    "es": "Totales",
+    "en": "Totals",
+    "pt": "Totais"
+  },
+  "fixed_assets.useful_life_required": {
+    "es": "Indica la vida útil, o elige una categoría que la tenga.",
+    "en": "State the useful life, or choose a category that has one.",
+    "pt": "Informe a vida útil, ou escolha uma categoria que a tenha."
+  },
   "fixed_assets.valuation_locked_after_depreciation": {
-    "es": "El activo {{number}} ya tiene depreciación registrada: no se pueden cambiar {{fields}}. Para corregir el costo registra una mejora o un deterioro.",
-    "en": "Asset {{number}} already has depreciation posted: {{fields}} cannot change. To correct the cost, record an improvement or an impairment.",
-    "pt": "O ativo {{number}} já tem depreciação registrada: não é possível alterar {{fields}}. Para corrigir o custo, registre uma melhoria ou uma perda por redução."
+    "es": "El activo {{number}} ya tiene depreciación registrada: estos campos ya no cambian: {{fields}}. Para corregir el costo registra una mejora o un deterioro.",
+    "en": "Asset {{number}} already has depreciation posted: these fields no longer change: {{fields}}. To correct the cost, record an improvement or an impairment.",
+    "pt": "O ativo {{number}} já tem depreciação registrada: estes campos não mudam mais: {{fields}}. Para corrigir o custo, registre uma melhoria ou uma perda por redução."
   },
   "fixed_assets.vendor_bill_not_found": {
     "es": "La factura de proveedor indicada no existe en esta empresa.",

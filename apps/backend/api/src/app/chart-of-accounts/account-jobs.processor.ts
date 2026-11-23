@@ -9,9 +9,14 @@ import { EventsGateway } from '../websockets/events.gateway';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
-import { Ledger } from '../accounting/entities/ledger.entity';
 import { LocalizedMessage } from '../i18n/localized-message';
 import { runAsTenantJob } from '../shared/tenancy/tenant-job';
+import { JournalEntry, LEDGER_STATUSES } from '../journal-entries/entities/journal-entry.entity';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
+import { LedgerPostingRegistry } from '../contracts/ledger-posting/ledger-posting.contract';
+import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
+import { roundAmount } from '../common/money';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 
 interface MergeAccountsJobData {
@@ -30,6 +35,8 @@ export class AccountJobsProcessor extends WorkerHost {
     private readonly dataSource: DataSource,
     private readonly eventsGateway: EventsGateway,
     private readonly auditTrailService: AuditTrailService,
+    private readonly journalQuery: JournalQueryService,
+    private readonly ledger: LedgerPostingRegistry,
   ) {
     super();
   }
@@ -75,58 +82,106 @@ export class AccountJobsProcessor extends WorkerHost {
 
         if (!sourceAccount || !destAccount) throw new Error('La cuenta de origen o destino ya no existe.');
 
-        await job.updateProgress(10);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 10, messageKey: 'chart_of_accounts.reassigning_child_accounts' });
+        await this.progress(job, userId, 10, 'chart_of_accounts.reassigning_child_accounts');
         await manager.update(Account, { parentId: sourceAccountId }, { parentId: destinationAccountId });
-        this.logger.log(`Job ${job.id}: Cuentas hijas de ${sourceAccountId} reasignadas a ${destinationAccountId}.`);
-        
-        await job.updateProgress(30);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 30, messageKey: 'chart_of_accounts.reassigning_transactions_may_take_while' });
-        
-        let updatedLinesCount = 0;
-        
-        while (true) {
-            const linesToUpdate = await manager.find(JournalEntryLine, { where: { accountId: sourceAccountId }, take: BATCH_SIZE });
-            if (linesToUpdate.length === 0) break;
-            
-            const lineIds = linesToUpdate.map(line => line.id);
-            await manager.update(JournalEntryLine, { id: In(lineIds) }, { accountId: destinationAccountId });
-            
-            updatedLinesCount += linesToUpdate.length;
-            this.logger.log(`Job ${job.id}: Procesado lote de ${linesToUpdate.length} transacciones.`);
-            
-            const progress = 30 + Math.round((updatedLinesCount / (await manager.count(JournalEntryLine, { where: { accountId: sourceAccountId } }) + updatedLinesCount)) * 50);
-            await job.updateProgress(progress);
-            await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress, message: `Reasignadas ${updatedLinesCount} transacciones...` });
+
+        // Only what is NOT yet in the ledger. A draft belongs to whoever is still writing it, so
+        // repointing it is a correction; a posted line is history and is never rewritten — which is
+        // what the immutability triggers say, and what this job used to attempt on every line it
+        // found (FIN-COA-02). It did it in batches, got as far as the first posted one, and failed
+        // after telling the person the merge had started.
+        await this.progress(job, userId, 35, 'chart_of_accounts.reassigning_transactions_may_take_while');
+        const moved = await manager
+          .createQueryBuilder()
+          .update(JournalEntryLine)
+          .set({ accountId: destinationAccountId })
+          .where('account_id = :sourceAccountId', { sourceAccountId })
+          .andWhere(
+            `journal_entry_id IN (SELECT id FROM journal_entries WHERE organization_id = :organizationId AND status NOT IN (:...ledgerStatuses))`,
+            { organizationId, ledgerStatuses: LEDGER_STATUSES },
+          )
+          .execute();
+        this.logger.log(`Job ${job.id}: ${moved.affected ?? 0} línea(s) sin contabilizar reasignadas.`);
+
+        // The posted balance moves as a dated entry, which is how a ledger moves anything: the
+        // source is squared off against the destination for exactly what it carries, so the source
+        // reads zero and the destination reads the combined figure. The lines behind both stay
+        // where they were posted, and every statement already issued still reads the same.
+        //
+        // BY DIMENSION COMBINATION, each pair of lines carrying the tags of the balance it moves.
+        // One untagged lump would lose the analytical attribution — both cost centres would keep
+        // their balances on the retired account while the destination received an unattributed
+        // total — and a mandatory dimension rule on either account would refuse the entry. The
+        // tags came out of the ledger, so they travel as they are (`tagsFromLedger`).
+        await this.progress(job, userId, 60, 'chart_of_accounts.reclassifying_posted_balance');
+        const slices = (await this.journalQuery.postedBalanceByDimension(sourceAccountId, organizationId, manager))
+          .map((slice) => ({ ...slice, balance: roundAmount(slice.balance) }))
+          .filter((slice) => slice.balance !== 0);
+        let reclassificationId: string | null = null;
+        if (slices.length > 0) {
+          const [organization] = await manager.query<Array<{ country: string | null; timezone: string | null }>>(
+            `SELECT "country", "timezone" FROM "organizations" WHERE "id" = $1`,
+            [organizationId],
+          );
+          const words = await this.ledger.describeAll(manager, organizationId, {
+            description: {
+              key: 'accounting.ledger.account_merge_reclassification',
+              params: { source: sourceAccount.code, destination: destAccount.code },
+            },
+          });
+          const posted = await this.ledger.post(
+            manager,
+            organizationId,
+            {
+              journalCode: 'GENERAL',
+              date: fiscalDate(organizationTimeZone(organization)),
+              ...described(words.description),
+              lines: slices.flatMap((slice) => {
+                const amount = Math.abs(slice.balance);
+                const tags = slice.dimensions ? { dimensions: slice.dimensions } : {};
+                return [
+                  // A net debit on the source is cleared with a credit, and the other way round.
+                  { accountId: sourceAccountId, debit: slice.balance < 0 ? amount : 0, credit: slice.balance > 0 ? amount : 0, ...tags },
+                  { accountId: destinationAccountId, debit: slice.balance > 0 ? amount : 0, credit: slice.balance < 0 ? amount : 0, ...tags },
+                ];
+              }),
+            },
+            {
+              actorUserId: userId,
+              systemReason: `account-merge:${sourceAccount.code}->${destAccount.code}`,
+              // The queue retries three times; the entry is posted once.
+              idempotencyKey: `account-merge:${job.id}`,
+              module: 'general-ledger',
+              tagsFromLedger: true,
+            },
+          );
+          reclassificationId = posted.id;
+          this.logger.log(`Job ${job.id}: reclasificación ${posted.id} en ${slices.length} combinación(es) de dimensiones.`);
         }
-        this.logger.log(`Job ${job.id}: Total de ${updatedLinesCount} líneas de transacción reasignadas.`);
 
-        await job.updateProgress(90);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 90, messageKey: 'chart_of_accounts.deactivating_source_account_recalculating_balances' });
-        
+        await this.progress(job, userId, 90, 'chart_of_accounts.deactivating_source_account_recalculating_balances');
 
-        // No balances to fix up. Reassigning the lines above IS the balance change: a balance is a
-        // SUM over these rows, so the source account reads zero and the destination reads the
-        // combined figure the moment this transaction commits. The old code recomputed both
-        // balances and wrote them to `account_balances` — with a status filter of `'POSTED'`
-        // against an enum whose value is `'Posted'`, so the recomputation matched no rows at all
-        // and quietly zeroed both accounts.
-
+        // Closed, not deleted: its history is still addressable by its own code, which is the point
+        // of not rewriting it. Blocked for posting as well, so nothing new lands on it.
         sourceAccount.isActive = false;
-
-        if (!sourceAccount.description) {
-            sourceAccount.description = {};
-        }
-        sourceAccount.description['es'] = `(Fusionada en ${destAccount.code} el ${new Date().toISOString()}) ${sourceAccount.description['es'] || ''}`.trim();
+        sourceAccount.isBlockedForPosting = true;
+        sourceAccount.blockedAt = new Date();
+        if (!sourceAccount.description) sourceAccount.description = {};
+        const language = Object.keys(sourceAccount.name ?? {})[0] ?? 'es';
+        sourceAccount.description[language] =
+          `(→ ${destAccount.code}, ${fiscalDate('UTC')}) ${sourceAccount.description[language] || ''}`.trim();
         await manager.save(sourceAccount);
 
         await this.auditTrailService.record(
-            userId, 'accounts', sourceAccountId, ActionType.UPDATE,
-            { status: 'MERGED', mergedInto: destinationAccountId, reason },
-            { status: 'ACTIVE' },
+          userId,
+          'accounts',
+          sourceAccountId,
+          ActionType.UPDATE,
+          { status: 'MERGED', mergedInto: destinationAccountId, reason, reclassificationId, linesMoved: moved.affected ?? 0 },
+          { status: 'ACTIVE' },
         );
       });
-      
+
       await job.updateProgress(100);
       const completed = {
         messageKey: 'chart_of_accounts.merge_completed',
@@ -154,6 +209,12 @@ export class AccountJobsProcessor extends WorkerHost {
   }
   
 
+
+  /** One line instead of two at every step: update the job and tell the browser. */
+  private async progress(job: Job, userId: string, progress: number, messageKey: string): Promise<void> {
+    await job.updateProgress(progress);
+    await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress, messageKey });
+  }
 
   async onActive(job: Job) { this.logger.log(`Procesando job ${job.id}`); }
   async onCompleted(job: Job, result: any) { this.logger.log(`Job ${job.id} completado.`); }

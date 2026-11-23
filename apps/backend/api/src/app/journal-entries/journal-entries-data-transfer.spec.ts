@@ -91,7 +91,8 @@ describeWithDb('accounting exports', () => {
   });
 
   it('exports the chart of accounts in the books language', async () => {
-    const provider = new ChartOfAccountsDataTransferProvider(registry, dataSource);
+    // Exporting reads the chart; only the import writes, through the chart's service.
+    const provider = new ChartOfAccountsDataTransferProvider(registry, dataSource, {} as never);
     const page = await provider.exportPage(organizationId, 100, 0);
 
     expect(page.total).toBe(2);

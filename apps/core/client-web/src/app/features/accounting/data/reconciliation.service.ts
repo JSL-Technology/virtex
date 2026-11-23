@@ -108,7 +108,10 @@ export interface MatchCandidate {
   journalEntryId: string;
   entryNumber: string | null;
   date: string;
+  /** The line's narrative as the books record it; `descriptionKey/Params` render it for the reader. */
   description: string | null;
+  descriptionKey?: string | null;
+  descriptionParams?: Record<string, unknown> | null;
   amount: number;
   score: number;
   reasons: MatchReason[];

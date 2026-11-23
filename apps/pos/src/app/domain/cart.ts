@@ -14,6 +14,36 @@ export interface CartLine {
   kind: 'GOOD' | 'SERVICE';
   /** On hand when the catalogue was last loaded; a service has no limit. */
   stock: number;
+  /** What `price` is derived from at each quantity; see {@link unitPriceAt}. */
+  cataloguePrice?: number;
+  priceBreaks?: ReadonlyArray<{ minQuantity: number; price: number }>;
+}
+
+/**
+ * The unit price of a line at a quantity — the server's rule (`PriceResolver` + `pickBreak`): the
+ * break with the largest minimum the quantity reaches, else the catalogue price. A
+ * till that kept the one-unit price for twelve units would show one total and be refused with
+ * `pos.prices_changed` at the counter.
+ */
+export function unitPriceAt(
+  pricing: Pick<CartLine, 'price' | 'cataloguePrice' | 'priceBreaks'>,
+  quantity: number,
+): number {
+  const breaks = pricing.priceBreaks ?? [];
+  let best: { minQuantity: number; price: number } | null = null;
+  for (const candidate of breaks) {
+    if (candidate.minQuantity <= quantity + 1e-9 && (!best || candidate.minQuantity > best.minQuantity)) best = candidate;
+  }
+  if (best) return Number(best.price);
+  return Number(pricing.cataloguePrice ?? pricing.price);
+}
+
+function pricingOf(item: CatalogueItem): Pick<CartLine, 'price' | 'cataloguePrice' | 'priceBreaks'> {
+  return {
+    price: Number(item.price),
+    cataloguePrice: item.cataloguePrice === undefined ? Number(item.price) : Number(item.cataloguePrice),
+    priceBreaks: item.priceBreaks ?? [],
+  };
 }
 
 export interface CartTotals {
@@ -102,10 +132,11 @@ export function addToCart(
   if (existing) {
     return {
       lines: lines.map((line) =>
-        line.productId === item.id ? { ...line, quantity: wanted } : line,
+        line.productId === item.id ? { ...line, quantity: wanted, price: unitPriceAt(line, wanted) } : line,
       ),
     };
   }
+  const pricing = pricingOf(item);
   return {
     lines: [
       ...lines,
@@ -113,7 +144,8 @@ export function addToCart(
         productId: item.id,
         name: item.name,
         sku: item.sku,
-        price: Number(item.price),
+        ...pricing,
+        price: unitPriceAt(pricing, quantity),
         quantity,
         taxRate: Number(item.taxRate) || 0,
         kind: item.kind,
@@ -142,7 +174,7 @@ export function setQuantity(
   }
   return {
     lines: lines.map((l) =>
-      l.productId === productId ? { ...l, quantity: qty } : l,
+      l.productId === productId ? { ...l, quantity: qty, price: unitPriceAt(l, qty) } : l,
     ),
   };
 }
@@ -159,11 +191,13 @@ export function repriceCart(
   return lines.flatMap((line) => {
     const item = byId.get(line.productId);
     if (!item) return [];
+    const pricing = pricingOf(item);
     return [
       {
         ...line,
         name: item.name,
-        price: Number(item.price),
+        ...pricing,
+        price: unitPriceAt(pricing, line.quantity),
         taxRate: Number(item.taxRate) || 0,
         stock: Number(item.stock ?? 0),
       },

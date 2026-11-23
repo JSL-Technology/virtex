@@ -2,6 +2,10 @@ import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity
 import { AccountRole } from '../../contracts/accounting/account-role.contract';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
+import { BUDGET_CONTROL_MODES } from '../../contracts/accounting/budget-control.contract';
+import { normalizeReminderDays } from '../../contracts/collections/reminder-schedule.contract';
+import { DEPRECIATION_CONVENTIONS, INFLATION_ADJUSTMENT_POLICIES } from '@virtex/shared/types';
+import { PRICE_INDEX_SERIES_CODES } from '../../markets';
 
 /**
  * The organization's settings, by the section of «Configuración» that edits them (QA M-09).
@@ -44,6 +48,19 @@ const intField = (min: number, max: number): PolicyField<number> => ({
       : { ok: false, key: 'organizations.settings.integer_between', params: { min, max } },
 });
 
+const booleanField = (): PolicyField<boolean> => ({
+  validate: (value) =>
+    typeof value === 'boolean' ? { ok: true, value } : { ok: false, key: 'organizations.settings.yes_or_no' },
+});
+
+/** Days from a due date, as the reminder schedule reads them: whole, bounded, distinct, in order. */
+const reminderDaysField = (): PolicyField<number[]> => ({
+  validate: (value) => {
+    const result = normalizeReminderDays(value);
+    return result.ok ? { ok: true, value: result.days } : { ok: false, key: result.key, params: result.params };
+  },
+});
+
 const fractionField = (min: number, max: number): PolicyField<number> => ({
   validate: (value) =>
     typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max
@@ -68,10 +85,15 @@ export const SETTINGS_SECTIONS = {
       defaultAccumulatedDepreciationAccountId: 'ASSET',
       defaultInflationAdjustmentAccountId: null,
     },
-    fields: { defaultPaymentTermDays: intField(0, 365) },
+    fields: {
+      defaultPaymentTermDays: intField(0, 365),
+      // How a new asset's first and last months are charged (FINB-12).
+      defaultDepreciationConvention: enumField(DEPRECIATION_CONVENTIONS),
+    },
   },
   currencies: {
-    accounts: { defaultForexGainLossAccountId: null },
+    // Realised on settlement, and unrealised at a period end (IAS 21): kept apart.
+    accounts: { defaultForexGainLossAccountId: null, defaultUnrealizedForexGainLossAccountId: null },
     fields: {
       exchangeRateType: enumField(Object.values(ExchangeRateType)),
       fxRateMaxAgeDays: intField(0, 90),
@@ -103,7 +125,13 @@ export const SETTINGS_SECTIONS = {
   },
   closing: {
     accounts: { defaultRetainedEarningsAccountId: 'EQUITY' },
-    fields: { fiscalArchiveAfterYears: intField(5, 30) },
+    fields: {
+      fiscalArchiveAfterYears: intField(5, 30),
+      maxFuturePostingDays: intField(0, 366),
+      // Restatement for inflation (FIN-AC-04): when the close runs it, and with which index.
+      inflationAdjustmentPolicy: enumField(INFLATION_ADJUSTMENT_POLICIES),
+      inflationIndexSeriesCode: enumField(PRICE_INDEX_SERIES_CODES, true),
+    },
   },
   intercompany: {
     accounts: {
@@ -112,6 +140,18 @@ export const SETTINGS_SECTIONS = {
     },
     fields: {},
   },
+  budgets: {
+    accounts: {},
+    // What a posting past its budget line does, and how far past it may go first (FINB-20). The
+    // column CHECKs bound them too.
+    fields: { budgetControlMode: enumField(BUDGET_CONTROL_MODES), budgetToleranceBps: intField(0, 5000) },
+  },
+  collections: {
+    accounts: {},
+    // Reminders that go out on their own, and on which days from the due date (TES-13). The column
+    // CHECK bounds the days too.
+    fields: { collectionsAutomaticReminders: booleanField(), collectionsReminderDays: reminderDaysField() },
+  },
   inventory: {
     accounts: {
       defaultInventoryId: 'ASSET',
@@ -119,7 +159,8 @@ export const SETTINGS_SECTIONS = {
       defaultInventoryAdjustmentAccountId: 'EXPENSE',
       defaultGoodsReceivedNotInvoicedAccountId: 'LIABILITY',
     },
-    fields: {},
+    // Purchasing tolerances, in basis points (CMP-01, CMP-15). The column CHECK bounds them too.
+    fields: { poReceiptOverToleranceBps: intField(0, 5000), apMatchPriceToleranceBps: intField(0, 5000) },
   },
 } as const satisfies Record<string, SettingsSection>;
 
@@ -152,6 +193,7 @@ export const DEFAULT_ACCOUNT_ROLES: Partial<Record<AccountField, AccountRole>> =
   defaultAccumulatedDepreciationAccountId: AccountRole.ACCUMULATED_DEPRECIATION,
   defaultInflationAdjustmentAccountId: AccountRole.INFLATION_ADJUSTMENT,
   defaultForexGainLossAccountId: AccountRole.FOREX_GAIN_LOSS,
+  defaultUnrealizedForexGainLossAccountId: AccountRole.UNREALIZED_FOREX_GAIN_LOSS,
   defaultSalesTaxId: AccountRole.TAX_PAYABLE,
   defaultPurchaseTaxId: AccountRole.TAX_RECEIVABLE,
   defaultTaxWithheldReceivableId: AccountRole.WITHHOLDING_RECEIVABLE,

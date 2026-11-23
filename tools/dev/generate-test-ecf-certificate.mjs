@@ -13,7 +13,7 @@
  * What it is NOT: a certificate any tax authority accepts. Only an authority-approved certification
  * provider issues one, to the taxpayer's identifier (or, where the market allows it, to a person the
  * taxpayer authorised). The API refuses a self-signed certificate unless the process is a
- * development or test environment AND `ECF_ALLOW_TEST_CERTIFICATES=true`.
+ * development or test environment AND `SIGNING_ALLOW_TEST_CERTIFICATES=true`.
  *
  * The holder's identifier is written where certification authorities write it: the subject's
  * `serialNumber` (2.5.4.5) and, for a company, `organizationIdentifier` (2.5.4.97) in the ETSI
@@ -76,6 +76,6 @@ const p12 = forge.pkcs12.toPkcs12Asn1(keys.privateKey, [cert], values.password, 
 });
 writeFileSync(out, Buffer.from(forge.asn1.toDer(p12).getBytes(), 'binary'));
 // The password is not echoed: it is the one passed with --password, or the default documented in
-// tools/fixtures/ecf-certificates/README.md.
+// tools/fixtures/signing-certificates/README.md.
 console.log(`${out} — titular «${name}» (${country} ${taxId}${person ? ', persona' : ''}).`);
-console.log('Autofirmado: solo para desarrollo, con ECF_ALLOW_TEST_CERTIFICATES=true.');
+console.log('Autofirmado: solo para desarrollo, con SIGNING_ALLOW_TEST_CERTIFICATES=true.');

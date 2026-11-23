@@ -6,6 +6,8 @@ export enum DocumentType {
   /** Commercial quotes carry their own numbering; they are not fiscal documents. */
   QUOTE = 'QUOTE',
   CREDIT_NOTE = 'CREDIT_NOTE',
+  /** Sales debit notes (FAC-INV-05): `NDV-000042`. */
+  DEBIT_NOTE = 'DEBIT_NOTE',
   VENDOR_BILL = 'VENDOR_BILL',
   JOURNAL_ENTRY = 'JOURNAL_ENTRY',
 }

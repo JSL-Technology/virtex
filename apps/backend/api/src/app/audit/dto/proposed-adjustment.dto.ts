@@ -43,7 +43,7 @@ export class CreateProposedAdjustmentDto {
   @IsNotEmpty({ message: 'validation.proposed_adjustment.fiscal_year_id_required' })
   fiscalYearId: string;
 
-  @IsDateString({}, { message: 'validation.proposed_adjustment.date_must_valid_iso_8601_format' })
+  @IsDateString({ strict: true }, { message: 'validation.proposed_adjustment.date_must_valid_iso_8601_format' })
   @IsNotEmpty({ message: 'validation.proposed_adjustment.adjustment_date_required' })
   date: string;
 

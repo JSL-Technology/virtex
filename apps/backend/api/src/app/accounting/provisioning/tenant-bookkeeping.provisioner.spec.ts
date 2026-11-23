@@ -6,6 +6,7 @@ import { TenantBookkeepingProvisioner } from './tenant-bookkeeping.provisioner';
 import { I18nService } from '../../i18n/i18n.service';
 import { FiscalYear } from '../entities/fiscal-year.entity';
 import { AccountingPeriod } from '../entities/accounting-period.entity';
+import { SYSTEM_JOURNALS } from '../../contracts/ledger-posting/system-journals';
 
 /**
  * What a tenant's own books are named in.
@@ -86,6 +87,10 @@ describeWithDb('tenant bookkeeping provisioning', () => {
 
     // The identifiers, not the labels. Translating these would break every posting path.
     expect(english.journals.map((journal) => journal.code).sort()).toEqual([
+      // Fixed-asset disposals (FINB-10) and the inflation adjustment: looked up by every disposal
+      // and every adjustment, and provisioned by nobody until they joined the catalogue.
+      'ACT-FIJOS',
+      'AJU-INF',
       'BANCOS',
       'CAJA',
       // Period close (QA C-06): depreciation, closing and reconciliation post into journals of
@@ -100,6 +105,17 @@ describeWithDb('tenant bookkeeping provisioning', () => {
       'PAGOS',
       'VENTAS',
     ]);
+  });
+
+  it('provisions exactly the journals the services are typed to look up', async () => {
+    const english = await provision('en');
+
+    // `SYSTEM_JOURNALS` is what `journalCode` and `JournalLookupService` accept: a code outside it
+    // does not compile, and every code in it exists on a new company.
+    expect(english.journals.map((journal) => journal.code).sort()).toEqual(
+      Object.values(SYSTEM_JOURNALS).map((journal) => journal.code).sort(),
+    );
+    expect(nameOf(english.journals, 'ACT-FIJOS')).toBe('Fixed assets journal');
   });
 
   it('still provisions Spanish books in Spanish', async () => {
@@ -132,6 +148,46 @@ describeWithDb('tenant bookkeeping provisioning', () => {
   /** The working defaults a company starts with (task: initial seeding). */
   const countOf = async (sql: string, organizationId: string) =>
     Number((await dataSource.query(sql, [organizationId]))[0].count);
+
+  it('starts a company with its tax authority\'s depreciation categories, in its books language and translated — once', async () => {
+    const categoriesOf = (organizationId: string) =>
+      dataSource.query(
+        `SELECT "code", "name", "name_translations" AS "translations", "tax_category_code" AS "taxCode",
+                "tax_method" AS "method", "tax_annual_rate"::float AS "rate"
+           FROM "fixed_asset_categories" WHERE "organization_id" = $1 ORDER BY "code"`,
+        [organizationId],
+      );
+    const dominican = await provision('es', 'DO');
+    const seeded = await categoriesOf(dominican.organizationId);
+    expect(seeded.map((row: { code: string; method: string; rate: number }) => [row.code, row.method, row.rate])).toEqual([
+      ['DO-1', 'DECLINING_BALANCE', 0.05],
+      ['DO-2', 'DECLINING_BALANCE', 0.25],
+      ['DO-3', 'DECLINING_BALANCE', 0.15],
+    ]);
+    expect(seeded[1]).toMatchObject({
+      taxCode: 'DO-2',
+      name: expect.stringMatching(/^Categoría 2 — /),
+      translations: { en: expect.stringMatching(/^Category 2 — /), pt: expect.stringMatching(/^Categoria 2 — /) },
+    });
+    // Re-provisioning adds none, and keeps a name the company gave one.
+    await dataSource.query(`UPDATE "fixed_asset_categories" SET "name" = 'Vehículos y equipo' WHERE "organization_id" = $1 AND "code" = 'DO-2'`, [dominican.organizationId]);
+    await dataSource.transaction((manager) => provisioner.provision(dominican.organization, 'DOP', manager));
+    const again = await categoriesOf(dominican.organizationId);
+    expect(again).toHaveLength(3);
+    expect(again[1].name).toBe('Vehículos y equipo');
+
+    const mexican = await provision('es', 'MX');
+    expect((await categoriesOf(mexican.organizationId)).map((row: { code: string; method: string }) => [row.code, row.method])).toEqual([
+      ['MX-34-I', 'STRAIGHT_LINE'],
+      ['MX-34-III', 'STRAIGHT_LINE'],
+      ['MX-34-VI', 'STRAIGHT_LINE'],
+      ['MX-34-VII', 'STRAIGHT_LINE'],
+      ['MX-34-VIII', 'STRAIGHT_LINE'],
+    ]);
+    // A market whose law the product carries no categories for starts with none.
+    const american = await provision('en', 'US');
+    expect(await categoriesOf(american.organizationId)).toEqual([]);
+  });
 
   it('seeds a final consumer, a category and the Dominican payroll concepts — once', async () => {
     const { organization, organizationId } = await provision('es', 'DO');

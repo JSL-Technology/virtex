@@ -54,7 +54,7 @@
           <th>{{ 'accounts_payable.debit_notes.date' | translate }}</th>
           <th>{{ 'accounts_payable.debit_notes.supplier' | translate }}</th>
           <th>{{ 'accounts_payable.debit_notes.bill' | translate }}</th>
-          <th>{{ 'accounts_payable.debit_notes.ncf' | translate }}</th>
+          <th>{{ 'accounts_payable.debit_notes.supplier_document' | translate }}</th>
           <th>{{ 'accounts_payable.debit_notes.reason' | translate }}</th>
           <th class="numeric">{{ 'accounts_payable.debit_notes.amount' | translate }}</th>
           <th>{{ 'accounts_payable.debit_notes.status_label' | translate }}</th>
@@ -69,8 +69,8 @@
             <td><a class="table-link" [routerLink]="['/accounts-payable/debit-notes', row.id]">{{ row.number }}</a></td>
             <td>{{ row.date | vxDate: 'date' : true }}</td>
             <td>{{ row.supplierName ?? '—' }}</td>
-            <td><a [routerLink]="['/accounts-payable', row.vendorBillId]">{{ row.billNcf ?? ('accounts_payable.debit_notes.open_bill' | translate) }}</a></td>
-            <td>{{ row.ncf ?? '—' }}</td>
+            <td><a [routerLink]="['/accounts-payable', row.vendorBillId]">{{ row.billSupplierFiscalNumber ?? ('accounts_payable.debit_notes.open_bill' | translate) }}</a></td>
+            <td>{{ row.supplierFiscalNumber ?? '—' }}</td>
             <td>{{ row.reason }}</td>
             <td class="numeric"><vx-amount [value]="row.amount" [currency]="row.currencyCode" /></td>
             <td>

@@ -3,8 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { InvoicesService } from '../../../core/services/invoices';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, Image, ScanBarcode, Sparkles, X } from 'lucide-angular';
@@ -23,7 +23,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, applyServerFieldErrors, draftProblems } from '../../../shared/components/gestures';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-of-measure.service';
 
 /** The form's controls and their label keys: what the problem summary names. */
@@ -196,6 +196,8 @@ export class ProductFormPage implements OnInit {
       //  las que el mercado del inquilino aplica y viaja como fracción (0.18), nunca como 18.
       taxTreatment: ['TAXED'],
       taxRate: [null as number | null],
+      //  Un impuesto de monto fijo por unidad del catálogo (FAC-TX-01): el selectivo específico.
+      exciseTaxId: [null as string | null],
       barcode: ['', [Validators.maxLength(64), Validators.pattern(/^[0-9A-Za-z-]*$/)]],
       brand: ['', [Validators.maxLength(120)]],
     });
@@ -236,6 +238,8 @@ export class ProductFormPage implements OnInit {
 
   /** The rates the tenant's market levies, highest first — the standard rate leads. */
   readonly taxRates = computed(() => this.invoicingContext()?.taxRates ?? []);
+  /** The fixed taxes in force, to charge per unit beside the rate (FAC-TX-01). */
+  readonly fixedTaxes = computed(() => this.invoicingContext()?.fixedTaxes ?? []);
   private readonly invoicingContext = toSignal(this.invoices.context(), { initialValue: null });
 
   /** Preselect the standard rate on a new product once the market's rates are known. */

@@ -20,6 +20,7 @@ export * from './lib/number-input.directive';
 export * from './lib/format.pipes';
 export * from './lib/localized-name';
 export * from './lib/localized-name.pipe';
+export * from './lib/narrative.pipe';
 export * from './lib/translate-store';
 export * from './lib/missing-translation.handler';
 export * from './lib/translate-or-literal';

@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
@@ -19,6 +19,7 @@ import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-own
  * Editable only while the run is DRAFT/CALCULATED; an approved run is immutable, so its inputs are too.
  */
 @Entity('payroll_inputs')
+@Check('CHK_payroll_inputs_not_negative', 'COALESCE("amount", 0) >= 0 AND COALESCE("quantity", 0) >= 0 AND COALESCE("rate", 0) >= 0')
 @Index('IDX_payroll_input_run_employee_concept', ['runId', 'employeeId', 'conceptCode'], {
   unique: true,
 })

@@ -1,4 +1,4 @@
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, FileDown } from 'lucide-angular';
@@ -9,9 +9,10 @@ import { VxDateRangeComponent } from '../../../shared/components/date';
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBooksViewToggleComponent } from '../../../shared/components/books-view';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { DatasetExportService } from '../../../core/export/dataset-export';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * The journal, entry by entry, with every line shown.
@@ -35,12 +36,14 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ...VX_FORM_A11Y, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [CommonModule, FormsModule, ...VX_FORM_A11Y, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent, VxBooksViewToggleComponent],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DailyJournalPage {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly entriesApi = inject(JournalEntriesApiService);
   private readonly accountsApi = inject(ChartOfAccountsApiService);
   /** «Exportar» — every line of every entry, not the fifty on this page (QA A-13). */
@@ -149,7 +152,7 @@ export class DailyJournalPage {
           new Map(
             accounts.map((account) => [
               account.id,
-              `${account.code} — ${accountNameOf(account.name)}`,
+              `${account.code} — ${this.locale.nameOf(account.name)}`,
             ]),
           ),
         );

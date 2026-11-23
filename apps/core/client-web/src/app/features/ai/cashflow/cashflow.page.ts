@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, RefreshCw, Sparkles, FlaskConical } from 'lucide-angular';
 import { Subscription, timer } from 'rxjs';
-import { FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { composeKey } from '@virteex/shared/types';
+import { FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { composeKey } from '@virtex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
 import { CashflowChartComponent } from './cashflow-chart.component';
 import {

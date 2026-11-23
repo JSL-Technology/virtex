@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/services/auth';
 import { LanguageService } from '../../../core/services/language';
 import { CountryService } from '../../../core/services/country.service';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { ReturnUrlService } from '../../../core/auth/return-url';
@@ -23,7 +23,7 @@ import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 import { AppError, ErrorHandlerService, retryAfterOf } from '../../../core/services/error-handler.service';
 import { relativeWait } from '../../../shared/utils/relative-wait';
 import { HttpErrorResponse } from '@angular/common/http';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The reasons a session can end by itself, and what the sign-in page says about each. */
 const SIGN_OUT_NOTICE: Record<string, string | undefined> = {

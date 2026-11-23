@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { LucideAngularModule, AlertTriangle, ArrowRight, Ban, GitMerge } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VX_SELECT } from '../../../shared/components/select';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { Account } from '../../../core/models/account.model';
@@ -43,6 +43,8 @@ import { ChartOfAccountsApiService, MergePreview } from '../data/chart-of-accoun
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MergeAccountsPage {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly chart = inject(ChartOfAccountsApiService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -73,9 +75,9 @@ export class MergeAccountsPage {
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.chart.searchAccounts(query, limit);
   protected readonly resolveAccount = (id: string): Observable<Account> => this.chart.getAccountById(id);
-  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${this.locale.nameOf(account.name)}`;
   protected readonly accountValue = (account: Account): string => account.id;
-  protected readonly nameOf = accountNameOf;
+  protected readonly nameOf = (name: Parameters<LocaleStore['nameOf']>[0]): string => this.locale.nameOf(name);
 
   selectSource(id: string | null): void {
     this.sourceId.set(id);

@@ -9,7 +9,7 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
 import { PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
 import { GoodsReceiptsService } from './goods-receipts.service';
-import { CreateGoodsReceiptDto, GoodsReceiptQueryDto, VoidGoodsReceiptDto } from './dto/goods-receipt.dto';
+import { CreateGoodsReceiptDto, GoodsReceiptQueryDto, ReturnGoodsDto, VoidGoodsReceiptDto } from './dto/goods-receipt.dto';
 
 /** Goods received against purchase orders, as documents: list, record, open, void. */
 @ApiTags('Procurement')
@@ -55,5 +55,14 @@ export class GoodsReceiptsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.receipts.voidReceipt(id, dto, user.organizationId, user.id);
+  }
+
+  /** Send part of a receipt back to the supplier (CMP-15). */
+  @Post(':id/return')
+  @Idempotent()
+  @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
+  @ApiOperation({ summary: 'Devuelve al proveedor parte de una recepción.' })
+  returnToSupplier(@Param('id', UuidParamPipe) id: string, @Body() dto: ReturnGoodsDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.receipts.returnToSupplier(id, dto, user.organizationId, user.id);
   }
 }

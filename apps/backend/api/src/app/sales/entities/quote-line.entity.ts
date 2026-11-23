@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import type { Quote } from './quote.entity';
 import { Product } from '../../inventory/entities/product.entity';
 
@@ -37,6 +37,16 @@ export class QuoteLine {
 
   @Column('decimal', { precision: 18, scale: 6, transformer: numericTransformerNotNull })
   unitPrice: number;
+
+  /**
+   * The list that priced the line, and the price it gave. A unit price that differs from
+   * `listPrice` was typed over the list; `null` when no list applied (catalogue or free text).
+   */
+  @Column({ name: 'price_list_id', type: 'uuid', nullable: true })
+  priceListId?: string | null;
+
+  @Column('decimal', { name: 'list_price', precision: 18, scale: 6, nullable: true, transformer: numericTransformer })
+  listPrice?: number | null;
 
   @Column('decimal', { name: 'discount_rate', precision: 7, scale: 6, default: 0, transformer: numericTransformerNotNull })
   discountRate: number;

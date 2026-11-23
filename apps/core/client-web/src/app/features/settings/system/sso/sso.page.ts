@@ -2,14 +2,14 @@ import { VxEmptyStateComponent } from '../../../../shared/components/feedback/em
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   SsoAdminService,
   SsoDomain,
   SsoIdentityProvider,
 } from '../../../../core/services/sso-admin.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { NotificationService } from '../../../../core/services/notification';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';

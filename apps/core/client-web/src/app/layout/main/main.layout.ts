@@ -74,7 +74,6 @@ import {
   Box,
   FileSearch,
   UserPlus, // ✅ Icono añadido
-  Package as PackageIcon, // ✅ Icono añadido
   Menu, // ✅ Toggle de sidebar (responsive)
   ArrowLeft,
   HelpCircle, // ✅ Ayuda
@@ -87,6 +86,7 @@ import {
   Minus, // ✅ Control de ventana: minimizar (escritorio)
   Square, // ✅ Control de ventana: maximizar (escritorio)
   Copy, // ✅ Control de ventana: restaurar, dos cuadros superpuestos (escritorio)
+  type LucideIconData,
 } from 'lucide-angular';
 
 import { Sidebar } from '../sidebar/sidebar';
@@ -98,7 +98,7 @@ import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
 import { DesktopWindowService } from '../../core/windows/desktop-window.service';
@@ -111,7 +111,7 @@ import { ShortcutsService } from '../../core/keyboard/shortcuts.service';
 import { SidebarResizeService } from '../../core/services/sidebar-resize.service';
 
 import { CanOpenDirective } from '../../core/modules/can-open.directive';
-import { requiredPermissionsFor } from '../../core/modules/module-manifest';
+import { canAccess } from '../../core/modules/route-access';
 import { resolveRoute } from '../../core/modules/module-registry';
 
 @Component({
@@ -439,11 +439,14 @@ export class MainLayout implements OnInit {
   }
 
   /**
-   * The copilot panel. Offered to whoever holds `ai_copilot:use`; whether the plan includes it is
-   * the server's answer, which the panel shows when it opens.
+   * The copilot panel. Offered to whoever holds `ai_copilot:use` in a company whose plan includes
+   * the assistant: offered on the permission alone, it opened on a 403 for every plan without it
+   * (IA-01).
    */
   readonly isCopilotOpen = signal(false);
-  readonly canUseCopilot = computed(() => this.authService.hasPermissions(['ai_copilot:use']));
+  readonly canUseCopilot = computed(
+    () => this.authService.hasPermissions(['ai_copilot:use']) && this.authService.hasFeature('ai_assistant'),
+  );
 
   toggleCopilot(): void {
     this.isCopilotOpen.update((open) => !open);
@@ -575,13 +578,13 @@ export class MainLayout implements OnInit {
     this.isSearchOpen.set(false);
   }
 
-  getIconForType(type: string): any {
+  getIconForType(type: string): LucideIconData {
     if (!type) {
       return this.FileSearchIcon;
     }
 
     const lowerCaseType = type.toLowerCase();
-    const iconMap: { [key: string]: any } = {
+    const iconMap: Record<string, LucideIconData> = {
       customers: this.UserIcon2,
       products: this.BoxIcon,
       invoices: this.InvoicesIcon,
@@ -640,7 +643,7 @@ export class MainLayout implements OnInit {
     // The same rule as the menu: a shortcut to a screen the user may not open, or that no
     // manifest declares, does nothing rather than landing on a 403 or a 404.
     const target = match?.route ? resolveRoute(match.route) : null;
-    if (!match?.route || !target || !this.authService.hasPermissions(requiredPermissionsFor(target.entry.route.permission))) {
+    if (!match?.route || !target || !canAccess(this.authService, target.entry.route)) {
       return;
     }
 

@@ -3,8 +3,8 @@ import { HighchartsChartComponent } from 'highcharts-angular';
 import type * as Highcharts from 'highcharts';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Pin, PinOff } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { baseChartOptions, categoricalPalette } from '../../../core/utils/chart-theme';
 import { CopilotChart } from './copilot-api.service';
 

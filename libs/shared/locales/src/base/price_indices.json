@@ -1,0 +1,47 @@
+{
+  "price_indices.nothing_to_record": {
+    "es": "No hay meses que registrar.",
+    "en": "There are no months to record.",
+    "pt": "Não há meses para registrar."
+  },
+  "price_indices.period_in_future": {
+    "es": "{{period}} aún no ha comenzado: un índice se publica después de terminado su mes (el mes en curso es {{current}}).",
+    "en": "{{period}} has not begun: an index is published after its month ends (the current month is {{current}}).",
+    "pt": "{{period}} ainda não começou: um índice é publicado depois que seu mês termina (o mês atual é {{current}})."
+  },
+  "price_indices.period_invalid": {
+    "es": "«{{period}}» no es un mes (AAAA-MM).",
+    "en": "“{{period}}” is not a month (YYYY-MM).",
+    "pt": "«{{period}}» não é um mês (AAAA-MM)."
+  },
+  "price_indices.period_repeated": {
+    "es": "{{period}} aparece dos veces.",
+    "en": "{{period}} appears twice.",
+    "pt": "{{period}} aparece duas vezes."
+  },
+  "price_indices.period_repeated_in_file": {
+    "es": "{{series}} {{period}} ya está en la línea {{line}} del archivo.",
+    "en": "{{series}} {{period}} is already on line {{line}} of the file.",
+    "pt": "{{series}} {{period}} já está na linha {{line}} do arquivo."
+  },
+  "price_indices.published_on_invalid": {
+    "es": "La fecha de publicación de {{period}} no es una fecha (AAAA-MM-DD).",
+    "en": "The publication date for {{period}} is not a date (YYYY-MM-DD).",
+    "pt": "A data de publicação de {{period}} não é uma data (AAAA-MM-DD)."
+  },
+  "price_indices.range_inverted": {
+    "es": "El rango empieza en {{from}}, después de {{to}}.",
+    "en": "The range starts at {{from}}, after {{to}}.",
+    "pt": "O intervalo começa em {{from}}, depois de {{to}}."
+  },
+  "price_indices.series_unknown": {
+    "es": "No existe la serie de índices {{code}}. Las disponibles: {{known}}.",
+    "en": "There is no price index series {{code}}. Available: {{known}}.",
+    "pt": "Não existe a série de índices {{code}}. Disponíveis: {{known}}."
+  },
+  "price_indices.value_invalid": {
+    "es": "El índice de {{period}} («{{value}}») no es un número positivo con hasta 10 decimales.",
+    "en": "The index for {{period}} (“{{value}}”) is not a positive number with up to 10 decimals.",
+    "pt": "O índice de {{period}} («{{value}}») não é um número positivo com até 10 casas decimais."
+  }
+}

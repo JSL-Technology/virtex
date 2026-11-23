@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportDefinition } from './entities/report-definition.entity';
 import { TaxJurisdiction } from './fiscal/entities/tax-jurisdiction.entity';
+import { StatutoryTaxRate } from './fiscal/entities/statutory-tax-rate.entity';
+import { FiscalReasonCode } from './fiscal/entities/fiscal-reason-code.entity';
 import { TenantWithholdingRegime } from './fiscal/entities/tenant-withholding-regime.entity';
 import { LocalizationController } from './controllers/localization.controller';
 import { TaxJurisdictionsController } from './controllers/tax-jurisdictions.controller';
@@ -10,7 +12,7 @@ import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
 import { WithholdingRegimesService } from './services/withholding-regimes.service';
 import { WithholdingRegimesController } from './controllers/withholding-regimes.controller';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
-// The leaf provides LocalizationService, DominicanRepublicStrategy, fiscal strategies,
+// The leaf provides LocalizationService, the tax-id registry drivers and their registry,
 // TaxDeterminationService, and the LocalizationProvisioningPort binding. Re-exporting it here
 // means all consumers of LocalizationModule continue to see those same exports.
 import { LocalizationProvisioningModule } from './localization-provisioning.module';
@@ -26,6 +28,8 @@ import { LocalizationProvisioningModule } from './localization-provisioning.modu
     TypeOrmModule.forFeature([
       ReportDefinition,
       TaxJurisdiction,
+      StatutoryTaxRate,
+      FiscalReasonCode,
       TenantWithholdingRegime,
     ]),
     // The leaf provides all strategies, LocalizationService, TaxDeterminationService.

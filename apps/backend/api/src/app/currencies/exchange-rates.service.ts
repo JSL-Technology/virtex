@@ -1,7 +1,7 @@
 import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
@@ -15,6 +15,8 @@ import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service
 import { addDaysIso, daysBetween, toIsoDate, todayIso } from '../common/dates';
 import { roundAmount } from '../common/money';
 import { XeRatesProvider } from './xe-rates.provider';
+import { ChangeAuditPort, TransactionalChange } from '../contracts/audit/access-audit.contract';
+import { currentActor } from '../shared/tenancy/tenant-context';
 
 /**
  * The pivot the daily refresh quotes against.
@@ -41,6 +43,26 @@ export interface RateHistoryRow {
 }
 
 /** A rate ready to store in the company's table. */
+/**
+ * How the audit trail names a company's rates: by their table, as the audit subscriber names every
+ * other financial record, so one query by `entity` finds them.
+ */
+const RATE_AUDIT_ENTITY = 'tenant_exchange_rates';
+/** The natural key a company's rate is unique on, and upserted by. */
+const RATE_KEY: Array<keyof TenantExchangeRate> = ['organizationId', 'fromCurrency', 'toCurrency', 'date', 'rateType'];
+const rateKeyOf = (rate: Pick<TenantExchangeRate, 'fromCurrency' | 'toCurrency' | 'date' | 'rateType'>): string =>
+  `${rate.fromCurrency}|${rate.toCurrency}|${toIsoDate(rate.date)}|${rate.rateType}`;
+/** What the trail keeps of a rate: the pair, the day, the figure, its type, where it came from and who entered it. */
+const rateAuditView = (rate: TenantExchangeRate) => ({
+  fromCurrency: rate.fromCurrency,
+  toCurrency: rate.toCurrency,
+  date: toIsoDate(rate.date),
+  rateType: rate.rateType,
+  rate: Number(rate.rate),
+  source: rate.source,
+  recordedByUserId: rate.recordedByUserId,
+});
+
 interface NormalisedRate {
   organizationId: string;
   fromCurrency: string;
@@ -108,6 +130,7 @@ export class ExchangeRatesService {
     private readonly resolver: ExchangeRateResolver,
     private readonly schedulerLock: SchedulerLockService,
     private readonly xe: XeRatesProvider,
+    private readonly auditTrail: ChangeAuditPort,
   ) {}
 
   /**
@@ -243,14 +266,9 @@ export class ExchangeRatesService {
     const row = await this.normalise(dto, actorUserId, organizationId);
     // Into the TENANT's own table. Writing the shared one let one customer's typed rate convert
     // every other customer's documents; the resolver prefers this row for this tenant only.
-    await this.tenantRateRepository.upsert([row], ['organizationId', 'fromCurrency', 'toCurrency', 'date', 'rateType']);
-    const stored = await this.tenantRateRepository.findOneByOrFail({
-      organizationId,
-      fromCurrency: row.fromCurrency,
-      toCurrency: row.toCurrency,
-      date: row.date,
-      rateType: row.rateType,
-    });
+    const [stored] = await this.tenantRateRepository.manager.transaction((manager) =>
+      this.storeAudited(manager, [row], organizationId, actorUserId ?? null),
+    );
     return { messageKey: 'currencies.exchange_rate_recorded_successfully', rate: stored };
   }
 
@@ -286,16 +304,10 @@ export class ExchangeRatesService {
     }
     await this.tenantRateRepository.manager.transaction(async (manager) => {
       for (let start = 0; start < rows.length; start += 500) {
-        await manager.upsert(TenantExchangeRate, rows.slice(start, start + 500), [
-          'organizationId',
-          'fromCurrency',
-          'toCurrency',
-          'date',
-          'rateType',
-        ]);
+        await this.storeAudited(manager, rows.slice(start, start + 500), organizationId, actorUserId ?? null);
       }
     });
-    return { messageKey: 'currencies.exchange_rates_imported', imported: rows.length };
+    return { messageKey: 'currencies.exchange_rates_imported', messageParams: { imported: rows.length }, imported: rows.length };
   }
 
   /**
@@ -362,11 +374,79 @@ export class ExchangeRatesService {
     };
   }
 
-  /** Remove a rate the company recorded. The shared table is not the company's to edit. */
-  async remove(id: string, organizationId: string): Promise<void> {
-    const row = await this.tenantRateRepository.findOneBy({ id, organizationId });
-    if (!row) throw new NotFoundError('currencies.exchange_rate_not_found');
-    await this.tenantRateRepository.delete({ id, organizationId });
+  /**
+   * Remove a rate the company recorded. The shared table is not the company's to edit.
+   *
+   * The trail keeps the rate as it was (FINB-05): a deleted rate is one the documents dated that day
+   * may have been converted at, and the deletion is the change an auditor most needs to see.
+   */
+  async remove(id: string, organizationId: string, actorUserId: string | null = null): Promise<void> {
+    await this.tenantRateRepository.manager.transaction(async (manager) => {
+      const repository = manager.getRepository(TenantExchangeRate);
+      const row = await repository.findOne({ where: { id, organizationId }, lock: { mode: 'pessimistic_write' } });
+      if (!row) throw new NotFoundError('currencies.exchange_rate_not_found');
+      await repository.delete({ id, organizationId });
+      await this.auditTrail.recordChangesWithin(manager, [
+        {
+          userId: actorUserId,
+          organizationId,
+          entity: RATE_AUDIT_ENTITY,
+          entityId: row.id,
+          action: 'DELETE',
+          before: null,
+          // As the audit subscriber records a deletion: the row's last state.
+          after: rateAuditView(row),
+          ipAddress: currentActor()?.ipAddress ?? undefined,
+        },
+      ]);
+    });
+  }
+
+  /**
+   * Upsert a company's rates on their natural key and leave one audit row per rate that changed:
+   * CREATE for a new one, UPDATE with the figure it replaced (FINB-05).
+   *
+   * Both `record` and `importRates` wrote with `upsert`, which does not pass through the audit
+   * subscriber, and `remove` deleted by criteria, which does not either — so entering, correcting,
+   * importing and deleting a rate left no trace in `audit_logs`, and «who set the rate a month of
+   * invoices converted at» had no answer but `recordedByUserId`, which the next correction
+   * overwrites. The rows commit with the rates or roll back with them. A rate re-entered exactly as
+   * it was changes nothing and records nothing.
+   */
+  private async storeAudited(
+    manager: EntityManager,
+    rows: NormalisedRate[],
+    organizationId: string,
+    actorUserId: string | null,
+  ): Promise<TenantExchangeRate[]> {
+    const repository = manager.getRepository(TenantExchangeRate);
+    const where = rows.map(({ fromCurrency, toCurrency, date, rateType }) => ({ organizationId, fromCurrency, toCurrency, date, rateType }));
+    const before = new Map(
+      (await repository.find({ where, lock: { mode: 'pessimistic_write' } })).map((rate) => [rateKeyOf(rate), rate]),
+    );
+    await repository.upsert(rows, RATE_KEY);
+    const after = new Map((await repository.find({ where })).map((rate) => [rateKeyOf(rate), rate]));
+
+    const ipAddress = currentActor()?.ipAddress ?? undefined;
+    const changes = [...after.values()].flatMap((rate): TransactionalChange[] => {
+      const previous = before.get(rateKeyOf(rate));
+      const now = rateAuditView(rate);
+      if (previous && JSON.stringify(rateAuditView(previous)) === JSON.stringify(now)) return [];
+      return [
+        {
+          userId: actorUserId,
+          organizationId,
+          entity: RATE_AUDIT_ENTITY,
+          entityId: rate.id,
+          action: previous ? 'UPDATE' : 'CREATE',
+          before: previous ? rateAuditView(previous) : null,
+          after: now,
+          ipAddress,
+        },
+      ];
+    });
+    if (changes.length > 0) await this.auditTrail.recordChangesWithin(manager, changes);
+    return rows.map((row) => after.get(rateKeyOf(row)) as TenantExchangeRate);
   }
 
   /** One rate, validated and in the shape both `record` and `importRates` store. */

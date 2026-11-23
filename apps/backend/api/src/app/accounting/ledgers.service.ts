@@ -13,6 +13,8 @@ import { previousDay, toIsoDate, type IsoDate } from '../common/dates';
 import { roundAmount } from '../common/money';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 import { JournalQueryService } from '../journal-entries/services/journal-query.service';
+import type { LocalizedName } from '@virtex/shared/types';
+import { translationsAfterEdit } from '../organizations/contracts/books-language.contract';
 
 // ── Libro diario types (owned here — they describe legal books, not custom reports) ────────────
 
@@ -22,6 +24,9 @@ export interface JournalReportLine {
   accountCode: string;
   accountName: Record<string, string> | string;
   description: string | null;
+  /** The message `description` was written from, when the system wrote it (books bilingual). */
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   debit: number;
   credit: number;
   dimensions: Record<string, string> | null;
@@ -32,6 +37,8 @@ export interface JournalReportEntry {
   entryNumber: string | null;
   date: IsoDate;
   description: string;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   journalCode: string | null;
   journalName: string | null;
   status: string;
@@ -40,7 +47,7 @@ export interface JournalReportEntry {
 }
 
 export interface JournalReport {
-  ledger: { id: string; name: string; currency: string };
+  ledger: { id: string; name: string; nameTranslations: LocalizedName; currency: string };
   period: { startDate: IsoDate; endDate: IsoDate };
   entries: JournalReportEntry[];
   page: number;
@@ -191,7 +198,10 @@ export class LedgersService {
         date: toIsoDate(row.date),
         reference: row.reference ?? '',
         journalCode: row.journalCode,
+        // The line's own narrative, or the entry's — with the message of whichever it is.
         description: row.lineDescription || row.entryDescription,
+        descriptionKey: row.lineDescription ? row.lineDescriptionKey : row.entryDescriptionKey,
+        descriptionParams: row.lineDescription ? row.lineDescriptionParams : row.entryDescriptionParams,
         debit,
         credit,
         balance: running,
@@ -205,7 +215,7 @@ export class LedgersService {
     });
 
     return {
-      ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
+      ledger: { id: ledger.id, name: ledger.name, nameTranslations: ledger.nameTranslations ?? {}, currency: ledger.currency },
       account: {
         id: account.id,
         code: account.code,
@@ -270,7 +280,7 @@ export class LedgersService {
 
     if (entries.length === 0) {
       return {
-        ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
+        ledger: { id: ledger.id, name: ledger.name, nameTranslations: ledger.nameTranslations ?? {}, currency: ledger.currency },
         period: { startDate: from, endDate: to },
         entries: [],
         page,
@@ -303,6 +313,8 @@ export class LedgersService {
         accountCode: codeById.get(row.accountId) ?? '',
         accountName: row.accountName,
         description: row.description,
+        descriptionKey: row.descriptionKey,
+        descriptionParams: row.descriptionParams,
         debit: row.debit,
         credit: row.credit,
         dimensions: row.dimensions,
@@ -311,13 +323,15 @@ export class LedgersService {
     }
 
     return {
-      ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
+      ledger: { id: ledger.id, name: ledger.name, nameTranslations: ledger.nameTranslations ?? {}, currency: ledger.currency },
       period: { startDate: from, endDate: to },
       entries: entries.map((entry) => ({
         id: entry.id,
         entryNumber: entry.entryNumber,
         date: toIsoDate(entry.date),
         description: entry.description,
+        descriptionKey: entry.descriptionKey ?? null,
+        descriptionParams: entry.descriptionParams ?? null,
         journalCode: entry.journal?.code ?? null,
         journalName: entry.journal?.name ?? null,
         status: entry.status,
@@ -353,6 +367,7 @@ export class LedgersService {
       // Field by field. `{ ...createDto, organizationId }` was safe only because the tenant came
       // last; one reordering away from letting the body choose its own tenant.
       name: createDto.name,
+      nameTranslations: await translationsAfterEdit(this.ledgerRepository.manager, organizationId, {}, createDto.nameTranslations),
       description: createDto.description,
       currency: createDto.currency.toUpperCase(),
       isDefault: createDto.isDefault ?? false,
@@ -387,6 +402,12 @@ export class LedgersService {
     }
 
     if (updateDto.name !== undefined) ledger.name = updateDto.name;
+    ledger.nameTranslations = await translationsAfterEdit(
+      this.ledgerRepository.manager,
+      organizationId,
+      ledger.nameTranslations,
+      updateDto.nameTranslations,
+    );
     if (updateDto.description !== undefined) ledger.description = updateDto.description;
     if (updateDto.isDefault !== undefined) ledger.isDefault = updateDto.isDefault;
     if (updateDto.isActive !== undefined) ledger.isActive = updateDto.isActive;

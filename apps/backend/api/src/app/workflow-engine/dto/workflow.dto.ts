@@ -81,7 +81,7 @@ export class UpdateWorkflowDefinitionDto {
   trigger?: WorkflowTrigger;
 
   /** The `updatedAt` the editor loaded; a save over a newer version is refused (409). */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   expectedUpdatedAt?: string;
 }
@@ -231,11 +231,11 @@ export class ListInstancesQueryDto {
   @MaxLength(200)
   search?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   from?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   to?: string;
 

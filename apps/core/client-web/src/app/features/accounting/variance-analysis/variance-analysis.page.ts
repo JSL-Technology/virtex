@@ -3,12 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, ArrowUp, ArrowDown } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, LocaleStore } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { NotificationService } from '../../../core/services/notification';
 import { BudgetsService, VarianceLine, VarianceReport, isFavourable } from '../data/budgets.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -23,6 +23,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
  * Two rules kept from before: whether a difference is good news comes from the account's TYPE
  * (over budget on income is good, on expense it is bad) — never from its name — and amounts are
  * money in the ledger's currency.
+ *
+ * A line's budget is compared with what was posted in the months it budgets; what was posted in the
+ * other months of the range has its own column (FINB-21). Adding it to the actual set one month's
+ * target against a year of postings.
  */
 @Component({
   selector: 'app-variance-analysis-page',
@@ -33,6 +37,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VarianceAnalysisPage implements OnInit {
+  /** Names kept in several languages, in the language the company's data is shown in. */
+  protected readonly locale = inject(LocaleStore);
   private readonly budgets = inject(BudgetsService);
   private readonly notifications = inject(NotificationService);
 
@@ -81,6 +87,6 @@ export class VarianceAnalysisPage implements OnInit {
   }
 
   protected name(line: VarianceLine): string {
-    return accountNameOf(line.accountName as Parameters<typeof accountNameOf>[0]);
+    return this.locale.nameOf(line.accountName as Parameters<typeof accountNameOf>[0]);
   }
 }

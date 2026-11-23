@@ -102,6 +102,10 @@
 
         <ul class="merge-facts">
           <li>{{ 'accounting.merge_tool.lines_to_move' | translate: { count: p.linesToMove } }}</li>
+          @if (p.postedLinesKept > 0) {
+            <li>{{ 'accounting.merge_tool.posted_lines_kept' | translate: { count: p.postedLinesKept } }}</li>
+            <li>{{ 'accounting.merge_tool.reclassification_entry' | translate }}</li>
+          }
           <li>{{ 'accounting.merge_tool.children_to_move' | translate: { count: p.childAccountsToMove } }}</li>
           <li>{{ 'accounting.merge_tool.source_deactivated' | translate }}</li>
         </ul>

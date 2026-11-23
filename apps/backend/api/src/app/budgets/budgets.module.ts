@@ -20,7 +20,8 @@ import { Ledger } from '../accounting/entities/ledger.entity';
     ]),
   ],
   controllers: [BudgetsController],
+  // Budget control is reached through `BudgetControlRegistry` (contracts), which the service joins
+  // when it starts: the journal and accounts payable no longer import this module.
   providers: [BudgetsService, BudgetControlService],
-  exports: [BudgetControlService],
 })
 export class BudgetsModule {}

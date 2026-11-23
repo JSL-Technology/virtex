@@ -5,7 +5,8 @@ import { PaymentMethod } from '../entities/payment-method.entity';
 import { CreatePaymentMethodDto, UpdatePaymentMethodDto } from '../dto/payment-method.dto';
 import { ConflictError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
-import { countryPackFor } from '../../contracts/country-pack/country-pack';
+import { marketFor } from '../../markets';
+import { translationsAfterEdit } from '../../organizations/contracts/books-language.contract';
 
 /**
  * The company's payment methods.
@@ -44,6 +45,7 @@ export class PaymentMethodsService {
         organizationId,
         code,
         name: dto.name.trim(),
+        nameTranslations: await translationsAfterEdit(this.methods.manager, organizationId, {}, dto.nameTranslations),
         kind: dto.kind,
         fiscalCode: dto.fiscalCode?.trim() || null,
         isSystem: false,
@@ -56,15 +58,22 @@ export class PaymentMethodsService {
   async update(id: string, dto: UpdatePaymentMethodDto, organizationId: string): Promise<PaymentMethod> {
     const method = await this.methods.findOne({ where: { id, organizationId } });
     if (!method) throw new NotFoundError('treasury.payment_method_not_found');
-    await this.assertEditable(organizationId);
-    // A row an authority catalogue seeded is that authority's, in any market.
-    if (method.isSystem) throw new ForbiddenError('treasury.payment_method_fixed_by_authority');
+    // How a method reads in another language changes nothing an authority or a past document
+    // recorded, so it is the one change open in every market and on every method — the ones an
+    // authority's catalogue seeded included.
+    const onlyTranslations = Object.entries(dto).every(([field, value]) => field === 'nameTranslations' || value === undefined);
+    if (!onlyTranslations) {
+      await this.assertEditable(organizationId);
+      // A row an authority catalogue seeded is that authority's, in any market.
+      if (method.isSystem) throw new ForbiddenError('treasury.payment_method_fixed_by_authority');
+    }
     // The code is what past documents recorded; changing it would orphan them.
     if (dto.code !== undefined && normalizeCode(dto.code) !== method.code) {
       throw new ConflictError('treasury.payment_method_code_immutable', { code: method.code });
     }
 
     if (dto.name !== undefined) method.name = dto.name.trim();
+    method.nameTranslations = await translationsAfterEdit(this.methods.manager, organizationId, method.nameTranslations, dto.nameTranslations);
     if (dto.kind !== undefined) method.kind = dto.kind;
     if (dto.fiscalCode !== undefined) method.fiscalCode = dto.fiscalCode?.trim() || null;
     if (dto.sortOrder !== undefined) method.sortOrder = dto.sortOrder;
@@ -79,10 +88,10 @@ export class PaymentMethodsService {
    * fixes these codes for the 606» explains everything.
    */
   private async assertEditable(organizationId: string): Promise<void> {
-    const pack = countryPackFor(await this.tenantCountry.resolveOrNull(organizationId));
-    if (pack.paymentMethods.catalogue === 'AUTHORITY_FIXED') {
+    const { payments } = marketFor(await this.tenantCountry.resolveOrNull(organizationId));
+    if (payments.catalogue === 'AUTHORITY_FIXED') {
       throw new ForbiddenError('treasury.payment_methods_fixed_in_market', {
-        authority: pack.paymentMethods.authority ?? '',
+        authority: payments.authority ?? '',
       });
     }
   }

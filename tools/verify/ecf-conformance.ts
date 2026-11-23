@@ -21,19 +21,19 @@ import { SignedXml } from 'xml-crypto';
 import {
   EcfXmlBuilderService,
   EcfBuildContext,
-} from '../../apps/backend/api/src/app/einvoicing/services/ecf-xml-builder.service';
-import { EcfValidatorService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-validator.service';
-import { EcfSignerService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-signer.service';
+} from '../../apps/backend/api/src/app/einvoicing/regimes/do/ecf-xml-builder.service';
+import { EcfValidatorService } from '../../apps/backend/api/src/app/einvoicing/regimes/do/ecf-validator.service';
+import { EcfSignerService } from '../../apps/backend/api/src/app/einvoicing/regimes/do/ecf-signer.service';
 import { CertificateVaultService } from '../../apps/backend/api/src/app/einvoicing/services/certificate-vault.service';
 import {
   municipalityCode,
   provinceCode,
   paymentFormCode,
   unitOfMeasureCode,
-} from '../../apps/backend/api/src/app/einvoicing/config/dgii-catalogues';
+} from '../../apps/backend/api/src/app/einvoicing/regimes/do/dgii-catalogues';
 import { PaymentMethod } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
-import { EcfLifecycleXmlBuilder } from '../../apps/backend/api/src/app/einvoicing/services/ecf-lifecycle-xml.builder';
-import { dgiiTimestamp, fiscalDate, organizationTimeZone } from '../../apps/backend/api/src/app/shared/fiscal-clock';
+import { DgiiEventXmlBuilder } from '../../apps/backend/api/src/app/einvoicing/regimes/do/dgii-event-xml.builder';
+import { dayFirstTimestamp, fiscalDate, organizationTimeZone } from '../../apps/backend/api/src/app/shared/fiscal-clock';
 import { makeTestCertificate } from './support/test-certificate';
 
 const failures: string[] = [];
@@ -88,6 +88,8 @@ function baseContext(): EcfBuildContext {
 function main(): void {
   const builder = new EcfXmlBuilderService();
   const validator = new EcfValidatorService();
+  // ITBIS rates in force (Ley 253-12), as statutory_tax_rates returns them for a 2026 date.
+  const DO_ITBIS = [0.18, 0.16, 0];
   const signer = new EcfSignerService();
 
   const ctx = baseContext();
@@ -138,29 +140,29 @@ function main(): void {
 
   // ── Validation ──────────────────────────────────────────────────────────────
   check('un comprobante completo pasa la validación previa',
-    validator.validate(ctx, montoTotal).length === 0,
-    validator.validate(ctx, montoTotal).map((i) => i.field).join(','));
+    validator.validate(ctx, montoTotal, DO_ITBIS).length === 0,
+    validator.validate(ctx, montoTotal, DO_ITBIS).map((i) => i.field).join(','));
 
   const noExpiry = { ...baseContext(), fechaVencimientoSecuencia: undefined };
   check('se rechaza un comprobante sin vencimiento de secuencia',
-    validator.validate(noExpiry, montoTotal).some((i) => i.field === 'FechaVencimientoSecuencia'));
+    validator.validate(noExpiry, montoTotal, DO_ITBIS).some((i) => i.field === 'FechaVencimientoSecuencia'));
 
   const noBuyer = { ...baseContext(), comprador: undefined };
   check('se rechaza un crédito fiscal sin comprador identificado',
-    validator.validate(noBuyer, montoTotal).some((i) => i.field === 'RNCComprador'));
+    validator.validate(noBuyer, montoTotal, DO_ITBIS).some((i) => i.field === 'RNCComprador'));
 
   const bigConsumo = { ...baseContext(), tipoECF: '32', eNCF: 'E320000000001', comprador: undefined };
   check('se exige identificar al comprador en consumo sobre el umbral',
-    validator.validate(bigConsumo, 300_000).some((i) => i.field === 'RNCComprador'));
+    validator.validate(bigConsumo, 300_000, DO_ITBIS).some((i) => i.field === 'RNCComprador'));
 
   const mismatchedPayment = baseContext();
   mismatchedPayment.formasPago = [{ forma: '01', monto: 1 }];
   check('se rechaza un desglose de pago que no suma el total',
-    validator.validate(mismatchedPayment, montoTotal).some((i) => i.field === 'TablaFormasPago'));
+    validator.validate(mismatchedPayment, montoTotal, DO_ITBIS).some((i) => i.field === 'TablaFormasPago'));
 
   const creditNote = { ...baseContext(), tipoECF: '34', eNCF: 'E340000000001' };
   check('se exige la referencia al comprobante modificado en una nota',
-    validator.validate(creditNote, montoTotal).some((i) => i.field === 'InformacionReferencia'));
+    validator.validate(creditNote, montoTotal, DO_ITBIS).some((i) => i.field === 'InformacionReferencia'));
 
   // ── Foreign currency ────────────────────────────────────────────────────────
   const foreign = baseContext();
@@ -172,7 +174,7 @@ function main(): void {
   {
     const { pfx, password, certPem } = makeTestCertificate();
     const vault = new CertificateVaultService({
-      get: (key: string) => (key === 'ECF_CERT_ENCRYPTION_KEY' ? 'clave-de-prueba-para-certificados' : undefined),
+      get: (key: string) => (key === 'SIGNING_CERT_ENCRYPTION_KEY' ? 'clave-de-prueba-para-certificados' : undefined),
     } as never);
 
     check('el certificado sobrevive el cifrado en reposo', vault.decrypt(vault.encrypt(pfx)).equals(pfx));
@@ -195,7 +197,7 @@ function main(): void {
     // Both had transport code and endpoints and nothing else — no builder, no signature, no route —
     // so a taxpayer could neither answer a supplier's comprobante nor declare numbers it would
     // never use. Both are obligations under Norma 01-2020, not conveniences.
-    const lifecycle = new EcfLifecycleXmlBuilder();
+    const lifecycle = new DgiiEventXmlBuilder();
 
     const approval = lifecycle.buildCommercialApproval({
       rncEmisor: '130862346',
@@ -205,7 +207,7 @@ function main(): void {
       montoTotal: 1180,
       estado: '2',
       detalleMotivoRechazo: 'La mercancía no fue recibida.',
-      fechaHoraAprobacion: dgiiTimestamp('America/Santo_Domingo'),
+      fechaHoraAprobacion: dayFirstTimestamp('America/Santo_Domingo'),
     });
     check('la aprobación comercial identifica a ambas partes',
       approval.includes('<RNCEmisor>130862346</RNCEmisor>') &&
@@ -221,7 +223,7 @@ function main(): void {
 
     const annulment = lifecycle.buildSequenceVoid({
       rnc: '130862346',
-      fechaHoraAnulacion: dgiiTimestamp('America/Santo_Domingo'),
+      fechaHoraAnulacion: dayFirstTimestamp('America/Santo_Domingo'),
       ranges: [{ tipoECF: '31', desde: 'E310000000042', hasta: 'E310000000050' }],
     });
     // 42 through 50 inclusive is nine numbers. An off-by-one here is a number the DGII still
@@ -243,7 +245,7 @@ function main(): void {
     const lateEvening = new Date('2026-09-01T00:30:00Z');
     const zone = organizationTimeZone({ country: 'DO', timezone: 'UTC' });
     check('la marca de tiempo fiscal usa la zona del contribuyente',
-      dgiiTimestamp(zone, lateEvening) === '31-08-2026 20:30:00', dgiiTimestamp(zone, lateEvening));
+      dayFirstTimestamp(zone, lateEvening) === '31-08-2026 20:30:00', dayFirstTimestamp(zone, lateEvening));
     check('una venta de la noche del último día del mes no salta de período',
       fiscalDate(zone, lateEvening) === '2026-08-31', fiscalDate(zone, lateEvening));
   }

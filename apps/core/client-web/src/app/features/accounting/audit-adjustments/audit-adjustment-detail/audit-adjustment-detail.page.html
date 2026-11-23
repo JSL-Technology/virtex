@@ -44,7 +44,7 @@
           </div>
           <div>
             <dt>{{ 'audit_adjustments.journal' | translate }}</dt>
-            <dd>{{ doc.journal ? doc.journal.code + ' — ' + doc.journal.name : '—' }}</dd>
+            <dd>{{ doc.journal ? doc.journal.code + ' — ' + (doc.journal.name | vxName: doc.journal.nameTranslations) : '—' }}</dd>
           </div>
           <div>
             <dt>{{ 'audit_adjustments.proposed' | translate }}</dt>

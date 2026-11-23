@@ -19,7 +19,8 @@ concurrency:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-latest
+    # A named image, as in ci.yml: `ubuntu-latest` moves on GitHub's schedule, not ours.
+    runs-on: ubuntu-26.04
     permissions:
       security-events: write # upload results
       packages: read # download CodeQL query packs

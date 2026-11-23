@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Plugin, PluginStatus } from './entities/plugin.entity';
@@ -154,11 +154,11 @@ export class ExtensionsService {
     });
 
     if (admission.status === 'rejected') {
-      throw new ForbiddenException({
-        error: 'Plugin rejected by admission policy during registration',
-        reason: admission.reason,
-        details: admission.details,
-      });
+      // The reason is the admission policy's own machine code, so it is a parameter of the
+      // sentence, not the sentence. `details` stays in the log: it describes the policy's
+      // internals and is not something to hand a browser.
+      this.logger.warn(`Admisión rechazada (${admission.reason}): ${JSON.stringify(admission.details)}`);
+      throw new ForbiddenError('extensions.rejected_by_admission_policy', { reason: admission.reason });
     }
 
     const version = this.versions.create({
@@ -463,10 +463,7 @@ export class ExtensionsService {
       const granted = consent.grantedCapabilities ?? [];
       const missing = requiredCapabilities.filter((cap) => !granted.includes(cap));
       if (missing.length > 0) {
-        throw new ForbiddenException({
-          error: 'Tenant consent missing for required capabilities',
-          missingCapabilities: missing,
-        });
+        throw new ForbiddenError('extensions.consent_missing_for_capabilities', { capabilities: missing.join(', ') });
       }
       authorizedCapabilities = granted;
     }

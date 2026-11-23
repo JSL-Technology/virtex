@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } fro
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import { BANK_KINDS, TreasuryService } from '../../../../core/api/treasury.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';

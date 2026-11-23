@@ -9,7 +9,7 @@ export class VoidVendorPaymentDto {
   reason: string;
 
   /** The reversal's booking date (YYYY-MM-DD). Today, in the company's zone, when omitted. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   reversalDate?: string;
 }

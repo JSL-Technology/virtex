@@ -2,7 +2,7 @@ import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
-import { matchLanguage } from '@virteex/shared/types';
+import { matchLanguage } from '@virtex/shared/types';
 import { PERMISSIONS } from '../shared/permissions';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { forEachTenant } from '../shared/tenancy/tenant-job';

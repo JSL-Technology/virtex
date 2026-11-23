@@ -24,7 +24,7 @@ export class PayPayrollRunDto {
    * to take the run's planned pay date (the period's last day), so a payroll paid on the 28th
    * showed in the bank on the 31st (QA R3-M02).
    */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   paymentDate?: string;
 }

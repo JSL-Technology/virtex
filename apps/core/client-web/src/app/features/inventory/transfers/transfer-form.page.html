@@ -27,7 +27,7 @@
           <select id="tr-from" formControlName="fromWarehouseId">
             <option value="" disabled>{{ 'inventory.common.choose_warehouse' | translate }}</option>
             @for (warehouse of warehouses(); track warehouse.id) {
-              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+              <option [value]="warehouse.id">{{ warehouse.name | vxName: warehouse.nameTranslations }}</option>
             }
           </select>
         </label>
@@ -36,7 +36,7 @@
           <select id="tr-to" formControlName="toWarehouseId">
             <option value="" disabled>{{ 'inventory.common.choose_warehouse' | translate }}</option>
             @for (warehouse of warehouses(); track warehouse.id) {
-              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+              <option [value]="warehouse.id">{{ warehouse.name | vxName: warehouse.nameTranslations }}</option>
             }
           </select>
         </label>

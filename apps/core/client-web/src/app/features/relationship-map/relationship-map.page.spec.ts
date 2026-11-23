@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
 
 import { Observable, of, throwError } from 'rxjs';
-import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virtex/shared/ui-i18n';
 import { NotificationService } from '../../core/services/notification';
 import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
 import { DocumentFlowMap, FlowNode, RelationshipMapService } from './data/relationship-map.service';

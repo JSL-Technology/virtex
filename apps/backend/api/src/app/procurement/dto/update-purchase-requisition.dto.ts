@@ -11,7 +11,7 @@ import {
 import { PurchaseRequisitionLineDto } from './create-purchase-requisition.dto';
 
 export class UpdatePurchaseRequisitionDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   requiredDate?: string;
 

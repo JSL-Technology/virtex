@@ -5,6 +5,7 @@ import { ActiveModuleService, normalizeRoute } from './active-module.service';
 import { AuthService } from '../services/auth';
 import { MODULES } from './module-registry';
 import { ModuleManifest } from './module-manifest';
+import { SAAS_FEATURE_KEYS } from '@virtex/shared/types';
 
 /**
  * The one place that decides what the navigation offers.
@@ -17,9 +18,12 @@ import { ModuleManifest } from './module-manifest';
 describe('ActiveModuleService', () => {
   const events = new Subject<unknown>();
   let permissions: string[] = [];
+  let features: string[] = [];
 
-  function make(url: string, granted: string[]): ActiveModuleService {
+  /** `plan`: the features the company's plan includes — by default every one, so only the role decides. */
+  function make(url: string, granted: string[], plan: string[] = [...SAAS_FEATURE_KEYS]): ActiveModuleService {
     permissions = granted;
+    features = plan;
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { url, events } },
@@ -27,6 +31,7 @@ describe('ActiveModuleService', () => {
           provide: AuthService,
           useValue: {
             hasPermissions: (required: string[]) => required.every((p) => permissions.includes(p)),
+            hasFeature: (feature: string) => features.includes(feature),
           },
         },
       ],
@@ -97,6 +102,27 @@ describe('ActiveModuleService', () => {
       .map((r) => '/' + [ventas.basePath, r.path].filter(Boolean).join('/'));
 
     expect(ofrecidas).toEqual(libres);
+  });
+
+  it('no ofrece lo que el plan de la empresa no incluye, aunque el rol lo permita (IA-02)', () => {
+    const analisis = MODULES.find((m) => m.id === 'analisis') as ModuleManifest;
+    const tesoreria = MODULES.find((m) => m.id === 'tesoreria') as ModuleManifest;
+    const ofrecidas = (svc: ActiveModuleService, module: ModuleManifest) =>
+      svc.visibleMenu(module).flatMap((s) => s.entries.map((e) => e.path));
+
+    const completo = make('/reports', todos());
+    expect(ofrecidas(completo, analisis)).toEqual(expect.arrayContaining(['/reports/anomalies', '/reports/manager-report']));
+    expect(ofrecidas(completo, tesoreria)).toContain('/accounting/treasury/cash-flow');
+    TestBed.resetTestingModule();
+
+    // The entry plan: every permission, and none of the AI features.
+    const basico = make('/reports', todos(), ['ai_vision']);
+    expect(ofrecidas(basico, analisis)).not.toContain('/reports/anomalies');
+    expect(ofrecidas(basico, analisis)).not.toContain('/reports/manager-report');
+    expect(ofrecidas(basico, tesoreria)).not.toContain('/accounting/treasury/cash-flow');
+    // What every plan includes is still there — collections among it (TES-13, TES-20).
+    expect(ofrecidas(basico, ventas)).toContain('/collections');
+    expect(ofrecidas(basico, analisis)).toContain('/reports/profitability-by-product');
   });
 
   it('un módulo sin ninguna entrada permitida no es alcanzable', () => {

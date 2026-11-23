@@ -2,6 +2,7 @@ import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, 
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import type { FixedAsset } from './fixed-asset.entity';
+import type { FixedAssetDepreciationRun } from './fixed-asset-depreciation-run.entity';
 
 /**
  * One month of depreciation charged to one asset, and the entry that charged it.
@@ -14,6 +15,7 @@ import type { FixedAsset } from './fixed-asset.entity';
 @Entity({ name: 'fixed_asset_depreciations' })
 @Index('UQ_fixed_asset_depreciations_asset_period', ['fixedAssetId', 'periodEnd'], { unique: true })
 @Index('IDX_fixed_asset_depreciations_org_period', ['organizationId', 'periodEnd'])
+@Index('IDX_fixed_asset_depreciations_run', ['runId'])
 @Check('CHK_fixed_asset_depreciations_amount', `"amount" > 0`)
 export class FixedAssetDepreciation {
   @PrimaryGeneratedColumn('uuid')
@@ -47,6 +49,17 @@ export class FixedAssetDepreciation {
 
   @Column({ name: 'journal_entry_id', type: 'uuid' })
   journalEntryId: string;
+
+  /**
+   * The run that charged it. Null only for a month charged before runs were recorded (migration
+   * 1789790000000): what ran those was never written down, and is not made up here.
+   */
+  @Column({ name: 'run_id', type: 'uuid', nullable: true })
+  runId: string | null;
+
+  @ManyToOne('FixedAssetDepreciationRun', { onDelete: 'NO ACTION' })
+  @JoinColumn({ name: 'run_id', foreignKeyConstraintName: 'FK_fixed_asset_depreciations_run' })
+  run?: FixedAssetDepreciationRun;
 
   @ManyToOne('JournalEntry', { onDelete: 'NO ACTION' })
   @JoinColumn({ name: 'journal_entry_id', foreignKeyConstraintName: 'FK_fixed_asset_depreciations_entry' })

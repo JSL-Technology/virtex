@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { catchError, of, startWith, switchMap } from 'rxjs';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { BranchesService } from '../../../core/tenancy/branches.service';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import {
   PurchaseOrder,
@@ -21,7 +21,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** Which badge colour each status carries. Green means the goods are in. */
 /** Lo que significa cada estado de un pedido. El color lo pone `vx-badge`, una vez. */
@@ -32,6 +32,7 @@ const STATUS_TONE: Record<PurchaseOrderStatus, VxTone> = {
   SENT: 'info',
   PARTIALLY_RECEIVED: 'warning',
   RECEIVED: 'ok',
+  CLOSED: 'neutral',
   CANCELLED: 'danger',
 };
 

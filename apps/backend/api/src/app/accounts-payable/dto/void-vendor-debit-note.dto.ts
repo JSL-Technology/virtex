@@ -9,7 +9,7 @@ export class VoidVendorDebitNoteDto {
   reason: string;
 
   /** The reversal's booking date (YYYY-MM-DD). Today when omitted; see `VoidVendorBillDto`. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   reversalDate?: string;
 }

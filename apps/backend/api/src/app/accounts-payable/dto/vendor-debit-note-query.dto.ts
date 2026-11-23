@@ -19,11 +19,11 @@ export class VendorDebitNoteQueryDto {
   @IsOptional()
   status?: VendorDebitNoteStatus;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   from?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   to?: string;
 

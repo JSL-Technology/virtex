@@ -23,7 +23,7 @@ import {
   WifiOff,
   Store,
 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth.service';
 import { ConnectivityService } from '../../core/connectivity.service';

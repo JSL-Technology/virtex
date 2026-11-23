@@ -11,13 +11,14 @@ import { DataTransferRegistry } from '../contracts/data-transfer/data-transfer.r
 import { PERMISSIONS } from '../shared/permissions';
 import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, toCents } from '../common/money';
+import { exampleDocumentNumber, purchaseCaptureProfile } from '../markets';
 import { SuppliersService } from '../suppliers/suppliers.service';
 import { AccountsPayableService } from './accounts-payable.service';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { VendorBillImportRowDto } from './dto/vendor-bill-import-row.dto';
 import { VendorBill } from './entities/vendor-bill.entity';
 
-/** What the tax id and NCF are compared on: no spaces, no dashes, upper case. */
+/** What a tax id and a document number are compared on: no spaces, no dashes, upper case. */
 const normalize = (value: string | undefined | null) => (value ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
 
 /**
@@ -26,8 +27,9 @@ const normalize = (value: string | undefined | null) => (value ?? '').replace(/[
  * Importing is how the payables a company already owes arrive from its previous system (and how
  * a batch of paper bills is keyed in a spreadsheet). Each row becomes a one-line bill and goes
  * through `AccountsPayableService.create`, so it meets the form's rules — the supplier must exist
- * (found by tax id), the NCF must be well formed and not already recorded for that supplier, the
- * withholding follows from who the supplier is — and every bill lands as a DRAFT, to be reviewed
+ * (found by tax id), the document number must be well formed by its market's rule and not already
+ * recorded for that supplier, the withholding follows from who the supplier is — and every bill
+ * lands as a DRAFT, to be reviewed
  * and approved like any other before it reaches the ledger.
  *
  * For bills dated before the company started using the product, the expense account to give is
@@ -42,7 +44,9 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
   readonly hintKey = 'data_transfer.hints.vendor_bills';
   readonly viewPermission = PERMISSIONS.ACCOUNTS_PAYABLE_VIEW;
   readonly columns = [
-    { key: 'ncf', property: 'ncf', example: 'B0100000123' },
+    // `numero_fiscal` was one authority's name for it, in a file every market imports. The example
+    // is the market's own (`templateExample`), so nothing here shows another country's shape.
+    { key: 'numero_fiscal', property: 'supplierFiscalNumber' },
     { key: 'numero_proveedor', property: 'supplierInvoiceNumber', example: 'FAC-000123' },
     { key: 'proveedor', property: 'vendorName' },
     { key: 'tax_id_proveedor', property: 'vendorTaxId', required: true, example: '131-12345-7' },
@@ -68,6 +72,7 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
     create: async (row: VendorBillImportRowDto, context: DataTransferContext) => {
       await this.service.create(await this.toBill(row, context.organizationId), context.organizationId, context.userId);
     },
+    templateExample: async (context: DataTransferContext) => this.marketExample(context.organizationId),
   };
 
   constructor(
@@ -147,7 +152,7 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
 
     return Object.assign(new CreateVendorBillDto(), {
       vendorId: supplier.id,
-      ncf: row.ncf,
+      supplierFiscalNumber: row.supplierFiscalNumber,
       supplierInvoiceNumber: row.supplierInvoiceNumber?.trim() || undefined,
       date: row.date,
       dueDate: row.dueDate,
@@ -165,14 +170,37 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
     });
   }
 
-  /** The same supplier's same comprobante twice in one file: the second would be refused at commit. */
+  /**
+   * The sample row of the template, in the shapes of the company's own market: its supplier
+   * identifier, the document number its authority issues, its currency. The samples were constants
+   * — a Dominican RNC and a Dominican comprobante — in a file a Mexican or Chilean company imports.
+   */
+  private async marketExample(organizationId: string): Promise<Record<string, string>> {
+    const [organization] = await this.dataSource.query<Array<{ country: string | null; base_currency: string | null }>>(
+      `SELECT "country", "base_currency" FROM "organizations" WHERE "id" = $1`,
+      [organizationId],
+    );
+    const profile = purchaseCaptureProfile(organization?.country ?? null);
+    const example: Record<string, string> = {};
+    // The identifier the market's own documents print, with the example its rule declares.
+    const identifier = profile.issuerIdentifiers.find((entry) => entry.example);
+    if (identifier?.example) example['vendorTaxId'] = identifier.example;
+    if (organization?.base_currency) example['currencyCode'] = organization.base_currency;
+    // A market whose numbers the product does not check has no shape to show: the column is left
+    // empty rather than filled with another market's.
+    const document = exampleDocumentNumber(profile.countryCode);
+    example['supplierFiscalNumber'] = document ?? '';
+    return example;
+  }
+
+  /** The same supplier's same document twice in one file: the second would be refused at commit. */
   private async duplicatesInFile(rows: readonly VendorBillImportRowDto[]): Promise<DataTransferFileProblem[]> {
     const seen = new Map<string, number>();
     const problems: DataTransferFileProblem[] = [];
     rows.forEach((row, index) => {
       // The fiscal identifier and the supplier's own number each identify one document.
-      const ids: Array<{ column: 'ncf' | 'numero_proveedor'; key: string | null; value?: string }> = [
-        { column: 'ncf', key: normalize(row.ncf) || null, value: row.ncf },
+      const ids: Array<{ column: 'numero_fiscal' | 'numero_proveedor'; key: string | null; value?: string }> = [
+        { column: 'numero_fiscal', key: normalize(row.supplierFiscalNumber) || null, value: row.supplierFiscalNumber },
         { column: 'numero_proveedor', key: supplierInvoiceKey(row.supplierInvoiceNumber), value: row.supplierInvoiceNumber },
       ];
       for (const id of ids) {

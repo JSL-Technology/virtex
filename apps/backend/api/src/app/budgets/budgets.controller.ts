@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   Query,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';

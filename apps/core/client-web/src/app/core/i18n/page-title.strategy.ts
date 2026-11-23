@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
  *
  * Route titles were literal strings, in Spanish, each carrying its own copy of the product name —
  * and the name they carried was **FacturaPRO**, a different product entirely. The application
- * meanwhile called itself Virtex in its translation files and Virteex in the backend, so a
+ * meanwhile called itself Virtex in its translation files and Virtex in the backend, so a
  * customer signing up saw three brands across one flow and none of them agreed.
  *
  * A route now names a translation key. The product name comes from `app_title`, so it is one

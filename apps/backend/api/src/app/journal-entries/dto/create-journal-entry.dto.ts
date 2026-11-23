@@ -16,6 +16,8 @@ import {
   IsObject,
   IsDefined,
 } from 'class-validator';
+import type { NarrativeRef } from '../../contracts/ledger-posting/ledger-text';
+import { StrictNumber } from '../../common/transformers/strict-number.transformer';
 import { JournalEntryType } from '../entities/journal-entry.entity';
 
 class LineValuationDto {
@@ -23,11 +25,13 @@ class LineValuationDto {
   @IsNotEmpty({ message: 'validation.create_journal_entry.ledger_id_ledger_id_required_every' })
   ledgerId: string;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_must_valid_number' })
   @IsDefined({ message: 'validation.create_journal_entry.debit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   debit: number;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_must_valid_number' })
   @IsDefined({ message: 'validation.create_journal_entry.credit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
@@ -40,11 +44,13 @@ export class CreateJournalEntryLineDto {
   @IsNotEmpty({ message: 'validation.create_journal_entry.account_id_account_id_required' })
   accountId: string;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_transaction_currency_must_number' })
   @IsDefined({ message: 'validation.create_journal_entry.debit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   debit: number;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_transaction_currency_must_number' })
   @IsDefined({ message: 'validation.create_journal_entry.credit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
@@ -53,10 +59,30 @@ export class CreateJournalEntryLineDto {
   @IsString({ message: 'validation.create_journal_entry.line_description_must_text' })
   @IsOptional()
   description?: string;
+
+  /**
+   * Set by the system when it writes the line's description: the message and its values. It carries
+   * no validation on purpose — the API refuses it (`forbidNonWhitelisted`); only code posting a
+   * document it narrated sets it. See `LedgerNarrativeService`.
+   *
+   * `declare`, so it is a type and never a property: a class field compiled for ES2022 exists on
+   * every instance, as `undefined`, and the pipe then refused every entry a person wrote for
+   * carrying a property it does not allow — whatever the body said.
+   */
+  declare narrative?: NarrativeRef;
   
   @IsObject({ message: 'validation.create_journal_entry.dimensions_must_object' })
   @IsOptional()
   dimensions?: Record<string, string>;
+
+  /**
+   * When the amount originated, if not on the entry's date (`YYYY-MM-DD`): the date the restatement
+   * for inflation restates it from (IAS 29.15) — an asset's acquisition for its depreciation, the
+   * date an opening balance was incurred. Never after the entry's date. Omitted: the entry's date.
+   */
+  @IsOptional()
+  @IsDateString({ strict: true }, { message: 'validation.create_journal_entry.origin_date_must_date' })
+  originDate?: string;
 
   /**
    * The currency this line was actually transacted in, when it is not the entry's.
@@ -83,16 +109,19 @@ export class CreateJournalEntryLineDto {
   @Length(3, 3, { message: 'validation.create_journal_entry.currency_code_must_exactly_characters' })
   currencyCode?: string;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_transaction_currency_must_number' })
   @IsOptional()
   @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   foreignCurrencyDebit?: number;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_transaction_currency_must_number' })
   @IsOptional()
   @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
   foreignCurrencyCredit?: number;
 
+  @StrictNumber()
   @IsNumber({}, { message: 'validation.create_journal_entry.exchange_rate_must_number' })
   @IsOptional()
   @Min(0, { message: 'validation.create_journal_entry.exchange_rate_cannot_negative' })
@@ -106,13 +135,16 @@ export class CreateJournalEntryLineDto {
 }
 
 export class CreateJournalEntryDto {
-  @IsDateString({}, { message: 'validation.create_journal_entry.date_must_valid_iso_8601_format' })
+  @IsDateString({ strict: true }, { message: 'validation.create_journal_entry.date_must_valid_iso_8601_format' })
   @IsNotEmpty({ message: 'validation.create_journal_entry.entry_date_required' })
   date: string;
 
   @IsString({ message: 'validation.create_journal_entry.description_must_text' })
   @IsNotEmpty({ message: 'validation.create_journal_entry.entry_description_required' })
   description: string;
+
+  /** Set by the system when it narrates the entry: see the line's `narrative`. Not accepted from the API. */
+  declare narrative?: NarrativeRef;
   
   @IsString()
   @IsOptional()

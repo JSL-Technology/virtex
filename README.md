@@ -1,4 +1,4 @@
-# Virteex
+# Virtex
 
 Además de los ~55 módulos ERP, se consolidaron desde `special-enigma` (sin microservicios ni
 dominios nuevos):
@@ -12,6 +12,14 @@ dominios nuevos):
 
 Detalle y criterios del merge en [docs/MERGE_FROM_SPECIAL_ENIGMA.md](docs/MERGE_FROM_SPECIAL_ENIGMA.md).
 
+## Cómo se escribe código aquí
+
+Las reglas que el repositorio ya no admite, cada una con la puerta de CI que la sostiene y el
+defecto del que salió: [docs/ESTANDAR_DE_INGENIERIA.md](docs/ESTANDAR_DE_INGENIERIA.md). Léelo antes
+de deducir qué es «correcto» a partir del código que ya existe —algunas partes son anteriores a su
+regla, y la regla es la puerta, no el ejemplo. Cómo se añade o se completa un mercado:
+[docs/ARQUITECTURA_MERCADOS.md](docs/ARQUITECTURA_MERCADOS.md).
+
 ## Ejecutar en local
 
 Necesitas Postgres y Redis. Nada más: con `NODE_ENV` sin definir o en `development`, la API genera
@@ -20,9 +28,9 @@ arranca sin `.env` y sin credenciales de terceros.
 
 ```bash
 # 1. Infraestructura (o usa tus propias instancias)
-docker run -d --name virteex-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
-docker run -d --name virteex-redis -p 6379:6379 redis:7
-docker exec virteex-db psql -U postgres -c 'CREATE DATABASE erp'
+docker run -d --name virtex-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
+docker run -d --name virtex-redis -p 6379:6379 redis:7
+docker exec virtex-db psql -U postgres -c 'CREATE DATABASE erp'
 
 # 2. Esquema (obligatorio: la API aborta al arrancar si las tablas no existen)
 npm run migration:run

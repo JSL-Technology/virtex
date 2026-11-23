@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { NotificationService } from '../../../core/services/notification';
+import { AuthService } from '../../../core/services/auth';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { AgentRun, AgentsApiService, CopilotFeedbackReport, CopilotProposalEntry, ReplenishmentSettings } from './agents.service';
 
@@ -26,6 +27,7 @@ import { AgentRun, AgentsApiService, CopilotFeedbackReport, CopilotProposalEntry
 })
 export class AiAgentsPanelComponent implements OnInit {
   private readonly api = inject(AgentsApiService);
+  private readonly auth = inject(AuthService);
   private readonly notifications = inject(NotificationService);
   protected readonly k = composeKey;
 
@@ -35,8 +37,14 @@ export class AiAgentsPanelComponent implements OnInit {
   readonly feedback = signal<CopilotFeedbackReport | null>(null);
   readonly running = signal(false);
 
+  /** The replenishment agent is a plan feature (`ai_agents`); the log of runs is not. */
+  readonly agentsInPlan = this.auth.hasFeature('ai_agents');
+
   ngOnInit(): void {
-    this.api.replenishmentSettings().subscribe({ next: (settings) => this.settings.set(settings), error: () => this.settings.set(null) });
+    // Not asked of a plan without agents: the API answers 403 and the console says so.
+    if (this.agentsInPlan) {
+      this.api.replenishmentSettings().subscribe({ next: (settings) => this.settings.set(settings), error: () => this.settings.set(null) });
+    }
     this.loadLog();
   }
 

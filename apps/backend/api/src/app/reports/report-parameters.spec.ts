@@ -74,18 +74,31 @@ describe('report parameters', () => {
   it('validates the options of an ageing report instead of accepting any object', () => {
     const errors = errorsFor({
       reportType: 'aging-report',
-      options: { ledgerId: 'not-a-uuid', somethingElse: 'anything at all' },
+      options: { asOfDate: 'not-a-date', somethingElse: 'anything at all' },
     });
     expect(errors.length).toBeGreaterThan(0);
   });
 
-  it('accepts an ageing report with no options beyond the ledger', () => {
+  /**
+   * The builder's ageing is the receivables ageing (IA-B02): its options are that report's — a
+   * cut-off and, optionally, one branch. The `ledgerId` it used to take belonged to a second ageing
+   * that answered 500 on the first open invoice, and is refused now like any undeclared property.
+   */
+  it('accepts an ageing report with its cut-off and branch', () => {
     expect(
       errorsFor({
         reportType: 'aging-report',
-        options: { ledgerId: '11111111-1111-4111-8111-111111111111' },
+        options: { asOfDate: '2026-11-15', branchId: '11111111-1111-4111-8111-111111111111' },
       }),
     ).toEqual([]);
+  });
+
+  it.each<[Record<string, string>, string]>([
+    [{ asOfDate: '2026-02-30' }, 'a day that does not exist'],
+    [{ asOfDate: '2026-11-15T10:00:00Z' }, 'a timestamp instead of a calendar day'],
+    [{ ledgerId: '11111111-1111-4111-8111-111111111111' }, 'the option of the ageing that no longer exists'],
+  ])('refuses %j as ageing options (%s)', (options) => {
+    expect(errorsFor({ reportType: 'aging-report', options }).length).toBeGreaterThan(0);
   });
 
   it('refuses an undeclared property inside the options', () => {

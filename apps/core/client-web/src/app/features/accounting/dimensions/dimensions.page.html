@@ -30,7 +30,7 @@
         <tbody>
           @for (dimension of list(); track dimension.id) {
             <tr [class.dm-selected]="draft()?.id === dimension.id">
-              <td><button type="button" class="table-link dm-link" (click)="select(dimension)">{{ dimension.name }}</button></td>
+              <td><button type="button" class="table-link dm-link" (click)="select(dimension)">{{ dimension.name | vxName: dimension.nameTranslations }}</button></td>
               <td class="numeric">{{ activeCount(dimension) }} / {{ dimension.values.length }}</td>
               <td>
                 <vx-badge [tone]="dimension.isActive ? 'ok' : 'neutral'">
@@ -54,6 +54,9 @@
               <small class="form-hint">{{ 'dimensions.page.name_locked' | translate }}</small>
             }
           </label>
+          <!-- How the name reads in other languages: it changes even in use — lines carry the name, not these. -->
+          <vx-name-translations class="field--wide" idPrefix="dm-name" [ngModel]="edit.nameTranslations"
+                                (ngModelChange)="patch({ nameTranslations: $event })" [disabled]="!canManage()" />
           <label class="doc-check">
             <input type="checkbox" [ngModel]="edit.isActive" (ngModelChange)="patch({ isActive: $event })" [disabled]="!canManage()" />
             {{ 'dimensions.page.active' | translate }}
@@ -73,6 +76,9 @@
               <tr>
                 <th>{{ 'dimensions.page.code' | translate }} *</th>
                 <th>{{ 'dimensions.page.label' | translate }}</th>
+                @for (option of translationLanguages(); track option.language) {
+                  <th>{{ 'dimensions.page.label_in' | translate: { language: option.label } }}</th>
+                }
                 <th>{{ 'dimensions.page.parent' | translate }}</th>
                 <th>{{ 'dimensions.page.active' | translate }}</th>
                 <th><span class="sr-only">{{ 'dimensions.page.remove' | translate }}</span></th>
@@ -91,6 +97,14 @@
                     <input type="text" maxlength="200" [attr.aria-label]="'dimensions.page.label' | translate" [ngModel]="row.value.name ?? ''"
                            (ngModelChange)="patchValue(index, { name: $event })" [disabled]="!canManage()" />
                   </td>
+                  @for (option of translationLanguages(); track option.language) {
+                    <td>
+                      <input type="text" maxlength="255" [attr.lang]="option.language"
+                             [attr.aria-label]="'dimensions.page.label_in' | translate: { language: option.label }"
+                             [ngModel]="$any(row.value.nameTranslations)?.[option.language] ?? ''"
+                             (ngModelChange)="patchValueTranslation(index, option.language, $event)" [disabled]="!canManage()" />
+                    </td>
+                  }
                   <td>
                     <select [attr.aria-label]="'dimensions.page.parent' | translate" [ngModel]="row.value.parent ?? ''"
                             (ngModelChange)="patchValue(index, { parent: $event || null })" [disabled]="!canManage()">
@@ -158,7 +172,7 @@
           <select id="dm-rule-dimension" [ngModel]="ruleDimension()" (ngModelChange)="ruleDimension.set($event)">
             <option value="">{{ 'dimensions.rules.choose_dimension' | translate }}</option>
             @for (dimension of list(); track dimension.id) {
-              <option [value]="dimension.id">{{ dimension.name }}</option>
+              <option [value]="dimension.id">{{ dimension.name | vxName: dimension.nameTranslations }}</option>
             }
           </select>
         </div>

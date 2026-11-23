@@ -8,7 +8,7 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@ang
 import { HttpErrorResponse } from '@angular/common/http';
 import { FileDown, LucideAngularModule, PlusCircle, RotateCw } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { PosSale, PosSalesService } from './pos-sales.service';
@@ -19,7 +19,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * Till sales, as they were actually rung up.

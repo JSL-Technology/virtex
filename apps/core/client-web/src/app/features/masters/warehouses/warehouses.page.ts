@@ -6,16 +6,18 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { Warehouse, WarehousesService } from '../../../core/api/warehouses.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { VxNameTranslationsComponent } from '../../../shared/components/name-translations';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * Where stock is held.
@@ -33,7 +35,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, VxLocalizedNamePipe, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent, VxNameTranslationsComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,7 +59,17 @@ export class WarehousesPage implements OnInit {
   readonly draftCode = signal('');
   readonly draftCity = signal('');
   readonly draftBranch = signal<string | null>(null);
+  readonly draftTranslations = signal<LocalizedName>({});
   protected readonly branches = inject(BranchesService);
+
+  /**
+   * The warehouse being renamed: its name as the books keep it, and in the other languages. The
+   * screen only created warehouses, so a name — and how it reads in another language — could not
+   * be corrected once given.
+   */
+  readonly renaming = signal<Warehouse | null>(null);
+  readonly renameName = signal('');
+  readonly renameTranslations = signal<LocalizedName>({});
 
   readonly canSave = computed(() => !this.saving() && this.draftName().trim().length > 0);
 
@@ -102,6 +114,7 @@ export class WarehousesPage implements OnInit {
     this.api
       .create({
         name: this.draftName().trim(),
+        nameTranslations: this.draftTranslations(),
         code: this.draftCode().trim() || undefined,
         city: this.draftCity().trim() || undefined,
         branchId: this.draftBranch() ?? undefined,
@@ -146,10 +159,45 @@ export class WarehousesPage implements OnInit {
     });
   }
 
+  startRename(warehouse: Warehouse): void {
+    this.renameName.set(warehouse.name);
+    this.renameTranslations.set({ ...(warehouse.nameTranslations ?? {}) });
+    this.renaming.set(warehouse);
+  }
+
+  cancelRename(): void {
+    this.renaming.set(null);
+  }
+
+  saveRename(): void {
+    const warehouse = this.renaming();
+    const name = this.renameName().trim();
+    if (!warehouse || this.saving()) return;
+    if (!name) {
+      this.notifications.showError('masters.warehouses.name_required');
+      document.getElementById('warehouse-rename')?.focus();
+      return;
+    }
+    this.saving.set(true);
+    this.api.update(warehouse.id, { name, nameTranslations: this.renameTranslations() }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.renaming.set(null);
+        this.notifications.showSuccess('masters.warehouses.renamed', { name });
+        this.load();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.saving.set(false);
+        this.notifications.showHttpError(err, 'masters.warehouses.update_failed');
+      },
+    });
+  }
+
   private resetDraft(): void {
     this.draftName.set('');
     this.draftCode.set('');
     this.draftCity.set('');
     this.draftBranch.set(null);
+    this.draftTranslations.set({});
   }
 }

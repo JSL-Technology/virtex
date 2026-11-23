@@ -25,6 +25,8 @@ import { convert, roundAmount } from '../common/money';
 import { toIsoDate } from '../common/dates';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
+import { described } from '../contracts/ledger-posting/ledger-text';
 
 export const INTERCOMPANY_QUEUE = 'intercompany-jobs';
 
@@ -174,7 +176,7 @@ export class IntercompanyService {
         manager,
         {
           date: toIsoDate(date),
-          description: sourceWords.header,
+          ...described(sourceWords.header),
           currencyCode,
           journalId: sourceJournal.id,
           lines: [
@@ -182,14 +184,14 @@ export class IntercompanyService {
               accountId: fromSettings.defaultIntercompanyReceivableAccountId,
               debit: amount,
               credit: 0,
-              description: sourceWords.receivable,
+              ...described(sourceWords.receivable),
               valuations: [{ ledgerId: sourceLedger.id, debit: amount, credit: 0 }],
             },
             {
               accountId: fromAccountId,
               debit: 0,
               credit: amount,
-              description: sourceWords.fundsOut,
+              ...described(sourceWords.fundsOut),
               valuations: [{ ledgerId: sourceLedger.id, debit: 0, credit: amount }],
             },
           ],
@@ -308,7 +310,7 @@ export class IntercompanyService {
         manager,
         {
           date: toIsoDate(transaction.transactionDate),
-          description: words.header,
+          ...described(words.header),
           currencyCode: toSettings.baseCurrency ?? undefined,
           journalId: journal.id,
           lines: [
@@ -316,14 +318,14 @@ export class IntercompanyService {
               accountId: transaction.toAccountId,
               debit: amount,
               credit: 0,
-              description: words.fundsIn,
+              ...described(words.fundsIn),
               valuations: [{ ledgerId: ledger.id, debit: amount, credit: 0 }],
             },
             {
               accountId: toSettings.defaultIntercompanyPayableAccountId,
               debit: 0,
               credit: amount,
-              description: words.payable,
+              ...described(words.payable),
               valuations: [{ ledgerId: ledger.id, debit: 0, credit: amount }],
             },
           ],
@@ -444,11 +446,19 @@ export class IntercompanyService {
     return account;
   }
 
+  /**
+   * The company's general journal, by its code.
+   *
+   * It was looked up by TYPE, and a company is created with six journals of type GENERAL — payroll,
+   * general, depreciation, closing, fixed assets, inflation adjustment — so the intercompany entry
+   * landed in whichever the database returned first, numbered in that journal's sequence: a transfer
+   * between companies could appear in the payroll or the closing journal (FINB-40).
+   */
   private async requireGeneralJournal(
     manager: EntityManager,
     organizationId: string,
   ): Promise<Journal> {
-    const journal = await manager.findOneBy(Journal, { organizationId, type: 'GENERAL' });
+    const journal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.general.code });
     if (!journal) {
       throw new BadRequestError('intercompany.organization_organization_id_has_no_general', {
         organizationId,

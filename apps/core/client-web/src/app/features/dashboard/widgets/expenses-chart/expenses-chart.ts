@@ -24,7 +24,7 @@ import { DashboardWidget, DashboardService, ChartType } from '../../../../core/s
 import { BrandingService } from '../../../../core/services/branding';
 import { PointOptionsObject } from 'highcharts';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';
 
 type ExportingChart = Highcharts.Chart & {

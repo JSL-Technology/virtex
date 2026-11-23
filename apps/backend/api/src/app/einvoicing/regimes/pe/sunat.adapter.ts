@@ -1,9 +1,11 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
 import { XmlSignatureService } from '../xml-signature.service';
 import { RegimeTransportService } from '../regime-transport.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
+import { modifiedDocumentOf } from '../modified-document';
 import {
   FiscalRegimeAdapter,
   FiscalRegimeContext,
@@ -52,7 +54,7 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
     const customer = await this.customerOf(context);
 
     // The series is the range's, not the tenant's: a taxpayer runs F001 and B001 at once, and the
-    // series a document belongs to is the one its number was drawn from.
+    // series a document belongs to is the one its number was drawn from, recorded when it was drawn.
     const documentType = context.invoice.fiscalDocumentType;
     if (!documentType) {
       throw new RegimeNotConfigured(this.regime, 'el tipo de comprobante del documento');
@@ -62,6 +64,7 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
       countryCode: 'PE',
       documentType,
       number: this.assignedNumber(context, this.regime),
+      series: context.invoice.fiscalSeries ?? undefined,
     });
 
     const { xml, documentName } = this.builder.build({
@@ -69,6 +72,8 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
       organization,
       customer,
       series: range.series,
+      // On a nota de crédito/débito: the document it corrects, with SUNAT's code for why.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'PE'),
     });
 
     return { payload: xml, contentType: 'application/xml', documentKey: documentName };
@@ -94,10 +99,10 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('PE', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       // `applicationResponse` is the CDR itself; the ticket is what an asynchronous submission
       // returns and is looked up later with `getStatus`.
       trackingKeys: ['applicationResponse', 'ticket'],
@@ -114,10 +119,10 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.transport.send('PE', `<getStatus><ticket>${trackingId}</ticket></getStatus>`, {
-      contentType: 'application/xml',
+    return this.transport.send('PE', `<getStatus><ticket>${escapeXmlText(trackingId)}</ticket></getStatus>`, {
+      organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml',
       trackingKeys: ['applicationResponse', 'statusCode'],
     });
   }

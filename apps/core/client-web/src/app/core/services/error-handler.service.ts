@@ -1,4 +1,4 @@
-import { FormatService, translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { FormatService, translateOrLiteral } from '@virtex/shared/ui-i18n';
 import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -8,7 +8,7 @@ import {
   errorCodeOf,
   errorParamsOf,
   resolveErrorKey,
-} from '@virteex/shared/ui-i18n';
+} from '@virtex/shared/ui-i18n';
 
 /**
  * Turns any HTTP failure into a sentence in the reader's language.

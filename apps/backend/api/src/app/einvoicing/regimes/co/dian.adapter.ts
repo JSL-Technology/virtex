@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -5,6 +6,7 @@ import { XmlSignatureService } from '../xml-signature.service';
 import { RegimeTransportService } from '../regime-transport.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
 import { FiscalRangeSecretKind } from '../../entities/fiscal-document-range.entity';
+import { modifiedDocumentOf } from '../modified-document';
 import {
   FiscalRegimeAdapter,
   FiscalRegimeContext,
@@ -57,9 +59,10 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       countryCode: 'CO',
       documentType,
       number: this.assignedNumber(context, this.regime),
+      series: context.invoice.fiscalSeries ?? undefined,
     });
 
-    if (range.secretKind !== FiscalRangeSecretKind.DIAN_TECHNICAL_KEY || !range.encryptedSecret) {
+    if (range.secretKind !== FiscalRangeSecretKind.TECHNICAL_KEY || !range.encryptedSecret) {
       throw new RegimeNotConfigured(this.regime, 'la ClaveTécnica de la resolución de facturación');
     }
 
@@ -67,6 +70,8 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       invoice: context.invoice,
       organization,
       customer,
+      // On a nota crédito/débito: the document it corrects, with the DIAN's concepto for why.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'CO'),
       technicalKey: this.ranges.secretOfRange(range),
       // The DIAN's own coding: `1` producción, `2` pruebas. The CUFE differs between the two
       // deliberately, so a document built for one environment cannot be filed into the other.
@@ -104,10 +109,10 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('CO', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       trackingKeys: ['ZipKey', 'TrackId', 'trackId'],
     });
     // The CUFE is ours, computed at build time, and stays the document's identity whatever the
@@ -117,12 +122,12 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     return this.transport.send(
       'CO',
-      `<GetStatusZip><trackId>${trackingId}</trackId></GetStatusZip>`,
-      { contentType: 'application/xml', trackingKeys: ['TrackId', 'trackId'] },
+      `<GetStatusZip><trackId>${escapeXmlText(trackingId)}</trackId></GetStatusZip>`,
+      { organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml', trackingKeys: ['TrackId', 'trackId'] },
     );
   }
 

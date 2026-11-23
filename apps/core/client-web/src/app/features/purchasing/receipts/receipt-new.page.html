@@ -35,7 +35,7 @@
           <select id="receipt-warehouse" formControlName="warehouseId">
             <option value="">{{ 'purchasing.receipts.warehouse_of_branch' | translate }}</option>
             @for (warehouse of warehouses(); track warehouse.id) {
-              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+              <option [value]="warehouse.id">{{ warehouse.name | vxName: warehouse.nameTranslations }}</option>
             }
           </select>
         </label>

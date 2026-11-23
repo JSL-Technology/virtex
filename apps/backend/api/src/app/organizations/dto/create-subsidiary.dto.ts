@@ -55,3 +55,34 @@ export class UpdateSubsidiaryDto {
   @IsOptional()
   controlEndedOn?: string | null;
 }
+
+/**
+ * Bring an organization that already exists under this one: an acquisition (FINB-35). Until now a
+ * subsidiary could only be created empty, so a company bought with years of books could not be
+ * consolidated at all.
+ */
+export class LinkSubsidiaryDto {
+  @IsUUID()
+  organizationId: string;
+
+  @IsNumber()
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(100, { message: 'validation.constraints.max|{"max":100}' })
+  ownership: number;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsIsoDate()
+  @IsOptional()
+  acquisitionDate?: string | null;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @IsOptional()
+  acquisitionCost?: number | null;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsUUID()
+  @IsOptional()
+  investmentAccountId?: string | null;
+}

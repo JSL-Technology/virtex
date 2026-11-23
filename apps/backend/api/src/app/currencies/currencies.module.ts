@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { CurrenciesService } from './currencies.service';
@@ -9,32 +9,57 @@ import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { ExchangeRate } from './entities/exchange-rate.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
 import { ExchangeRatesController } from './exchange-rates.controller';
-import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { ExchangeRateResolver } from './exchange-rate-resolver.service';
 import { XeRatesProvider } from './xe-rates.provider';
+import { PriceIndexValue } from './entities/price-index-value.entity';
+import { TenantPriceIndexValue } from './entities/tenant-price-index-value.entity';
+import { PriceIndicesService } from './price-indices.service';
+import { PriceIndicesController } from './price-indices.controller';
+import { PriceIndexValuesDataTransferProvider } from './price-index-values-data-transfer.provider';
+import { ExchangeRateFeedState } from './entities/exchange-rate-feed.entity';
+import { ExchangeRateFeedRun } from './entities/exchange-rate-feed-run.entity';
+import { ExchangeRateFeedsController } from './exchange-rate-feeds.controller';
+import { OfficialRatesTransport } from './official-rates.transport';
+import { OFFICIAL_RATE_FEED_REGISTRY, OfficialRatesService } from './official-rates.service';
+import { OFFICIAL_RATE_FEEDS } from '../markets';
 
 // CurrencyRevaluationService moved to accounting/services/ — it belongs to the accounting
 // domain and now injects AccountingPostingPort instead of JournalEntriesService.
 // AccountingModule provides and exports it from there.
 
 @Module({
+  // `ChartOfAccountsModule` was imported here behind a `forwardRef`, and the comment explaining
+  // the `forwardRef` described the cycle that the import itself created: currencies is platform,
+  // chart-of-accounts is the ledger, and nothing in this folder used a single provider from it —
+  // `CurrencyRevaluationService` had already moved to `accounting/`, which is where it belongs.
+  // Removing the import removed the cycle and the workaround together.
   imports: [
-    // `forwardRef` because the graph really is circular: ChartOfAccountsModule reaches
-    // JournalEntriesModule, which reaches back here. Without it the class expression is still
-    // being evaluated when this module is defined, so `imports[0]` is literally `undefined` and
-    // Nest fails to build the container — which is what stopped the application booting at all.
-    forwardRef(() => ChartOfAccountsModule),
-    TypeOrmModule.forFeature([Currency, ExchangeRate, TenantExchangeRate]),
+    TypeOrmModule.forFeature([
+      Currency,
+      ExchangeRate,
+      TenantExchangeRate,
+      PriceIndexValue,
+      TenantPriceIndexValue,
+      ExchangeRateFeedState,
+      ExchangeRateFeedRun,
+    ]),
     HttpModule,
   ],
-  controllers: [CurrenciesController, ExchangeRatesController],
+  controllers: [CurrenciesController, ExchangeRatesController, PriceIndicesController, ExchangeRateFeedsController],
   providers: [
     ExchangeRateResolver,
     XeRatesProvider,
     CurrenciesService,
     CurrencySeederService,
     ExchangeRatesService,
+    // General price indices for restating statements (IAS 29): reference data beside the rates.
+    PriceIndicesService,
+    PriceIndexValuesDataTransferProvider,
+    // Each market's official rate, read from its publisher (FINB-03).
+    OfficialRatesTransport,
+    OfficialRatesService,
+    { provide: OFFICIAL_RATE_FEED_REGISTRY, useValue: OFFICIAL_RATE_FEEDS },
   ],
-  exports: [ExchangeRateResolver, XeRatesProvider, CurrencySeederService],
+  exports: [ExchangeRateResolver, XeRatesProvider, CurrencySeederService, PriceIndicesService],
 })
 export class CurrenciesModule {}

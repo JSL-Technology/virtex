@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { DocumentLifecycle } from '@virteex/shared/types';
+import { DocumentLifecycle } from '@virtex/shared/types';
 
 import { environment } from '../../../environments/environment';
 /**

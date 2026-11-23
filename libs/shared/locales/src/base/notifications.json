@@ -144,6 +144,16 @@
     "en": "Approval waiting",
     "pt": "Aprovação pendente"
   },
+  "notifications.budget_exceeded.body": {
+    "es": "La cuenta {{account}} lleva {{actual}} contra {{budgeted}} presupuestados en «{{budget}}» ({{period}}).",
+    "en": "Account {{account}} is at {{actual}} against {{budgeted}} budgeted in «{{budget}}» ({{period}}).",
+    "pt": "A conta {{account}} está em {{actual}} contra {{budgeted}} orçados em «{{budget}}» ({{period}})."
+  },
+  "notifications.budget_exceeded.title": {
+    "es": "Asiento por encima del presupuesto",
+    "en": "Entry over budget",
+    "pt": "Lançamento acima do orçamento"
+  },
   "notifications.document_type.audit_adjustment": {
     "es": "Ajuste de auditoría",
     "en": "Audit adjustment",

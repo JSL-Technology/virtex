@@ -17,6 +17,7 @@ import { DevSeederService } from './app/auth/services/dev-seeder.service';
 import { isDevLikeEnvironment } from './app/config/environment';
 import { parseCorsOrigins } from './app/shared/http/cors-origins';
 import { ConfiguredIoAdapter } from './app/websockets/configured-io.adapter';
+import { NOTICES_HEADER } from './app/i18n/request-notices';
 
 import {
   FastifyAdapter,
@@ -207,6 +208,9 @@ async function bootstrap() {
     origin: [...corsOrigins],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true,
+    // A cross-origin page reads only the response headers it is allowed to: the notices of a request
+    // that succeeded with a caveat travel in one (`i18n/request-notices.ts`).
+    exposedHeaders: [NOTICES_HEADER],
   });
 
   app.useGlobalPipes(

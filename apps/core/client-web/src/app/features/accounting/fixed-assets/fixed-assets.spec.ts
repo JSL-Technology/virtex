@@ -1,17 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { FixedAssetsPage } from './fixed-assets.page';
 import { FixedAssetFormPage } from './fixed-asset-form.page';
 import { FixedAssetDisposePage, carryingOnDisposal } from './fixed-asset-dispose.page';
 import { DepreciationRunPage, previousMonth } from './depreciation-run.page';
+import { DepreciationRunsPage, depreciationRunTriggerKey } from './depreciation-runs.page';
+import { DepreciationRunDetailPage } from './depreciation-run-detail.page';
 import { FixedAsset, FixedAssetSchedule, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
+import { AuthService } from '../../../core/services/auth';
+import { authServiceMock } from '../../../../testing/service-mocks';
 
 describe('fixed assets', () => {
   const asset = (overrides: Partial<FixedAsset> = {}): FixedAsset => ({
@@ -26,6 +30,14 @@ describe('fixed assets', () => {
     residualValue: 0,
     usefulLifeMonths: 60,
     depreciationMethod: 'STRAIGHT_LINE',
+    decliningAnnualRate: null,
+    depreciationConvention: 'FULL_MONTH',
+    categoryId: null,
+    category: null,
+    taxBook: null,
+    capitalizationMethod: 'POSTED',
+    capitalizationEntryId: 'je-acq',
+    capitalizationOffsetAccountId: 'acc-bank',
     bookValue: 120_000,
     accumulatedDepreciation: 0,
     openingAccumulatedDepreciation: 0,
@@ -43,6 +55,22 @@ describe('fixed assets', () => {
     ...overrides,
   });
 
+  const run = () => ({
+    id: 'run-1',
+    periodEnd: '2026-03-31',
+    trigger: 'MANUAL' as const,
+    fixedAsset: null,
+    ranByUserId: 'u-1',
+    ranByName: 'Ana Pérez',
+    assetCount: 1,
+    chargeCount: 2,
+    total: 4_000,
+    taxChargeCount: 0,
+    taxTotal: 0,
+    createdAt: '2026-04-02T14:00:00.000Z',
+  });
+  const noTax = { total: 0, assets: [] };
+
   let api: Record<string, jest.Mock>;
   let notifications: Record<string, jest.Mock>;
 
@@ -55,11 +83,29 @@ describe('fixed assets', () => {
       update: jest.fn().mockReturnValue(of(asset())),
       dispose: jest.fn().mockReturnValue(of(asset({ status: 'SOLD' }))),
       previewDepreciation: jest.fn().mockReturnValue(
-        of({ periodEnd: '2026-03-31', journalEntryId: null, total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [] }),
+        of({ periodEnd: '2026-03-31', journalEntryId: null, total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], tax: noTax, postable: true, notPostable: null }),
       ),
       runDepreciation: jest.fn().mockReturnValue(
-        of({ periodEnd: '2026-03-31', journalEntryId: 'je-1', total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [] }),
+        of({ periodEnd: '2026-03-31', runId: 'run-1', journalEntryId: 'je-1', total: 6_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 3, amount: 6_000 }], skipped: [], tax: noTax, postable: true, notPostable: null }),
       ),
+      listRuns: jest.fn().mockReturnValue(of({ rows: [run()], page: 1, pageSize: 50, total: 1, hasMore: false })),
+      getRun: jest.fn().mockReturnValue(
+        of({
+          ...run(),
+          charges: [
+            { fixedAssetId: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', periodEnd: '2026-02-28', amount: 2_000, accumulatedAfter: 4_000, bookValueAfter: 116_000, journalEntryId: 'je-2' },
+            { fixedAssetId: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', periodEnd: '2026-03-31', amount: 2_000, accumulatedAfter: 6_000, bookValueAfter: 114_000, journalEntryId: 'je-3' },
+          ],
+          entries: [
+            { id: 'je-2', entryNumber: 'DEPREC-2026-000002', date: '2026-02-28', total: 2_000 },
+            { id: 'je-3', entryNumber: 'DEPREC-2026-000003', date: '2026-03-31', total: 2_000 },
+          ],
+          taxCharges: [],
+        }),
+      ),
+      listCategories: jest.fn().mockReturnValue(of([])),
+      taxCategories: jest.fn().mockReturnValue(of(null)),
+      capitalizationSources: jest.fn().mockReturnValue(of({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false })),
     };
     notifications = {
       httpErrorMessage: jest.fn().mockReturnValue('x'),
@@ -74,8 +120,9 @@ describe('fixed assets', () => {
         { provide: NotificationService, useValue: notifications },
         { provide: DialogService, useValue: { confirm: jest.fn().mockResolvedValue(true), prompt: jest.fn() } },
         { provide: ChartOfAccountsApiService, useValue: { searchAccounts: () => of([]), getAccountById: (id: string) => of({ id, code: '1', name: 'x' }) } },
-        { provide: BranchesService, useValue: { hasBranches: () => false, branches: () => [], load: jest.fn() } },
+        { provide: BranchesService, useValue: { hasBranches: () => false, branches: () => [], mine: () => ({ branches: [], defaultBranchId: null }), ensureMine: () => Promise.resolve(), load: jest.fn() } },
         { provide: ActiveOrganizationService, useValue: { urlFor: (path: string) => path } },
+        { provide: AuthService, useValue: authServiceMock({ permissions: ['fixed_assets:manage'] }) },
       ],
     });
   }
@@ -114,10 +161,54 @@ describe('fixed assets', () => {
       accumulatedDepreciationAccountId: 'acc-accum',
     });
     expect(page.form.controls.inServiceDate.value).toBe('2026-02-03');
+    // Bought from the bank: the register posts its acquisition (FINB-15).
+    page.form.controls.capitalization.patchValue({ mode: 'POSTED', offsetAccountId: 'acc-bank' });
     page.save();
     expect(api['create']).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Camioneta', cost: 120_000, inServiceDate: '2026-02-03', openingAccumulatedDepreciation: 0 }),
+      expect.objectContaining({
+        name: 'Camioneta',
+        cost: 120_000,
+        inServiceDate: '2026-02-03',
+        openingAccumulatedDepreciation: 0,
+        capitalization: { method: 'POSTED', offsetAccountId: 'acc-bank' },
+      }),
     );
+    // No convention chosen: none is sent, and the server applies the company's.
+    expect(api['create'].mock.calls[0][0]).not.toHaveProperty('depreciationConvention');
+  });
+
+  it('offers every convention, and the company\'s, and sends the one the asset names', () => {
+    TestBed.overrideComponent(FixedAssetFormPage, { set: { template: '' } });
+    const page = TestBed.createComponent(FixedAssetFormPage).componentInstance;
+    page.ngOnInit();
+    expect(page['conventions']).toEqual(['FULL_MONTH', 'NEXT_MONTH', 'MID_MONTH', 'DAILY']);
+    // A new asset starts on the company's convention: an empty choice.
+    expect(page.form.controls.depreciationConvention.value).toBe('');
+    page.form.patchValue({
+      name: 'Grúa',
+      acquisitionDate: '2026-02-03',
+      cost: 50_000,
+      usefulLifeMonths: 60,
+      depreciationConvention: 'DAILY',
+      assetAccountId: 'acc-asset',
+      accumulatedDepreciationAccountId: 'acc-accum',
+    });
+    page.form.controls.capitalization.patchValue({ mode: 'POSTED', offsetAccountId: 'acc-bank' });
+    page.save();
+    expect(api['create']).toHaveBeenCalledWith(expect.objectContaining({ depreciationConvention: 'DAILY' }));
+  });
+
+  it('keeps the convention fixed once the asset has been depreciated, and does not send it', () => {
+    api['get'].mockReturnValue(of(asset({ depreciationConvention: 'MID_MONTH', accumulatedDepreciation: 2_000, depreciatedThrough: '2026-01-31' })));
+    TestBed.overrideComponent(FixedAssetFormPage, { set: { template: '' } });
+    const fixture = TestBed.createComponent(FixedAssetFormPage);
+    fixture.componentRef.setInput('id', 'fa-1');
+    const page = fixture.componentInstance;
+    page.ngOnInit();
+    expect(page.form.controls.depreciationConvention.disabled).toBe(true);
+    expect(page.form.controls.depreciationConvention.value).toBe('MID_MONTH');
+    page.save();
+    expect(api['update'].mock.calls[0][1]).not.toHaveProperty('depreciationConvention');
   });
 
   it('refuses an opening balance without the month it covers', () => {
@@ -204,6 +295,80 @@ describe('fixed assets', () => {
     await page.run();
     expect(api['runDepreciation']).toHaveBeenCalledWith(previousMonth());
     expect(page.posted()?.journalEntryId).toBe('je-1');
+    // What it posted is a run, and the summary leads to it.
+    expect(page.posted()?.runId).toBe('run-1');
+  });
+
+  it('opens on the month the close asks about, and ignores one that is not a month', () => {
+    TestBed.overrideComponent(DepreciationRunPage, { set: { template: '' } });
+    const fixture = TestBed.createComponent(DepreciationRunPage);
+    fixture.componentRef.setInput('period', '2026-03');
+    fixture.componentInstance.ngOnInit();
+    expect(api['previewDepreciation']).toHaveBeenLastCalledWith('2026-03');
+
+    const other = TestBed.createComponent(DepreciationRunPage);
+    other.componentRef.setInput('period', '2026-13');
+    other.componentInstance.ngOnInit();
+    expect(api['previewDepreciation']).toHaveBeenLastCalledWith(previousMonth());
+  });
+
+  it('lists the runs, by what set them going', () => {
+    const fixture = TestBed.createComponent(DepreciationRunsPage);
+    const page = fixture.componentInstance;
+    page.ngOnInit();
+    expect(api['listRuns']).toHaveBeenCalledWith({ trigger: null, page: 1, pageSize: 50 });
+    expect(page.rows()).toHaveLength(1);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Ana Pérez');
+
+    page.setTrigger('DISPOSAL');
+    expect(api['listRuns']).toHaveBeenLastCalledWith({ trigger: 'DISPOSAL', page: 1, pageSize: 50 });
+    expect(depreciationRunTriggerKey('PERIOD_CLOSE')).toBe('fixed_assets.runs.trigger.period_close');
+  });
+
+  it('shows one run: each month it charged, and the entry that carries it', () => {
+    const fixture = TestBed.createComponent(DepreciationRunDetailPage);
+    fixture.componentRef.setInput('id', 'run-1');
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    expect(api['getRun']).toHaveBeenCalledWith('run-1');
+    expect(page.run()?.charges).toHaveLength(2);
+    expect(page.entryNumbers().get('je-3')).toBe('DEPREC-2026-000003');
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('DEPREC-2026-000002');
+    expect(text).toContain('Ana Pérez');
+  });
+
+  it('shows what a month still running would charge, and does not offer to post it', async () => {
+    const blocked = { key: 'fixed_assets.depreciation_period_not_ended', params: { period: '2026-11', today: '2026-11-07' } };
+    api['previewDepreciation'].mockReturnValue(
+      of({ periodEnd: '2026-11-30', journalEntryId: null, total: 2_000, assets: [{ id: 'fa-1', number: 'AF-2026-000001', name: 'Camioneta', months: 1, amount: 2_000 }], skipped: [], tax: noTax, postable: false, notPostable: blocked }),
+    );
+    const fixture = TestBed.createComponent(DepreciationRunPage);
+    const page = fixture.componentInstance;
+    page.setPeriod('2026-11');
+    fixture.detectChanges();
+
+    expect(page.rows()).toHaveLength(1);
+    expect(page.notPostable()).toEqual(blocked);
+    expect(page.canPost()).toBe(false);
+    const post = fixture.nativeElement.querySelector('button.primary-button') as HTMLButtonElement | null;
+    expect(post).not.toBeNull();
+    expect(post!.disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain('fixed_assets.depreciation_period_not_ended');
+
+    await page.run();
+    expect(api['runDepreciation']).not.toHaveBeenCalled();
+  });
+
+  it('offers to post a month that has ended', () => {
+    const fixture = TestBed.createComponent(DepreciationRunPage);
+    fixture.componentInstance.ngOnInit();
+    fixture.detectChanges();
+    const post = fixture.nativeElement.querySelector('button.primary-button') as HTMLButtonElement | null;
+    expect(post).not.toBeNull();
+    expect(post!.disabled).toBe(false);
+    expect(fixture.componentInstance.notPostable()).toBeNull();
   });
 
   it('runs for the month before today', () => {

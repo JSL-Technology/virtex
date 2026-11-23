@@ -28,3 +28,21 @@ export function resolvePaymentProvider(config: ConfigService): PaymentProvider {
   if (configured === 'stripe' || configured === 'simulated') return configured;
   return config.get<string>('STRIPE_SECRET_KEY') ? 'stripe' : 'simulated';
 }
+
+/**
+ * The gateway this process charges through, chosen once at boot and published for monitoring.
+ *
+ * `payment_provider_info{provider}` is 1 for the active provider. The rules above make `simulated`
+ * unreachable in a deployment; this is what tells an operator if one ever runs it anyway — a box
+ * started with `NODE_ENV=development` by mistake hands out subscriptions without charging, and
+ * nothing else would say so (IAM-P2).
+ */
+export function choosePaymentGateway<T>(
+  config: ConfigService,
+  gateways: Readonly<Record<PaymentProvider, T>>,
+  providerInfo: { labels(provider: PaymentProvider): { set(value: number): void } },
+): T {
+  const provider = resolvePaymentProvider(config);
+  providerInfo.labels(provider).set(1);
+  return gateways[provider];
+}

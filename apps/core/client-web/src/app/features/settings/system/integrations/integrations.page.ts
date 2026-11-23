@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/services/auth';
@@ -104,7 +104,9 @@ export class IntegrationSettingsPage implements OnInit {
 
   readonly cards = signal<IntegrationCard[]>([
     { id: 'extensions', state: 'loading', params: {}, link: this.organization.urlFor('/extensions') },
-    { id: 'sso', state: 'loading', params: {}, fragment: 'settings/sso' },
+    // Single sign-on is the Enterprise plan's: elsewhere its card would ask an API that refuses,
+    // and lead to a section the settings do not offer.
+    ...(this.auth.hasFeature('enterprise_sso') ? [{ id: 'sso' as const, state: 'loading' as const, params: {}, fragment: 'settings/sso' }] : []),
     { id: 'einvoicing', state: 'loading', params: {}, fragment: 'settings/fiscal' },
     { id: 'data', state: 'active', params: {}, link: this.organization.urlFor('/data-imports') },
   ]);
@@ -118,7 +120,7 @@ export class IntegrationSettingsPage implements OnInit {
         }),
       ),
     );
-    this.read('sso', 'settings:edit_company', () =>
+    if (this.auth.hasFeature('enterprise_sso')) this.read('sso', 'settings:edit_company', () =>
       this.sso.listProviders().pipe(
         map((providers) => {
           const enabled = providers.filter((provider) => provider.enabled).length;

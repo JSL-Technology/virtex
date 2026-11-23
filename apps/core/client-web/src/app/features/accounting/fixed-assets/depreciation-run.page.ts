@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -10,7 +10,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { DepreciationRunResult, FixedAssetsService } from '../data/fixed-assets.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The month that just ended: what a run is usually for. */
 export function previousMonth(today = new Date()): string {
@@ -22,7 +22,8 @@ export function previousMonth(today = new Date()): string {
  * Running depreciation (audit H-21): pick the month, see what each asset is due — every month it
  * is behind, not only this one — and post it as one entry. It runs on its own on the first of each
  * month and at each period close; this is for running it now, or catching up an asset registered
- * late. Running it twice charges nothing twice.
+ * late. Running it twice charges nothing twice. A month that has not ended can be previewed — what
+ * it will charge — but not posted (FINB-13).
  */
 @Component({
   selector: 'app-depreciation-run-page',
@@ -38,6 +39,8 @@ export class DepreciationRunPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly organization = inject(ActiveOrganizationService);
 
+  /** The month to open on — the one being closed, from the close's checklist (`?period=`). */
+  readonly periodParam = input<string | undefined>(undefined, { alias: 'period' });
   readonly period = signal(previousMonth());
   readonly preview = signal<DepreciationRunResult | null>(null);
   /** The run just posted, kept on screen with a link to its entry. */
@@ -47,9 +50,22 @@ export class DepreciationRunPage implements OnInit {
   readonly error = signal<string | null>(null);
 
   readonly rows = computed(() => this.preview()?.assets ?? []);
-  readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0 && !this.preview()?.skipped.length);
+  /** What the tax books are due: recorded by the run, posted nowhere (FINB-16). */
+  readonly taxRows = computed(() => this.preview()?.tax?.assets ?? []);
+  /** Why the month on screen cannot be posted yet — it has not ended — or null. */
+  readonly notPostable = computed(() => {
+    const preview = this.preview();
+    return preview && !preview.postable ? preview.notPostable : null;
+  });
+  // A month only the tax books are due is run too: the run records it.
+  readonly canPost = computed(() => !this.running() && (this.rows().length > 0 || this.taxRows().length > 0) && this.preview()?.postable === true);
+  readonly empty = computed(
+    () => !this.loading() && !this.error() && this.rows().length === 0 && this.taxRows().length === 0 && !this.preview()?.skipped.length,
+  );
 
   ngOnInit(): void {
+    const requested = this.periodParam();
+    if (requested && /^\d{4}-(0[1-9]|1[0-2])$/.test(requested)) this.period.set(requested);
     this.load();
   }
 
@@ -77,11 +93,15 @@ export class DepreciationRunPage implements OnInit {
 
   async run(): Promise<void> {
     const preview = this.preview();
-    if (!preview || preview.assets.length === 0) return;
+    if (!preview || !this.canPost()) return;
+    const taxTotal = preview.tax?.total ?? 0;
+    // What the run posts, and what it records in the tax books alone.
+    const message =
+      preview.assets.length === 0 ? 'fixed_assets.run.confirm_tax_only_message' : taxTotal > 0 ? 'fixed_assets.run.confirm_message_with_tax' : 'fixed_assets.run.confirm_message';
     const confirmed = await this.dialog.confirm({
       title: 'fixed_assets.run.confirm_title',
-      message: 'fixed_assets.run.confirm_message',
-      messageParams: { count: preview.assets.length, total: preview.total, period: this.period() },
+      message,
+      messageParams: { count: preview.assets.length, total: preview.total, period: this.period(), taxTotal, taxCount: preview.tax?.assets.length ?? 0 },
       confirmText: 'fixed_assets.run.post',
     });
     if (!confirmed) return;
@@ -90,7 +110,11 @@ export class DepreciationRunPage implements OnInit {
       next: (result) => {
         this.running.set(false);
         this.posted.set(result);
-        this.notifications.showSuccess('fixed_assets.run.posted', { count: result.assets.length });
+        if (result.assets.length === 0 && (result.tax?.assets.length ?? 0) > 0) {
+          this.notifications.showSuccess('fixed_assets.run.posted_tax_only', { count: result.tax.assets.length });
+        } else {
+          this.notifications.showSuccess('fixed_assets.run.posted', { count: result.assets.length });
+        }
         this.load();
       },
       error: (error: unknown) => {

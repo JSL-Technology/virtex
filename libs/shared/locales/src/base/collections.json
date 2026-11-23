@@ -59,6 +59,11 @@
     "en": "Broken promises",
     "pt": "Promessas não cumpridas"
   },
+  "collections.by_schedule": {
+    "es": "Recordatorio automático",
+    "en": "Automatic reminder",
+    "pt": "Lembrete automático"
+  },
   "collections.close": {
     "es": "Cerrar",
     "en": "Close",
@@ -224,6 +229,11 @@
     "en": "Payment likelihoods from the cash-flow projection of {{when}}.",
     "pt": "Probabilidades de pagamento do fluxo de caixa projetado de {{when}}."
   },
+  "collections.no_customer_address": {
+    "es": "El cliente no tiene correo. Añádelo al cliente, o a uno de sus contactos, para enviarle recordatorios.",
+    "en": "The customer has no e-mail. Add one to the customer, or to one of its contacts, to send it reminders.",
+    "pt": "O cliente não tem e-mail. Adicione um ao cliente, ou a um dos seus contatos, para enviar lembretes."
+  },
   "collections.note": {
     "es": "Mensaje",
     "en": "Message",
@@ -353,6 +363,11 @@
     "es": "Poco probable que pague pronto",
     "en": "Unlikely to pay soon",
     "pt": "Pouco provável que pague logo"
+  },
+  "collections.recipient_not_on_customer": {
+    "es": "Los recordatorios solo se envían a la dirección del cliente o a la de uno de sus contactos. Añade la dirección al cliente para usarla.",
+    "en": "Reminders go only to the customer's address or to one of its contacts'. Add the address to the customer to use it.",
+    "pt": "Os lembretes só são enviados para o endereço do cliente ou de um dos seus contatos. Adicione o endereço ao cliente para usá-lo."
   },
   "collections.record": {
     "es": "Registrar gestión",

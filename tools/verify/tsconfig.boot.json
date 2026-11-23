@@ -3,8 +3,8 @@
   "compilerOptions": {
     "baseUrl": "../..",
     "paths": {
-      "@virteex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
-      "@virteex/shared/types": ["libs/shared/types/src/index.ts"]
+      "@virtex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
+      "@virtex/shared/types": ["libs/shared/types/src/index.ts"]
     }
   }
 }

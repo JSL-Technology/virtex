@@ -22,7 +22,7 @@ describe('McpAgentsPanelComponent', () => {
       providers: [
         { provide: McpService, useValue: api },
         { provide: NotificationService, useValue: notifications },
-        { provide: AuthService, useValue: { hasPermissions: () => allowed } },
+        { provide: AuthService, useValue: { hasPermissions: () => allowed, hasFeature: () => true } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(McpAgentsPanelComponent);

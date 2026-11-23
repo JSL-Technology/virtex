@@ -10,12 +10,12 @@ import {
   BudgetVsActualPoint,
   DashboardApiService,
 } from '../../../../core/api/dashboard-api.service';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { FormatService } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Settings, BarChart, AreaChart, PieChart } from 'lucide-angular';
 
 // Importar y activar el módulo de exportación de Highcharts para habilitar el menú contextual (imprimir, descargar, etc.)
 import Exporting from 'highcharts/modules/exporting';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 // Exporting(Highcharts);
 

@@ -25,7 +25,7 @@
     <select id="stock-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">
       <option value="">{{ 'inventory.common.all_warehouses' | translate }}</option>
       @for (warehouse of warehouses(); track warehouse.id) {
-        <option [value]="warehouse.id">{{ warehouse.name }}</option>
+        <option [value]="warehouse.id">{{ warehouse.name | vxName: warehouse.nameTranslations }}</option>
       }
     </select>
   </div>

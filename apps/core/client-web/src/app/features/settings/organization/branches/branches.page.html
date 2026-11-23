@@ -156,7 +156,7 @@
         <select id="branch-warehouse" formControlName="defaultWarehouseId">
           <option value="">{{ 'branches.settings.no_warehouse' | translate }}</option>
           @for (warehouse of warehouses(); track warehouse.id) {
-            <option [value]="warehouse.id">{{ warehouse.code ? warehouse.code + ' · ' : '' }}{{ warehouse.name }}</option>
+            <option [value]="warehouse.id">{{ warehouse.code ? warehouse.code + ' · ' : '' }}{{ warehouse.name | vxName: warehouse.nameTranslations }}</option>
           }
         </select>
         <small class="field-hint">{{ 'branches.settings.warehouse_hint' | translate }}</small>

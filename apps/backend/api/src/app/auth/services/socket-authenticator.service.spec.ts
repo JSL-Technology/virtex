@@ -18,8 +18,8 @@ describe('SocketAuthenticator', () => {
     jwt.sign(payload, privateKey, {
       algorithm: 'RS256',
       keyid: 'k1',
-      issuer: 'virteex-api',
-      audience: 'virteex-web',
+      issuer: 'virtex-api',
+      audience: 'virtex-web',
       expiresIn: '15m',
       ...overrides,
     });
@@ -68,7 +68,7 @@ describe('SocketAuthenticator', () => {
     // Algorithm confusion: HS256 "signed" with the PUBLIC key, which any client can read.
     [
       'an HS256 token keyed with the public key',
-      () => jwt.sign(claims, publicKey, { algorithm: 'HS256', keyid: 'k1', issuer: 'virteex-api', audience: 'virteex-web' }),
+      () => jwt.sign(claims, publicKey, { algorithm: 'HS256', keyid: 'k1', issuer: 'virtex-api', audience: 'virtex-web' }),
     ],
     ['a token that is not a JWT at all', () => 'not-a-jwt'],
   ])('answers null for %s, without consulting identity', async (_label, token) => {
@@ -100,7 +100,7 @@ describe('SocketAuthenticator', () => {
       ['an unknown key', () => sign({ keyid: 'rotated-out' })],
       [
         'an HS256 token keyed with the public key',
-        () => jwt.sign(claims, publicKey, { algorithm: 'HS256', keyid: 'k1', issuer: 'virteex-api', audience: 'virteex-web' }),
+        () => jwt.sign(claims, publicKey, { algorithm: 'HS256', keyid: 'k1', issuer: 'virtex-api', audience: 'virtex-web' }),
       ],
     ])('still refuses a token with %s — only expiry is waived', async (_label, token) => {
       await expect(authenticator.revalidate(cookie(token()))).resolves.toBe(false);

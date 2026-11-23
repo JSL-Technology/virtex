@@ -1,7 +1,7 @@
 import { ExecutionContext } from '@nestjs/common';
 import { ExtensionScopeGuard } from './extension-scope.guard';
 import { PluginStatus } from '../entities/plugin.entity';
-import { normalizeExtensionApiPath, extensionMayRead } from '@virteex/shared/util-auth';
+import { normalizeExtensionApiPath, extensionMayRead } from '@virtex/shared/util-auth';
 
 /**
  * S-6: an extension granted `api:read:sales` could read any GET route the viewer could, by asking

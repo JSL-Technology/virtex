@@ -211,7 +211,7 @@ describeWithDb('remembered and ordinary sessions', () => {
 
       const forged = new JwtService({}).sign(
         { id: operator.id, jti: start.refreshTokenId, sessionId: start.sessionId },
-        { secret: 'some-other-secret-entirely-some-other', issuer: 'virteex-api', audience: 'virteex-web' },
+        { secret: 'some-other-secret-entirely-some-other', issuer: 'virtex-api', audience: 'virtex-web' },
       );
       await sessions.endSessionByRefreshToken(forged);
 

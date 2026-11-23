@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Journal } from '../entities/journal.entity';
 import { BadRequestError } from '../../i18n/localized.exception';
+import type { SystemJournalCode } from '../../contracts/ledger-posting/system-journals';
 
 @Injectable()
 export class JournalLookupService {
@@ -11,9 +12,10 @@ export class JournalLookupService {
     private readonly repo: Repository<Journal>,
   ) {}
 
+  /** A journal every company has, by its code (`SYSTEM_JOURNALS`). */
   async findByCode(
     organizationId: string,
-    code: string,
+    code: SystemJournalCode,
     manager?: EntityManager,
   ): Promise<Journal | null> {
     const repo = manager ? manager.getRepository(Journal) : this.repo;
@@ -22,7 +24,7 @@ export class JournalLookupService {
 
   async requireByCode(
     organizationId: string,
-    code: string,
+    code: SystemJournalCode,
     manager?: EntityManager,
   ): Promise<Journal> {
     const journal = await this.findByCode(organizationId, code, manager);

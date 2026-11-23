@@ -14,7 +14,7 @@ import {
   RefreshCw,
   PackageOpen,
 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { CatalogueItem } from '../../../core/pos-api.service';
 import { ToastService } from '../../../core/toast.service';
 import { filterCatalogue, isOutOfStock } from '../../../domain/cart';

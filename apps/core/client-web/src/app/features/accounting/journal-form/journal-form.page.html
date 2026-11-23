@@ -22,6 +22,7 @@
           <label for="name">{{ 'accounting.journal_form.name' | translate }} *</label>
           <input type="text" id="name" formControlName="name" />
         </div>
+        <vx-name-translations class="full-width" formControlName="nameTranslations" idPrefix="journal-name" />
         <div class="form-field">
           <label for="code">{{ 'accounting.journal_form.code' | translate }} *</label>
           <input type="text" id="code" formControlName="code" maxlength="10" />

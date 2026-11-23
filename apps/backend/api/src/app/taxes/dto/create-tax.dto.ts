@@ -1,4 +1,5 @@
 import {
+  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -13,6 +14,8 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { TaxType } from '../entities/tax.entity';
+import { IsLocalizedName } from '../../common/validators/is-localized-name.validator';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * A percentage rate is at most 100 (QA M-04: a 150 % tax was accepted, and every invoice line
@@ -30,11 +33,32 @@ export class PercentageRateConstraint implements ValidatorConstraintInterface {
   }
 }
 
+@ValidatorConstraint({ name: 'period_end', async: false })
+export class PeriodEndConstraint implements ValidatorConstraintInterface {
+  validate(end: unknown, args: ValidationArguments): boolean {
+    const start = (args.object as { effectiveFrom?: string }).effectiveFrom;
+    return typeof end !== 'string' || !start || end >= start;
+  }
+
+  defaultMessage(): string {
+    return 'taxes.effective_to_before_effective_from';
+  }
+}
+
 export class CreateTaxDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   name: string;
+
+  /**
+   * The name in other languages — `{ en: 'Sales journal' }` — for whoever reads it in one of them.
+   * The books language is not among them: `name` is that one, the record. An empty text removes a
+   * language; a language left out keeps what it had.
+   */
+  @IsOptional()
+  @IsLocalizedName()
+  nameTranslations?: LocalizedName;
 
   @IsNumber()
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
@@ -49,4 +73,15 @@ export class CreateTaxDto {
   @IsOptional()
   @Matches(/^[A-Za-z]{2}$/, { message: 'validation.constraints.country_code' })
   countryCode?: string;
+
+  /** First day the rate may be applied (LOC-06). Omitted: no lower bound. */
+  @IsOptional()
+  @IsDateString({ strict: true })
+  effectiveFrom?: string;
+
+  /** Last day the rate may be applied; a rate that ends is closed here, never edited. */
+  @IsOptional()
+  @IsDateString({ strict: true })
+  @Validate(PeriodEndConstraint)
+  effectiveTo?: string;
 }

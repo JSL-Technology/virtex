@@ -21,6 +21,11 @@ export interface GeneralLedgerLineRow {
   entryDescription: string;
   journalCode: string | null;
   lineDescription: string | null;
+  /** The message each was written from, when the system wrote it (books bilingual). */
+  entryDescriptionKey: string | null;
+  entryDescriptionParams: Record<string, unknown> | null;
+  lineDescriptionKey: string | null;
+  lineDescriptionParams: Record<string, unknown> | null;
   debit: number;
   credit: number;
 }
@@ -32,6 +37,8 @@ export interface JournalReportLineRow {
   accountId: string;
   accountName: Record<string, string> | string;
   description: string | null;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   dimensions: Record<string, string> | null;
   debit: number;
   credit: number;
@@ -43,6 +50,19 @@ export interface AccountMovementSummary {
   /** Posted debit − credit, base currency. */
   postedBalance: number;
   linesInClosedPeriods: number;
+  /**
+   * Lines on entries that are in the ledger. History: they are never rewritten, so a merge leaves
+   * them where they are and moves the BALANCE with a reclassification entry instead.
+   */
+  postedLines: number;
+  /** Lines on entries that are not in the ledger yet (draft, pending approval). Not history. */
+  unpostedLines: number;
+}
+
+/** One dimension combination's share of an account's posted balance (debit − credit). */
+export interface AccountBalanceSlice {
+  dimensions: Record<string, string> | null;
+  balance: number;
 }
 
 export interface AccountMovementCount {
@@ -134,8 +154,12 @@ export class JournalQueryService {
         'entry.entry_number AS reference',
         'entry.date AS date',
         'entry.description AS "entryDescription"',
+        'entry.description_key AS "entryDescriptionKey"',
+        'entry.description_params AS "entryDescriptionParams"',
         'journal.code AS "journalCode"',
         'line.description AS "lineDescription"',
+        'line.description_key AS "lineDescriptionKey"',
+        'line.description_params AS "lineDescriptionParams"',
         'valuation.debit AS debit',
         'valuation.credit AS credit',
       ])
@@ -150,8 +174,12 @@ export class JournalQueryService {
         reference: string | null;
         date: Date | string;
         entryDescription: string;
+        entryDescriptionKey: string | null;
+        entryDescriptionParams: Record<string, unknown> | null;
         journalCode: string | null;
         lineDescription: string | null;
+        lineDescriptionKey: string | null;
+        lineDescriptionParams: Record<string, unknown> | null;
         debit: string;
         credit: string;
       }>();
@@ -162,8 +190,12 @@ export class JournalQueryService {
       reference: row.reference ?? null,
       date: toIsoDate(row.date),
       entryDescription: row.entryDescription,
+      entryDescriptionKey: row.entryDescriptionKey ?? null,
+      entryDescriptionParams: row.entryDescriptionParams ?? null,
       journalCode: row.journalCode ?? null,
       lineDescription: row.lineDescription ?? null,
+      lineDescriptionKey: row.lineDescriptionKey ?? null,
+      lineDescriptionParams: row.lineDescriptionParams ?? null,
       debit: Number(row.debit),
       credit: Number(row.credit),
     }));
@@ -284,6 +316,8 @@ export class JournalQueryService {
         'account.id AS "accountId"',
         'account.name AS "accountName"',
         'line.description AS description',
+        'line.description_key AS "descriptionKey"',
+        'line.description_params AS "descriptionParams"',
         'line.dimensions AS dimensions',
         'valuation.debit AS debit',
         'valuation.credit AS credit',
@@ -295,6 +329,8 @@ export class JournalQueryService {
         accountId: string;
         accountName: Record<string, string> | string;
         description: string | null;
+        descriptionKey: string | null;
+        descriptionParams: Record<string, unknown> | null;
         dimensions: Record<string, string> | null;
         debit: string;
         credit: string;
@@ -306,6 +342,8 @@ export class JournalQueryService {
       accountId: row.accountId,
       accountName: row.accountName,
       description: row.description,
+      descriptionKey: row.descriptionKey ?? null,
+      descriptionParams: row.descriptionParams ?? null,
       dimensions: row.dimensions,
       debit: Number(row.debit),
       credit: Number(row.credit),
@@ -378,16 +416,55 @@ export class JournalQueryService {
             AND entry.date BETWEEN period.start_date AND period.end_date))`,
         'closedLines',
       )
+      .addSelect(`COUNT(line.id) FILTER (WHERE entry.status IN (:...ledgerStatuses))`, 'postedLines')
       .where('line.accountId = :accountId', { accountId })
       .andWhere('entry.organizationId = :organizationId', { organizationId })
       .setParameter('ledgerStatuses', LEDGER_STATUSES)
-      .getRawOne<{ lines: string; balance: string; closedLines: string }>();
+      .getRawOne<{ lines: string; balance: string; closedLines: string; postedLines: string }>();
 
+    const lines = Number(row?.lines ?? 0);
+    const postedLines = Number(row?.postedLines ?? 0);
     return {
-      lines: Number(row?.lines ?? 0),
+      lines,
       postedBalance: Number(row?.balance ?? 0),
       linesInClosedPeriods: Number(row?.closedLines ?? 0),
+      postedLines,
+      unpostedLines: lines - postedLines,
     };
+  }
+
+  /**
+   * The posted balance of an account, split by the dimension combination it was posted under.
+   *
+   * What an account merge reclassifies: moving the balance as ONE untagged lump would lose its
+   * analytical attribution — 60 of cost centre A and 40 of B would arrive at the destination as an
+   * unattributed 100 while both centres kept their balances on the retired account — and a
+   * mandatory dimension rule on either account would refuse the entry outright. The same defect
+   * the year-end close had (FIN-AC-01), so the same answer: one slice per combination.
+   *
+   * `jsonb` normalises key order, so `{a,b}` and `{b,a}` are one group. Slices that net to zero
+   * are left out; an account with no dimensions answers a single slice with `dimensions: null`.
+   */
+  async postedBalanceByDimension(
+    accountId: string,
+    organizationId: string,
+    manager?: EntityManager,
+  ): Promise<AccountBalanceSlice[]> {
+    const rows = await (manager ?? this.dataSource.manager)
+      .getRepository(JournalEntryLine)
+      .createQueryBuilder('line')
+      .innerJoin('line.journalEntry', 'entry')
+      .select('line.dimensions', 'dimensions')
+      .addSelect('COALESCE(SUM(line.debit - line.credit), 0)', 'balance')
+      .where('line.accountId = :accountId', { accountId })
+      .andWhere('entry.organizationId = :organizationId', { organizationId })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES })
+      .groupBy('line.dimensions')
+      .getRawMany<{ dimensions: Record<string, string> | null; balance: string }>();
+
+    return rows
+      .map((row) => ({ dimensions: row.dimensions ?? null, balance: Number(row.balance) }))
+      .filter((slice) => Math.round(slice.balance * 100) !== 0);
   }
 
   // ── Closing checklist ─────────────────────────────────────────────────────────────────────────
@@ -589,6 +666,8 @@ export class JournalQueryService {
         'entry.entry_number AS "entryNumber"',
         'entry.date AS date',
         'line.description AS description',
+        'line.description_key AS "descriptionKey"',
+        'line.description_params AS "descriptionParams"',
         'valuation.debit AS "baseDebit"',
         'valuation.credit AS "baseCredit"',
         'line.currency_code AS "lineCurrency"',
@@ -610,6 +689,8 @@ export class JournalQueryService {
       entryNumber: string | null;
       date: Date | string;
       description: string | null;
+      descriptionKey: string | null;
+      descriptionParams: Record<string, unknown> | null;
       baseDebit: string;
       baseCredit: string;
       lineCurrency: string | null;
@@ -623,6 +704,8 @@ export class JournalQueryService {
       entryNumber: row.entryNumber,
       date: toIsoDate(row.date),
       description: row.description,
+      descriptionKey: row.descriptionKey ?? null,
+      descriptionParams: row.descriptionParams ?? null,
       baseDebit: Number(row.baseDebit),
       baseCredit: Number(row.baseCredit),
       lineCurrency: row.lineCurrency,
@@ -639,6 +722,8 @@ export interface OutstandingLedgerLineRow {
   entryNumber: string | null;
   date: IsoDate;
   description: string | null;
+  descriptionKey: string | null;
+  descriptionParams: Record<string, unknown> | null;
   baseDebit: number;
   baseCredit: number;
   lineCurrency: string | null;

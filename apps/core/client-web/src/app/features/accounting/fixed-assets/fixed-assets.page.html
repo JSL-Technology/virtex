@@ -7,6 +7,12 @@
   [empty]="empty()"
   (reload)="load()"
 >
+  <a listActions routerLink="/accounting/fixed-assets/categories" class="secondary-button">
+    <span>{{ 'fixed_assets.page.categories' | translate }}</span>
+  </a>
+  <a listActions routerLink="/accounting/fixed-assets/tax-depreciation" class="secondary-button">
+    <span>{{ 'fixed_assets.page.tax_depreciation' | translate }}</span>
+  </a>
   <a listActions *appHasPermission="'fixed_assets:manage'" routerLink="/accounting/fixed-assets/depreciation" class="secondary-button">
     <lucide-icon [img]="RunIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'fixed_assets.page.run_depreciation' | translate }}</span>
@@ -31,6 +37,17 @@
       <option value="DISPOSED">{{ 'fixed_assets.status.disposed' | translate }}</option>
     </select>
   </div>
+  @if (categories().length > 0) {
+    <div listFilters class="doc-filter">
+      <label for="fa-category">{{ 'fixed_assets.form.category' | translate }}</label>
+      <select id="fa-category" [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event); applyFilters()">
+        <option [ngValue]="null">{{ 'fixed_assets.page.all' | translate }}</option>
+        @for (category of categories(); track category.id) {
+          <option [ngValue]="category.id">{{ category.code }} · {{ category.name | vxName: category.nameTranslations }}</option>
+        }
+      </select>
+    </div>
+  }
   <vx-branch-picker
     listFilters
     mode="filter"
@@ -50,6 +67,7 @@
         <tr>
           <th>{{ 'fixed_assets.page.number' | translate }}</th>
           <th>{{ 'fixed_assets.page.name' | translate }}</th>
+          <th>{{ 'fixed_assets.form.category' | translate }}</th>
           <th>{{ 'fixed_assets.page.acquired' | translate }}</th>
           <th class="numeric">{{ 'fixed_assets.page.cost' | translate }}</th>
           <th class="numeric">{{ 'fixed_assets.page.accumulated' | translate }}</th>
@@ -66,6 +84,7 @@
           <tr appRowLink [appRowMenu]="row">
             <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', row.id]">{{ row.number }}</a></td>
             <td>{{ row.name }}</td>
+            <td>{{ row.category?.code ?? '—' }}</td>
             <td>{{ row.acquisitionDate | vxDate: 'date' : true }}</td>
             <td class="numeric"><vx-amount [value]="row.cost" /></td>
             <td class="numeric"><vx-amount [value]="row.accumulatedDepreciation" /></td>
@@ -81,7 +100,7 @@
       @if (rows().length > 1) {
         <tfoot>
           <tr>
-            <th colspan="3">{{ 'fixed_assets.page.page_totals' | translate }}</th>
+            <th colspan="4">{{ 'fixed_assets.page.page_totals' | translate }}</th>
             <th class="numeric"><vx-amount [value]="totals().cost" /></th>
             <th class="numeric"><vx-amount [value]="totals().accumulated" /></th>
             <th class="numeric"><vx-amount [value]="totals().book" /></th>

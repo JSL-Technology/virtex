@@ -1,6 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Grid2X2, ShoppingCart, HardHat, Store, Box, Utensils, Users, UserCircle } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 import { POS_URL } from '../../../../core/tokens/pos-url';
@@ -150,12 +150,12 @@ export class AppLauncherComponent {
 
   apps: VirtexApp[] = [
     { id: 'pos', nameKey: 'apps.pos', icon: ShoppingCart, color: 'var(--viz-1)', url: POS_URL },
-    { id: 'shopfloor', nameKey: 'apps.shopfloor', icon: HardHat, color: 'var(--viz-4)', url: 'https://shopfloor.virteex.com' },
-    { id: 'store', nameKey: 'apps.store', icon: Store, color: 'var(--viz-7)', url: 'https://store.virteex.com' },
-    { id: 'wms', nameKey: 'apps.wms', icon: Box, color: 'var(--viz-3)', url: 'https://wms.virteex.com' },
-    { id: 'lunch', nameKey: 'apps.lunch', icon: Utensils, color: 'var(--viz-8)', url: 'https://lunch.virteex.com' },
-    { id: 'hr', nameKey: 'apps.hr', icon: UserCircle, color: 'var(--viz-5)', url: 'https://hr.virteex.com' },
-    { id: 'crm', nameKey: 'apps.crm', icon: Users, color: '#06b6d4', url: 'https://crm.virteex.com' },
+    { id: 'shopfloor', nameKey: 'apps.shopfloor', icon: HardHat, color: 'var(--viz-4)', url: 'https://shopfloor.virtex.com' },
+    { id: 'store', nameKey: 'apps.store', icon: Store, color: 'var(--viz-7)', url: 'https://store.virtex.com' },
+    { id: 'wms', nameKey: 'apps.wms', icon: Box, color: 'var(--viz-3)', url: 'https://wms.virtex.com' },
+    { id: 'lunch', nameKey: 'apps.lunch', icon: Utensils, color: 'var(--viz-8)', url: 'https://lunch.virtex.com' },
+    { id: 'hr', nameKey: 'apps.hr', icon: UserCircle, color: 'var(--viz-5)', url: 'https://hr.virtex.com' },
+    { id: 'crm', nameKey: 'apps.crm', icon: Users, color: '#06b6d4', url: 'https://crm.virtex.com' },
   ];
 
   toggleMenu() {

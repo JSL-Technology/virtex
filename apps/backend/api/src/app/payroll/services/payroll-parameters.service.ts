@@ -11,13 +11,13 @@ import {
   StatutoryReference,
   StatutoryReferenceKey,
 } from '../entities/statutory-reference.entity';
-import { ResolvedParameters } from '../../jurisdictions/jurisdiction-strategy.interface';
+import { ResolvedParameters } from '../../markets/contracts';
 
 /**
  * Resolves the statutory parameters in force for a country on a date.
  *
  * The single reader of the versioned parameter tables. It answers "which rates, caps and scale
- * applied on this date" by taking, for each regime/key, the newest version whose `effectiveFrom` is
+ * applied on this date" by taking, for each contribution/key, the newest version whose `effectiveFrom` is
  * on or before the date and whose `effectiveTo` has not passed — the same "latest in force"
  * resolution the exchange-rate and tax engines use. The run calls this once at calculation and
  * snapshots the result, so a later change to a parameter row never alters a run already computed.
@@ -52,12 +52,12 @@ export class PayrollParametersService {
       }),
     ]);
 
-    // For each regime keep only the newest version still in force on the date.
+    // For each contribution keep only the newest version still in force on the date.
     const contributions = this.latestPerKey(
       contributionRows.filter((row) => this.inForce(row.effectiveTo, date)),
-      (row) => row.regime,
+      (row) => row.code,
     ).map((row) => ({
-      regime: row.regime,
+      code: row.code,
       employeeRate: row.employeeRate,
       employerRate: row.employerRate,
       base: row.base,

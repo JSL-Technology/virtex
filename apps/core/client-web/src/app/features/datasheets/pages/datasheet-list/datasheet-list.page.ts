@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { DatasheetSummary, DatasheetVariablesService } from '../../services/datasheet-variables.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { RouterModule } from '@angular/router';

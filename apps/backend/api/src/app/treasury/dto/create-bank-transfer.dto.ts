@@ -17,7 +17,7 @@ import {
  * expense account to a revenue account, say — and call it a treasury transfer.
  */
 export class CreateBankTransferDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string;
 

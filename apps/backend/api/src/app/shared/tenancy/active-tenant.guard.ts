@@ -26,7 +26,7 @@ export const ACTIVE_ORGANIZATION_HEADER = 'x-virtex-organization';
 /**
  * La petición, tipada con el principal de la APLICACIÓN.
  *
- * No se usa `AuthenticatedRequest` de `@virteex/shared/util-auth` porque su `user.roles` es
+ * No se usa `AuthenticatedRequest` de `@virtex/shared/util-auth` porque su `user.roles` es
  * `string[]` mientras el principal que construye `UserIdentityService` lleva objetos: los dos
  * tipos se desviaron y aquí hay que ESCRIBIR el principal, no solo leerle el `organizationId`
  * como hace el interceptor de conexión. Tipar lo que de verdad se maneja evita el cast que

@@ -1,12 +1,30 @@
 {
-  "fiscal.ar.01": {
-    "literal": "01 · Factura A"
-  },
-  "fiscal.ar.06": {
-    "literal": "06 · Factura B"
+  "fiscal.ar.1": {
+    "literal": "1 · Factura A"
   },
   "fiscal.ar.11": {
     "literal": "11 · Factura C"
+  },
+  "fiscal.ar.12": {
+    "literal": "12 · Nota de Débito C"
+  },
+  "fiscal.ar.13": {
+    "literal": "13 · Nota de Crédito C"
+  },
+  "fiscal.ar.2": {
+    "literal": "2 · Nota de Débito A"
+  },
+  "fiscal.ar.3": {
+    "literal": "3 · Nota de Crédito A"
+  },
+  "fiscal.ar.6": {
+    "literal": "6 · Factura B"
+  },
+  "fiscal.ar.7": {
+    "literal": "7 · Nota de Débito B"
+  },
+  "fiscal.ar.8": {
+    "literal": "8 · Nota de Crédito B"
   },
   "fiscal.br.55": {
     "literal": "55 · Nota Fiscal Eletrônica (NF-e)"
@@ -17,6 +35,9 @@
   "fiscal.cl.34": {
     "literal": "34 · Factura No Afecta o Exenta Electrónica"
   },
+  "fiscal.cl.56": {
+    "literal": "56 · Nota de Débito Electrónica"
+  },
   "fiscal.cl.61": {
     "literal": "61 · Nota de Crédito Electrónica"
   },
@@ -25,6 +46,9 @@
   },
   "fiscal.co.91": {
     "literal": "91 · Nota Crédito"
+  },
+  "fiscal.co.92": {
+    "literal": "92 · Nota Débito"
   },
   "fiscal.do.b01": {
     "literal": "B01 · Factura de Crédito Fiscal"
@@ -129,6 +153,9 @@
   },
   "fiscal.ec.04": {
     "literal": "04 · Nota de Crédito"
+  },
+  "fiscal.ec.05": {
+    "literal": "05 · Nota de Débito"
   },
   "fiscal.help.ar_point_of_sale": {
     "es": "El punto de venta habilitado en AFIP para facturación electrónica.",
@@ -264,5 +291,8 @@
   },
   "fiscal.pe.07": {
     "literal": "07 · Nota de Crédito"
+  },
+  "fiscal.pe.08": {
+    "literal": "08 · Nota de Débito"
   }
 }

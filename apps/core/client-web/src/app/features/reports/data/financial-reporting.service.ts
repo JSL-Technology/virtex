@@ -32,7 +32,9 @@ export interface ReportSection {
 
 export interface LedgerRef {
   id: string;
+  /** As the books keep it; `nameTranslations` for a reader in another language. */
   name: string;
+  nameTranslations?: Record<string, string>;
   currency: string;
 }
 

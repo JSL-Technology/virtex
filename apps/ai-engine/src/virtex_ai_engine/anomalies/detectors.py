@@ -84,15 +84,21 @@ def duplicate_vendor_bills(bills: pd.DataFrame) -> list[Finding]:
     """The same supplier document recorded more than once: same supplier and fiscal number, or the
     same supplier, amount and date. Paying it twice is the commonest avoidable loss in payables.
 
-    bills: id, vendor_id, ncf, total, date, branch_id
+    bills: id, vendor_id, fiscal_number, total, date, branch_id
     """
     findings: list[Finding] = []
     if bills.empty:
         return findings
     seen: set[frozenset] = set()
 
-    by_ncf = bills[bills["ncf"].notna() & (bills["ncf"].astype(str).str.strip() != "")]
-    groups = [("same_fiscal_number", g) for _, g in by_ncf.groupby(["vendor_id", by_ncf["ncf"].str.strip().str.upper()]) if len(g) > 1]
+    # The number of the supplier's own document, whatever its market calls it: an NCF, a CFDI folio
+    # fiscal, an NF-e access key. The read contract publishes it under one neutral name.
+    numbered = bills[bills["fiscal_number"].notna() & (bills["fiscal_number"].astype(str).str.strip() != "")]
+    groups = [
+        ("same_fiscal_number", g)
+        for _, g in numbered.groupby(["vendor_id", numbered["fiscal_number"].str.strip().str.upper()])
+        if len(g) > 1
+    ]
     groups += [("same_amount_and_date", g) for _, g in bills.groupby(["vendor_id", "total", "date"]) if len(g) > 1]
 
     for reason, group in groups:
@@ -116,7 +122,7 @@ def duplicate_vendor_bills(bills: pd.DataFrame) -> list[Finding]:
                     "reason": reason,
                     "billIds": sorted(ids),
                     "vendorId": str(first["vendor_id"]),
-                    "fiscalNumber": first.get("ncf"),
+                    "fiscalNumber": first.get("fiscal_number"),
                     "total": float(first["total"]),
                     "count": int(len(group)),
                 },
@@ -830,8 +836,10 @@ def discount_outliers(invoices: pd.DataFrame, min_ratio: float = 0.25, z_thresho
 SENSITIVE_FIELDS = {
     "invoices": {"total", "subtotal", "tax", "discountTotal", "customerId", "issueDate", "fiscalNumber",
                  "invoiceNumber", "totalInBaseCurrency", "exchangeRate", "currencyCode"},
-    "vendor_bills": {"total", "ncf", "vendorId", "date", "taxAmount", "totalInBaseCurrency", "exchangeRate",
-                     "currencyCode"},
+    # `ncf` is what the audit trail recorded for the supplier's document number before the column
+    # took its neutral name: an edit made then is still an edit worth reporting now.
+    "vendor_bills": {"total", "supplierFiscalNumber", "ncf", "vendorId", "date", "taxAmount",
+                     "totalInBaseCurrency", "exchangeRate", "currencyCode"},
     "customer_payments": {"totalAmount", "customerId", "paymentDate", "reference", "exchangeRate", "currencyCode"},
 }
 #: Statuses in which a document has not yet been issued and may be edited freely.

@@ -7,7 +7,8 @@ import { PeriodClosingService } from './period-closing.service';
 import { AccountingController } from './accounting.controller';
 import { AuthModule } from '../auth/auth.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { InflationIndex } from './entities/inflation-index.entity';
+import { InflationAdjustmentRun } from './entities/inflation-adjustment-run.entity';
+import { InflationAdjustmentRunLine } from './entities/inflation-adjustment-run-line.entity';
 import { InflationAdjustmentController } from './inflation-adjustment.controller';
 import { InflationAdjustmentService } from './inflation-adjustment.service';
 import { FiscalYearArchivingService } from './fiscal-year-archiving.service';
@@ -30,6 +31,7 @@ import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condi
 import { ClosingChecklistService } from './closing-checklist.service';
 import { CloseReadinessSourceService } from './close-readiness.source';
 import { PeriodGateSourceService } from './period-gate.source';
+import { BookkeepingReprovisioningService } from './provisioning/bookkeeping-reprovisioning.service';
 import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
 import { PeriodLockModule } from './period-lock.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -51,7 +53,8 @@ import { AccountingInboxProvider } from './inbox/accounting-inbox.provider';
       // mismo módulo de negocio —contabilidad— así que esto no cruza ninguna frontera.
       JournalEntry,
       AccountingPeriod,
-      InflationIndex,
+      InflationAdjustmentRun,
+      InflationAdjustmentRunLine,
       FiscalYear,
       Ledger,
       AccountPeriodLock,
@@ -82,6 +85,7 @@ import { AccountingInboxProvider } from './inbox/accounting-inbox.provider';
     CloseReadinessSourceService, PeriodGateSourceService,
     LedgerMappingService,
     TenantBookkeepingProvisioner,
+    BookkeepingReprovisioningService,
     FiscalCalendarService,
     LedgerLookupService,
     CurrencyRevaluationService,

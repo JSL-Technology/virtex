@@ -1,0 +1,53 @@
+{
+  "$note": "Labels of the authorities’ reason catalogues (fiscal_reason_codes.label_key). One namespace segment per market: a key here is read only in its own country.",
+  "fiscal_reasons.do.invoice_cancellation.deteriorated_preprinted": {
+    "es": "Deterioro de factura preimpresa",
+    "en": "Damaged pre-printed invoice",
+    "pt": "Deterioração da fatura pré-impressa"
+  },
+  "fiscal_reasons.do.invoice_cancellation.printing_errors_preprinted": {
+    "es": "Errores de impresión (factura preimpresa)",
+    "en": "Printing errors (pre-printed invoice)",
+    "pt": "Erros de impressão (fatura pré-impressa)"
+  },
+  "fiscal_reasons.do.invoice_cancellation.defective_printing": {
+    "es": "Impresión defectuosa",
+    "en": "Defective printing",
+    "pt": "Impressão defeituosa"
+  },
+  "fiscal_reasons.do.invoice_cancellation.information_correction": {
+    "es": "Corrección de la información",
+    "en": "Information correction",
+    "pt": "Correção da informação"
+  },
+  "fiscal_reasons.do.invoice_cancellation.product_change": {
+    "es": "Cambio de productos",
+    "en": "Change of products",
+    "pt": "Troca de produtos"
+  },
+  "fiscal_reasons.do.invoice_cancellation.product_return": {
+    "es": "Devolución de productos",
+    "en": "Return of products",
+    "pt": "Devolução de produtos"
+  },
+  "fiscal_reasons.do.invoice_cancellation.product_omission": {
+    "es": "Omisión de productos",
+    "en": "Omitted products",
+    "pt": "Omissão de produtos"
+  },
+  "fiscal_reasons.do.invoice_cancellation.ncf_sequence_errors": {
+    "es": "Errores en secuencia de NCF",
+    "en": "NCF sequence errors",
+    "pt": "Erros na sequência de NCF"
+  },
+  "fiscal_reasons.do.invoice_cancellation.business_closure": {
+    "es": "Por cese de operaciones",
+    "en": "Business closure",
+    "pt": "Por cessação de atividades"
+  },
+  "fiscal_reasons.do.invoice_cancellation.books_lost_or_stolen": {
+    "es": "Pérdida o hurto de talonarios",
+    "en": "Loss or theft of invoice books",
+    "pt": "Perda ou furto de talões"
+  }
+}

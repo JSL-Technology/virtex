@@ -7,7 +7,7 @@
   [empty]="empty()"
   (reload)="load()"
 >
-  @if (market() !== 'OTHER') {
+  @if (!filesNothing()) {
     <div listFilters class="doc-filter">
       <label for="fr-year">{{ 'fiscal_returns.year' | translate }}</label>
       <select id="fr-year" [ngModel]="year()" (ngModelChange)="setYear($event)">
@@ -19,7 +19,7 @@
   }
 
   <div listEmpty class="empty-copy">
-    @if (market() === 'OTHER') {
+    @if (filesNothing()) {
       <!--
         Honest and specific (QA C-06): it used to tell a US company that «the product generates the
         DGII formats (Dominican Republic) and the SAT electronic accounting (Mexico)» — true, and of
@@ -37,10 +37,8 @@
     }
   </div>
 
-  @if (market() === 'DO' || market() === 'MX') {
-    <p class="fr-hint">
-      {{ (market() === 'DO' ? 'fiscal_returns.do_hint' : 'fiscal_returns.mx_hint') | translate }}
-    </p>
+  @if (!filesNothing()) {
+    <p class="fr-hint">{{ 'fiscal_returns.generator_hint' | translate }}</p>
     @if (changedCount() > 0) {
       <p class="fr-alert" role="status">{{ 'fiscal_returns.changed_alert' | translate: { count: changedCount() } }}</p>
     }
@@ -50,8 +48,8 @@
         <thead>
           <tr>
             <th scope="col">{{ 'fiscal_returns.period' | translate }}</th>
-            @for (kind of kinds(); track kind) {
-              <th scope="col">{{ 'fiscal_returns.kinds.' + kind | translate }}</th>
+            @for (filing of kinds(); track filing.code) {
+              <th scope="col">{{ filing.labelKey | translate }}</th>
             }
             @if (dueDay() !== null) {
               <th scope="col">{{ 'fiscal_returns.due' | translate }}</th>
@@ -62,19 +60,19 @@
           @for (month of months(); track month) {
             <tr>
               <th scope="row">{{ monthDate(month) | vxDate: 'monthYear' : true }}</th>
-              @for (kind of kinds(); track kind) {
+              @for (column of kinds(); track column.code) {
                 <td>
                   <button
                     type="button"
                     class="fr-cell"
-                    [class.fr-cell--selected]="isSelected(kind, month)"
-                    [attr.aria-pressed]="isSelected(kind, month)"
-                    [disabled]="state(kind, month) === 'not_applicable'"
-                    (click)="select(kind, month)"
+                    [class.fr-cell--selected]="isSelected(column.code, month)"
+                    [attr.aria-pressed]="isSelected(column.code, month)"
+                    [disabled]="state(column.code, month) === 'not_applicable'"
+                    (click)="select(column.code, month)"
                   >
-                    <vx-badge [tone]="tone(kind, month)">{{ 'fiscal_returns.states.' + state(kind, month) | translate }}</vx-badge>
-                    @if (filingOf(kind, month); as filing) {
-                      <span class="fr-cell__count">{{ 'fiscal_returns.records' | translate: { count: filing.recordCount } }}</span>
+                    <vx-badge [tone]="tone(column.code, month)">{{ 'fiscal_returns.states.' + state(column.code, month) | translate }}</vx-badge>
+                    @if (filingOf(column.code, month); as record) {
+                      <span class="fr-cell__count">{{ 'fiscal_returns.records' | translate: { count: record.recordCount } }}</span>
                     }
                   </button>
                 </td>
@@ -97,7 +95,7 @@
     @if (selected(); as cell) {
       <section class="card fr-detail" [attr.aria-label]="'fiscal_returns.detail' | translate">
         <header class="fr-detail__header">
-          <h2>{{ 'fiscal_returns.kinds.' + cell.kind | translate }} · {{ monthDate(cell.month) | vxDate: 'monthYear' : true }}</h2>
+          <h2>{{ labelOf(cell.kind) | translate }} · {{ monthDate(cell.month) | vxDate: 'monthYear' : true }}</h2>
           <vx-badge [tone]="tone(cell.kind, cell.month)">{{ 'fiscal_returns.states.' + state(cell.kind, cell.month) | translate }}</vx-badge>
         </header>
 
@@ -137,16 +135,46 @@
           <p class="fr-hint">{{ 'fiscal_returns.never_generated' | translate }}</p>
         }
 
-        @if (cell.kind === 'balanza') {
+        <!--
+          What this filing asks for beyond the period, as its own authority declares it: a
+          complementary balanza's correction date, an audit's order number. The page used to carry
+          the Mexican ones by name.
+        -->
+        @if (optionsFor(cell.kind).length > 0) {
           <div class="fr-options">
-            <label class="doc-check">
-              <input type="checkbox" [ngModel]="complementary()" (ngModelChange)="complementary.set($event)" />
-              {{ 'fiscal_returns.complementary' | translate }}
-            </label>
-            @if (complementary()) {
+            @for (option of optionsFor(cell.kind); track option.name) {
               <div class="doc-filter">
-                <label for="fr-modified-on">{{ 'fiscal_returns.modified_on' | translate }}</label>
-                <vx-date-field inputId="fr-modified-on" [ngModel]="modifiedOn()" (ngModelChange)="modifiedOn.set($event)" />
+                <label [attr.for]="'fr-opt-' + cell.kind + '-' + option.name">{{ option.labelKey | translate }}</label>
+                @switch (option.kind) {
+                  @case ('CHOICE') {
+                    <select
+                      [id]="'fr-opt-' + cell.kind + '-' + option.name"
+                      [ngModel]="optionValue(cell.kind, option)"
+                      (ngModelChange)="setOption(cell.kind, option, $event)"
+                    >
+                      <option value="">{{ 'fiscal_returns.option_default' | translate }}</option>
+                      @for (value of option.values ?? []; track value) {
+                        <option [value]="value">{{ optionValueLabel(option, value) | translate }}</option>
+                      }
+                    </select>
+                  }
+                  @case ('DATE') {
+                    <vx-date-field
+                      [inputId]="'fr-opt-' + cell.kind + '-' + option.name"
+                      [ngModel]="optionValue(cell.kind, option)"
+                      (ngModelChange)="setOption(cell.kind, option, $event)"
+                    />
+                  }
+                  @default {
+                    <input
+                      type="text"
+                      maxlength="40"
+                      [id]="'fr-opt-' + cell.kind + '-' + option.name"
+                      [ngModel]="optionValue(cell.kind, option)"
+                      (ngModelChange)="setOption(cell.kind, option, $event)"
+                    />
+                  }
+                }
               </div>
             }
           </div>
@@ -173,38 +201,60 @@
       </section>
     }
 
-    @if (market() === 'MX') {
-      <section class="card fr-detail" [attr.aria-label]="'fiscal_returns.polizas_title' | translate">
+    @for (filing of onRequest(); track filing.code) {
+      <section class="card fr-detail" [attr.aria-label]="filing.labelKey | translate">
         <header class="fr-detail__header">
-          <h2>{{ 'fiscal_returns.polizas_title' | translate }}</h2>
+          <h2>{{ filing.labelKey | translate }}</h2>
         </header>
-        <p class="fr-hint">{{ 'fiscal_returns.polizas_help' | translate }}</p>
+        <p class="fr-hint">{{ 'fiscal_returns.on_request_help' | translate }}</p>
         <div class="fr-options">
           <label class="doc-filter">
             <span>{{ 'fiscal_returns.period' | translate }}</span>
-            <select [ngModel]="polizasMonth()" (ngModelChange)="polizasMonth.set($event)">
+            <select [ngModel]="requestMonth(filing.code)" (ngModelChange)="setRequestMonth(filing.code, $event)">
               @for (month of months(); track month) {
                 <option [ngValue]="month">{{ monthDate(month) | vxDate: 'monthYear' : true }}</option>
               }
             </select>
           </label>
-          <label class="doc-filter">
-            <span>{{ 'fiscal_returns.polizas_request' | translate }}</span>
-            <select [ngModel]="polizasRequest()" (ngModelChange)="polizasRequest.set($event)">
-              <option value="AF">{{ 'fiscal_returns.polizas_requests.af' | translate }}</option>
-              <option value="FC">{{ 'fiscal_returns.polizas_requests.fc' | translate }}</option>
-              <option value="DE">{{ 'fiscal_returns.polizas_requests.de' | translate }}</option>
-              <option value="CO">{{ 'fiscal_returns.polizas_requests.co' | translate }}</option>
-            </select>
-          </label>
-          <label class="doc-filter">
-            <span>{{ (polizasRequest() === 'AF' || polizasRequest() === 'FC' ? 'fiscal_returns.order_number' : 'fiscal_returns.procedure_number') | translate }}</span>
-            <input type="text" maxlength="40" [ngModel]="polizasReference()" (ngModelChange)="polizasReference.set($event)" />
-          </label>
+          @for (option of filing.options; track option.name) {
+            <div class="doc-filter">
+              <label [attr.for]="'fr-opt-' + filing.code + '-' + option.name">{{ option.labelKey | translate }}</label>
+              @switch (option.kind) {
+                @case ('CHOICE') {
+                  <select
+                    [id]="'fr-opt-' + filing.code + '-' + option.name"
+                    [ngModel]="optionValue(filing.code, option)"
+                    (ngModelChange)="setOption(filing.code, option, $event)"
+                  >
+                    <option value="">{{ 'fiscal_returns.option_default' | translate }}</option>
+                    @for (value of option.values ?? []; track value) {
+                      <option [value]="value">{{ optionValueLabel(option, value) | translate }}</option>
+                    }
+                  </select>
+                }
+                @case ('DATE') {
+                  <vx-date-field
+                    [inputId]="'fr-opt-' + filing.code + '-' + option.name"
+                    [ngModel]="optionValue(filing.code, option)"
+                    (ngModelChange)="setOption(filing.code, option, $event)"
+                  />
+                }
+                @default {
+                  <input
+                    type="text"
+                    maxlength="40"
+                    [id]="'fr-opt-' + filing.code + '-' + option.name"
+                    [ngModel]="optionValue(filing.code, option)"
+                    (ngModelChange)="setOption(filing.code, option, $event)"
+                  />
+                }
+              }
+            </div>
+          }
         </div>
         <div class="fr-actions">
-          <button type="button" class="primary-button" [disabled]="busy() !== null" (click)="downloadPolizas()">
-            {{ (isBusy('polizas', polizasMonth(), 'download') ? 'fiscal_returns.generating' : 'fiscal_returns.download') | translate }}
+          <button type="button" class="primary-button" [disabled]="busy() !== null" (click)="downloadOnRequest(filing.code)">
+            {{ (isBusy(filing.code, requestMonth(filing.code), 'download') ? 'fiscal_returns.generating' : 'fiscal_returns.download') | translate }}
           </button>
         </div>
       </section>

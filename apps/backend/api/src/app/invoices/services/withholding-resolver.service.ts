@@ -5,14 +5,14 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { TenantWithholdingRegime } from '../../localization/fiscal/entities/tenant-withholding-regime.entity';
 import {
-  CountryWithholdingScheme,
   TaxpayerType,
-  WithholdingRegime,
-  applicableRegimes,
-  findWithholdingScheme,
-} from '../../localization/fiscal/withholding-regimes';
+  applicableWithholdingRegimes,
+  knownMarket,
+  marketFor,
+  type MarketWithholdingRegime,
+  type WithholdingTable,
+} from '../../markets';
 import { BadRequestError } from '../../i18n/localized.exception';
-import { countryPackFor } from '../../contracts/country-pack/country-pack';
 
 /** What the server decided to withhold on a document, and why. */
 export interface ResolvedWithholding {
@@ -38,6 +38,11 @@ export interface WithholdingRequest {
   incomeTaxWithholdingRate?: number;
   /** Why the stated rates differ from the ones the regimes produce. */
   withholdingOverrideReason?: string;
+  /**
+   * The document's date (`YYYY-MM-DD`). Only the regimes in force on it apply (audit 2026-11-07,
+   * CMP-05). Required: withholding on a backdated document is the one in force on its date.
+   */
+  documentDate: string;
 }
 
 /**
@@ -95,7 +100,7 @@ export class WithholdingResolverService {
     const none = this.outsideWithholdingMarket(countryCode, request);
     if (none) return none;
 
-    const regimes = await this.regimesFor(manager, organizationId, countryCode, customer, scope);
+    const regimes = await this.regimesFor(manager, organizationId, countryCode, customer, scope, request.documentDate);
     return this.reconcile(regimes, request, organizationId, `cliente ${customer.id}`);
   }
 
@@ -134,6 +139,7 @@ export class WithholdingResolverService {
       countryCode,
       supplier,
       scope,
+      request.documentDate,
     );
     return this.reconcile(regimes, request, organizationId, `proveedor ${supplier.id}`);
   }
@@ -156,7 +162,8 @@ export class WithholdingResolverService {
     countryCode: string | null,
     supplier: { taxpayerType?: TaxpayerType | null; country?: string | null },
     scope: 'SERVICES' | 'GOODS',
-  ): Promise<WithholdingRegime[]> {
+    on: string,
+  ): Promise<MarketWithholdingRegime[]> {
     const payee = supplier.taxpayerType ?? null;
     if (!payee || payee === TaxpayerType.FOREIGN) return [];
     if (supplier.country && countryCode && supplier.country !== countryCode) return [];
@@ -171,14 +178,14 @@ export class WithholdingResolverService {
       where: { organizationId, isActive: true },
     });
 
-    const scheme: CountryWithholdingScheme | undefined = configured.length
+    const scheme: WithholdingTable | undefined = configured.length
       ? {
           configurationRequired: false,
           regimes: this.mergeWithCatalogue(configured, countryCode),
         }
-      : findWithholdingScheme(countryCode);
+      : knownMarket(countryCode)?.taxes.withholding;
 
-    return applicableRegimes(scheme, { payer, payee, scope });
+    return applicableWithholdingRegimes(scheme, { payer, payee, scope, on });
   }
 
   /**
@@ -196,7 +203,7 @@ export class WithholdingResolverService {
     request: WithholdingRequest,
   ): ResolvedWithholding | null {
     // A tenant with no country is not known to be outside every regime; it resolves as before.
-    if (!countryCode || countryPackFor(countryCode).withholding.applies) return null;
+    if (!countryCode || marketFor(countryCode).taxes.withholding.applies) return null;
     const stated = [request.taxWithholdingRate, request.incomeTaxWithholdingRate].some(
       (rate) => (rate ?? 0) > 0,
     );
@@ -212,7 +219,7 @@ export class WithholdingResolverService {
    * than refused — is the same rule, and two copies of it would eventually be two rules.
    */
   private reconcile(
-    regimes: WithholdingRegime[],
+    regimes: MarketWithholdingRegime[],
     request: WithholdingRequest,
     organizationId: string,
     party: string,
@@ -278,7 +285,8 @@ export class WithholdingResolverService {
     countryCode: string | null,
     customer: Pick<Customer, 'taxpayerType' | 'country'>,
     scope: 'SERVICES' | 'GOODS',
-  ): Promise<WithholdingRegime[]> {
+    on: string,
+  ): Promise<MarketWithholdingRegime[]> {
     const payer = customer.taxpayerType ?? null;
     if (!payer) return [];
 
@@ -300,14 +308,14 @@ export class WithholdingResolverService {
     });
     const payee = settings?.taxpayerType ?? TaxpayerType.COMPANY;
 
-    const scheme: CountryWithholdingScheme | undefined = configured.length
+    const scheme: WithholdingTable | undefined = configured.length
       ? {
           configurationRequired: false,
           regimes: this.mergeWithCatalogue(configured, countryCode),
         }
-      : findWithholdingScheme(countryCode);
+      : knownMarket(countryCode)?.taxes.withholding;
 
-    return applicableRegimes(scheme, { payer, payee, scope });
+    return applicableWithholdingRegimes(scheme, { payer, payee, scope, on });
   }
 
   /**
@@ -320,8 +328,8 @@ export class WithholdingResolverService {
   private mergeWithCatalogue(
     configured: TenantWithholdingRegime[],
     countryCode: string | null,
-  ): WithholdingRegime[] {
-    const own: WithholdingRegime[] = configured.map((row) => ({
+  ): MarketWithholdingRegime[] {
+    const own: MarketWithholdingRegime[] = configured.map((row) => ({
       code: row.code,
       kind: row.kind,
       rate: Number(row.rate),
@@ -330,20 +338,22 @@ export class WithholdingResolverService {
       scope: row.scope,
       label: row.label,
       legalBasis: row.legalBasis,
+      effectiveFrom: row.effectiveFrom ?? null,
+      effectiveTo: row.effectiveTo ?? null,
     }));
 
-    const builtIn = findWithholdingScheme(countryCode);
+    const builtIn = knownMarket(countryCode)?.taxes.withholding;
     if (!builtIn || builtIn.configurationRequired) return own;
 
     const replaced = new Set(own.map((regime) => this.slotOf(regime)));
     return [...own, ...builtIn.regimes.filter((regime) => !replaced.has(this.slotOf(regime)))];
   }
 
-  private slotOf(regime: WithholdingRegime): string {
+  private slotOf(regime: MarketWithholdingRegime): string {
     return `${regime.kind}|${[...regime.payers].sort().join(',')}|${regime.scope}`;
   }
 
-  private ratesOf(regimes: WithholdingRegime[]): ResolvedWithholding {
+  private ratesOf(regimes: MarketWithholdingRegime[]): ResolvedWithholding {
     const of = (kind: 'VAT' | 'INCOME') =>
       regimes.find((regime) => regime.kind === kind)?.rate ?? 0;
 

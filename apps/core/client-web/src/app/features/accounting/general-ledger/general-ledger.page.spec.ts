@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { StatementExportService } from '../../../core/export/statement-export.service';
 import { GeneralLedgerPage } from './general-ledger.page';
 
@@ -12,7 +12,8 @@ import { GeneralLedgerPage } from './general-ledger.page';
  */
 describe('GeneralLedgerPage', () => {
   let http: HttpTestingController;
-  const exporter = { exportGeneralLedger: jest.fn() };
+  // Asynchronous: an export in the books language loads that language's words first.
+  const exporter = { exportGeneralLedger: jest.fn().mockResolvedValue(undefined) };
 
   function create(accountId: string | null, query: Record<string, string> = {}) {
     TestBed.configureTestingModule({
@@ -76,7 +77,8 @@ describe('GeneralLedgerPage', () => {
 
     expect(page.ledgerLines()).toHaveLength(1);
     page.export();
-    expect(exporter.exportGeneralLedger).toHaveBeenCalledWith(ledger, page.startDate, page.endDate);
+    // In the language this person exports in — their own until they choose another.
+    expect(exporter.exportGeneralLedger).toHaveBeenCalledWith(ledger, page.startDate, page.endDate, 'reader');
   });
 
   it('still opens straight on an account linked from the chart of accounts', async () => {

@@ -266,7 +266,7 @@
         <h2 class="panel__title">{{ 'payroll.parameters.contributions' | translate }}</h2>
         <p class="section-note">{{ 'payroll.parameters.platform_note' | translate }}</p>
       </div>
-      @if (canManage()) {
+      @if (canManage() && contributionConcepts().length > 0) {
         <button type="button" class="secondary-button" (click)="startContribution()">
           {{ 'payroll.parameters.new_rate' | translate }}
         </button>
@@ -277,11 +277,10 @@
       <div class="editor">
         <label class="field">
           <span>{{ 'payroll.parameters.regime' | translate }}</span>
-          <select [value]="draft.regime" (change)="patchContribution({ regime: $any($event.target).value })">
-            <option value="AFP">{{ 'payroll.parameters.regime_label.afp' | translate }}</option>
-            <option value="SFS">{{ 'payroll.parameters.regime_label.sfs' | translate }}</option>
-            <option value="SRL">{{ 'payroll.parameters.regime_label.srl' | translate }}</option>
-            <option value="INFOTEP">{{ 'payroll.parameters.regime_label.infotep' | translate }}</option>
+          <select [value]="draft.code" (change)="patchContribution({ code: $any($event.target).value })">
+            @for (concept of contributionConcepts(); track concept.code) {
+              <option [value]="concept.code">{{ concept.labelKey | translate }}</option>
+            }
           </select>
         </label>
         <label class="field" for="contributionEffectiveFrom">
@@ -340,7 +339,9 @@
         <tbody>
           @for (row of contributions(); track $index) {
             <tr [class.is-historic]="!inForceContributions().includes(row)">
-              <td>{{ row.regime }}</td>
+              <td>
+                @if (conceptLabel(row.code); as labelKey) { {{ labelKey | translate }} } @else { {{ row.code }} }
+              </td>
               <td class="numeric">{{ row.employeeRate | vxPercent: '1.2-4' }}</td>
               <td class="numeric">{{ row.employerRate | vxPercent: '1.2-4' }}</td>
               <td>{{ 'payroll.parameters.base_label.' + row.base | translate }}</td>

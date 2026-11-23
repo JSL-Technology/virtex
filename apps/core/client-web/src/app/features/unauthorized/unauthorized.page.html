@@ -1,42 +1,72 @@
 <div class="unauthorized-container">
   <div class="card">
-    <div class="icon-container">
-      <div class="icon-circle">
-        <lucide-icon [img]="ShieldAlertIcon" size="48" class="icon-shield"></lucide-icon>
+    @if (featureLabelKey(); as featureKey) {
+      <!-- Not in the company's plan: no role grants it, so there is no access to ask for. -->
+      <div class="icon-container">
+        <div class="icon-circle">
+          <lucide-icon [img]="PlanIcon" size="48" class="icon-shield" aria-hidden="true"></lucide-icon>
+        </div>
       </div>
-    </div>
 
-    <h1>{{ 'unauthorized.access_denied' | translate }}</h1>
+      <h1>{{ 'saas.plan_required.title' | translate }}</h1>
+      <p class="subtitle">{{ 'saas.plan_required.body' | translate: { feature: (featureKey | translate) } }}</p>
 
-    <p class="subtitle">
-      {{ 'unauthorized.you_do_not_have_permissions_needed' | translate }}
-    </p>
+      @if (!canSeePlans()) {
+        <p class="contact-admin">{{ 'saas.plan_required.ask_admin' | translate }}</p>
+      }
 
-    <div class="details" *ngIf="attemptedUrl$ | async as url">
-      <p><strong>{{ 'unauthorized.requested_path' | translate }}</strong></p>
-      <code>{{ url }}</code>
-      <p><strong>{{ 'unauthorized.error' | translate }}</strong> {{ 'unauthorized.403_forbidden' | translate }}</p>
-    </div>
+      <div class="actions">
+        @if (canSeePlans()) {
+          <a class="btn btn-primary" [routerLink]="home()" fragment="settings/billing">
+            <lucide-icon [img]="BillingIcon" size="16" aria-hidden="true"></lucide-icon>
+            <span>{{ 'saas.plan_required.see_plans' | translate }}</span>
+          </a>
+        }
+        <a class="btn btn-secondary" [routerLink]="home()">
+          <lucide-icon [img]="BackIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'unauthorized.back_dashboard' | translate }}</span>
+        </a>
+      </div>
+    } @else {
+      <div class="icon-container">
+        <div class="icon-circle">
+          <lucide-icon [img]="ShieldAlertIcon" size="48" class="icon-shield" aria-hidden="true"></lucide-icon>
+        </div>
+      </div>
 
-    <p class="contact-admin">
-      {{ 'unauthorized.if_you_believe_mistake_contact_your' | translate }}
-    </p>
+      <h1>{{ 'unauthorized.access_denied' | translate }}</h1>
 
-    <div class="actions">
-      <button type="button" class="btn btn-primary" [disabled]="requesting() || requested()" (click)="requestAccess()">
-        <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
-        <span>{{ 'unauthorized.request_permission' | translate }}</span>
-      </button>
+      <p class="subtitle">
+        {{ 'unauthorized.you_do_not_have_permissions_needed' | translate }}
+      </p>
 
-      <a routerLink="/dashboard" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> <span>{{ 'unauthorized.back_dashboard' | translate }}</span>
-      </a>
-    </div>
+      @if (attemptedUrl(); as url) {
+        <div class="details">
+          <p><strong>{{ 'unauthorized.requested_path' | translate }}</strong></p>
+          <code>{{ url }}</code>
+          <p><strong>{{ 'unauthorized.error' | translate }}</strong> {{ 'unauthorized.403_forbidden' | translate }}</p>
+        </div>
+      }
 
-    <div class="permission-hint">
-      <!-- The second half used to be `<a href="#">`, a link that reloads the page it is on. There
-           is no permissions guide to point at, so it reads as the sentence it always was. -->
-      <p>{{ 'unauthorized.not_sure_which_permissions_you_need' | translate }}</p>
-    </div>
+      <p class="contact-admin">
+        {{ 'unauthorized.if_you_believe_mistake_contact_your' | translate }}
+      </p>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" [disabled]="requesting() || requested()" (click)="requestAccess()">
+          <lucide-icon [img]="MailIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'unauthorized.request_permission' | translate }}</span>
+        </button>
+
+        <a class="btn btn-secondary" [routerLink]="home()">
+          <lucide-icon [img]="BackIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'unauthorized.back_dashboard' | translate }}</span>
+        </a>
+      </div>
+
+      <div class="permission-hint">
+        <p>{{ 'unauthorized.not_sure_which_permissions_you_need' | translate }}</p>
+      </div>
+    }
   </div>
 </div>

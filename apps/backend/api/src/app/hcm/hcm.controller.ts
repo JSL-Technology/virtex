@@ -1,4 +1,4 @@
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { ForbiddenError } from '../i18n/localized.exception';
 import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {

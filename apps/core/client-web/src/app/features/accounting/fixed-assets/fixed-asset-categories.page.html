@@ -1,0 +1,81 @@
+<vx-list-shell
+  titleKey="fixed_assets.categories.title"
+  subtitleKey="fixed_assets.categories.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'fixed_assets:manage'" routerLink="/accounting/fixed-assets/categories/new" class="primary-button">
+    <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'fixed_assets.categories.new' | translate }}</span>
+  </a>
+
+  <label listFilters class="doc-check">
+    <input type="checkbox" [ngModel]="includeInactive()" (ngModelChange)="setIncludeInactive($event)" />
+    {{ 'fixed_assets.categories.include_inactive' | translate }}
+  </label>
+
+  @if (catalogue(); as tax) {
+    <p listCreate class="ls__state-help" role="note">
+      {{ 'fixed_assets.categories.authority_note' | translate: { authority: tax.authority } }}
+      {{ tax.caveatKey | translate }}
+    </p>
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'fixed_assets.categories.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'fixed_assets.categories.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table [appTableMenu]="menu" class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'fixed_assets.categories.code' | translate }}</th>
+          <th>{{ 'fixed_assets.categories.name' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.form.useful_life' | translate }}</th>
+          <th>{{ 'fixed_assets.form.method' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.categories.residual' | translate }}</th>
+          <th>{{ 'fixed_assets.tax_book.category' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.tax_book.rate' | translate }}</th>
+          <th>{{ 'fixed_assets.categories.status' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink [appRowMenu]="row">
+            <td><a class="table-link" [routerLink]="['/accounting/fixed-assets/categories', row.id]">{{ row.code }}</a></td>
+            <td>{{ row.name | vxName: row.nameTranslations }}</td>
+            <td class="numeric">{{ row.usefulLifeMonths ? ('fixed_assets.document.months' | translate: { count: row.usefulLifeMonths }) : '—' }}</td>
+            <td>{{ row.depreciationMethod ? ('fixed_assets.methods.' + row.depreciationMethod | translate) : '—' }}</td>
+            <td class="numeric">{{ row.residualRate ? asPercent(row.residualRate) + ' %' : '—' }}</td>
+            <td>
+              @if (row.taxCategoryCode) {
+                <span>{{ row.taxCategoryCode }}</span>
+                @if (taxCategoryKey(row.taxCategoryCode); as key) {
+                  <small class="field__note"> · {{ key | translate }}</small>
+                }
+              } @else {
+                <span>{{ row.taxMethod ? ('fixed_assets.tax_book.own_rate' | translate) : '—' }}</span>
+              }
+            </td>
+            <td class="numeric">
+              @if (row.taxAnnualRate !== null) {
+                {{ asPercent(row.taxAnnualRate) }} % · {{ 'fixed_assets.tax_methods.' + row.taxMethod | translate }}
+              } @else {
+                —
+              }
+            </td>
+            <td>
+              <vx-badge [tone]="row.isActive ? 'ok' : 'neutral'">
+                {{ (row.isActive ? 'fixed_assets.categories.active' : 'fixed_assets.categories.inactive') | translate }}
+              </vx-badge>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

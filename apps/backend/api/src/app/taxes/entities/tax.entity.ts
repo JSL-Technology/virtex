@@ -1,6 +1,7 @@
 import type { TaxGroup } from '../../localization/entities/tax-group.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,6 +11,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { NameTranslationsCheck, NameTranslationsColumn } from '../../common/database/name-translations.column';
+import type { LocalizedName } from '@virtex/shared/types';
 
 export enum TaxType {
   PERCENTAGE = 'Porcentaje',
@@ -17,12 +20,18 @@ export enum TaxType {
 }
 
 @Entity({ name: 'taxes' })
+@NameTranslationsCheck('taxes')
+@Check('CHK_taxes_period', `"effective_to" IS NULL OR "effective_from" IS NULL OR "effective_to" >= "effective_from"`)
 export class Tax {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   name: string;
+
+  /** The name in the languages other than the books' (books bilingual): see `NameTranslationsColumn`. */
+  @NameTranslationsColumn()
+  nameTranslations: LocalizedName;
 
   @Column({ type: 'decimal', precision: 10, scale: 4, transformer: numericTransformerNotNull })
   rate: number;
@@ -36,6 +45,17 @@ export class Tax {
 
   @Column({ nullable: true })
   countryCode?: string;
+
+  /**
+   * The period this rate may be applied in (audit 2026-11-07, LOC-06). A document dated outside it
+   * cannot use it. Null bounds are open; a seeded rate starts when the statutory rate it mirrors
+   * entered into force.
+   */
+  @Column({ name: 'effective_from', type: 'date', nullable: true })
+  effectiveFrom?: string | null;
+
+  @Column({ name: 'effective_to', type: 'date', nullable: true })
+  effectiveTo?: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

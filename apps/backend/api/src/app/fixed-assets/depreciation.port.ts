@@ -26,15 +26,16 @@ import { type IsoDate } from '../common/dates';
  */
 export abstract class DepreciationPort {
   /**
-   * Post the monthly depreciation charge for every in-use asset.
+   * Charge every in-use asset everything it is due through the period's end.
    *
-   * Idempotent: if the charge for the period has already been claimed (via `SchedulerLockService`)
-   * this method returns without posting again. The caller may pass its own `EntityManager` to
-   * participate in an outer transaction; if omitted the service opens its own.
+   * Idempotent: a month already charged to an asset is not charged again, whichever run reached it
+   * first. The caller may pass its own `EntityManager` to take part in an outer transaction — the
+   * close does — and who is closing, whom the run's record names.
    */
   abstract runForPeriod(
     organizationId: string,
     period: { startDate: IsoDate; endDate: IsoDate },
     manager?: EntityManager,
+    closedByUserId?: string | null,
   ): Promise<void>;
 }

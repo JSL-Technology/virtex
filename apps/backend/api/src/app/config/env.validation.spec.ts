@@ -21,9 +21,9 @@ const check = (env: Record<string, string>) =>
 const productionEnv = (): Record<string, string> => ({
   NODE_ENV: 'production',
   ...Object.fromEntries(CRYPTOGRAPHIC_SECRETS.map((k) => [k, 'x'.repeat(64)])),
-  WEBAUTHN_RP_ID: 'app.virteex.com',
-  FRONTEND_URL: 'https://app.virteex.com',
-  CORS_ORIGIN: 'https://app.virteex.com',
+  WEBAUTHN_RP_ID: 'app.virtex.com',
+  FRONTEND_URL: 'https://app.virtex.com',
+  CORS_ORIGIN: 'https://app.virtex.com',
   STRIPE_PRICE_STARTER: 'price_starter',
   STRIPE_PRICE_PRO: 'price_pro',
   STRIPE_PRICE_ENTERPRISE: 'price_ent',
@@ -32,9 +32,9 @@ const productionEnv = (): Record<string, string> => ({
   RS_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----',
   RS_PUBLIC_KEY: '-----BEGIN PUBLIC KEY-----',
   DB_HOST: 'db.internal',
-  DB_USERNAME: 'virteex',
+  DB_USERNAME: 'virtex',
   DB_PASSWORD: 'hunter2',
-  DB_NAME: 'virteex',
+  DB_NAME: 'virtex',
   RECAPTCHA_V3_SECRET_KEY: 'recaptcha_secret',
   // Redis is not optional: the shared cache carries the revoked-session denylist, the pending-2FA
   // session, the single-use step-up markers and the SaaS counters.
@@ -44,7 +44,7 @@ const productionEnv = (): Record<string, string> => ({
   MAIL_HOST: 'smtp.internal',
   MAIL_USER: 'postmaster',
   MAIL_PASSWORD: 'hunter2',
-  MAIL_FROM_ADDRESS: 'no-reply@virteex.com',
+  MAIL_FROM_ADDRESS: 'no-reply@virtex.com',
   MAIL_FROM_NAME: 'Virtex',
 });
 
@@ -265,8 +265,47 @@ describe('environment validation', () => {
     });
 
     it('requires a real hostname for the passkey relying party', () => {
-      const { error } = check({ ...productionEnv(), WEBAUTHN_RP_ID: 'https://app.virteex.com' });
+      const { error } = check({ ...productionEnv(), WEBAUTHN_RP_ID: 'https://app.virtex.com' });
       expect(error?.details.map((d) => d.context?.key)).toContain('WEBAUTHN_RP_ID');
+    });
+  });
+
+  describe('the switches a deployment may not flip', () => {
+    /**
+     * Fourteen variables were read straight from `process.env` in the services that use them, so
+     * the schema — the one description of what a deployment can set — did not know they existed.
+     * Two of them decide whether an extension's code is scanned before it is admitted and whether
+     * it is signed with a key that survives a restart, and neither had any production guard.
+     */
+    it('refuses a deployment that would sign extensions with a throwaway key', () => {
+      const { error } = check({ ...productionEnv(), ALLOW_EPHEMERAL_PLUGIN_KEYS: 'true' });
+      expect(error?.message).toContain('ALLOW_EPHEMERAL_PLUGIN_KEYS');
+    });
+
+    it('lets a development checkout use one, because nothing else can sign locally', () => {
+      const { error, value } = check({ NODE_ENV: 'development', ALLOW_EPHEMERAL_PLUGIN_KEYS: 'true' });
+      expect(error).toBeUndefined();
+      expect(value.ALLOW_EPHEMERAL_PLUGIN_KEYS).toBe(true);
+    });
+
+    it('scans an extension before admitting it unless a deployment says otherwise on purpose', () => {
+      // Unset in a deployment is `required`: an extension the scanner could not reach is refused.
+      expect(check(productionEnv()).value.PLUGIN_DAST_MODE).toBe('required');
+      // A development checkout has no scanner to reach.
+      expect(check({ NODE_ENV: 'development' }).value.PLUGIN_DAST_MODE).toBe('best-effort');
+      // And a mode the pipeline does not know is a typo, not a third behaviour.
+      expect(check({ ...productionEnv(), PLUGIN_DAST_MODE: 'skip' }).error?.message).toContain('PLUGIN_DAST_MODE');
+    });
+
+    it('starts protected: the unprotected-bootstrap door is shut unless it is opened by name', () => {
+      expect(check(productionEnv()).value.DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP).toBe(false);
+      expect(check({ ...productionEnv(), DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP: 'true' }).value.DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP).toBe(true);
+    });
+
+    it('bills its own subscriptions in a real currency code', () => {
+      expect(check(productionEnv()).value.SAAS_BASE_CURRENCY).toBe('USD');
+      expect(check({ ...productionEnv(), SAAS_BASE_CURRENCY: 'dop' }).value.SAAS_BASE_CURRENCY).toBe('DOP');
+      expect(check({ ...productionEnv(), SAAS_BASE_CURRENCY: 'DOLLAR' }).error?.message).toContain('SAAS_BASE_CURRENCY');
     });
   });
 

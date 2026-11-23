@@ -1,13 +1,16 @@
 import { User } from '../../users/entities/user.entity/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne } from 'typeorm';
 
 
+/** One row per browser endpoint: an endpoint identifies a browser profile, not a user. */
 @Entity()
+@Index('UQ_push_subscription_endpoint', ['endpoint'], { unique: true })
+@Index('IDX_push_subscription_user', ['userId'])
 export class PushSubscription {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 2048 })
   endpoint: string;
 
   @Column()
@@ -16,7 +19,7 @@ export class PushSubscription {
   @Column()
   auth: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()

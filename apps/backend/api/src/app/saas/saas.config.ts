@@ -1,5 +1,6 @@
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
+import type { SaasFeatureKey } from '@virtex/shared/types';
 
 export interface PlanLimitConfig {
   resource: SaasResource;
@@ -49,30 +50,19 @@ export type PlanPriceTable = Readonly<Record<string, number>>;
  * problem, so `saas-entitlements.spec.ts` asserts every declared key is one the product knows.
  */
 export interface PlanFeatureConfig {
-  featureKey: string;
+  featureKey: SaasFeatureKey;
   isEnabled: boolean;
 }
 
-/** Capability keys the product actually enforces. A flag outside this set meters nothing. */
-export const SAAS_FEATURE_KEYS = [
-  'group_consolidation',
-  'enterprise_sso',
-  // The AI platform (docs/IA_PLAN_MAESTRO.md). Photo-assisted product entry is on every tier — it
-  // is metered by `AI_CREDITS`, so the entry tier gets a taste rather than a free ride. Demand
-  // forecasting and anomaly detection run a model per tenant every night and are the paid tiers'.
-  'ai_vision',
-  'ai_forecasting',
-  'ai_anomalies',
-  // The copilot: a conversation that reads and drafts through the user's own permissions. Every
-  // model turn is metered by `AI_CREDITS`.
-  'ai_assistant',
-  'ai_cashflow',
-  'ai_reconciliation',
-  'ai_collections',
-  'ai_manager_reports',
-  'ai_agents',
-] as const;
-export type SaasFeatureKey = (typeof SAAS_FEATURE_KEYS)[number];
+/**
+ * Capability keys the product actually enforces. A flag outside this set meters nothing.
+ *
+ * Declared in `@virtex/shared/types`, with what each one is, because the client offers screens by
+ * the same keys (`ModuleRoute.feature`): one list, so neither side can name a key the other does
+ * not know.
+ */
+export { SAAS_FEATURE_KEYS } from '@virtex/shared/types';
+export type { SaasFeatureKey };
 
 export interface PlanConfig {
   slug: string;
@@ -159,6 +149,22 @@ const ZERO_DECIMAL_CURRENCIES: ReadonlySet<string> = new Set([
 ]);
 
 /** How many minor units make one unit of `currency`. 1 for zero-decimal currencies, else 100. */
+/**
+ * The platform's own billing currency: what a market with no local price is quoted and charged in.
+ *
+ * Read here rather than in the service, because this file IS the configuration layer for the
+ * subscription plans and is the one place in the module that reads the environment. `SaasService`
+ * exposes it statically — it is a process-wide fact, not tenant state — and a static cannot inject
+ * `ConfigService`, so putting the read in the service would have been a second door to the
+ * environment inside a class that already has the first.
+ *
+ * `config/env.validation.ts` declares it (`SAAS_BASE_CURRENCY`), defaults it to `USD` and
+ * uppercases it, so what arrives here is already a three-letter code.
+ */
+export function saasBaseCurrency(): string {
+  return process.env['SAAS_BASE_CURRENCY'] || 'USD';
+}
+
 export function minorUnitFactor(currency: string): number {
   return ZERO_DECIMAL_CURRENCIES.has((currency ?? '').toUpperCase()) ? 1 : 100;
 }
@@ -170,10 +176,10 @@ export const SAAS_CONFIG = {
 /**
  * Every plan declares a limit for every metered resource.
  *
- * `enforceLimit` returns early when a plan has no `PlanLimit` row for the resource it is asked
- * about — so a resource missing from a plan is unlimited on that plan, silently. That is the
- * failure mode this list has to avoid, and `saas-entitlements.spec.ts` asserts the completeness
- * rather than leaving it to review.
+ * `enforceLimit` and `checkLimit` REFUSE a resource a plan has no `PlanLimit` row for — they fail
+ * closed, so a forgotten entry stops the feature rather than giving it away. That makes a missing
+ * entry an outage instead of a leak, and `saas-entitlements.spec.ts` asserts the completeness so it
+ * is neither.
  */
 export const SAAS_PLANS: PlanConfig[] = [
   {

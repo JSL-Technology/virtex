@@ -13,6 +13,8 @@ import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, toCents } from '../common/money';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
+import { SYSTEM_JOURNALS, type SystemJournalCode } from '../contracts/ledger-posting/system-journals';
+import { described, LedgerText, NarrativeInput, withNote } from '../contracts/ledger-posting/ledger-text';
 
 /** What an item was worth on the books at a point in time. */
 interface Valuation {
@@ -97,7 +99,7 @@ export class InventoryPostingService {
       product.organizationId,
       {
         date: await organizationToday(manager, product.organizationId),
-        description: words.entry,
+        ...described(words.entry),
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
         exchangeRate: 1,
@@ -109,13 +111,13 @@ export class InventoryPostingService {
             accountId: inventoryId,
             debit: value,
             credit: 0,
-            description: words.stock,
+            ...described(words.stock),
           },
           {
             accountId: openingId,
             debit: 0,
             credit: value,
-            description: words.counterpart,
+            ...described(words.counterpart),
           },
         ],
       },
@@ -170,7 +172,7 @@ export class InventoryPostingService {
       product.organizationId,
       {
         date: await organizationToday(manager, product.organizationId),
-        description: reason ? `${words.entry} — ${reason}` : words.entry,
+        ...described(withNote(words.entry, reason)),
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
         exchangeRate: 1,
@@ -179,13 +181,13 @@ export class InventoryPostingService {
             accountId: inventoryId,
             debit: increase ? amount : 0,
             credit: increase ? 0 : amount,
-            description: words.movement,
+            ...described(words.movement),
           },
           {
             accountId: adjustmentId,
             debit: increase ? 0 : amount,
             credit: increase ? amount : 0,
-            description: words.counterpart,
+            ...described(words.counterpart),
           },
         ],
       },
@@ -238,7 +240,7 @@ export class InventoryPostingService {
       organizationId,
       {
         date: receipt.date,
-        description: words.entry,
+        ...described(words.entry),
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? undefined,
         exchangeRate: 1,
@@ -249,7 +251,7 @@ export class InventoryPostingService {
             credit: 0,
             description: line.description,
           })),
-          { accountId: grniId, debit: 0, credit: total, description: words.counterpart },
+          { accountId: grniId, debit: 0, credit: total, ...described(words.counterpart) },
         ],
       },
       {
@@ -318,7 +320,7 @@ export class InventoryPostingService {
       organizationId,
       {
         date: adjustment.date,
-        description: `${words.entry} — ${adjustment.reason}`,
+        ...described(withNote(words.entry, adjustment.reason)),
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
         exchangeRate: 1,
@@ -333,7 +335,7 @@ export class InventoryPostingService {
             accountId: adjustmentId,
             debit: counterpart.amount < 0 ? roundAmount(-counterpart.amount) : 0,
             credit: counterpart.amount > 0 ? roundAmount(counterpart.amount) : 0,
-            description: counterpart.description,
+            ...described(counterpart.description),
           })),
         ],
       },
@@ -386,12 +388,12 @@ export class InventoryPostingService {
       organizationId,
       {
         date: receipt.date,
-        description: words.entry,
+        ...described(words.entry),
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? undefined,
         exchangeRate: 1,
         lines: [
-          { accountId: grniId, debit: total, credit: 0, description: words.counterpart },
+          { accountId: grniId, debit: total, credit: 0, ...described(words.counterpart) },
           ...lines.map((line) => ({
             accountId: inventoryId,
             debit: 0,
@@ -425,7 +427,7 @@ export class InventoryPostingService {
   private async context(
     manager: EntityManager,
     organizationId: string,
-    journalCode = 'GENERAL',
+    journalCode: SystemJournalCode = SYSTEM_JOURNALS.general.code,
   ): Promise<{ settings: OrganizationSettings; journal: Journal }> {
     const settings = await this.orgSettings.requireForOrg(organizationId, manager);
     const journal = await this.journalLookup.requireByCode(organizationId, journalCode, manager);
@@ -436,8 +438,8 @@ export class InventoryPostingService {
   private words<K extends string>(
     manager: EntityManager,
     organizationId: string,
-    keys: Record<K, { key: string; params?: Record<string, unknown> }>,
-  ): Promise<Record<K, string>> {
+    keys: Record<K, { key: string; params?: Record<string, NarrativeInput> }>,
+  ): Promise<Record<K, LedgerText>> {
     return this.narrative.describeAll(manager, organizationId, keys);
   }
 }

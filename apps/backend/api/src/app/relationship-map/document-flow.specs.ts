@@ -49,7 +49,12 @@ export interface NodeSpec {
   permission: string;
   /** Tenant column properties. Defaults to `['organizationId']`; several = the row belongs to either. */
   orgProps?: string[];
-  numberProp?: string;
+  /**
+   * What names the document. Several = the first of them that is filled, in order: a purchase is
+   * named by the number on the supplier's document where their market's authority issues one, and
+   * by the supplier's own invoice number where none does.
+   */
+  numberProp?: string | readonly string[];
   dateProp?: string;
   statusProp?: string;
   totalProp?: string;
@@ -147,14 +152,14 @@ export const STATUS_MAPS = {
   invoice: { Draft: 'draft', Pending: 'open', 'Partially Paid': 'open', Paid: 'closed', Void: 'cancelled', 'Credit Note': 'closed' },
   customerPayment: { POSTED: 'closed', VOID: 'cancelled' },
   posSale: { PAID: 'closed', CANCELLED: 'cancelled' },
-  ecf: {
+  fiscalSubmission: {
     PENDING: 'pending',
-    SIGNED: 'pending',
+    NOT_CONFIGURED: 'pending',
     SENT: 'pending',
+    CONTINGENCY: 'pending',
     ACCEPTED: 'closed',
     ACCEPTED_WITH_OBSERVATIONS: 'closed',
     REJECTED: 'cancelled',
-    CONTINGENCY: 'pending',
     ERROR: 'pending',
   },
   requisition: { DRAFT: 'draft', PENDING_APPROVAL: 'pending', APPROVED: 'open', REJECTED: 'cancelled', CONVERTED_TO_PO: 'closed' },
@@ -275,16 +280,16 @@ export const NODE_SPECS: Record<FlowDocumentType, NodeSpec> = {
     partyNameProp: 'customerName',
     statusMap: STATUS_MAPS.posSale,
   },
-  [T.ECF_SUBMISSION]: {
-    type: T.ECF_SUBMISSION,
-    entity: 'EcfSubmission',
+  [T.FISCAL_SUBMISSION]: {
+    type: T.FISCAL_SUBMISSION,
+    entity: 'FiscalSubmission',
     module: 'sales',
-    typeKey: 'relationship_map.doc.ecf_submission',
+    typeKey: 'relationship_map.doc.fiscal_submission',
     permission: P.INVOICES,
-    numberProp: 'ncf',
+    numberProp: 'fiscalNumber',
     dateProp: 'sentAt',
     statusProp: 'status',
-    statusMap: STATUS_MAPS.ecf,
+    statusMap: STATUS_MAPS.fiscalSubmission,
     searchable: true,
   },
 
@@ -335,7 +340,7 @@ export const NODE_SPECS: Record<FlowDocumentType, NodeSpec> = {
     module: 'purchasing',
     typeKey: 'relationship_map.doc.vendor_bill',
     permission: P.AP,
-    numberProp: 'ncf',
+    numberProp: ['supplierFiscalNumber', 'supplierInvoiceNumber'],
     dateProp: 'date',
     statusProp: 'status',
     totalProp: 'total',
@@ -483,7 +488,7 @@ export const EDGE_SPECS: EdgeSpec[] = [
   { kind: 'fk', carrier: T.SALES_QUOTE, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'source', relation: 'invoiced', category: 'flow' },
   { kind: 'fk', carrier: T.POS_SALE, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'source', relation: 'invoiced', category: 'flow' },
   { kind: 'fk', carrier: T.SALES_INVOICE, prop: 'originalInvoiceId', target: T.SALES_INVOICE, carrierRole: 'target', relation: 'corrects', category: 'correction' },
-  { kind: 'fk', carrier: T.ECF_SUBMISSION, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'target', relation: 'e_submitted', category: 'fiscal' },
+  { kind: 'fk', carrier: T.FISCAL_SUBMISSION, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'target', relation: 'e_submitted', category: 'fiscal' },
   { kind: 'junction', entity: 'CustomerPaymentLine', aProp: 'invoiceId', aType: T.SALES_INVOICE, bProp: 'paymentId', bType: T.CUSTOMER_PAYMENT, sourceSide: 'a', tenantSide: 'b', relation: 'settled_by', category: 'settlement' },
 
   // ── Compras ──

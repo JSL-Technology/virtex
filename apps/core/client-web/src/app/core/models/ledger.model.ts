@@ -1,28 +1,10 @@
-export interface GeneralLedgerLine {
-  id: string; // <-- AÑADIDO para el seguimiento en el @for
-  date: string;
-  reference: string; // <-- RENOMBRADO de 'entryNumber' a 'reference'
-  description: string;
-  debit: number | null;
-  credit: number | null;
-  balance: number;
-}
-
-export interface GeneralLedger {
-  initialBalance: number;
-  finalBalance: number;
-  lines: GeneralLedgerLine[];
-  account: {
-    id: string;
-    code: string;
-    name: string;
-  };
-}
-
-// app/core/models/ledger.model.ts
+import type { LocalizedName } from '@virtex/shared/types';
+/** A book the company keeps (the general ledger's lines are in `general-ledger.model.ts`). */
 export interface Ledger {
   id: string;
   name: string;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   description?: string;
   isDefault: boolean;
   createdAt: Date;

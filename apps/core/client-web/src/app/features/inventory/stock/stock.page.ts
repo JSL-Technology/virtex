@@ -3,14 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { LucideAngularModule, ArrowLeftRight, ClipboardCheck } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { NotificationService } from '../../../core/services/notification';
 import { StockOnHandRow, StockService } from '../data/stock.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * Stock on hand: what each warehouse holds of each product, valued at average cost.

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { FormatService } from '@virtex/shared/ui-i18n';
 import { IdentityDocumentsService } from '../api/identity-documents.service';
 import { SearchResult } from './search.service';
 

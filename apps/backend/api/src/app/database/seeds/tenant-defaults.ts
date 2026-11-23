@@ -1,4 +1,4 @@
-import { CountryPack, countryPackFor } from '../../contracts/country-pack/country-pack';
+import { marketFor, type Market } from '../../markets';
 
 /**
  * The working data a company starts with, beyond its books.
@@ -100,9 +100,9 @@ export async function seedTenantDefaults(
 ): Promise<void> {
   await seedTenantWorkingDefaults(runner, context, translate);
   const t = (key: string) => translate(key, seedLanguage(context.booksLanguage));
-  const pack = countryPackFor(context.country);
-  await seedPaymentMethods(runner, context.organizationId, pack, t);
-  await seedCompanyPayrollParameters(runner, context.organizationId, pack, context.baseCurrency, t);
+  const market = marketFor(context.country);
+  await seedPaymentMethods(runner, context.organizationId, market, t);
+  await seedCompanyPayrollParameters(runner, context.organizationId, market, context.baseCurrency, t);
 }
 
 /**
@@ -132,8 +132,8 @@ export async function seedTenantWorkingDefaults(
   // A customer of that name with no tax id is adopted first rather than duplicated: a company that
   // already created its own by hand, or a database migrated down and up again, keeps one, with its
   // history.
-  const pack = countryPackFor(country);
-  const finalConsumerName = t(pack.defaultCustomer.nameKey);
+  const market = marketFor(country);
+  const finalConsumerName = t(market.documents.defaultCustomer.nameKey);
   await runner.query(
     `UPDATE "customers" SET "is_final_consumer" = true
       WHERE "id" = (
@@ -172,13 +172,13 @@ export async function seedTenantWorkingDefaults(
   }
 
   // The payroll lines the market's payroll uses in its first month (the Dominican engine's AFP, SFS
-  // and ISR; the US FICA, Medicare and income-tax lines), from its pack. A market whose pack names
+  // and ISR; the US FICA, Medicare and income-tax lines), from its market. A market that names
   // none gets none: an empty list is honest, a borrowed one is the defect.
-  for (const concept of pack.payroll.concepts) {
+  for (const concept of market.payroll.concepts) {
     await runner.query(
       `INSERT INTO "payroll_concepts"
          ("organization_id", "code", "name", "type", "calculation", "rate", "taxable",
-          "contributes_to_tss", "sort_order", "active", "is_system")
+          "contributes_to_social_security", "sort_order", "active", "is_system")
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, $10)
        ON CONFLICT DO NOTHING`,
       [
@@ -189,7 +189,7 @@ export async function seedTenantWorkingDefaults(
         concept.calculation,
         concept.rate,
         concept.taxable,
-        concept.contributesToTss,
+        concept.contributesToSocialSecurity,
         concept.sortOrder,
         concept.isSystem,
       ],
@@ -208,11 +208,11 @@ export async function seedTenantWorkingDefaults(
 export async function seedPaymentMethods(
   runner: SqlRunner,
   organizationId: string,
-  pack: CountryPack,
+  market: Market,
   t: (key: string) => string,
 ): Promise<void> {
-  const fixed = pack.paymentMethods.catalogue === 'AUTHORITY_FIXED';
-  for (const [index, method] of pack.paymentMethods.defaults.entries()) {
+  const fixed = market.payments.catalogue === 'AUTHORITY_FIXED';
+  for (const [index, method] of market.payments.defaults.entries()) {
     await runner.query(
       `INSERT INTO "payment_methods"
          ("organization_id", "code", "name", "kind", "fiscal_code", "is_system", "is_active", "sort_order")
@@ -226,7 +226,7 @@ export async function seedPaymentMethods(
 /**
  * The payroll figures a company keeps for itself, as editable statutory defaults (QA C-06).
  *
- * Only for a market whose pack says the company keeps them (`statutoryParameters: 'COMPANY'`); the
+ * Only for a market that says the company keeps them (`statutoryParameters: 'COMPANY'`); the
  * Dominican rates are the platform's and live in the global statutory tables. Idempotent on
  * (code, effective date): a company that already recorded a figure for that date keeps its own, and
  * next year's defaults are added beside this year's rather than over them.
@@ -234,12 +234,12 @@ export async function seedPaymentMethods(
 export async function seedCompanyPayrollParameters(
   runner: SqlRunner,
   organizationId: string,
-  pack: CountryPack,
+  market: Market,
   currency: string,
   t: (key: string) => string,
 ): Promise<void> {
-  if (pack.payroll.statutoryParameters !== 'COMPANY') return;
-  for (const parameter of pack.payroll.parameters) {
+  if (market.payroll.statutoryParameters !== 'COMPANY') return;
+  for (const parameter of market.payroll.parameters) {
     await runner.query(
       `INSERT INTO "payroll_company_parameters"
          ("organization_id", "country_code", "code", "name", "kind", "employee_rate", "employer_rate",
@@ -253,7 +253,7 @@ export async function seedCompanyPayrollParameters(
            WHERE "organization_id" = $1::uuid AND "code" = $3::varchar AND "effective_from" = $13::date)`,
       [
         organizationId,
-        pack.countryCode,
+        market.code,
         parameter.code,
         t(parameter.nameKey),
         parameter.kind,

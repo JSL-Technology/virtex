@@ -6,7 +6,7 @@ import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';

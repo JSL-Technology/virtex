@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   PurchaseRequisition,
@@ -18,7 +18,7 @@ import {
 import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxLifecycleStripComponent } from '../../../../shared/components/lifecycle-strip';
 import { VxAmountComponent } from '../../../../shared/components/amount';

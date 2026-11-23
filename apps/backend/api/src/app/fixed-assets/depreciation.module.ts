@@ -2,9 +2,14 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FixedAsset } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
+import { FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
+import { FixedAssetCategory } from './entities/fixed-asset-category.entity';
+import { FixedAssetBook } from './entities/fixed-asset-book.entity';
+import { FixedAssetBookCharge } from './entities/fixed-asset-book-charge.entity';
 import { DepreciationService } from './depreciation.service';
 import { DepreciationPort } from './depreciation.port';
 import { AssetPostingService } from './asset-posting.service';
+import { TaxBookService } from './tax-book.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -23,15 +28,23 @@ import { AuthModule } from '../auth/auth.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FixedAsset, FixedAssetDepreciation]),
+    TypeOrmModule.forFeature([
+      FixedAsset,
+      FixedAssetDepreciation,
+      FixedAssetDepreciationRun,
+      FixedAssetCategory,
+      FixedAssetBook,
+      FixedAssetBookCharge,
+    ]),
     forwardRef(() => JournalEntriesModule),
     forwardRef(() => AuthModule),
   ],
   providers: [
     AssetPostingService,
+    TaxBookService,
     DepreciationService,
     { provide: DepreciationPort, useExisting: DepreciationService },
   ],
-  exports: [DepreciationPort, DepreciationService, AssetPostingService],
+  exports: [DepreciationPort, DepreciationService, AssetPostingService, TaxBookService],
 })
 export class DepreciationModule {}

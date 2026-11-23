@@ -22,6 +22,16 @@
           <input id="fa-name" type="text" maxlength="200" formControlName="name" [placeholder]="'fixed_assets.form.name_placeholder' | translate" />
         </label>
         <vx-branch-picker class="field" inputId="fa-branch" formControlName="branchId" [optional]="true" />
+        <label class="field" for="fa-category">
+          <span>{{ 'fixed_assets.form.category' | translate }}</span>
+          <select id="fa-category" formControlName="categoryId">
+            <option [ngValue]="null">{{ 'fixed_assets.form.no_category' | translate }}</option>
+            @for (category of categories(); track category.id) {
+              <option [ngValue]="category.id">{{ category.code }} · {{ category.name | vxName: category.nameTranslations }}</option>
+            }
+          </select>
+          <small class="form-hint">{{ (current() ? 'fixed_assets.form.category_reclassify_hint' : 'fixed_assets.form.category_hint') | translate }}</small>
+        </label>
         <label class="field field--wide" for="fa-description">
           <span>{{ 'fixed_assets.form.description' | translate }}</span>
           <textarea id="fa-description" rows="2" maxlength="2000" formControlName="description"
@@ -61,6 +71,25 @@
               <option [value]="method">{{ 'fixed_assets.methods.' + method | translate }}</option>
             }
           </select>
+        </label>
+        @if (declining()) {
+          <label class="field" for="fa-declining-rate">
+            <span>{{ 'fixed_assets.form.declining_rate' | translate }}</span>
+            <input id="fa-declining-rate" type="number" step="0.01" min="0.0001" max="100" formControlName="decliningRatePercent" />
+            <small class="form-hint">{{ 'fixed_assets.form.declining_rate_help' | translate }}</small>
+          </label>
+        }
+        <label class="field" for="fa-convention">
+          <span>{{ 'fixed_assets.form.convention' | translate }}</span>
+          <select id="fa-convention" formControlName="depreciationConvention">
+            @if (!current()) {
+              <option value="">{{ 'fixed_assets.form.convention_company' | translate }}</option>
+            }
+            @for (convention of conventions; track convention) {
+              <option [value]="convention">{{ 'fixed_assets.conventions.' + convention | translate }}</option>
+            }
+          </select>
+          <small class="form-hint">{{ 'fixed_assets.form.convention_help' | translate }}</small>
         </label>
       </div>
       <p class="form-hint">{{ 'fixed_assets.form.valuation_hint' | translate }}</p>
@@ -107,6 +136,93 @@
           </label>
         </div>
         <p class="form-hint">{{ 'fixed_assets.form.migrated_hint' | translate }}</p>
+      }
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.capitalization.title' | translate }}</h2>
+      @if (current(); as asset) {
+        <p class="form-hint">
+          {{ 'fixed_assets.capitalization.methods.' + asset.capitalizationMethod | translate }}
+          · <a [routerLink]="['/accounting/fixed-assets', asset.id, 'capitalization']">{{ 'fixed_assets.capitalization.change' | translate }}</a>
+        </p>
+      } @else {
+        <p class="form-hint">{{ 'fixed_assets.capitalization.hint' | translate }}</p>
+        <app-capitalization-fields [group]="capitalizationForm" [assetAccountId]="assetAccount()" idPrefix="fa-cap" />
+      }
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.tax_book.title' | translate }}</h2>
+      <label class="doc-check">
+        <input type="checkbox" formControlName="keepTaxBook" />
+        {{ 'fixed_assets.tax_book.keep' | translate }}
+      </label>
+      <p class="form-hint">{{ 'fixed_assets.tax_book.hint' | translate }}</p>
+      @if (taxBookLocked()) {
+        <p class="form-hint" role="status">{{ 'fixed_assets.tax_book.locked_hint' | translate: { count: current()!.taxBook!.chargedMonths } }}</p>
+      }
+      @if (showTaxBook()) {
+        <div class="form-grid">
+          @if (catalogue(); as tax) {
+            <label class="field field--wide" for="fa-tax-category">
+              <span>{{ 'fixed_assets.tax_book.category_of' | translate: { authority: tax.authority } }}</span>
+              <select id="fa-tax-category" formControlName="taxCategoryCode">
+                <option value="">{{ 'fixed_assets.tax_book.no_category' | translate }}</option>
+                @for (entry of tax.categories; track entry.code) {
+                  <option [value]="entry.code">{{ entry.code }} · {{ entry.nameKey | translate }}</option>
+                }
+              </select>
+              @if (taxEntry(); as entry) {
+                <small class="form-hint">{{ entry.legalBasis }}</small>
+              }
+            </label>
+          } @else {
+            <label class="field" for="fa-tax-code">
+              <span>{{ 'fixed_assets.tax_book.category' | translate }}</span>
+              <input id="fa-tax-code" type="text" maxlength="40" formControlName="taxCategoryCode" />
+            </label>
+          }
+          <label class="field" for="fa-tax-method">
+            <span>{{ 'fixed_assets.tax_book.method' | translate }}</span>
+            <select id="fa-tax-method" formControlName="taxMethod">
+              <option value="">{{ 'fixed_assets.categories.not_set' | translate }}</option>
+              @for (method of taxMethods; track method) {
+                <option [value]="method">{{ 'fixed_assets.tax_methods.' + method | translate }}</option>
+              }
+            </select>
+          </label>
+          <label class="field" for="fa-tax-rate">
+            <span>{{ 'fixed_assets.tax_book.rate' | translate }}</span>
+            <input id="fa-tax-rate" type="number" step="0.01" min="0.0001" max="100" formControlName="taxRatePercent" />
+          </label>
+          <label class="field" for="fa-tax-convention">
+            <span>{{ 'fixed_assets.tax_book.convention' | translate }}</span>
+            <select id="fa-tax-convention" formControlName="taxConvention">
+              <option value="">{{ 'fixed_assets.tax_book.same_convention' | translate }}</option>
+              @for (convention of conventions; track convention) {
+                <option [value]="convention">{{ 'fixed_assets.conventions.' + convention | translate }}</option>
+              }
+            </select>
+          </label>
+          <label class="field" for="fa-tax-basis">
+            <span>{{ 'fixed_assets.tax_book.basis' | translate }}</span>
+            <input id="fa-tax-basis" type="number" step="0.01" min="0" formControlName="taxBasis" [placeholder]="'fixed_assets.tax_book.basis_placeholder' | translate" />
+          </label>
+          @if (showOpening()) {
+            <label class="field" for="fa-tax-opening">
+              <span>{{ 'fixed_assets.tax_book.opening_accumulated' | translate }}</span>
+              <input id="fa-tax-opening" type="number" step="0.01" min="0" formControlName="taxOpeningAccumulated" />
+            </label>
+            <label class="field" for="fa-tax-opening-through">
+              <span>{{ 'fixed_assets.tax_book.opening_through' | translate }}</span>
+              <input id="fa-tax-opening-through" type="month" formControlName="taxOpeningThrough" />
+            </label>
+          }
+        </div>
+        @if (catalogue(); as tax) {
+          <p class="form-hint" role="note">{{ tax.caveatKey | translate }}</p>
+        }
       }
     </section>
   </div>

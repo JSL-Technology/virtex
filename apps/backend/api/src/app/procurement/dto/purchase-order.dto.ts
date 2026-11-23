@@ -62,11 +62,11 @@ export class CreatePurchaseOrderDto {
   @IsNotEmpty()
   supplierId: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   orderDate?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   expectedDate?: string;
 
@@ -98,11 +98,11 @@ export class UpdatePurchaseOrderDto {
   @IsOptional()
   branchId?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   orderDate?: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   expectedDate?: string;
 
@@ -178,7 +178,7 @@ export class ReceivePurchaseOrderDto {
   lines?: ReceiptLineDto[];
 
   /** When the goods arrived. Defaults to now; decides the date of the receipt entry. */
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   receivedAt?: string;
 

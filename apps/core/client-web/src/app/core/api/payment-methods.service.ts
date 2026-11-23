@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type { PaymentMethod as PaymentSettlementKind } from '../services/invoices';
+import type { LocalizedName } from '@virtex/shared/types';
 
 /**
  * One of the company's payment methods (`GET /treasury/payment-methods`).
@@ -14,6 +15,8 @@ export interface PaymentMethodRow {
   id: string;
   code: string;
   name: string;
+  /** The name in the languages other than the books' — `name` is the record, in the books language. */
+  nameTranslations?: LocalizedName;
   kind: PaymentSettlementKind;
   fiscalCode: string | null;
   /** From an authority's fixed catalogue: not editable. */
@@ -25,6 +28,7 @@ export interface PaymentMethodRow {
 export interface PaymentMethodInput {
   code: string;
   name: string;
+  nameTranslations?: LocalizedName;
   kind: PaymentSettlementKind;
   fiscalCode?: string | null;
   sortOrder?: number;

@@ -1,5 +1,6 @@
 import { LIFETIME_USAGE_SOURCES, PERIOD_USAGE_SOURCES } from './usage-sources';
-import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
+import { monthlyQuotaWindow } from './quota-window';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager, DataSource } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -12,22 +13,28 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
-import { SAAS_PLANS, minorUnitFactor, type PlanConfig } from './saas.config';
+import { SAAS_FEATURE_KEYS, SAAS_PLANS, minorUnitFactor, saasBaseCurrency, type PlanConfig, type SaasFeatureKey } from './saas.config';
 import type { BillingPeriod } from './enums/billing-period.enum';
 import {
   SaasLimitReachedException,
   SaasFeatureNotEnabledException,
   SaasNoPlanException,
 } from './exceptions/saas-exception';
-import { DateTime } from 'luxon';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UsageMetricRepository } from './repositories/usage-metric.repository';
 import { OrganizationSubscriptionHistory } from '../organizations/entities/organization-subscription-history.entity';
+import { actAsTenantWithin } from '../shared/tenancy/tenant-job';
+import type { PlanChange } from './plan-change';
 import { MetricsService } from '../metrics/metrics.service';
 import { SaasCacheKeyFactory } from './utils/saas-cache-key.factory';
-import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { knownMarket } from '../markets';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import type { ResourceQuota } from './contracts/entitlements.contract';
+
+/** One row of the usage report: a metered quota, or a capability the plan includes or not. */
+export type UsageRow =
+  | { resource: string; type: 'numeric'; used: number; limit: number; isUnlimited: boolean; period: QuotaPeriod }
+  | { resource: string; type: 'boolean'; isEnabled: boolean; used: null; limit: null };
 
 @Injectable()
 export class SaasService implements OnModuleInit {
@@ -42,7 +49,6 @@ export class SaasService implements OnModuleInit {
     @InjectRepository(PlanFeature) private featureRepository: Repository<PlanFeature>,
     @InjectRepository(Organization) private orgRepository: Repository<Organization>,
     @InjectRepository(UsageMetric) private usageRepository: Repository<UsageMetric>,
-    @InjectRepository(OrganizationSubscriptionHistory) private subscriptionHistoryRepository: Repository<OrganizationSubscriptionHistory>,
     private configService: ConfigService,
     private eventEmitter: EventEmitter2,
     private usageMetricRepository: UsageMetricRepository,
@@ -173,14 +179,14 @@ export class SaasService implements OnModuleInit {
             }
         }
 
-        const configFeatureKeys = pConfig.features.map(f => f.featureKey);
-        const featuresToRemove = existingFeatures.filter(f => !configFeatureKeys.includes(f.featureKey));
+        const configFeatureKeys = new Set<string>(pConfig.features.map((f) => f.featureKey));
+        const featuresToRemove = existingFeatures.filter((f) => !configFeatureKeys.has(f.featureKey));
         if (featuresToRemove.length > 0) {
             await this.featureRepository.remove(featuresToRemove);
         }
 
-        // No cache sweep is needed here: `checkFeature` keys its answer by the organization's
-        // cache generation, so `clearOrganizationCache` invalidates it for that tenant, and the
+        // No cache sweep is needed here: `features` keys its answer by the organization's cache
+        // generation, so `clearOrganizationCache` invalidates it for that tenant, and the
         // 60-second TTL bounds the window after a seed changes a plan globally.
     }
 
@@ -257,7 +263,7 @@ export class SaasService implements OnModuleInit {
 
   /** The platform's base currency: what a market with no local price is quoted and charged in. */
   static baseCurrency(): string {
-    return (process.env['SAAS_BASE_CURRENCY'] || 'USD').toUpperCase();
+    return saasBaseCurrency();
   }
 
   /** The configured amount for a plan in a currency, in that currency's minor units. */
@@ -281,10 +287,10 @@ export class SaasService implements OnModuleInit {
   static currencyForCountry(countryCode?: string): string {
     const base = SaasService.baseCurrency();
     if (!countryCode) return base;
-    const profile = findCountryProfile(countryCode);
-    if (!profile) return base;
+    const market = knownMarket(countryCode);
+    if (!market) return base;
 
-    const local = profile.currency.toUpperCase();
+    const local = market.profile.currency.toUpperCase();
     if (local === base) return base;
 
     const pricedEverywhere = SAAS_PLANS.every(
@@ -297,40 +303,61 @@ export class SaasService implements OnModuleInit {
     return this.planRepository.findOne({ where: { slug }, relations: ['limits', 'features'] });
   }
 
-  async changePlan(organizationId: string, newPlanSlug: string, userId?: string, reason = 'upgrade'): Promise<void> {
-      await this.dataSource.transaction(async (manager) => {
-          const org = await manager.findOne(Organization, { where: { id: organizationId }, relations: ['plan'] });
-          if (!org) {
-              throw new Error('Organization not found');
-          }
+  /**
+   * The plan a payment-provider price bills, or `null` when it bills none of ours.
+   *
+   * What the customer is charged is the price on their subscription, so that — not the plan name a
+   * checkout carried in its metadata — is what decides the plan. One lookup, shared by the webhook,
+   * the browser's return and the plan change, so they cannot disagree about what a price buys.
+   */
+  async planForPrice(priceId: string | null | undefined): Promise<Plan | null> {
+    if (!priceId) return null;
+    return this.planRepository.findOne({
+      where: [{ monthlyPriceId: priceId }, { annualPriceId: priceId }],
+    });
+  }
 
-          const newPlan = await manager.findOne(Plan, { where: { slug: newPlanSlug } });
-          if (!newPlan) {
-              throw new Error('Plan not found');
-          }
+  /**
+   * The one way an organization's plan changes.
+   *
+   * Seven places assigned `organization.plan` — the paid signup, the development grant, a
+   * subsidiary's creation, the browser's return from checkout, two webhook handlers and the
+   * simulated provider — and none wrote `organization_subscription_history`; only a method nothing
+   * called did. So the table that answers «what was this customer on, and since when» was empty in
+   * every environment, while plans kept changing.
+   *
+   * Runs in the CALLER's transaction, so the plan and its history row commit together with whatever
+   * moved them: the subscription fields, the webhook's idempotency record. The history row is
+   * written as the organization it belongs to — the table is isolated per tenant, and a webhook has
+   * no tenant, so the insert was refused by the row-level policy. Invalidating the cache is the
+   * caller's job, AFTER the commit: done inside the transaction, a concurrent read caches the old
+   * plan again before the new one is visible.
+   *
+   * @returns whether the plan changed. Assigning the plan an organization already has writes
+   *   nothing, so the browser's return and the webhook can both apply the same checkout.
+   */
+  async applyPlan(manager: EntityManager, organization: Organization, plan: Plan, change: PlanChange): Promise<boolean> {
+    const previousPlanId = organization.planId ?? null;
+    organization.plan = plan;
+    if (previousPlanId === plan.id) return false;
 
-          if (org.plan && org.plan.id === newPlan.id) {
-              return;
-          }
+    organization.planId = plan.id;
+    await manager.update(Organization, { id: organization.id }, { planId: plan.id });
+    await actAsTenantWithin(manager, organization.id, () =>
+      manager.insert(OrganizationSubscriptionHistory, {
+        organizationId: organization.id,
+        previousPlanId,
+        newPlanId: plan.id,
+        reason: change.reason,
+        changedBy: change.changedBy ?? null,
+      }),
+    );
 
-          const previousPlan = org.plan;
-
-          org.plan = newPlan;
-          await manager.save(org);
-
-          const history = this.subscriptionHistoryRepository.create({
-              organizationId: org.id,
-              previousPlanId: previousPlan?.id,
-              newPlanId: newPlan.id,
-              changedBy: userId,
-              reason: reason
-          });
-
-          await manager.save(history);
-          await this.clearOrganizationCache(organizationId);
-
-          this.logger.log(`Organization ${organizationId} changed plan from ${previousPlan?.slug ?? 'none'} to ${newPlan.slug}`);
-      });
+    this.logger.log(
+      { event: 'plan_changed', organizationId: organization.id, previousPlanId, newPlanId: plan.id, reason: change.reason },
+      `Organization ${organization.id} moved to plan ${plan.slug} (${change.reason}).`,
+    );
+    return true;
   }
 
   /**
@@ -374,23 +401,10 @@ export class SaasService implements OnModuleInit {
       }
 
       if (periodType === QuotaPeriod.MONTHLY) {
-          const effectiveEndDate = (org.gracePeriodEnd && org.gracePeriodEnd > (org.subscriptionPeriodEnd || new Date(0)))
-              ? org.gracePeriodEnd
-              : org.subscriptionPeriodEnd;
-
-          if (effectiveEndDate && effectiveEndDate > new Date()) {
-               return DateTime.fromJSDate(org.subscriptionPeriodEnd || effectiveEndDate).toUTC().toFormat('yyyy-MM-dd');
-          } else {
-               return DateTime.fromJSDate(targetDate).toUTC().toFormat('yyyy-MM');
-          }
+          return monthlyQuotaWindow(org.subscriptionPeriodEnd, this.effectiveEnd(org), targetDate).key;
       }
 
       return 'unknown_period';
-  }
-
-  async setUsageRedis(organizationId: string, resource: SaasResource, periodKey: string, value: number): Promise<void> {
-      const cacheKey = SaasCacheKeyFactory.usageCounter(organizationId, resource, periodKey);
-      await this.cacheManager.set(cacheKey, value, 24 * 3600 * 1000);
   }
 
   /**
@@ -448,6 +462,11 @@ export class SaasService implements OnModuleInit {
        return;
     }
 
+    if (limitDef.period === QuotaPeriod.LIFETIME) {
+      await this.enforceLifetimeLimit(manager, organizationId, resource, limitDef, increment);
+      return;
+    }
+
     const periodKey = this.getPeriodKey(limitDef.period, org);
     const allowOverage = limitDef.allowOverage;
     const isUnlimited = limitDef.isUnlimited || limitDef.limit === -1;
@@ -471,8 +490,7 @@ export class SaasService implements OnModuleInit {
     // Invalidate, never write, from inside the caller's transaction. The issue preview runs this in
     // a transaction it always rolls back, and a decision written here outlived it: with the count
     // misread, a preview cached «limit reached» and refused the real issue that followed. A miss is
-    // always right — the guard re-reads the committed count. (The Redis usage counter is not
-    // written here for the same reason; nothing reads it, and the reconciliation job keeps it.)
+    // always right — the guard re-reads the committed count.
     if (!result.limitReached) {
         try {
             await this.cacheManager.del(cacheKey);
@@ -490,7 +508,7 @@ export class SaasService implements OnModuleInit {
     if (result.limitReached) {
         // Ensure cache is blocked
         await this.cacheManager.set(cacheKey, false, 5 * 60 * 1000);
-        this.metricsService.limitHitCounter.labels(organizationId, resource).inc();
+        this.metricsService.limitHitCounter.labels(resource).inc();
         this.emitLimitReachedEvent(organizationId, resource, result.count, limitDef.limit);
         throw new SaasLimitReachedException(resource);
     } else {
@@ -501,97 +519,107 @@ export class SaasService implements OnModuleInit {
   }
 
   /**
-   * Whether a plan grants a capability. Fails CLOSED, like `enforceLimit`.
-   *
-   * Keyed by the organization's cache generation so a plan change through `changePlan` — which
-   * calls `clearOrganizationCache` — takes effect immediately rather than at TTL expiry. Keyed
-   * without it, an upgrade left the customer refused for up to a minute after paying.
+   * Whether a plan grants a capability. Fails CLOSED, like `enforceLimit`: no plan, or no row for
+   * the feature, answers `false`.
    */
   async checkFeature(organizationId: string, featureKey: string): Promise<boolean> {
-     const versionKey = SaasCacheKeyFactory.limitVersion(organizationId);
-     const version = (await this.cacheManager.get<number>(versionKey)) || 0;
-     const cacheKey = `${SaasCacheKeyFactory.featureFlag(organizationId, featureKey)}:${version}`;
-     const cached = await this.cacheManager.get<boolean>(cacheKey);
-     if (cached !== undefined) return cached;
-
-     const org = await this.orgRepository.findOne({
-         where: { id: organizationId },
-         relations: ['plan', 'plan.features']
-     });
-
-     if (!org || !org.plan) return false;
-
-     const feature = org.plan.features.find(f => f.featureKey === featureKey);
-     const isEnabled = feature ? feature.isEnabled : false;
-
-     await this.cacheManager.set(cacheKey, isEnabled, 60 * 1000);
-     return isEnabled;
+    return (await this.features(organizationId)).includes(featureKey as SaasFeatureKey);
   }
 
   /**
-   * Release a unit of a metered resource, so the quota reflects what exists rather than what has
-   * ever been created.
+   * Every capability the organization's plan grants, in catalogue order — what the session tells
+   * the client it may offer, and what `checkFeature` answers from.
    *
-   * Only meaningful for `LIFETIME` quotas — a monthly counter is a volume of activity in a
-   * period, and deleting an invoice does not un-issue it. Calling it for a monthly resource is a
-   * no-op by design rather than an error, so callers do not have to know the period.
-   *
-   * Failures are logged and swallowed: refusing to delete a customer because a counter could not
-   * be decremented would be a worse outcome than a counter that reconciliation will correct.
+   * Keyed by the organization's cache generation, which every plan change bumps once it commits
+   * (`applyPlan`'s callers call `clearOrganizationCache`), so a new plan takes effect immediately
+   * rather than at TTL expiry. Keyed without it, an upgrade left the customer refused for up to a
+   * minute after paying. One entry per company rather than one per feature: the session needs all
+   * of them on every load.
    */
-  async releaseUsage(
+  async features(organizationId: string): Promise<SaasFeatureKey[]> {
+    const version = (await this.cacheManager.get<number>(SaasCacheKeyFactory.limitVersion(organizationId))) || 0;
+    const cacheKey = SaasCacheKeyFactory.planFeatures(organizationId, version);
+    const cached = await this.cacheManager.get<SaasFeatureKey[]>(cacheKey);
+    if (Array.isArray(cached)) return cached;
+
+    const org = await this.orgRepository.findOne({
+      where: { id: organizationId },
+      relations: ['plan', 'plan.features'],
+    });
+    const granted = new Set((org?.plan?.features ?? []).filter((feature) => feature.isEnabled).map((feature) => feature.featureKey));
+    const features = SAAS_FEATURE_KEYS.filter((key) => granted.has(key));
+
+    await this.cacheManager.set(cacheKey, features, 60 * 1000);
+    return features;
+  }
+
+  /**
+   * A lifetime quota — members, customers, suppliers, subsidiaries — is a count of what EXISTS, so
+   * it is decided by counting what exists.
+   *
+   * It was decided by a counter, which started at zero whatever the tenant already had: the owner
+   * every signup creates was never counted, and in the development database 6 of 7 organizations
+   * with members had no counter at all. So a Starter tenant with two seats could add two members on
+   * top of its owner, and stayed over its plan until the nightly job overwrote the counter — a job
+   * that, connected as the application's role and with no tenant in context, counted zero customers
+   * and zero suppliers under the row-level policies. A deletion then had to «release» a unit by
+   * hand, and every path that forgot to left the tenant permanently short.
+   *
+   * Counted in the caller's transaction, after a transaction-scoped advisory lock on the tenant and
+   * the resource: two concurrent creations queue on the lock, and the second counts the first's row
+   * once it has committed, so the last unit cannot be taken twice. Deleting a row gives the unit back
+   * by itself.
+   */
+  private async enforceLifetimeLimit(
     manager: EntityManager,
     organizationId: string,
     resource: SaasResource,
-    decrement = 1,
+    limitDef: PlanLimit,
+    increment: number,
   ): Promise<void> {
-    try {
-      const org = await manager.findOne(Organization, {
-        where: { id: organizationId },
-        relations: ['plan', 'plan.limits'],
-      });
-      const limitDef = org?.plan?.limits?.find((l) => l.resource === resource);
-      if (!limitDef || limitDef.period !== QuotaPeriod.LIFETIME) return;
+    if (limitDef.isUnlimited || limitDef.limit === -1) return;
+    if (!manager.queryRunner?.isTransactionActive) {
+      throw new Error(
+        'A lifetime quota is decided inside the transaction that creates the row: outside one, two creations could both take the last unit.',
+      );
+    }
 
-      const periodKey = this.getPeriodKey(limitDef.period, org as Organization);
-      const count = await this.usageMetricRepository.decrementUsage(
-        manager,
-        organizationId,
-        resource,
-        periodKey,
-        decrement,
-      );
-      await this.setUsageRedis(organizationId, resource, periodKey, count);
-    } catch (error) {
+    await manager.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [`saas-quota:${organizationId}:${resource}`]);
+    const existing = await this.countExisting(manager, organizationId, resource);
+    if (existing === null) {
+      // A lifetime quota with nothing to count cannot be decided; refusing is the safe answer.
       this.logger.error(
-        { event: 'usage_release_failed', organizationId, resource },
-        `Could not release quota: ${(error as Error).message}`,
+        { event: 'saas_lifetime_quota_without_source', organizationId, resource },
+        '[BILLING] A lifetime quota has no row source to count; refusing the metered operation.',
       );
+      throw new SaasNoPlanException(organizationId);
+    }
+
+    const after = existing + increment;
+    if (after > limitDef.limit) {
+      this.emitLimitReachedEvent(organizationId, resource, existing, limitDef.limit);
+      if (!limitDef.allowOverage) {
+        this.metricsService.limitHitCounter.labels(resource).inc();
+        throw new SaasLimitReachedException(resource);
+      }
+      return;
+    }
+    const percentage = after / limitDef.limit;
+    if (percentage >= 0.8) {
+      this.emitLimitWarningEvent(organizationId, resource, after, limitDef.limit, percentage);
     }
   }
 
-  /**
-   * Recount a lifetime quota from the rows that actually exist and write that number back.
-   *
-   * The nightly job only ever reconciled Redis against the database, which corrected the cache
-   * and never the counter. Anything that created or removed a record outside the metered path —
-   * a rolled-back transaction, a restored backup, a bulk import — left the quota permanently
-   * wrong in a direction the customer cannot fix.
-   */
-  async recountLifetimeUsage(
-    manager: EntityManager,
+  /** How many of a lifetime resource exist, counted on `runner`; `null` when there is no source. */
+  private async countExisting(
+    runner: Pick<EntityManager, 'query'> | DataSource,
     organizationId: string,
-    resource: SaasResource,
-    actual: number,
-  ): Promise<void> {
-    await this.usageMetricRepository.setUsage(
-      manager,
-      organizationId,
-      resource,
-      QuotaPeriod.LIFETIME,
-      actual,
-    );
-    await this.setUsageRedis(organizationId, resource, QuotaPeriod.LIFETIME, actual);
+    resource: string,
+  ): Promise<number | null> {
+    const source = LIFETIME_USAGE_SOURCES.find((candidate) => candidate.resource === resource);
+    if (!source) return null;
+    const rows: Array<{ n: number | string }> = await runner.query(source.sql, [organizationId]);
+    return Number(rows?.[0]?.n ?? 0);
   }
 
   /**
@@ -608,8 +636,7 @@ export class SaasService implements OnModuleInit {
     const windowed = PERIOD_USAGE_SOURCES.find((source) => source.resource === resource);
     try {
       if (period === QuotaPeriod.LIFETIME && lifetime) {
-        const rows = await this.dataSource.query(lifetime.sql, [organizationId]);
-        return Number(rows?.[0]?.n ?? 0);
+        return this.countExisting(this.dataSource, organizationId, resource);
       }
       if (period === QuotaPeriod.MONTHLY && windowed) {
         const { from, to } = this.quotaWindow(org);
@@ -627,16 +654,19 @@ export class SaasService implements OnModuleInit {
    * when there is a live one, the calendar month otherwise.
    */
   private quotaWindow(org: Organization, now = new Date()): { from: Date; to: Date } {
-    const key = this.getPeriodKey(QuotaPeriod.MONTHLY, org, now);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(key) && org.subscriptionPeriodStart && org.subscriptionPeriodEnd) {
-      return { from: new Date(org.subscriptionPeriodStart), to: new Date(org.subscriptionPeriodEnd) };
-    }
-    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    const { from, to } = monthlyQuotaWindow(org.subscriptionPeriodEnd, this.effectiveEnd(org), now);
     return { from, to };
   }
 
-  async getUsage(organizationId: string) {
+  /** The later of the subscription period end and the grace period end: until then it is live. */
+  private effectiveEnd(org: Organization): Date | null {
+    const periodEnd = org.subscriptionPeriodEnd ?? null;
+    const grace = org.gracePeriodEnd ?? null;
+    if (grace && (!periodEnd || grace > periodEnd)) return grace;
+    return periodEnd;
+  }
+
+  async getUsage(organizationId: string): Promise<UsageRow[]> {
     const org = await this.orgRepository.findOne({
         where: { id: organizationId },
         relations: ['plan', 'plan.limits']
@@ -656,7 +686,7 @@ export class SaasService implements OnModuleInit {
     const metricMap = new Map<string, UsageMetric>();
     metrics.forEach(m => metricMap.set(`${m.resource}:${m.period}`, m));
 
-    const usageData = [];
+    const usageData: UsageRow[] = [];
 
     for (const limit of org.plan.limits) {
         if (limit.valueType === LimitType.BOOLEAN) {
@@ -679,10 +709,14 @@ export class SaasService implements OnModuleInit {
 
         const metric = metricMap.get(`${limit.resource}:${periodKey}`);
         const counted = await this.countedUsage(organizationId, org, limit.resource, limit.period);
-        // The counter is what enforcement reads; the count is what exists. Shown as the larger of
-        // the two, so the screen neither under-reports activity the counter missed nor hides a
-        // counter that is ahead of the rows (QA M-10: «0/∞» with real data).
-        const used = Math.max(metric ? metric.count : 0, counted ?? 0);
+        // A lifetime quota is what exists, exactly what enforcement counts. A monthly quota is
+        // enforced on its counter; it is shown as the larger of the counter and the period's rows,
+        // so the screen neither under-reports activity the counter missed nor hides a counter that
+        // is ahead of the rows (QA M-10: «0/∞» with real data).
+        const used =
+          limit.period === QuotaPeriod.LIFETIME
+            ? counted ?? 0
+            : Math.max(metric ? metric.count : 0, counted ?? 0);
 
         usageData.push({
             resource: limit.resource,
@@ -752,8 +786,15 @@ export class SaasService implements OnModuleInit {
         return limitDef.isEnabled;
     }
 
-    if (limitDef.limit === -1) return true;
+    if (limitDef.limit === -1 || limitDef.isUnlimited) return true;
     if (limitDef.allowOverage) return true;
+
+    if (limitDef.period === QuotaPeriod.LIFETIME) {
+        // What exists, counted the way enforcement counts it — and not cached: a deletion frees the
+        // unit at once, and a cached «no» would keep refusing it.
+        const existing = await this.countExisting(this.dataSource, organizationId, resource);
+        return existing !== null && existing + increment <= limitDef.limit;
+    }
 
     const period = this.getPeriodKey(limitDef.period, org);
 

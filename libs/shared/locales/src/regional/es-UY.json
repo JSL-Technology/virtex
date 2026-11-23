@@ -1,0 +1,9 @@
+{
+  "$locale": "es-UY",
+  "$note": "Uruguay. Solo las claves cuya redacción difiere del español neutro de América Latina; todo lo demás cae a base/. El nombre de un impuesto no está aquí: lo declara el paquete del mercado (markets/uy/taxes.ts, principalTaxName) y llega a la pantalla y al PDF desde ahí, así que no puede discrepar. Vocabulario a confirmar con un hablante del país.",
+  "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+  "hcm.employees.form.social_security_number": "Número BPS",
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo (sueldo anual complementario)",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dgi cfe certificado",
+  "settings.sections_meta.profile.keywords": "empresa rut razón social dirección"
+}

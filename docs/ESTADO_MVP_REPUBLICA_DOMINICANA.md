@@ -1,6 +1,6 @@
 # Estado del proyecto vs. MVP para República Dominicana
 
-**Proyecto:** Virteex — ERP/POS SaaS multi-inquilino, multi-mercado
+**Proyecto:** Virtex — ERP/POS SaaS multi-inquilino, multi-mercado
 **Fecha del informe:** 2026-09-11
 **Rama analizada:** `feat/merge-enigma-improvements` (15 commits por delante de `main`)
 **Método:** lectura estática del código fuente + ejecución de la suite de pruebas fiscales de la DGII
@@ -300,7 +300,7 @@ lo cubre CI, pero conviene una corrida verde completa fijada como criterio de re
 
 ## 10. Conclusión
 
-Virteex **no es un prototipo**: es un ERP multi-inquilino con una implementación de facturación
+Virtex **no es un prototipo**: es un ERP multi-inquilino con una implementación de facturación
 electrónica dominicana más completa y más correcta que la de muchos productos ya en el mercado local,
 respaldada por multi-tenencia forzada en base de datos, autenticación endurecida y un pipeline de CI
 que ejerce el sistema real. Para declarar «MVP listo para República Dominicana» faltan **tres cosas

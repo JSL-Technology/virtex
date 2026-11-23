@@ -86,6 +86,8 @@ describe('Warehouses', () => {
     const created = http.expectOne((r) => r.url === API && r.method === 'POST');
     expect(created.request.body).toEqual({
       name: 'Depósito Este',
+      // How it reads in other languages: none given here.
+      nameTranslations: {},
       code: undefined,
       city: 'La Romana',
     });

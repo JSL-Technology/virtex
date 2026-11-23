@@ -20,9 +20,13 @@ describe('SandboxService', () => {
   const validSbom = { bomFormat: 'CycloneDX', specVersion: '1.4', components: [] };
 
   beforeAll(() => {
-    process.env.ALLOW_EPHEMERAL_PLUGIN_KEYS = 'true';
-    keys = new SigningKeyProvider();
-    admission = new PluginAdmissionService(keys);
+    // The validated configuration, as the schema would hand it over: ephemeral signing keys are
+    // a development-only switch and `ConfigService` is where a service reads one.
+    const config = {
+      get: (name: string) => ({ ALLOW_EPHEMERAL_PLUGIN_KEYS: true, PLUGIN_DAST_MODE: 'best-effort' })[name],
+    } as never;
+    keys = new SigningKeyProvider(config);
+    admission = new PluginAdmissionService(keys, config);
     sandbox = new SandboxService(keys);
   });
 
@@ -64,6 +68,52 @@ describe('SandboxService', () => {
     const result = await sandbox.run(code, validation.signature, 1000, []);
     expect(result.success).toBe(false);
     expect(result.logs.join(' ') + (result.error ?? '')).toContain('egress:http');
+  });
+
+  /**
+   * The syscall boundary does not trust the payload's shape.
+   *
+   * `fetch` inside the isolate is a shim that sends `{ url }`, but the shim is not the boundary:
+   * `__syscall` itself is on the isolate's global object, so an extension can call it with any
+   * payload it likes. It was typed `any` on the host side and `payload.url` went to the network
+   * layer unchecked — an object, a number, a missing field. It is refused before anything is
+   * fetched, even with the egress capability granted.
+   */
+  it.each([
+    ['a number', '{ url: 42 }'],
+    ['an object', '{ url: { href: "https://api.taxjar.com/" } }'],
+    ['no url at all', '{ href: "https://api.taxjar.com/" }'],
+    ['not an object', '"https://api.taxjar.com/"'],
+  ])('refuses a fetch syscall whose payload is %s, before fetching anything', async (_label, payload) => {
+    const code = `const answer = JSON.parse(await __syscall('fetch', ${payload})); log(answer.ok + ' ' + answer.error);`;
+    const validation = await admission.validatePlugin({ name: 'test', code, sbom: validSbom });
+    const result = await sandbox.run(code, validation.signature, 1000, ['egress:http']);
+    expect(result.logs.join(' ')).toContain('false Invalid http.fetch payload');
+  });
+
+  /**
+   * A plugin's log is complete and in order.
+   *
+   * `log` was an asynchronous syscall nobody awaited, so the lines a plugin wrote just before it
+   * returned were still in flight when `run` handed back the log and disposed of the isolate: the
+   * end of the log — usually what the plugin did — was kept or lost depending on load.
+   */
+  it('keeps every line a plugin logs right before it returns, in order', async () => {
+    const code = `for (let i = 0; i < 50; i++) log('line ' + i);`;
+    const validation = await admission.validatePlugin({ name: 'test', code, sbom: validSbom });
+    const result = await sandbox.run(code, validation.signature, 1000, []);
+    expect(result.success).toBe(true);
+    expect(result.logs).toEqual(Array.from({ length: 50 }, (_, i) => `line ${i}`));
+  });
+
+  it('bounds the log: a hundred lines, each of at most two thousand characters', async () => {
+    const code = `log('x'.repeat(5000)); for (let i = 0; i < 200; i++) log('line ' + i);`;
+    const validation = await admission.validatePlugin({ name: 'test', code, sbom: validSbom });
+    const result = await sandbox.run(code, validation.signature, 1000, []);
+    expect(result.logs).toHaveLength(100);
+    expect(result.logs[0]).toHaveLength(2_001);
+    expect(result.logs[0].endsWith('…')).toBe(true);
+    expect(result.logs[99]).toBe('line 98');
   });
 
   it('runs a valid WebAssembly module', async () => {

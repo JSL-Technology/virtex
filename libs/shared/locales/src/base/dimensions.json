@@ -144,6 +144,11 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "dimensions.page.label_in": {
+    "es": "Etiqueta ({{language}})",
+    "en": "Label ({{language}})",
+    "pt": "Rótulo ({{language}})"
+  },
   "dimensions.page.load_failed": {
     "es": "No se pudieron cargar las dimensiones.",
     "en": "Dimensions could not be loaded.",

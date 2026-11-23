@@ -67,7 +67,8 @@ export type CollectionReason =
   | 'recently_contacted'
   | 'due_soon';
 
-const RECENT_CONTACT_DAYS = 3;
+/** A contact this recent means wait: the worklist ranks it down, the reminder schedule holds off. */
+export const RECENT_CONTACT_DAYS = 3;
 
 /** p₃₀ from age alone, for when the projection has not run: the further past due, the lower. */
 export function ageLikelihood(daysOverdue: number): number {

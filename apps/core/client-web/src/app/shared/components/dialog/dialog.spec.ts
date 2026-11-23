@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { VxDialogComponent, VxDialogDismissal } from './index';
 
 @Component({

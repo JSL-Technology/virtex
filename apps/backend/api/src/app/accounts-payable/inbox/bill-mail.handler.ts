@@ -87,7 +87,7 @@ export class BillMailHandler implements InboundMailHandler, OnModuleInit {
       }
       try {
         const bill = await withTenant(this.dataSource, organizationId, () => this.bills.create(draftFrom(suggestion, purchaseOrder), organizationId, null));
-        records.push({ type: 'vendor_bill', id: bill.id, label: bill.ncf ?? suggestion.supplier.match!.name, link: `/accounts-payable/${bill.id}` });
+        records.push({ type: 'vendor_bill', id: bill.id, label: bill.supplierFiscalNumber ?? suggestion.supplier.match!.name, link: `/accounts-payable/${bill.id}` });
       } catch (error) {
         // The bill's own rules refused it (a closed period, a fiscal check): a person decides.
         this.logger.log(`Mailed bill left for review: ${(error as Error)?.message}`);
@@ -146,7 +146,9 @@ export function reviewReasons(suggestion: BillCaptureSuggestion): BillReviewReas
   if (suggestion.documentKind !== 'invoice') reasons.push('not_a_bill');
   if (!suggestion.supplier.match) reasons.push('unknown_supplier');
   if (suggestion.checks.duplicateBillId || suggestion.checks.sameFileBillId) reasons.push('possible_duplicate');
-  if (suggestion.checks.ncf.status === 'invalid' || suggestion.checks.ncf.status === 'missing') reasons.push('document_number');
+  if (suggestion.checks.supplierDocument.status === 'invalid' || suggestion.checks.supplierDocument.status === 'missing') {
+    reasons.push('document_number');
+  }
   if (suggestion.checks.arithmetic.length) reasons.push('arithmetic');
   if (!suggestion.lines.length || suggestion.lines.some((line) => !line.productId && !line.expenseAccountId)) reasons.push('unmatched_lines');
   if (!suggestion.bill.total || !suggestion.bill.date) reasons.push('no_total');
@@ -172,12 +174,13 @@ export function draftFrom(suggestion: BillCaptureSuggestion, order: OrderMatch |
     })),
     total: bill.total ?? undefined,
     ...(bill.currencyCode ? { currencyCode: bill.currencyCode } : {}),
-    ...(bill.ncf ? { ncf: bill.ncf } : {}),
-    ...(bill.ncfModified ? { ncfModified: bill.ncfModified } : {}),
+    ...(bill.supplierFiscalNumber ? { supplierFiscalNumber: bill.supplierFiscalNumber } : {}),
+    ...(bill.modifiedSupplierFiscalNumber ? { modifiedSupplierFiscalNumber: bill.modifiedSupplierFiscalNumber } : {}),
     ...(bill.taxAmount !== null ? { taxAmount: bill.taxAmount } : {}),
     ...(bill.serviceCharge !== null ? { serviceCharge: bill.serviceCharge } : {}),
-    ...(bill.purchaseCategory ? { purchaseCategory: bill.purchaseCategory } : {}),
-    ...(bill.paymentForm ? { paymentForm: bill.paymentForm } : {}),
+    // What the market asked about the purchase, as far as the document said it.
+    ...(Object.keys(bill.fiscalAttributes).length ? { fiscalAttributes: bill.fiscalAttributes } : {}),
+    ...(bill.paymentMethodCode ? { paymentMethodCode: bill.paymentMethodCode } : {}),
     attachmentIds: [suggestion.attachment.id],
   } as CreateVendorBillDto;
 }

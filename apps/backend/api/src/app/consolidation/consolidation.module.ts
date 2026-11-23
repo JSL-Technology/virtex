@@ -16,6 +16,7 @@ import { IntercompanyTransaction } from '../intercompany/entities/intercompany-t
 import { ConsolidationMappingController } from './consolidation-mapping.controller';
 import { ConsolidationMappingService } from './consolidation-mapping.service';
 import { Account } from '../chart-of-accounts/entities/account.entity';
+import { ConsolidationRun } from './entities/consolidation-run.entity';
 
 
 @Module({
@@ -32,7 +33,7 @@ import { Account } from '../chart-of-accounts/entities/account.entity';
 
       OrganizationSettings,
       IntercompanyTransaction,
-
+      ConsolidationRun,
     ]),
     FinancialReportingModule,
     CurrenciesModule,

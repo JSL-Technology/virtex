@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
+import type { SystemJournalCode } from './system-journals';
+import type { LedgerText, NarrativeInput, NarrativeRef } from './ledger-text';
 
 /**
  * Posting to the general ledger, for modules that must not depend on accounting's insides.
@@ -20,14 +22,25 @@ export interface LedgerPostingLine {
   debit: number;
   credit: number;
   description?: string;
+  /** The message `description` was written from, when the system wrote it (see `LedgerText`). */
+  narrative?: NarrativeRef;
+  /** Analytical tags, by dimension name. Validated like any entry's unless `tagsFromLedger`. */
+  dimensions?: Record<string, string>;
+  /**
+   * When the amount originated, if not on the entry's date (`YYYY-MM-DD`): what the restatement for
+   * inflation restates it from. A subledger that knows — the asset an amount belongs to — says so.
+   */
+  originDate?: string;
 }
 
 export interface LedgerPostingRequest {
-  /** The journal by its code (`VENTAS`, `GENERAL`); the gateway resolves it for the company. */
-  journalCode: string;
+  /** One of the journals every company has (`SYSTEM_JOURNALS`); the gateway resolves it for the company. */
+  journalCode: SystemJournalCode;
   /** The entry's date, `YYYY-MM-DD`, in the company's calendar. */
   date: string;
   description: string;
+  /** The message `description` was written from, when the system wrote it (see `LedgerText`). */
+  narrative?: NarrativeRef;
   currencyCode?: string;
   exchangeRate?: number;
   lines: LedgerPostingLine[];
@@ -40,10 +53,17 @@ export interface LedgerPostingContext {
   /** The same key posts once, however many times the caller retries. */
   idempotencyKey?: string;
   module?: LedgerPostingModule;
+  /**
+   * The lines' dimension tags were copied from entries already in the ledger — an account merge
+   * reclassifying a balance carries the tags that balance was posted under. They are then carried
+   * as they are: not re-validated against today's catalogue, and not checked against mandatory
+   * rules, which a tag that came out of the ledger satisfies by construction.
+   */
+  tagsFromLedger?: boolean;
 }
 
 /** Words in the books' language, from catalogue keys. */
-export type LedgerWords<K extends string> = Record<K, { key: string; params?: Record<string, unknown> }>;
+export type LedgerWords<K extends string> = Record<K, { key: string; params?: Record<string, NarrativeInput> }>;
 
 export interface LedgerPostingGateway {
   /** Post one balanced entry on the caller's transaction. */
@@ -61,8 +81,8 @@ export interface LedgerPostingGateway {
     reversal: { date: string; reason: string },
     context: LedgerPostingContext,
   ): Promise<void>;
-  /** Render catalogue keys in the company's books language. */
-  describeAll<K extends string>(manager: EntityManager, organizationId: string, words: LedgerWords<K>): Promise<Record<K, string>>;
+  /** Render catalogue keys in the company's books language, each with the message it came from. */
+  describeAll<K extends string>(manager: EntityManager, organizationId: string, words: LedgerWords<K>): Promise<Record<K, LedgerText>>;
 }
 
 @Injectable()
@@ -85,7 +105,7 @@ export class LedgerPostingRegistry implements LedgerPostingGateway {
     return this.require().reverse(...args);
   }
 
-  describeAll<K extends string>(manager: EntityManager, organizationId: string, words: LedgerWords<K>): Promise<Record<K, string>> {
+  describeAll<K extends string>(manager: EntityManager, organizationId: string, words: LedgerWords<K>): Promise<Record<K, LedgerText>> {
     return this.require().describeAll(manager, organizationId, words);
   }
 

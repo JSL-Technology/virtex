@@ -28,7 +28,7 @@
   @if (editing(); as current) {
     <form listCreate class="pm-editor card" [formGroup]="form" (ngSubmit)="save()">
       <h2 class="pm-editor__title">
-        {{ (current === 'new' ? 'masters.payment_methods.new_method' : 'masters.payment_methods.edit_method') | translate }}
+        {{ (current === 'new' ? 'masters.payment_methods.new_method' : translating() ? 'masters.payment_methods.translate_method' : 'masters.payment_methods.edit_method') | translate }}
       </h2>
       <div class="pm-editor__grid">
         <label class="pm-field">
@@ -63,6 +63,7 @@
           </small>
         </label>
       </div>
+      <vx-name-translations formControlName="nameTranslations" idPrefix="payment-method-name" />
       @if (form.touched && form.invalid) {
         <p class="field-error" role="alert">{{ 'masters.payment_methods.form_invalid' | translate }}</p>
       }
@@ -82,16 +83,14 @@
           <th appSortHeader="kind">{{ 'masters.payment_methods.kind' | translate }}</th>
           <th appSortHeader="fiscalCode">{{ 'masters.payment_methods.fiscal_code' | translate }}</th>
           <th appSortHeader="isActive">{{ 'masters.payment_methods.status' | translate }}</th>
-          @if (editable()) {
-            <th class="text-right">{{ 'common.actions' | translate }}</th>
-          }
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (method of table.rows(); track method.id) {
           <tr [class.is-retired]="!method.isActive">
             <td><code>{{ method.code }}</code></td>
-            <td>{{ method.name }}</td>
+            <td>{{ method.name | vxName: method.nameTranslations }}</td>
             <td>{{ kindLabel(method.kind) | translate }}</td>
             <td>{{ method.fiscalCode || '—' }}</td>
             <td>
@@ -99,20 +98,23 @@
                 {{ (method.isActive ? 'masters.payment_methods.active' : 'masters.payment_methods.retired_badge') | translate }}
               </vx-badge>
             </td>
-            @if (editable()) {
-              <td class="text-right">
-                @if (!method.isSystem) {
-                  <span class="row-actions" *appHasPermission="'treasury:manage_accounts'">
-                    <button type="button" class="secondary-button" [disabled]="busy()" (click)="startEdit(method)">
-                      {{ 'masters.payment_methods.edit' | translate }}
-                    </button>
-                    <button type="button" class="secondary-button" [disabled]="busy()" (click)="toggleActive(method)">
-                      {{ (method.isActive ? 'masters.payment_methods.retire' : 'masters.payment_methods.reinstate') | translate }}
-                    </button>
-                  </span>
+            <td class="text-right">
+              <span class="row-actions" *appHasPermission="'treasury:manage_accounts'">
+                @if (editable() && !method.isSystem) {
+                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="startEdit(method)">
+                    {{ 'masters.payment_methods.edit' | translate }}
+                  </button>
+                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="toggleActive(method)">
+                    {{ (method.isActive ? 'masters.payment_methods.retire' : 'masters.payment_methods.reinstate') | translate }}
+                  </button>
+                } @else {
+                  <!-- Fixed by the authority, or a market whose catalogue is not edited: only how it reads. -->
+                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="startTranslate(method)">
+                    {{ 'masters.payment_methods.translate' | translate }}
+                  </button>
                 }
-              </td>
-            }
+              </span>
+            </td>
           </tr>
         }
       </tbody>

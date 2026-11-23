@@ -54,12 +54,8 @@
                       </tr>
                     }
                     <tr>
-                      <td>{{ 'payroll.payslip.afp' | translate }}</td>
-                      <td class="numeric">−{{ payslip.afpEmployee | vxMoney: payslip.period?.currencyCode }}</td>
-                    </tr>
-                    <tr>
-                      <td>{{ 'payroll.payslip.sfs' | translate }}</td>
-                      <td class="numeric">−{{ payslip.sfsEmployee | vxMoney: payslip.period?.currencyCode }}</td>
+                      <td>{{ 'payroll.payslip.employee_contributions' | translate }}</td>
+                      <td class="numeric">−{{ payslip.statutoryEmployeeContributions | vxMoney: payslip.period?.currencyCode }}</td>
                     </tr>
                     <tr>
                       <td>{{ 'payroll.payslip.isr' | translate }}</td>

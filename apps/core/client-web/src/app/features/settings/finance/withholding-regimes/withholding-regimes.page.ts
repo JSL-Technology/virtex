@@ -18,9 +18,9 @@ import {
   WithholdingRegime,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * The withholding regimes the tenant maintains, and what the product covers in their market.

@@ -11,7 +11,7 @@ import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { SafeDeleteService } from '../../../core/services/safe-delete.service';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';

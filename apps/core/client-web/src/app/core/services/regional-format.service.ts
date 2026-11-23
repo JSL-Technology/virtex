@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
-import { RegionalFormat, normaliseRegionalFormat } from '@virteex/shared/types';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
+import { RegionalFormat, normaliseRegionalFormat } from '@virtex/shared/types';
 import { environment } from '../../../environments/environment';
 import { UsersService } from '../../features/settings/data/users.service';
 

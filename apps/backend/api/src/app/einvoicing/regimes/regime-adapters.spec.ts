@@ -6,10 +6,12 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 import { Invoice, InvoiceType } from '../../invoices/entities/invoice.entity';
 import { CertificateVaultService, LoadedCertificate } from '../services/certificate-vault.service';
-import { FiscalRangeService } from '../services/fiscal-range.service';
+import { FiscalRangeRegistration, FiscalRangeService } from '../services/fiscal-range.service';
+import { IssuedFiscalNumbersRegistry } from '../../contracts/fiscal-records/issued-fiscal-numbers.registry';
+import { InvoiceIssuedFiscalNumbers } from '../../invoices/issued-fiscal-numbers.source';
 import { FiscalRangeSecretKind } from '../entities/fiscal-document-range.entity';
 import { FiscalEnvironment, FiscalRegimeSettings } from '../entities/fiscal-regime-settings.entity';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../entities/signing-certificate.entity';
 import { XmlSignatureService } from './xml-signature.service';
 import { RegimeTransportService } from './regime-transport.service';
 import { DianRegimeAdapter } from './co/dian.adapter';
@@ -69,15 +71,18 @@ describeWithDb('the six regime adapters', () => {
 
     const config = {
       get: (key: string) =>
-        key === 'ECF_CERT_ENCRYPTION_KEY' ? 'clave-de-pruebas-suficientemente-larga' : undefined,
+        key === 'SIGNING_CERT_ENCRYPTION_KEY' ? 'clave-de-pruebas-suficientemente-larga' : undefined,
     } as unknown as ConfigService;
 
     vault = new CertificateVaultService(config);
     signatures = new XmlSignatureService();
     // No endpoint configured, deliberately: every regime must answer NOT_CONFIGURED rather than
     // inventing an authority's response.
-    transport = new RegimeTransportService(config);
-    ranges = new FiscalRangeService(vault);
+    // Nor a tenant configuration: the transmission target resolves to nothing.
+    transport = new RegimeTransportService(config, { resolve: async () => null } as never);
+    const issued = new IssuedFiscalNumbersRegistry();
+    new InvoiceIssuedFiscalNumbers(issued).onModuleInit();
+    ranges = new FiscalRangeService(vault, issued);
 
     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
     certificate = {
@@ -115,6 +120,10 @@ describeWithDb('the six regime adapters', () => {
     customerId = customer.id;
   });
 
+  /** A range the authority granted, registered as the settings screen registers one. */
+  const registerRange = (input: Omit<FiscalRangeRegistration, 'today'>) =>
+    dataSource.transaction((manager) => ranges.register(manager, { today: '2026-09-07', ...input }));
+
   const invoiceFor = (overrides: Partial<Invoice> = {}): Invoice =>
     ({
       id: '00000000-0000-0000-0000-000000000000',
@@ -150,6 +159,9 @@ describeWithDb('the six regime adapters', () => {
     invoice: invoiceFor(overrides),
     organizationId,
     manager: dataSource.manager,
+    // The first attempt: a regime that asks the authority whether it already holds the document
+    // only does so from the second one.
+    attempt: 1,
   });
 
   /**
@@ -178,15 +190,15 @@ describeWithDb('the six regime adapters', () => {
   /** Store the generated certificate for a regime, encrypted, exactly as the product stores one. */
   const storeCertificate = async (regime: string) => {
     const pfx = pkcs12Of(certificate);
-    await dataSource.getRepository(EcfCertificate).save(
-      dataSource.getRepository(EcfCertificate).create({
+    await dataSource.getRepository(SigningCertificate).save(
+      dataSource.getRepository(SigningCertificate).create({
         organizationId,
         regime,
         alias: `${regime} pruebas`,
         isActive: true,
         encryptedPfx: vault.encrypt(pfx),
         encryptedPassword: vault.encrypt('clave'),
-      } as unknown as EcfCertificate),
+      } as unknown as SigningCertificate),
     );
   };
 
@@ -210,7 +222,7 @@ describeWithDb('the six regime adapters', () => {
     const adapter = () => new DianRegimeAdapter(vault, signatures, transport, ranges);
 
     const withResolution = async () =>
-      ranges.register(dataSource.manager, {
+      registerRange({
         organizationId,
         countryCode: 'CO',
         documentType: '01',
@@ -220,14 +232,14 @@ describeWithDb('the six regime adapters', () => {
         authorizationCode: '18760000001',
         validUntil: '2027-12-31',
         secret: 'clave-tecnica-de-la-resolucion',
-        secretKind: FiscalRangeSecretKind.DIAN_TECHNICAL_KEY,
+        secretKind: FiscalRangeSecretKind.TECHNICAL_KEY,
       });
 
     it('builds a UBL invoice whose CUFE is computed with the resolution’s own technical key', async () => {
       await withResolution();
       await settingsFor({ countryCode: 'CO', resolutionNumber: '18760000001' });
 
-      const document = await adapter().build(contextFor({ fiscalNumber: 'SETP990000001' }));
+      const document = await adapter().build(contextFor({ fiscalNumber: 'SETP990000001', fiscalDocumentType: '01', fiscalSequence: 990_000_001, fiscalSeries: 'SETP' }));
 
       expect(document.contentType).toBe('application/xml');
       // SHA-384, 96 hex characters. A CUFE of any other length is not a CUFE.
@@ -239,14 +251,14 @@ describeWithDb('the six regime adapters', () => {
       await withResolution();
       await settingsFor({ countryCode: 'CO' });
 
-      const built = await adapter().build(contextFor({ fiscalNumber: 'SETP990000001' }));
+      const built = await adapter().build(contextFor({ fiscalNumber: 'SETP990000001', fiscalDocumentType: '01', fiscalSequence: 990_000_001, fiscalSeries: 'SETP' }));
       const sealed = adapter().seal(built, certificate);
 
       expect(verifies(sealed.payload)).toBe(true);
     });
 
     it('refuses to build when the resolution carries no technical key, instead of hashing nothing', async () => {
-      await ranges.register(dataSource.manager, {
+      await registerRange({
         organizationId,
         countryCode: 'CO',
         documentType: '01',
@@ -257,7 +269,7 @@ describeWithDb('the six regime adapters', () => {
 
       // A CUFE computed with an empty key is a well-formed hash the DIAN rejects, and the message
       // it returns says only that the CUFE is wrong.
-      await expect(adapter().build(contextFor({ fiscalNumber: 'SETP990000001' }))).rejects.toThrow(
+      await expect(adapter().build(contextFor({ fiscalNumber: 'SETP990000001', fiscalDocumentType: '01', fiscalSequence: 990_000_001, fiscalSeries: 'SETP' }))).rejects.toThrow(
         RegimeNotConfigured,
       );
     });
@@ -278,7 +290,7 @@ describeWithDb('the six regime adapters', () => {
     const adapter = () => new SunatRegimeAdapter(vault, signatures, transport, ranges);
 
     const withSeries = () =>
-      ranges.register(dataSource.manager, {
+      registerRange({
         organizationId,
         countryCode: 'PE',
         documentType: '01',
@@ -291,7 +303,7 @@ describeWithDb('the six regime adapters', () => {
       await withSeries();
 
       const built = await adapter().build(
-        contextFor({ fiscalNumber: 'F001-00000123', fiscalDocumentType: '01', currencyCode: 'PEN' }),
+        contextFor({ fiscalNumber: 'F001-00000123', fiscalDocumentType: '01', fiscalSequence: 123, fiscalSeries: 'F001', currencyCode: 'PEN' }),
       );
 
       // `RUC-Tipo-Serie-Correlativo`. SUNAT rejects a submission on this before reading it.
@@ -321,14 +333,15 @@ describeWithDb('the six regime adapters', () => {
         numericCode: '12345678',
       });
 
-      const built = await adapter().build(
-        contextFor({ fiscalNumber: '001-002-000000045', currencyCode: 'USD' }),
-      );
+      const context = contextFor({ fiscalNumber: '001-002-000000045', fiscalDocumentType: '01', fiscalSequence: 45, fiscalSeries: '001-002', currencyCode: 'USD' });
+      const built = await adapter().build(context);
 
       expect(built.documentKey).toHaveLength(49);
       expect(built.documentKey).toMatch(/^\d{49}$/);
 
-      const sealed = adapter().seal(built, certificate);
+      // The signature goes inside the comprobante's own root, which the context names: a factura
+      // here, a notaCredito on a note.
+      const sealed = adapter().seal(built, certificate, context);
       expect(verifies(sealed.payload)).toBe(true);
     });
 
@@ -342,7 +355,7 @@ describeWithDb('the six regime adapters', () => {
       });
 
       const built = await adapter().build(
-        contextFor({ fiscalNumber: '001-002-000000045', currencyCode: 'USD' }),
+        contextFor({ fiscalNumber: '001-002-000000045', fiscalDocumentType: '01', fiscalSequence: 45, fiscalSeries: '001-002', currencyCode: 'USD' }),
       );
 
       // Position 24 of the key (0-indexed 23) is the environment: `2` is producción in Ecuador
@@ -381,14 +394,14 @@ describeWithDb('the six regime adapters', () => {
 
     it('seals the timbre with the CAF key and the document with the certificate', async () => {
       const authorisation = caf();
-      await ranges.register(dataSource.manager, {
+      await registerRange({
         organizationId,
         countryCode: 'CL',
         documentType: '33',
         startsAt: 1,
         endsAt: 100,
         secret: authorisation.xml,
-        secretKind: FiscalRangeSecretKind.CAF_XML,
+        secretKind: FiscalRangeSecretKind.AUTHORISED_FOLIOS,
       });
       await settingsFor({
         countryCode: 'CL',
@@ -400,7 +413,7 @@ describeWithDb('the six regime adapters', () => {
       await buyerIs('770123456');
 
       const built = await adapter().build(
-        contextFor({ fiscalNumber: '7', currencyCode: 'CLP', tax: 19_000 }),
+        contextFor({ fiscalNumber: '7', fiscalDocumentType: '33', fiscalSequence: 7, fiscalSeries: '', currencyCode: 'CLP', tax: 19_000 }),
       );
       const sealed = adapter().seal(built, certificate);
 
@@ -426,7 +439,7 @@ describeWithDb('the six regime adapters', () => {
     });
 
     it('refuses a folio whose range carries no CAF, rather than issuing an unsealed timbre', async () => {
-      await ranges.register(dataSource.manager, {
+      await registerRange({
         organizationId,
         countryCode: 'CL',
         documentType: '33',
@@ -441,24 +454,24 @@ describeWithDb('the six regime adapters', () => {
       });
 
       await expect(
-        adapter().build(contextFor({ fiscalNumber: '7', currencyCode: 'CLP' })),
+        adapter().build(contextFor({ fiscalNumber: '7', fiscalDocumentType: '33', fiscalSequence: 7, fiscalSeries: '', currencyCode: 'CLP' })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
 
     it('refuses without the activity code the SII requires on every DTE', async () => {
       const authorisation = caf();
-      await ranges.register(dataSource.manager, {
+      await registerRange({
         organizationId,
         countryCode: 'CL',
         documentType: '33',
         startsAt: 1,
         endsAt: 100,
         secret: authorisation.xml,
-        secretKind: FiscalRangeSecretKind.CAF_XML,
+        secretKind: FiscalRangeSecretKind.AUTHORISED_FOLIOS,
       });
 
       await expect(
-        adapter().build(contextFor({ fiscalNumber: '7', currencyCode: 'CLP' })),
+        adapter().build(contextFor({ fiscalNumber: '7', fiscalDocumentType: '33', fiscalSequence: 7, fiscalSeries: '', currencyCode: 'CLP' })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
   });
@@ -467,7 +480,7 @@ describeWithDb('the six regime adapters', () => {
     const adapter = () => new NfeRegimeAdapter(vault, signatures, transport, ranges);
 
     const withSeries = () =>
-      ranges.register(dataSource.manager, {
+      registerRange({
         organizationId,
         countryCode: 'BR',
         documentType: '55',
@@ -490,6 +503,9 @@ describeWithDb('the six regime adapters', () => {
       const built = await adapter().build(
         contextFor({
           fiscalNumber: '7',
+          fiscalDocumentType: '55',
+          fiscalSequence: 7,
+          fiscalSeries: '1',
           currencyCode: 'BRL',
           // NCM classifies the good and CFOP the operation. The builder refuses to guess either,
           // which is right: an NCM decides the tax rate and a wrong one misstates the tax due.
@@ -519,7 +535,7 @@ describeWithDb('the six regime adapters', () => {
     it('refuses without the IBGE codes, which are part of the chave de acesso', async () => {
       await withSeries();
       await expect(
-        adapter().build(contextFor({ fiscalNumber: '7', currencyCode: 'BRL' })),
+        adapter().build(contextFor({ fiscalNumber: '7', fiscalDocumentType: '55', fiscalSequence: 7, fiscalSeries: '1', currencyCode: 'BRL' })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
   });
@@ -529,12 +545,14 @@ describeWithDb('the six regime adapters', () => {
 
     it('refuses to number the document when AFIP cannot be asked', async () => {
       await dataSource.getRepository(Organization).update(organizationId, {
-        fiscalProfile: { puntoVenta: '0001', condicionIva: 'RESPONSABLE_INSCRIPTO' },
+        // As the signup records it: AFIP's own code, `1` responsable inscripto.
+        fiscalProfile: { puntoVenta: '0001', condicionIva: '1' },
       });
 
       // The number is AFIP's to give. Guessing it produces a request AFIP refuses; guessing twice
       // produces a gap the taxpayer has to explain. So with no endpoint there is no document.
-      await expect(adapter().build(contextFor({ currencyCode: 'ARS' }))).rejects.toThrow(
+      // The class was decided at issuance (factura B, `6`); the number is AFIP's at transmission.
+      await expect(adapter().build(contextFor({ currencyCode: 'ARS', fiscalDocumentType: '6' }))).rejects.toThrow(
         RegimeNotConfigured,
       );
     });
@@ -585,7 +603,7 @@ describeWithDb('the six regime adapters', () => {
       for (const adapter of adapters) {
         const result = await adapter.transmit(document, contextFor());
         expect(result.status).toBe('NOT_CONFIGURED');
-        expect(result.messages.join(' ')).toContain('EINVOICE_');
+        expect(result.messages.join(' ')).toContain('no está configurada para la empresa');
       }
     });
 

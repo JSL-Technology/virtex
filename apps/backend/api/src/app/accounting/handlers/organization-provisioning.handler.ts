@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { TenantBookkeepingProvisioner } from '../provisioning/tenant-bookkeeping.provisioner';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { findCountryProfile } from '../../localization/fiscal/country-profiles';
+import { knownMarket } from '../../markets';
 
 /** Payload emitted by OrganizationsService when an organization is created. */
 export interface OrganizationCreatedEvent {
@@ -55,8 +55,7 @@ export class OrganizationProvisioningHandler {
         await this.dataSource.transaction(async (manager) => {
           const org = await manager.findOneBy(Organization, { id: event.organizationId });
           if (!org) return;
-          const profile = findCountryProfile(event.country);
-          const baseCurrency = profile?.currency ?? 'USD';
+          const baseCurrency = knownMarket(event.country)?.profile.currency ?? 'USD';
           await this.bookkeeping.provision(org, baseCurrency, manager);
         });
       });

@@ -7,6 +7,15 @@
       <h2 class="section-title">{{ 'settings.branding.language_preferences' | translate }}</h2>
       <app-language-selector />
       <small class="field-hint">{{ 'settings.branding.language_hint' | translate }}</small>
+      @if (locale.booksLanguageDiffers()) {
+        <div class="form-field">
+          <label class="switch-field" for="books-view">
+            <input id="books-view" type="checkbox" [checked]="locale.booksView()" (change)="locale.setBooksView(!locale.booksView())">
+            <span>{{ 'settings.branding.books_view' | translate: { language: booksLanguageName() } }}</span>
+          </label>
+          <small class="field-hint">{{ 'settings.branding.books_view_hint' | translate: { language: booksLanguageName() } }}</small>
+        </div>
+      }
     </div>
 
     <div class="form-section">

@@ -22,7 +22,14 @@
     "package": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "electron-builder --config apps/desktop/electron-builder.json"
+        "commands": [
+          "npm ci --prefix apps/desktop --ignore-scripts",
+          "electron-builder --config apps/desktop/electron-builder.config.cjs --publish never"
+        ],
+        "parallel": false
+      },
+      "metadata": {
+        "description": "Local, UNSIGNED packages for testing. Releases are built only by .github/workflows/desktop-release.yml."
       }
     },
     "lint": {
@@ -31,7 +38,13 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node --test apps/desktop/src/security-policy.test.js"
+        "command": "node --test apps/desktop/src/security-policy.test.js apps/desktop/src/release-verification.test.js apps/desktop/src/app-config.test.js apps/desktop/src/updater.test.js apps/desktop/src/logger.test.js apps/desktop/build-config.test.js apps/desktop/release-tooling.test.js"
+      }
+    },
+    "audit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/desktop/audit-gate.mjs"
       }
     }
   }

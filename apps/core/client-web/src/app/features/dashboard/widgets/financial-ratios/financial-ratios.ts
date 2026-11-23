@@ -5,7 +5,7 @@ import { LucideAngularModule, Info } from 'lucide-angular';
 
 import { catchError, combineLatest, map, of } from 'rxjs';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
-import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virtex/shared/ui-i18n';
 
 /** One ratio, ready to render: its label and tooltip keys, a formatted value and how it reads. */
 interface FinancialRatio {

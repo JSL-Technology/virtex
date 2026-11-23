@@ -33,7 +33,7 @@ import { BarcodeLookupService } from './product-vision/barcode-lookup.service';
 import { ForecastingService } from './forecasting/forecasting.service';
 import { AnomaliesService, AnomalyReader } from './anomalies/anomalies.service';
 import { loadBranchScope } from '../organizations/contracts/branch.contract';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { EngineRunsService } from './engine/engine-runs.service';
 import { AiGatewayService } from './gateway/ai-gateway.service';
 import { EmbeddingsService } from './embeddings/embeddings.service';

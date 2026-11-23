@@ -58,6 +58,47 @@ export interface CountryPackExamples {
   phone: string;
 }
 
+/**
+ * One coded answer an authority admits for a field it asks about.
+ *
+ * The code is the authority's own and is what gets filed. `labelKey` is a catalogue key where the
+ * label is an ordinary category the reader needs in their language; where it is absent the
+ * authority's own wording (`label`) is shown as it is, because that exact wording is what the
+ * filing is validated against.
+ */
+export interface CountryPackFiscalOption {
+  code: string;
+  label: string;
+  labelKey: string | null;
+}
+
+/**
+ * A field an authority asks about, for a form to draw itself from.
+ *
+ * These used to be columns of `vendor_bills` holding one authority's codes, and the screens that
+ * captured them held that authority's code tables in the client's own source. A market declares
+ * them (`MarketPurchases.fiscalAttributes`); the server validates the answers against the same
+ * declaration, so a market is added by declaring it and no screen is touched.
+ */
+export interface CountryPackFiscalField {
+  /** The key the answer is stored under. */
+  key: string;
+  label: string;
+  labelKey: string | null;
+  help: string | null;
+  helpKey: string | null;
+  required: boolean;
+  type: 'select' | 'text';
+  /** The authority admits several answers at once. */
+  multiple: boolean;
+  /** For `select`: the authority's own catalogue. Empty for `text`. */
+  options: CountryPackFiscalOption[];
+  /** For `text`: the shape the server accepts, anchored at both ends. */
+  pattern: string | null;
+  /** Placeholder, in the market's own shape. */
+  example: string | null;
+}
+
 export interface PublicCountryPack {
   /** ISO 3166-1 alpha-2, upper case. */
   countryCode: string;
@@ -78,8 +119,18 @@ export interface PublicCountryPack {
     supplierFiscalNumber: boolean;
     /** Catalogue key for the supplier document number's label on purchases. */
     supplierDocumentNumberKey: string;
+    /** A number of that shape, as the field's placeholder; null where the market publishes none. */
+    supplierDocumentExample: string | null;
     /** Purchases are classified for an authority report (DGII 606 «Tipo de bienes y servicios»). */
     purchaseClassification: boolean;
+  };
+
+  purchases: {
+    /**
+     * What the authority asks about a purchase beyond its figures and its document. Empty where it
+     * asks for nothing: the form then shows no such section at all.
+     */
+    fiscalAttributes: CountryPackFiscalField[];
   };
 
   /**
@@ -93,6 +144,16 @@ export interface PublicCountryPack {
     model: CountryTaxModel;
     /** Catalogue key of the tax's generic name in this market («Sales tax», «IVA»…). */
     nameKey: string;
+    /**
+     * What the market CALLS its principal consumption tax, as it prints on a document: `ITBIS`,
+     * `IGV`, `ISV`, `ITBMS`, `IVA`, `Sales Tax`. Verbatim and untranslated — it is the authority's
+     * word, not a label — and declared once, by the market (`markets/<cc>/taxes.ts`).
+     *
+     * The invoice's tax column took it from a regional wording patch, which meant a market without
+     * a patch read «Impuesto» and the two sources could disagree: Honduras levies the ISV and
+     * Panama the ITBMS, and neither had a patch, so both printed the neutral word.
+     */
+    principalName: string;
   };
 
   paymentMethods: {
@@ -107,6 +168,23 @@ export interface PublicCountryPack {
      * computes, or the company itself, for one whose rates it records as editable defaults.
      */
     statutoryParameters: 'PLATFORM' | 'COMPANY';
+  };
+
+  einvoicing: {
+    /** The regime's own name, as the authority calls it, or null where the market has none. */
+    regime: string | null;
+    /** The market's law mandates electronic invoicing. A fact about the country, not the product. */
+    required: boolean;
+    /**
+     * How the taxpayer authenticates: `CERTIFICATE` where the authority publishes its endpoints and
+     * authenticates with the signing certificate (nothing to configure), `ENDPOINT` where the
+     * company contracts one and configures it.
+     */
+    channel: 'CERTIFICATE' | 'ENDPOINT' | null;
+    /** What the regime asks of the company beyond the environment, by field name. */
+    settingsFields: string[];
+    /** What the authority issues with an authorised range, where it issues anything. */
+    rangeSecret: 'AUTHORISED_FOLIOS' | 'TECHNICAL_KEY' | null;
   };
 
   fiscalReturns: {

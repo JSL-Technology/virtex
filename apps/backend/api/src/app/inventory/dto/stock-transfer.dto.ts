@@ -24,7 +24,7 @@ export class StockTransferLineDto {
 }
 
 export class SaveStockTransferDto {
-  @IsDateString()
+  @IsDateString({ strict: true })
   date: string;
 
   @IsUUID()

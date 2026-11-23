@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { LucideAngularModule, PlusCircle, Trash2, Upload } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -18,6 +18,7 @@ import {
   ExchangeRateRow,
   ExchangeRateType,
   ExchangeRatesService,
+  OfficialRateSource,
   RateScope,
   ResolvedRate,
   parseRateTable,
@@ -94,6 +95,16 @@ export class ExchangeRatesPage implements OnInit {
   /** The company's functional currency: what a rate is usually quoted into. */
   readonly baseCurrency = computed(() => this.locale.currency());
 
+  /** Who publishes the official rate in the company's currency, and whether it arrives on its own (FINB-03). */
+  readonly officialSource = signal<OfficialRateSource | null>(null);
+  /** Which of the three things the company is told: it arrives on its own, not yet, or it is entered here. */
+  readonly officialSourceState = computed<'automatic' | 'not_active' | 'manual' | null>(() => {
+    const source = this.officialSource();
+    if (!source) return null;
+    if (!source.feed) return 'manual';
+    return source.feed.status === 'ACTIVE' ? 'automatic' : 'not_active';
+  });
+
   readonly form = this.fb.group({
     fromCurrency: ['USD', [Validators.required, Validators.pattern(/^[A-Za-z]{3}$/)]],
     toCurrency: ['', [Validators.required, Validators.pattern(/^[A-Za-z]{3}$/)]],
@@ -114,6 +125,11 @@ export class ExchangeRatesPage implements OnInit {
     const base = this.baseCurrency() ?? '';
     this.form.patchValue({ toCurrency: base });
     this.lookup.patchValue({ to: base });
+    this.rates.officialSources().subscribe({
+      next: (sources) => this.officialSource.set(sources.find((source) => source.quoteCurrency === base) ?? null),
+      // Where the official rate comes from is a help, not the page: without it the page works as before.
+      error: () => this.officialSource.set(null),
+    });
     this.currenciesApi.getCurrencies().subscribe({
       next: (list) => this.currencies.set([...(list ?? [])].sort((a, b) => a.code.localeCompare(b.code))),
       error: () => this.currencies.set([]),

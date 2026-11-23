@@ -1,10 +1,12 @@
 
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { PlanFeaturesInterceptor } from './plan-features.interceptor';
 import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GoogleRecaptchaModule, GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
+import { GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { AuthController } from './auth.controller';
 import { AuthRegistrationController } from './auth-registration.controller';
 import { AuthSocialController } from './auth-social.controller';
@@ -142,6 +144,8 @@ import { KeyManagementModule } from './services/key-management.module';
   providers: [
     AuthService,
     { provide: SessionSwitchPort, useExisting: AuthService },
+    // Every serialised user's company carries what its plan includes (IA-01, IA-02).
+    { provide: APP_INTERCEPTOR, useClass: PlanFeaturesInterceptor },
     AuthFacade,
     { provide: SessionInvalidatorPort, useExisting: SessionService },
     { provide: PasswordVerifierPort, useExisting: PasswordService },

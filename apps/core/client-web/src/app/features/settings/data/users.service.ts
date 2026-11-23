@@ -1,4 +1,4 @@
-import type { RegionalFormat } from '@virteex/shared/types';
+import type { RegionalFormat } from '@virtex/shared/types';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';

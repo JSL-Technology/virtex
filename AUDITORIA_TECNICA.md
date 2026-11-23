@@ -1,4 +1,4 @@
-# AUDITORÍA TÉCNICA EXHAUSTIVA — VIRTEEX ERP SAAS MONOREPO
+# AUDITORÍA TÉCNICA EXHAUSTIVA — VIRTEX ERP SAAS MONOREPO
 **Fecha:** 2026-05-28  
 **Plataforma:** NX Monorepo | NestJS (backend) + Angular (frontend)  
 **Objetivo:** Preparación para comercialización en Latinoamérica y Estados Unidos

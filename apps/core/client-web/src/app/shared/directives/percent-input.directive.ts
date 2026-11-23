@@ -1,6 +1,6 @@
 import { Directive, ElementRef, effect, forwardRef, inject, untracked } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { FormatService } from '@virtex/shared/ui-i18n';
 
 /**
  * A rate field people type as a percentage, held by the form as a fraction (QA M-05).

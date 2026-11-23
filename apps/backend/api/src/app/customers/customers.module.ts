@@ -28,6 +28,7 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
 
 import { CustomerStatementsController } from './customer-statement.controller';
 import { CustomerStatementService } from './customer-statement.service';
+import { CustomersSearchSource } from './customers-search.source';
 
 @Module({
   imports: [
@@ -57,7 +58,9 @@ import { CustomerStatementService } from './customer-statement.service';
     CustomerPaymentsController,
     CustomerGroupsController,
   ],
-  providers: [CustomersDuplicatesSource, CustomersCopilotTools, 
+  providers: [
+    // Makes this module searchable without the search knowing it (contracts/search).
+    CustomersSearchSource,CustomersDuplicatesSource, CustomersCopilotTools, 
     CustomerStatementService,
     CustomersService,
     CustomersDataTransferProvider,

@@ -14,6 +14,8 @@ export interface PurchaseOrderReceiptLine {
   unitCost: number;
   /** Whether stock moved: false for a service line or a line with no catalogue product. */
   stocked: boolean;
+  /** How much of it went back to the supplier (CMP-15). Absent on receipts with no return. */
+  returnedQuantity?: number;
 }
 
 export enum GoodsReceiptStatus {

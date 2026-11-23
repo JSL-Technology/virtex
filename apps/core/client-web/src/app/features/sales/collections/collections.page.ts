@@ -1,12 +1,13 @@
+import { AuthService } from '../../../core/services/auth';
 import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, PhoneCall, RefreshCw, Sparkles, X } from 'lucide-angular';
-import { FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { composeKey } from '@virteex/shared/types';
+import { FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { composeKey } from '@virtex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -49,6 +50,13 @@ export class CollectionsPage implements OnInit {
   private readonly api = inject(CollectionsApiService);
   private readonly notifications = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * Whether the assistant may write the note: collections is on every plan, the note is on the
+   * plans that include `ai_collections` (TES-13). Without it the button is not offered.
+   */
+  readonly canCompose = computed(() => this.auth.hasFeature('ai_collections'));
 
   protected readonly RefreshIcon = RefreshCw;
   protected readonly AiIcon = Sparkles;
@@ -132,7 +140,7 @@ export class CollectionsPage implements OnInit {
     if (switching) {
       this.tone.set(item.suggestedTone ?? 'formal');
       this.message.set('');
-      this.to.set(item.email ?? '');
+      this.to.set(item.addresses[0] ?? '');
       this.draftId.set(null);
       this.resetLog();
     }
@@ -145,7 +153,8 @@ export class CollectionsPage implements OnInit {
           this.draftId.set(draft.id);
           this.message.set(draft.message ?? '');
           if (draft.tone) this.tone.set(draft.tone);
-          if (draft.recipient) this.to.set(draft.recipient);
+          // Only an address still on the customer: a contact removed since is not offered.
+          if (draft.recipient && item.addresses.includes(draft.recipient)) this.to.set(draft.recipient);
         }
       },
       error: () => this.activities.set([]),

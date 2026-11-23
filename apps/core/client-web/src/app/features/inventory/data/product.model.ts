@@ -26,6 +26,8 @@ export interface Product {
   /** A fraction, not a percentage: 0.18, never 18. */
   taxRate?: number;
   exciseRate?: number;
+  /** A fixed tax of the catalogue charged per unit (FAC-TX-01). */
+  exciseTaxId?: string | null;
   fiscalItemCode?: string | null;
 
   /** The code on the packaging (EAN/UPC/GTIN), unique among the tenant's products. */

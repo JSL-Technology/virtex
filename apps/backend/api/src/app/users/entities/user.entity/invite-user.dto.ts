@@ -1,5 +1,5 @@
 import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
+import { LanguageCode, SUPPORTED_LANGUAGES } from '@virtex/shared/types';
 import { NormalizeEmail } from '../../../common/transformers/normalize-email.transformer';
 
 export class InviteUserDto {

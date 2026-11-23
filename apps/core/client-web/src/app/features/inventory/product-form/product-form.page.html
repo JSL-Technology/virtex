@@ -200,7 +200,7 @@
                 <select id="warehouseId" formControlName="warehouseId">
                   <option value="">{{ 'inventory.product_form.default_warehouse' | translate }}</option>
                   @for (warehouse of warehouses(); track warehouse.id) {
-                    <option [value]="warehouse.id">{{ warehouse.name }}</option>
+                    <option [value]="warehouse.id">{{ warehouse.name | vxName: warehouse.nameTranslations }}</option>
                   }
                 </select>
               </div>
@@ -268,6 +268,18 @@
                   }
                 }
               </select>
+            </div>
+          }
+          @if (fixedTaxes().length > 0 || productForm.get('exciseTaxId')?.value) {
+            <div class="form-field">
+              <label for="exciseTaxId">{{ 'inventory.product_form.fixed_tax' | translate }}</label>
+              <select id="exciseTaxId" formControlName="exciseTaxId" aria-describedby="exciseTaxId-help">
+                <option [ngValue]="null">{{ 'inventory.product_form.fixed_tax_none' | translate }}</option>
+                @for (tax of fixedTaxes(); track tax.id) {
+                  <option [ngValue]="tax.id">{{ tax.name | vxName: tax.nameTranslations }} · {{ tax.amount | vxNumber: '1.2-4' }}</option>
+                }
+              </select>
+              <small id="exciseTaxId-help" class="field-hint">{{ 'inventory.product_form.fixed_tax_help' | translate }}</small>
             </div>
           }
         </section>
