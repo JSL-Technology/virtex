@@ -55,6 +55,8 @@
   "common.dependents.customers_one": "cliente",
   "common.dependents.employees": "funcionários",
   "common.dependents.employees_one": "funcionário",
+  "common.dependents.fixed_asset": "ativos imobilizados",
+  "common.dependents.fixed_asset_one": "ativo imobilizado",
   "common.dependents.invoice_lines": "linhas de fatura",
   "common.dependents.invoice_lines_one": "linha de fatura",
   "common.dependents.invoices": "faturas",

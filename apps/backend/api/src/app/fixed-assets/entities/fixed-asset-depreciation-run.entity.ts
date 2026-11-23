@@ -38,7 +38,12 @@ export enum DepreciationRunTrigger {
   'CHK_fixed_asset_depreciation_runs_disposal_asset',
   `("trigger" = 'DISPOSAL') = ("fixed_asset_id" IS NOT NULL)`,
 )
-@Check('CHK_fixed_asset_depreciation_runs_totals', `"asset_count" > 0 AND "charge_count" >= "asset_count" AND "total" > 0`)
+// What a run charged: months of the accounting book (`total`, posted) or of the tax book
+// (`tax_total`, recorded) — a run whose assets owed only tax months still charged something.
+@Check(
+  'CHK_fixed_asset_depreciation_runs_totals',
+  `"asset_count" > 0 AND "charge_count" >= 0 AND "tax_charge_count" >= 0 AND "charge_count" + "tax_charge_count" >= "asset_count" AND "total" >= 0 AND "tax_total" >= 0 AND ("total" > 0 OR "tax_total" > 0)`,
+)
 export class FixedAssetDepreciationRun {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -77,6 +82,13 @@ export class FixedAssetDepreciationRun {
 
   @Column('decimal', { precision: 18, scale: 2, transformer: numericTransformerNotNull })
   total: number;
+
+  /** The tax book's months it charged, and their total: recorded, posted nowhere. */
+  @Column({ name: 'tax_charge_count', type: 'int', default: 0 })
+  taxChargeCount: number;
+
+  @Column('decimal', { name: 'tax_total', precision: 18, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  taxTotal: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

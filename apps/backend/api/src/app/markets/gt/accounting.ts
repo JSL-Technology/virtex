@@ -21,4 +21,6 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Tipo de cambio de referencia publicado por el Banco de Guatemala.',
     feed: null,
   },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

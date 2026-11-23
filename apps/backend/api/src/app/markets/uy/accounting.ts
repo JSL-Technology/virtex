@@ -21,4 +21,6 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Cotizaciones publicadas por el Banco Central del Uruguay.',
     feed: null,
   },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

@@ -222,6 +222,19 @@ export class I18nService {
     return translations;
   }
 
+  /**
+   * Catalogue entries joined into one phrase, in every language: the list a message names — the
+   * fields it refuses to change — reads in the reader's language, whichever language raised it
+   * (it is a `LocalizedName`, which messages render in their own language).
+   */
+  listOf(keys: readonly string[], separator = ', '): LocalizedName {
+    const phrase: LocalizedName = {};
+    for (const language of SUPPORTED_LANGUAGES) {
+      phrase[language] = keys.map((key) => this.translate(key, language)).join(separator);
+    }
+    return phrase;
+  }
+
   /** True when the key exists in any catalogue — used by the exception filter to tell a key from a sentence. */
   has(key: string): boolean {
     const canonical = this.canonical(key);

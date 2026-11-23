@@ -31,6 +31,7 @@ import { closingThrough, resolvePostingPeriod } from '../accounting/period-statu
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 import { narrated } from '../contracts/ledger-posting/ledger-text';
+import { PlannedBookCharges, TaxBookService } from './tax-book.service';
 
 /** Why an asset due a charge was left out of a run. */
 export type DepreciationSkipReason = 'missing_accounts';
@@ -54,6 +55,8 @@ export interface DepreciationRunResult {
   assets: Array<{ id: string; number: string; name: string; months: number; amount: number }>;
   /** Assets that were due a charge and could not be charged, with the reason. */
   skipped: Array<{ id: string; number: string; name: string; reason: DepreciationSkipReason }>;
+  /** What it charged in the tax books (FINB-16): recorded, posted nowhere. */
+  tax: { total: number; assets: Array<{ id: string; number: string; name: string; months: number; amount: number }> };
   /**
    * Whether the run can be posted: false for a month that has not ended yet in the company's
    * calendar (FINB-13), with the reason — the preview still shows what it would charge.
@@ -74,6 +77,9 @@ export interface DepreciationRunSummary {
   assetCount: number;
   chargeCount: number;
   total: number;
+  /** The tax book's months it charged, and their total. */
+  taxChargeCount: number;
+  taxTotal: number;
   createdAt: Date;
 }
 
@@ -90,6 +96,16 @@ export interface DepreciationRunDetail extends DepreciationRunSummary {
     journalEntryId: string;
   }>;
   entries: Array<{ id: string; entryNumber: string | null; date: IsoDate; total: number }>;
+  /** The tax book's months it charged. */
+  taxCharges: Array<{
+    fixedAssetId: string;
+    number: string;
+    name: string;
+    periodEnd: IsoDate;
+    amount: number;
+    accumulatedAfter: number;
+    bookValueAfter: number;
+  }>;
 }
 
 /** What set a run going, as its record says it. */
@@ -154,6 +170,8 @@ export class DepreciationService extends DepreciationPort {
     private readonly dataSource: DataSource,
     private readonly orgSettings: OrgSettingsService,
     private readonly journalLookup: JournalLookupService,
+    /** The assets' tax books, charged by the same runs (FINB-16). */
+    private readonly taxBooks: TaxBookService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
@@ -252,8 +270,9 @@ export class DepreciationService extends DepreciationPort {
       order: { number: 'ASC' },
     });
     const { planned, skipped } = await this.plan(manager, organizationId, assets, periodEnd);
+    const taxPlanned = await this.taxBooks.plan(manager, organizationId, assets, periodEnd);
     return {
-      ...summarise(periodEnd, null, null, planned, skipped),
+      ...summarise(periodEnd, null, null, planned, skipped, taxPlanned),
       ...postability(await this.notYetEnded(manager, organizationId, periodEnd)),
     };
   }
@@ -285,18 +304,23 @@ export class DepreciationService extends DepreciationPort {
     for (const skip of skipped) {
       this.logger.warn(`Activo ${skip.number} sin cuentas de depreciación en ${organizationId}; se omite.`);
     }
-    if (planned.length === 0) return summarise(periodEnd, null, null, [], skipped);
+    // The tax books too: an asset may owe tax months when its accounting book owes none.
+    const taxPlanned = await this.taxBooks.plan(em, organizationId, assets, periodEnd);
+    if (planned.length === 0 && taxPlanned.length === 0) return summarise(periodEnd, null, null, [], skipped, []);
 
-    const totals = summarise(periodEnd, null, null, planned, skipped);
+    const totals = summarise(periodEnd, null, null, planned, skipped, taxPlanned);
     const run = await this.openRun(em, organizationId, periodEnd, origin, {
-      assetCount: planned.length,
+      assetCount: new Set([...planned.map((item) => item.asset.id), ...taxPlanned.map((item) => item.asset.id)]).size,
       chargeCount: planned.reduce((count, item) => count + item.charges.length, 0),
       total: totals.total,
+      taxChargeCount: taxPlanned.reduce((count, item) => count + item.charges.length, 0),
+      taxTotal: totals.tax.total,
     });
-    const runEntryId = await this.post(em, organizationId, run, planned, periodEnd, origin);
+    const runEntryId = planned.length > 0 ? await this.post(em, organizationId, run, planned, periodEnd, origin) : null;
+    await this.taxBooks.record(em, run.id, taxPlanned);
 
     // The latest entry: the run's own month whenever anything was due in it.
-    const result = summarise(periodEnd, run.id, runEntryId, planned, skipped);
+    const result = summarise(periodEnd, run.id, runEntryId, planned, skipped, taxPlanned);
     this.logger.log(
       `Depreciación hasta ${toIsoMonth(periodEnd)} registrada en ${organizationId}: ${planned.length} activos, ${result.total}.`,
     );
@@ -334,21 +358,35 @@ export class DepreciationService extends DepreciationPort {
         : asset,
       disposalDate,
     );
-    if (skipped.length === 0 && catchUp.length === 0 && !stub) return { runId: null, stub: null };
-    const accounts = await this.accountsFor(manager, organizationId, asset);
-    if (skipped.length > 0 || !accounts) {
+    // The tax book leaves with it: its months due before the disposal month and that month's own.
+    const taxClosing = await this.taxBooks.planClosing(manager, asset, disposalDate);
+    const taxCharges = taxClosing?.charges ?? [];
+    const accountingDue = skipped.length > 0 || catchUp.length > 0 || !!stub;
+    if (!accountingDue && taxCharges.length === 0) {
+      if (taxClosing) await this.taxBooks.close(manager, taxClosing.book, disposalDate);
+      return { runId: null, stub: null };
+    }
+    const accounts = accountingDue ? await this.accountsFor(manager, organizationId, asset) : null;
+    if (accountingDue && (skipped.length > 0 || !accounts)) {
       throw new BadRequestError('fixed_assets.disposal_depreciation_accounts_missing', { number: asset.number });
     }
 
     const origin: RunOrigin = { trigger: DepreciationRunTrigger.DISPOSAL, ranByUserId: disposedByUserId, fixedAssetId: asset.id };
     const total = roundAmount((catchUp.reduce((sum, charge) => sum + toCents(charge.amount), 0) + (stub ? toCents(stub.amount) : 0)) / 100);
-    const run = await this.openRun(manager, organizationId, stub?.periodEnd ?? catchUp.at(-1)!.periodEnd, origin, {
+    const lastMonth = [stub?.periodEnd, catchUp.at(-1)?.periodEnd, taxCharges.at(-1)?.periodEnd].filter(Boolean).sort().at(-1) as IsoDate;
+    const run = await this.openRun(manager, organizationId, lastMonth, origin, {
       assetCount: 1,
       chargeCount: catchUp.length + (stub ? 1 : 0),
       total,
+      taxChargeCount: taxCharges.length,
+      taxTotal: taxClosing?.amount ?? 0,
     });
     if (catchUp.length > 0) await this.post(manager, organizationId, run, planned, lastMonthBefore, origin);
-    return { runId: run.id, stub: stub ? { ...stub, ...accounts } : null };
+    if (taxClosing) {
+      await this.taxBooks.record(manager, run.id, [taxClosing]);
+      await this.taxBooks.close(manager, taxClosing.book, disposalDate);
+    }
+    return { runId: run.id, stub: stub && accounts ? { ...stub, ...accounts } : null };
   }
 
   /** Books the disposal month's charge, carried by the disposal's own entry `journalEntryId`. */
@@ -381,7 +419,7 @@ export class DepreciationService extends DepreciationPort {
     organizationId: string,
     periodEnd: IsoDate,
     origin: RunOrigin,
-    totals: { assetCount: number; chargeCount: number; total: number },
+    totals: { assetCount: number; chargeCount: number; total: number; taxChargeCount: number; taxTotal: number },
   ): Promise<FixedAssetDepreciationRun> {
     return em.save(
       em.create(FixedAssetDepreciationRun, {
@@ -616,7 +654,9 @@ export class DepreciationService extends DepreciationPort {
     if (query.fixedAssetId) {
       // A run charged the asset if any of its months is the asset's — not only a disposal's run.
       qb.andWhere(
-        `EXISTS (SELECT 1 FROM "fixed_asset_depreciations" d WHERE d."run_id" = run.id AND d."fixed_asset_id" = :assetId)`,
+        `(EXISTS (SELECT 1 FROM "fixed_asset_depreciations" d WHERE d."run_id" = run.id AND d."fixed_asset_id" = :assetId)
+          OR EXISTS (SELECT 1 FROM "fixed_asset_book_charges" c JOIN "fixed_asset_books" b ON b."id" = c."book_id"
+                      WHERE c."run_id" = run.id AND b."fixed_asset_id" = :assetId))`,
         { assetId: query.fixedAssetId },
       );
     }
@@ -660,9 +700,29 @@ export class DepreciationService extends DepreciationPort {
           [organizationId, entryIds],
         )
       : [];
+    const taxCharges: Array<{ fixedAssetId: string; number: string; name: string; periodEnd: string; amount: string; accumulatedAfter: string; bookValueAfter: string }> =
+      await manager.query(
+        `SELECT b."fixed_asset_id" AS "fixedAssetId", a."number", a."name", c."period_end"::text AS "periodEnd",
+                c."amount"::text AS "amount", c."accumulated_after"::text AS "accumulatedAfter", c."book_value_after"::text AS "bookValueAfter"
+           FROM "fixed_asset_book_charges" c
+           JOIN "fixed_asset_books" b ON b."id" = c."book_id"
+           JOIN "fixed_asset" a ON a."id" = b."fixed_asset_id"
+          WHERE c."organization_id" = $1 AND c."run_id" = $2
+          ORDER BY a."number", c."period_end"`,
+        [organizationId, id],
+      );
     const people = await personDisplayNames(manager, [run.ranByUserId]);
     return {
       ...summariseRun(run, people),
+      taxCharges: taxCharges.map((charge) => ({
+        fixedAssetId: charge.fixedAssetId,
+        number: charge.number,
+        name: charge.name,
+        periodEnd: charge.periodEnd,
+        amount: Number(charge.amount),
+        accumulatedAfter: Number(charge.accumulatedAfter),
+        bookValueAfter: Number(charge.bookValueAfter),
+      })),
       charges: charges.map((charge) => ({
         fixedAssetId: charge.fixedAssetId,
         number: charge.fixedAsset!.number,
@@ -702,6 +762,8 @@ function summariseRun(run: FixedAssetDepreciationRun, people: Map<string, string
     assetCount: run.assetCount,
     chargeCount: run.chargeCount,
     total: run.total,
+    taxChargeCount: run.taxChargeCount,
+    taxTotal: run.taxTotal,
     createdAt: run.createdAt,
   };
 }
@@ -722,8 +784,10 @@ function summarise(
   journalEntryId: string | null,
   planned: PlannedAsset[],
   skipped: DepreciationRunResult['skipped'],
+  taxPlanned: PlannedBookCharges[],
 ): DepreciationRunResult {
   const totalCents = planned.reduce((sum, item) => sum + toCents(item.amount), 0);
+  const taxCents = taxPlanned.reduce((sum, item) => sum + toCents(item.amount), 0);
   return {
     periodEnd,
     runId,
@@ -737,6 +801,10 @@ function summarise(
       amount,
     })),
     skipped,
+    tax: {
+      total: roundAmount(taxCents / 100),
+      assets: taxPlanned.map(({ asset, charges, amount }) => ({ id: asset.id, number: asset.number, name: asset.name, months: charges.length, amount })),
+    },
     postable: true,
     notPostable: null,
   };

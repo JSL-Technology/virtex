@@ -57,6 +57,38 @@ export interface MarketAccounting {
    * nothing it books in needs a published conversion of its own.
    */
   officialExchangeRates: MarketOfficialExchangeRates | null;
+  /**
+   * How the market's tax law depreciates fixed assets: the categories its authority fixes and the
+   * rate of each (audit 2026-11-07, FINB-16). The tax book of an asset starts from its category.
+   * Null where the law states no categories the product carries — a company then sets the rate of
+   * each of its own categories.
+   */
+  taxDepreciation: MarketTaxDepreciation | null;
+}
+
+/**
+ * One category a tax authority depreciates assets in, at the rate it fixes — a starting point a
+ * local accountant confirms.
+ */
+export interface MarketTaxDepreciationCategory {
+  /** Stable across releases: what a company's category names it by. `DO-2`. */
+  code: string;
+  /** The catalogue key of its name, read in the reader's language. */
+  nameKey: string;
+  /** `STRAIGHT_LINE` on the cost; `DECLINING_BALANCE` on what is left at the start of each year. */
+  method: 'STRAIGHT_LINE' | 'DECLINING_BALANCE';
+  /** The yearly rate, as a fraction: 0.25 for 25 %. */
+  annualRate: number;
+  /** The provision it comes from. */
+  legalBasis: string;
+}
+
+/** A market's tax depreciation: its authority, its categories, and what the product does not model. */
+export interface MarketTaxDepreciation {
+  authority: string;
+  categories: readonly MarketTaxDepreciationCategory[];
+  /** What of the rule the per-asset book does not reproduce, said where it is used. */
+  caveat: string;
 }
 
 /**

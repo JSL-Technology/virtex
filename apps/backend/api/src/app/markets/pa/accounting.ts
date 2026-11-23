@@ -17,4 +17,6 @@ export const accounting: MarketAccounting = {
   inflationAccounting: null,
   // El balboa circula a la par del dólar por ley: no hay un tipo de cambio publicado que leer.
   officialExchangeRates: null,
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

@@ -3,28 +3,42 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, DataSource, EntityManager, Repository } from 'typeorm';
 import { FixedAsset, FixedAssetStatus, DepreciationMethod } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
+import { FixedAssetCategory } from './entities/fixed-asset-category.entity';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import {
   CreateFixedAssetDto,
   DisposeAssetDto,
   FixedAssetsQueryDto,
+  TaxBookDto,
   UpdateFixedAssetDto,
 } from './dto/fixed-asset.dto';
 import { AssetPostingService } from './asset-posting.service';
 import { DepreciationService } from './depreciation.service';
+import { TaxBookService, type TaxBookSchedule, type TaxBookSummary } from './tax-book.service';
+import { openingTerms, revisedTerms, type TaxBookAsset } from './tax-book-terms';
+import { organizationDefaultAccounts } from '../organizations/contracts/default-accounts.contract';
+import { organizationMarket } from '../organizations/contracts/market.contract';
+import { marketFor, type MarketTaxDepreciation } from '../markets';
+import type { DepreciationConvention, LocalizedName } from '@virtex/shared/types';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { Account } from '../chart-of-accounts/entities/account.entity';
+import { assertPostableAccount } from './fixed-asset-accounts';
 import { CreateJournalEntryDto, CreateJournalEntryLineDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { roundAmount, toCents } from '../common/money';
-import { endOfMonthIso, previousDay, startOfMonthIso, toIsoDate, yearOf, type IsoDate } from '../common/dates';
+import { endOfMonthIso, toIsoDate, yearOf, type IsoDate } from '../common/dates';
 import { remainingSchedule, ScheduledCharge } from './depreciation-schedule';
 import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 import { LedgerText, narrated } from '../contracts/ledger-posting/ledger-text';
+
+/** An asset as the register shows it: with its category and its tax book. */
+export type FixedAssetView = FixedAsset & {
+  category: { id: string; code: string; name: string; nameTranslations: LocalizedName } | null;
+  taxBook: TaxBookSummary | null;
+};
 
 /** The asset's depreciation board: what has been charged, and what remains to be. */
 export interface FixedAssetSchedule {
@@ -38,6 +52,8 @@ export interface FixedAssetSchedule {
     runId: string | null;
   }>;
   projected: ScheduledCharge[];
+  /** The tax book's months charged and the rest of its schedule; null when it keeps none. */
+  taxBook: TaxBookSchedule | null;
 }
 
 /**
@@ -57,6 +73,18 @@ const VALUATION_FIELDS = [
   'accumulatedDepreciationAccountId',
 ] as const;
 
+/** How the register's form names each of them, for a message that lists them. */
+const VALUATION_FIELD_LABELS: Record<(typeof VALUATION_FIELDS)[number], string> = {
+  cost: 'fixed_assets.form.cost',
+  acquisitionDate: 'fixed_assets.form.acquisition_date',
+  inServiceDate: 'fixed_assets.form.in_service_date',
+  depreciationConvention: 'fixed_assets.form.convention',
+  openingAccumulatedDepreciation: 'fixed_assets.form.opening_accumulated',
+  openingDepreciatedThrough: 'fixed_assets.form.opening_through',
+  assetAccountId: 'fixed_assets.form.asset_account',
+  accumulatedDepreciationAccountId: 'fixed_assets.form.accumulated_account',
+};
+
 /**
  * The fixed-asset register: registering, editing, retiring, and the schedule.
  *
@@ -72,31 +100,52 @@ export class FixedAssetsService {
     private readonly assetPosting: AssetPostingService,
     private readonly journalLookup: JournalLookupService,
     private readonly depreciation: DepreciationService,
+    private readonly taxBooks: TaxBookService,
+    private readonly i18n: I18nService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(new I18nService()),
   ) {}
 
-  async create(dto: CreateFixedAssetDto, organizationId: string, actorUserId: string | null): Promise<FixedAsset> {
-    return this.dataSource.transaction(async (manager) => {
+  /**
+   * Register an asset. What is not stated comes from its category — life, method, convention,
+   * residual share, accounts — and the accumulated depreciation and expense accounts, last, from the
+   * company's defaults. Each is copied onto the asset: a later change to the category rewrites
+   * nothing. Its tax book opens on the terms sent, or on its category's.
+   */
+  async create(dto: CreateFixedAssetDto, organizationId: string, actorUserId: string | null): Promise<FixedAssetView> {
+    const id = await this.dataSource.transaction(async (manager) => {
+      const category = dto.categoryId ? await this.assignableCategory(manager, organizationId, dto.categoryId) : null;
+      const defaults = await this.defaultAccounts(manager, organizationId);
+      const cost = roundAmount(dto.cost);
+      const method = dto.depreciationMethod ?? category?.depreciationMethod ?? DepreciationMethod.STRAIGHT_LINE;
       const values = {
         name: dto.name.trim(),
         description: dto.description?.trim() || null,
         branchId: dto.branchId ?? null,
+        categoryId: category?.id ?? null,
         acquisitionDate: dto.acquisitionDate,
         inServiceDate: dto.inServiceDate ?? dto.acquisitionDate,
-        cost: roundAmount(dto.cost),
-        residualValue: roundAmount(dto.residualValue ?? 0),
-        usefulLifeMonths: dto.usefulLifeMonths,
-        depreciationMethod: dto.depreciationMethod ?? DepreciationMethod.STRAIGHT_LINE,
-        depreciationConvention: dto.depreciationConvention ?? (await this.depreciation.defaultConvention(manager, organizationId)),
-        assetAccountId: dto.assetAccountId,
-        accumulatedDepreciationAccountId: dto.accumulatedDepreciationAccountId,
-        depreciationExpenseAccountId: dto.depreciationExpenseAccountId ?? null,
+        cost,
+        residualValue: roundAmount(dto.residualValue ?? (category ? cost * category.residualRate : 0)),
+        usefulLifeMonths: dto.usefulLifeMonths ?? category?.usefulLifeMonths ?? null,
+        depreciationMethod: method,
+        decliningAnnualRate: decliningRateOf(method, dto.decliningAnnualRate, category),
+        depreciationConvention: (dto.depreciationConvention ??
+          category?.depreciationConvention ??
+          (await this.depreciation.defaultConvention(manager, organizationId))) as DepreciationConvention,
+        assetAccountId: dto.assetAccountId ?? category?.assetAccountId ?? null,
+        accumulatedDepreciationAccountId:
+          dto.accumulatedDepreciationAccountId ?? category?.accumulatedDepreciationAccountId ?? defaults.accumulated,
+        // Null charges the company's default at each run, so it follows a change of that default.
+        depreciationExpenseAccountId:
+          dto.depreciationExpenseAccountId !== undefined ? dto.depreciationExpenseAccountId : (category?.depreciationExpenseAccountId ?? null),
         vendorBillId: dto.vendorBillId ?? null,
         openingAccumulatedDepreciation: roundAmount(dto.openingAccumulatedDepreciation ?? 0),
       };
+      if (!values.usefulLifeMonths) throw new BadRequestError('fixed_assets.useful_life_required');
       const depreciatedThrough = this.validateValuation(values, dto.openingDepreciatedThrough ?? null);
       await this.assertReferences(manager, organizationId, values);
+      const taxTerms = openingTerms(dto.taxBook, taxBookAssetOf(values), category, await this.marketTaxDepreciation(manager, organizationId));
 
       const number = await allocateDocumentNumber(
         manager,
@@ -105,18 +154,23 @@ export class FixedAssetsService {
         'AF',
         yearOf(values.acquisitionDate),
       );
-      const asset = manager.create(FixedAsset, {
-        ...values,
-        organizationId,
-        number,
-        accumulatedDepreciation: values.openingAccumulatedDepreciation,
-        bookValue: roundAmount(values.cost - values.openingAccumulatedDepreciation),
-        depreciatedThrough,
-        status: FixedAssetStatus.IN_USE,
-        createdByUserId: actorUserId,
-      });
-      return manager.save(asset);
+      const asset = await manager.save(
+        manager.create(FixedAsset, {
+          ...values,
+          usefulLifeMonths: values.usefulLifeMonths,
+          organizationId,
+          number,
+          accumulatedDepreciation: values.openingAccumulatedDepreciation,
+          bookValue: roundAmount(values.cost - values.openingAccumulatedDepreciation),
+          depreciatedThrough,
+          status: FixedAssetStatus.IN_USE,
+          createdByUserId: actorUserId,
+        }),
+      );
+      if (taxTerms) await this.taxBooks.open(manager, asset, taxTerms);
+      return asset.id;
     });
+    return this.findOne(id, organizationId);
   }
 
   /**
@@ -129,8 +183,11 @@ export class FixedAssetsService {
     const paging = resolvePaging(query.page, query.pageSize);
     const qb = this.fixedAssetRepository
       .createQueryBuilder('asset')
+      .leftJoin('asset.category', 'category')
+      .addSelect(['category.id', 'category.code', 'category.name', 'category.nameTranslations'])
       .where('asset.organizationId = :organizationId', { organizationId });
     if (query.status) qb.andWhere('asset.status = :status', { status: query.status });
+    if (query.categoryId) qb.andWhere('asset.categoryId = :categoryId', { categoryId: query.categoryId });
     if (query.branchId) qb.andWhere('asset.branchId = :branchId', { branchId: query.branchId });
     const search = query.search?.trim();
     if (search) {
@@ -151,15 +208,27 @@ export class FixedAssetsService {
     return toPage(rows, total, paging);
   }
 
-  async findOne(id: string, organizationId: string): Promise<FixedAsset> {
-    const asset = await this.fixedAssetRepository.findOneBy({ id, organizationId });
-    if (!asset) throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
-    return asset;
+  /** The asset, with its category and its tax book. */
+  async findOne(id: string, organizationId: string): Promise<FixedAssetView> {
+    const asset = await this.requireAsset(id, organizationId);
+    const [category, books] = await Promise.all([
+      asset.categoryId
+        ? this.dataSource.getRepository(FixedAssetCategory).findOne({
+            where: { id: asset.categoryId, organizationId },
+            select: ['id', 'code', 'name', 'nameTranslations'],
+          })
+        : null,
+      this.taxBooks.summaries(this.dataSource.manager, organizationId, [asset.id]),
+    ]);
+    return Object.assign(asset, {
+      category: category ? { id: category.id, code: category.code, name: category.name, nameTranslations: category.nameTranslations } : null,
+      taxBook: books.get(asset.id) ?? null,
+    });
   }
 
-  /** The months charged here, and the projection of the ones left. */
+  /** The months charged here, and the projection of the ones left — in both books. */
   async schedule(id: string, organizationId: string): Promise<FixedAssetSchedule> {
-    const asset = await this.findOne(id, organizationId);
+    const asset = await this.requireAsset(id, organizationId);
     const posted = await this.dataSource.getRepository(FixedAssetDepreciation).find({
       where: { organizationId, fixedAssetId: id },
       order: { periodEnd: 'ASC' },
@@ -174,20 +243,30 @@ export class FixedAssetsService {
         runId: row.runId,
       })),
       projected: asset.status === FixedAssetStatus.IN_USE ? remainingSchedule(asset) : [],
+      taxBook: await this.taxBooks.schedule(this.dataSource.manager, asset),
     };
+  }
+
+  private async requireAsset(id: string, organizationId: string): Promise<FixedAsset> {
+    const asset = await this.fixedAssetRepository.findOneBy({ id, organizationId });
+    if (!asset) throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
+    return asset;
   }
 
   /**
    * Edit an asset in use.
    *
    * Before any month has been charged here, anything may change. After, only what affects the
-   * future: its name, branch and description, the expense account the next charges go to, and the
-   * estimates — useful life, residual value, method — which the next run applies to what is left
-   * (a change in accounting estimate is prospective, IAS 8). What fixed its value from the start
-   * does not change; see `VALUATION_FIELDS`.
+   * future: its name, branch, category and description, the expense account the next charges go
+   * to, and the estimates — useful life, residual value, method and its rate — which the next run
+   * applies to what is left (a change in accounting estimate is prospective, IAS 8). What fixed its
+   * value from the start does not change; see `VALUATION_FIELDS`. A month charged in either book
+   * counts: the tax book was charged on the same cost.
+   *
+   * Its tax book opens, changes or goes with `taxBook` — see `TaxBookService.revise`.
    */
-  async update(id: string, dto: UpdateFixedAssetDto, organizationId: string): Promise<FixedAsset> {
-    return this.dataSource.transaction(async (manager) => {
+  async update(id: string, dto: UpdateFixedAssetDto, organizationId: string): Promise<FixedAssetView> {
+    await this.dataSource.transaction(async (manager) => {
       const asset = await manager.findOne(FixedAsset, {
         where: { id, organizationId },
         lock: { mode: 'pessimistic_write' },
@@ -197,27 +276,44 @@ export class FixedAssetsService {
         throw new ConflictError('fixed_assets.asset_retired_cannot_edit', { number: asset.number });
       }
 
-      const charged = await manager.count(FixedAssetDepreciation, { where: { organizationId, fixedAssetId: id } });
+      const charged = await this.chargedMonths(manager, organizationId, id);
       if (charged > 0) {
         const locked = VALUATION_FIELDS.filter((field) => dto[field] !== undefined && !sameValue(asset, field, dto));
         if (locked.length > 0) {
           throw new ConflictError('fixed_assets.valuation_locked_after_depreciation', {
             number: asset.number,
-            fields: locked.join(', '),
+            fields: this.i18n.listOf(locked.map((field) => VALUATION_FIELD_LABELS[field])),
           });
         }
       }
 
+      const previous = { cost: asset.cost, convention: asset.depreciationConvention };
+      const category =
+        dto.categoryId !== undefined && dto.categoryId !== asset.categoryId && dto.categoryId !== null
+          ? await this.assignableCategory(manager, organizationId, dto.categoryId)
+          : null;
+      const method = dto.depreciationMethod ?? asset.depreciationMethod;
       const next = {
         name: dto.name !== undefined ? dto.name.trim() : asset.name,
         description: dto.description !== undefined ? dto.description?.trim() || null : asset.description,
         branchId: dto.branchId !== undefined ? dto.branchId : asset.branchId,
+        categoryId: dto.categoryId !== undefined ? (category?.id ?? dto.categoryId) : asset.categoryId,
         acquisitionDate: dto.acquisitionDate ?? asset.acquisitionDate,
         inServiceDate: dto.inServiceDate ?? asset.inServiceDate,
         cost: dto.cost !== undefined ? roundAmount(dto.cost) : asset.cost,
         residualValue: dto.residualValue !== undefined ? roundAmount(dto.residualValue) : asset.residualValue,
         usefulLifeMonths: dto.usefulLifeMonths ?? asset.usefulLifeMonths,
-        depreciationMethod: dto.depreciationMethod ?? asset.depreciationMethod,
+        depreciationMethod: method,
+        // Another method carries no rate: changing to one drops it.
+        decliningAnnualRate: decliningRateOf(
+          method,
+          dto.decliningAnnualRate !== undefined
+            ? dto.decliningAnnualRate
+            : method === DepreciationMethod.DECLINING_BALANCE
+              ? asset.decliningAnnualRate
+              : null,
+          null,
+        ),
         depreciationConvention: dto.depreciationConvention ?? asset.depreciationConvention,
         assetAccountId: dto.assetAccountId ?? asset.assetAccountId,
         accumulatedDepreciationAccountId: dto.accumulatedDepreciationAccountId ?? asset.accumulatedDepreciationAccountId,
@@ -252,18 +348,53 @@ export class FixedAssetsService {
         Object.assign(asset, next, {
           bookValue: roundAmount(asset.cost - asset.accumulatedDepreciation),
         });
-        return manager.save(asset);
+      } else {
+        const depreciatedThrough = this.validateValuation(next, openingThrough);
+        await this.assertReferences(manager, organizationId, next);
+        Object.assign(asset, next, {
+          accumulatedDepreciation: next.openingAccumulatedDepreciation,
+          bookValue: roundAmount(next.cost - next.openingAccumulatedDepreciation),
+          depreciatedThrough,
+        });
       }
-
-      const depreciatedThrough = this.validateValuation(next, openingThrough);
-      await this.assertReferences(manager, organizationId, next);
-      Object.assign(asset, next, {
-        accumulatedDepreciation: next.openingAccumulatedDepreciation,
-        bookValue: roundAmount(next.cost - next.openingAccumulatedDepreciation),
-        depreciatedThrough,
-      });
-      return manager.save(asset);
+      await manager.save(asset);
+      await this.updateTaxBook(manager, asset, dto, previous);
     });
+    return this.findOne(id, organizationId);
+  }
+
+  /**
+   * The tax book after an edit: opened when the asset has none, revised when it has one, removed by
+   * null. A book whose basis was the asset's cost, or whose convention was the asset's, follows a
+   * change of it — which the asset allows only while nothing was charged in either book.
+   */
+  private async updateTaxBook(
+    manager: EntityManager,
+    asset: FixedAsset,
+    dto: UpdateFixedAssetDto,
+    previous: { cost: number; convention: string },
+  ): Promise<void> {
+    const book = await this.taxBooks.bookOf(manager, asset.id, true);
+    const market = await this.marketTaxDepreciation(manager, asset.organizationId);
+    if (dto.taxBook === null) {
+      if (book) await this.taxBooks.remove(manager, book, asset.number);
+      return;
+    }
+    if (!book) {
+      if (dto.taxBook === undefined) return;
+      const category = asset.categoryId ? await manager.findOne(FixedAssetCategory, { where: { id: asset.categoryId } }) : null;
+      const terms = openingTerms(dto.taxBook, taxBookAssetOf(asset), category, market);
+      if (terms) await this.taxBooks.open(manager, asset, terms);
+      return;
+    }
+    const followsCost = toCents(book.cost) === toCents(previous.cost) && toCents(asset.cost) !== toCents(previous.cost);
+    const followsConvention =
+      book.depreciationConvention === previous.convention && asset.depreciationConvention !== previous.convention;
+    if (dto.taxBook === undefined && !followsCost && !followsConvention) return;
+    const request: TaxBookDto = { ...(dto.taxBook ?? {}) };
+    if (followsCost && request.cost === undefined) request.cost = asset.cost;
+    if (followsConvention && request.convention === undefined) request.convention = asset.depreciationConvention as DepreciationConvention;
+    await this.taxBooks.revise(manager, book, revisedTerms(book, request, taxBookAssetOf(asset), market), asset.number);
   }
 
   /**
@@ -278,7 +409,7 @@ export class FixedAssetsService {
     await this.dataSource.transaction(async (manager) => {
       const asset = await manager.findOne(FixedAsset, { where: { id, organizationId }, lock: { mode: 'pessimistic_write' } });
       if (!asset) throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
-      const charged = await manager.count(FixedAssetDepreciation, { where: { organizationId, fixedAssetId: id } });
+      const charged = await this.chargedMonths(manager, organizationId, id);
       if (charged > 0 || asset.status !== FixedAssetStatus.IN_USE) {
         throw new ConflictError('fixed_assets.asset_in_books_dispose_instead', { name: asset.name });
       }
@@ -404,6 +535,36 @@ export class FixedAssetsService {
     });
   }
 
+  /** Months charged for the asset in either book: the accounting one and its tax book. */
+  private async chargedMonths(manager: EntityManager, organizationId: string, assetId: string): Promise<number> {
+    const [row] = await manager.query<{ months: number }[]>(
+      `SELECT (SELECT COUNT(*) FROM "fixed_asset_depreciations" WHERE "organization_id" = $1 AND "fixed_asset_id" = $2)
+            + (SELECT COUNT(*) FROM "fixed_asset_book_charges" c JOIN "fixed_asset_books" b ON b."id" = c."book_id"
+                WHERE b."organization_id" = $1 AND b."fixed_asset_id" = $2) AS months`,
+      [organizationId, assetId],
+    );
+    return Number(row?.months ?? 0);
+  }
+
+  /** A category of the company that new assets may be registered in. */
+  private async assignableCategory(manager: EntityManager, organizationId: string, categoryId: string): Promise<FixedAssetCategory> {
+    const category = await manager.findOne(FixedAssetCategory, { where: { id: categoryId, organizationId } });
+    if (!category) throw new BadRequestError('fixed_assets.category_not_found', { id: categoryId });
+    if (!category.isActive) throw new BadRequestError('fixed_assets.category_inactive', { code: category.code });
+    return category;
+  }
+
+  /** The company's default accumulated depreciation account: the last of an asset's defaults. */
+  private async defaultAccounts(manager: EntityManager, organizationId: string): Promise<{ accumulated: string | null }> {
+    const defaults = await organizationDefaultAccounts(manager, organizationId, ['defaultAccumulatedDepreciationAccountId']);
+    return { accumulated: defaults.defaultAccumulatedDepreciationAccountId };
+  }
+
+  private async marketTaxDepreciation(manager: EntityManager, organizationId: string): Promise<MarketTaxDepreciation | null> {
+    const { country } = await organizationMarket(manager, organizationId);
+    return marketFor(country).accounting.taxDepreciation;
+  }
+
   /**
    * The figures an asset is valued on, checked together: the database checks each one, this says
    * which one is wrong and why. Returns the month an opening balance was charged through.
@@ -478,13 +639,36 @@ export class FixedAssetsService {
   }
 }
 
-/** The account exists in this company, is active and takes postings. */
-async function assertPostableAccount(manager: EntityManager, organizationId: string, accountId: string): Promise<void> {
-  const account = await manager.findOne(Account, { where: { id: accountId, organizationId } });
-  if (!account) throw new BadRequestError('fixed_assets.account_not_found');
-  if (!account.isActive || !account.isPostable) {
-    throw new BadRequestError('fixed_assets.account_not_postable', { code: account.code, name: account.name });
+
+/**
+ * The yearly rate of a declining balance: the one sent, else the category's when it uses the same
+ * method, else — a company whose books follow the tax law — the category's tax rate when the tax
+ * method is the same. Only a declining balance has one.
+ */
+function decliningRateOf(
+  method: DepreciationMethod,
+  sent: number | null | undefined,
+  category: FixedAssetCategory | null,
+): number | null {
+  if (method !== DepreciationMethod.DECLINING_BALANCE) {
+    if (sent !== undefined && sent !== null) throw new BadRequestError('fixed_assets.declining_rate_only_for_declining');
+    return null;
   }
+  const rate =
+    sent ??
+    (category?.depreciationMethod === DepreciationMethod.DECLINING_BALANCE ? category.decliningAnnualRate : null) ??
+    (category?.taxMethod === DepreciationMethod.DECLINING_BALANCE ? category.taxAnnualRate : null);
+  if (rate === null || rate === undefined) throw new BadRequestError('fixed_assets.declining_rate_required');
+  return rate;
+}
+
+/** What of the asset a tax book's terms are resolved against. */
+function taxBookAssetOf(asset: { cost: number; inServiceDate: string | Date; depreciationConvention: string }): TaxBookAsset {
+  return {
+    cost: asset.cost,
+    inServiceDate: typeof asset.inServiceDate === 'string' ? asset.inServiceDate : asset.inServiceDate.toISOString().slice(0, 10),
+    depreciationConvention: asset.depreciationConvention as DepreciationConvention,
+  };
 }
 
 function sameValue(asset: FixedAsset, field: (typeof VALUATION_FIELDS)[number], dto: UpdateFixedAssetDto): boolean {

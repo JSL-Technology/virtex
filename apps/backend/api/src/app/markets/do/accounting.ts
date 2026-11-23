@@ -28,4 +28,15 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Tasa de cambio de referencia del Banco Central, la que la DGII publica para fines fiscales.',
     feed: null,
   },
+  // Ley 11-92 (Código Tributario), art. 287: three categories, each depreciated on what is left of
+  // it at the close of the year. A starting point — verificar con contador local.
+  taxDepreciation: {
+    authority: 'DGII',
+    categories: [
+      { code: 'DO-1', nameKey: 'fixed_assets.tax_categories.do_1', method: 'DECLINING_BALANCE', annualRate: 0.05, legalBasis: 'Ley 11-92, art. 287, categoría 1' },
+      { code: 'DO-2', nameKey: 'fixed_assets.tax_categories.do_2', method: 'DECLINING_BALANCE', annualRate: 0.25, legalBasis: 'Ley 11-92, art. 287, categoría 2' },
+      { code: 'DO-3', nameKey: 'fixed_assets.tax_categories.do_3', method: 'DECLINING_BALANCE', annualRate: 0.15, legalBasis: 'Ley 11-92, art. 287, categoría 3' },
+    ],
+    caveat: 'fixed_assets.tax_categories.do_caveat',
+  },
 };

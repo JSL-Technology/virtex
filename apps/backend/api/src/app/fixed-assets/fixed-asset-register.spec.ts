@@ -1,6 +1,8 @@
 import { DataSource, In } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FixedAssetsService } from './fixed-assets.service';
+import { TaxBookService } from './tax-book.service';
+import { I18nService } from '../i18n/i18n.service';
 import { DepreciationService } from './depreciation.service';
 import { AssetPostingService } from './asset-posting.service';
 import { DepreciationMethod, FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
@@ -71,14 +73,17 @@ describeWithDb('fixed-asset register', () => {
     );
     const posting = new AssetPostingService(entries);
     const lookup = new JournalLookupService(dataSource.getRepository(Journal));
+    const i18n = new I18nService();
+    const taxBooks = new TaxBookService(dataSource, i18n);
     depreciation = new DepreciationService(
       posting,
       new SchedulerLockService(dataSource),
       dataSource,
       new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
       lookup,
+      taxBooks,
     );
-    assets = new FixedAssetsService(dataSource.getRepository(FixedAsset), dataSource, posting, lookup, depreciation);
+    assets = new FixedAssetsService(dataSource.getRepository(FixedAsset), dataSource, posting, lookup, depreciation, taxBooks, i18n);
 
     const ledger = await dataSource.getRepository(Ledger).save(
       dataSource.getRepository(Ledger).create({

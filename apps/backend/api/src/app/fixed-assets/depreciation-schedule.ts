@@ -9,6 +9,27 @@ export interface DepreciableAsset {
   residualValue: number;
   usefulLifeMonths: number;
   depreciationMethod: DepreciationMethod | string;
+  /** The yearly rate of a `DECLINING_BALANCE` method, as a fraction (0.25). */
+  decliningAnnualRate?: number | null;
+  /**
+   * For `STRAIGHT_LINE` stated as a rate, as a tax law states it, rather than as a life: the yearly
+   * rate on the depreciable base, every year until it is used up — 35 % of 12 000 is 4 200 a year
+   * and 100 in the last month. A new rate applies to the base from then on; a life spreads what is
+   * left over what remains of it instead (IAS 8), which is not what a law that fixes rates says.
+   * The life is then only a bound.
+   */
+  straightLineAnnualRate?: number | null;
+  /**
+   * For `DECLINING_BALANCE`: the month (1–12) the year the rate applies to starts in — the
+   * company's fiscal year. January if none.
+   */
+  fiscalYearStartMonth?: number | null;
+  /**
+   * For `DECLINING_BALANCE`: the value not yet depreciated at the start of the year the next
+   * uncharged month falls in, when charges of that year were already recorded. The rate applies to
+   * it for the whole year; without it, to what is left now — exact at a year's start.
+   */
+  decliningYearBase?: number | null;
   /** How the month it enters service, and the month it leaves, are charged; `FULL_MONTH` if none. */
   depreciationConvention?: DepreciationConvention | string | null;
   inServiceDate: string;
@@ -97,6 +118,13 @@ function project(asset: DepreciableAsset, through: IsoDate | null, leaves: IsoDa
   // life into. A corrupt row cannot spin it forever.
   let month = firstChargeableMonth(asset);
   const guard = life + Math.max(0, monthsBetween(inService, month)) + 2;
+  // A declining balance at a yearly rate applies it to the value at the start of each year — 25 %
+  // of 10 000 is 2 500 in the first year, not the 2 235 compounding a twelfth a month gives.
+  const yearStarts = Math.min(12, Math.max(1, Math.trunc(Number(asset.fiscalYearStartMonth ?? 1)) || 1));
+  let yearBase =
+    asset.decliningYearBase !== undefined && asset.decliningYearBase !== null
+      ? roundAmount(Number(asset.decliningYearBase))
+      : roundAmount(cost - accumulated);
 
   for (let step = 0; step < guard; step++) {
     if (through !== null && month > through) break;
@@ -106,9 +134,30 @@ function project(asset: DepreciableAsset, through: IsoDate | null, leaves: IsoDa
     const index = monthIndex(month);
     // The asset has left the books before this month began.
     if (index >= end) break;
+    // A new year: the rate now applies to what is left at its start.
+    if (Number(month.slice(5, 7)) === yearStarts && step > 0) yearBase = roundAmount(cost - accumulated);
+    // How far into its year this month's service runs, before and after it: a declining balance's
+    // year is charged as running totals, so its months add up to the year's charge to the cent.
+    const yearOrigin = Math.max(index - ((Number(month.slice(5, 7)) - yearStarts + 12) % 12), start);
     const from = Math.max(index, start) - start;
     const to = Math.min(index + 1, end) - start;
-    const amount = to <= from ? 0 : monthlyCharge(asset.depreciationMethod, { depreciable, cost, accumulated, life, from, to, remaining });
+    const amount =
+      to <= from
+        ? 0
+        : monthlyCharge(asset.depreciationMethod, {
+            depreciable,
+            cost,
+            accumulated,
+            life,
+            from,
+            to,
+            remaining,
+            annualRate: Number(asset.decliningAnnualRate ?? 0),
+            straightLineRate: Number(asset.straightLineAnnualRate ?? 0),
+            yearBase,
+            yearFrom: Math.max(0, Math.max(index, start) - yearOrigin),
+            yearTo: Math.max(0, Math.min(index + 1, end) - yearOrigin),
+          });
     if (toCents(amount) > 0) {
       accumulated = roundAmount(accumulated + amount);
       charges.push({
@@ -181,9 +230,25 @@ const END_OF_LIFE_TOLERANCE = 1e-9;
  */
 function monthlyCharge(
   method: DepreciationMethod | string,
-  state: { depreciable: number; cost: number; accumulated: number; life: number; from: number; to: number; remaining: number },
+  state: {
+    depreciable: number;
+    cost: number;
+    accumulated: number;
+    life: number;
+    from: number;
+    to: number;
+    remaining: number;
+    annualRate: number;
+    /** The yearly rate of a straight line stated as a rate; 0 for one stated as a life. */
+    straightLineRate: number;
+    /** The value not yet depreciated at the start of the current year (`DECLINING_BALANCE`). */
+    yearBase: number;
+    /** Months of service in the current year before this month's stretch, and after it. */
+    yearFrom: number;
+    yearTo: number;
+  },
 ): number {
-  const { depreciable, cost, accumulated, life, from, to, remaining } = state;
+  const { depreciable, cost, accumulated, life, from, to, remaining, annualRate, straightLineRate, yearBase, yearFrom, yearTo } = state;
   if (to >= life - END_OF_LIFE_TOLERANCE) return remaining;
   const portion = to - from;
 
@@ -202,11 +267,26 @@ function monthlyCharge(
       charge = Math.max(declining, straight);
       break;
     }
+    case DepreciationMethod.DECLINING_BALANCE:
+      // The yearly rate on the value not yet depreciated at the start of the year, a twelfth of it
+      // a month, for the part of the month in service. No switch to straight line: a tax
+      // authority's declining balance runs on what is left until the asset leaves, and the life is
+      // only where the rest is written off.
+      charge = roundAmount((yearBase * annualRate * yearTo) / 12) - roundAmount((yearBase * annualRate * yearFrom) / 12);
+      break;
     case DepreciationMethod.STRAIGHT_LINE:
     default:
-      // What is left over the months left. On schedule this is the depreciable base over the life;
-      // after a change of estimate — a longer life, a new residual value — it spreads the rest
-      // over what remains, which is how a change in estimate is applied (prospectively, IAS 8).
+      if (straightLineRate > 0) {
+        // Stated as a rate: the rate on the base, a twelfth a month for the part of the month in
+        // service, as running totals within the year — each year adds up to the rate on the base
+        // to the cent.
+        charge = roundAmount((depreciable * straightLineRate * yearTo) / 12) - roundAmount((depreciable * straightLineRate * yearFrom) / 12);
+        break;
+      }
+      // Stated as a life: what is left over the months left. On schedule this is the depreciable
+      // base over the life; after a change of estimate — a longer life, a new residual value — it
+      // spreads the rest over what remains, which is how a change in estimate is applied
+      // (prospectively, IAS 8).
       charge = (remaining * portion) / (life - from);
       break;
   }
@@ -252,3 +332,4 @@ function sumOfYearsDigitsShare(life: number, months: number): number {
   }
   return weight / sumOfDigits;
 }
+

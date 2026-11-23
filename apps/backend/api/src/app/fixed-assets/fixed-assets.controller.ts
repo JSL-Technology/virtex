@@ -2,6 +2,9 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FixedAssetsService } from './fixed-assets.service';
 import { DepreciationService } from './depreciation.service';
+import { FixedAssetCategoriesService } from './fixed-asset-categories.service';
+import { TaxBookService } from './tax-book.service';
+import { resolvePaging } from '../common/pagination';
 import { DepreciationRunTrigger } from './entities/fixed-asset-depreciation-run.entity';
 import {
   CreateFixedAssetDto,
@@ -9,6 +12,7 @@ import {
   DepreciationRunsQueryDto,
   DisposeAssetDto,
   FixedAssetsQueryDto,
+  TaxDepreciationReportQueryDto,
   UpdateFixedAssetDto,
 } from './dto/fixed-asset.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -28,9 +32,35 @@ export class FixedAssetsController {
   constructor(
     private readonly fixedAssetsService: FixedAssetsService,
     private readonly depreciation: DepreciationService,
+    private readonly categories: FixedAssetCategoriesService,
+    private readonly taxBooks: TaxBookService,
   ) {}
 
-  // Declared before `:id`, so `depreciation-runs` is never read as an asset id.
+  // Declared before `:id`, so `depreciation-runs`, `tax-categories` and `tax-depreciation` are
+  // never read as an asset id.
+
+  /** The tax categories the company's market fixes, and their rates; null where it fixes none. */
+  @Get('tax-categories')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  taxCategories(@CurrentUser() user: AuthenticatedUser) {
+    return this.categories.taxCatalogue(user.organizationId);
+  }
+
+  /**
+   * The tax depreciation of a period: each asset's basis, what was deducted before and in it, what
+   * is left, and the temporary difference against the accounting book (FINB-16).
+   */
+  @Get('tax-depreciation')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  taxDepreciation(@Query() query: TaxDepreciationReportQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.taxBooks.report(
+      user.organizationId,
+      query.from,
+      query.to,
+      resolvePaging(query.page, query.pageSize),
+      query.taxCategoryCode,
+    );
+  }
 
   /** What a run for the month would charge, asset by asset, without posting. */
   @Get('depreciation-runs/preview')

@@ -144,6 +144,16 @@
     "en": "employee",
     "pt": "funcionário"
   },
+  "common.dependents.fixed_asset": {
+    "es": "activos fijos",
+    "en": "fixed assets",
+    "pt": "ativos imobilizados"
+  },
+  "common.dependents.fixed_asset_one": {
+    "es": "activo fijo",
+    "en": "fixed asset",
+    "pt": "ativo imobilizado"
+  },
   "common.dependents.invoice_lines": {
     "es": "líneas de factura",
     "en": "invoice lines",

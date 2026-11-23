@@ -21,4 +21,6 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Tipo de cambio oficial publicado por el Banco Central de Nicaragua.',
     feed: null,
   },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

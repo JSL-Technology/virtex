@@ -34,6 +34,31 @@
     "en": "The branch named does not exist or is inactive.",
     "pt": "A filial indicada não existe ou está inativa."
   },
+  "fixed_assets.category_code_format": {
+    "es": "El código de la categoría empieza por una letra o un número y solo lleva letras, números, puntos, guiones y guiones bajos.",
+    "en": "A category code starts with a letter or a digit and holds only letters, digits, dots, hyphens and underscores.",
+    "pt": "O código da categoria começa por uma letra ou um número e só contém letras, números, pontos, hifens e sublinhados."
+  },
+  "fixed_assets.category_code_taken": {
+    "es": "Ya hay una categoría con el código {{code}}.",
+    "en": "There is already a category with the code {{code}}.",
+    "pt": "Já existe uma categoria com o código {{code}}."
+  },
+  "fixed_assets.category_in_use": {
+    "es": "No se puede eliminar la categoría: hay activos registrados en ella ({{summary}}). Desactívala para que deje de ofrecerse a los nuevos.",
+    "en": "The category cannot be deleted: assets are registered in it ({{summary}}). Deactivate it so it is no longer offered for new ones.",
+    "pt": "A categoria não pode ser excluída: há ativos registrados nela ({{summary}}). Desative-a para que deixe de ser oferecida aos novos."
+  },
+  "fixed_assets.category_inactive": {
+    "es": "La categoría {{code}} está desactivada: no se registran activos nuevos en ella.",
+    "en": "Category {{code}} is inactive: new assets are not registered in it.",
+    "pt": "A categoria {{code}} está desativada: não se registram ativos novos nela."
+  },
+  "fixed_assets.category_not_found": {
+    "es": "La categoría de activos fijos no existe en esta empresa.",
+    "en": "That fixed-asset category does not exist in this company.",
+    "pt": "A categoria de ativos imobilizados não existe nesta empresa."
+  },
   "fixed_assets.conventions.daily": {
     "es": "Por días en servicio",
     "en": "By days in service",
@@ -53,6 +78,16 @@
     "es": "Desde el mes siguiente",
     "en": "From the following month",
     "pt": "A partir do mês seguinte"
+  },
+  "fixed_assets.declining_rate_only_for_declining": {
+    "es": "Solo el saldo decreciente lleva una tasa anual.",
+    "en": "Only a declining balance takes a yearly rate.",
+    "pt": "Só o saldo decrescente leva uma taxa anual."
+  },
+  "fixed_assets.declining_rate_required": {
+    "es": "El saldo decreciente necesita su tasa anual.",
+    "en": "A declining balance needs its yearly rate.",
+    "pt": "O saldo decrescente precisa de sua taxa anual."
   },
   "fixed_assets.depreciation_journal_deprec_not_found_create": {
     "es": "Diario de Depreciación (DEPREC) no encontrado. Crea un diario con este código para continuar.",
@@ -654,6 +689,11 @@
     "en": "Name the account the sale proceeds go to.",
     "pt": "Indique a conta onde entra o valor da venda."
   },
+  "fixed_assets.report_period_reversed": {
+    "es": "El período termina ({{to}}) antes de empezar ({{from}}).",
+    "en": "The period ends ({{to}}) before it starts ({{from}}).",
+    "pt": "O período termina ({{to}}) antes de começar ({{from}})."
+  },
   "fixed_assets.residual_above_cost": {
     "es": "El valor residual no puede superar el costo.",
     "en": "The residual value cannot exceed the cost.",
@@ -899,10 +939,140 @@
     "en": "Sold",
     "pt": "Vendido"
   },
+  "fixed_assets.tax_book.basis": {
+    "es": "Base fiscal",
+    "en": "Tax basis",
+    "pt": "Base fiscal"
+  },
+  "fixed_assets.tax_book.convention": {
+    "es": "Convención fiscal",
+    "en": "Tax convention",
+    "pt": "Convenção fiscal"
+  },
+  "fixed_assets.tax_book.opening_accumulated": {
+    "es": "Depreciación fiscal inicial",
+    "en": "Opening tax depreciation",
+    "pt": "Depreciação fiscal inicial"
+  },
+  "fixed_assets.tax_book.opening_through": {
+    "es": "Deducido hasta",
+    "en": "Deducted through",
+    "pt": "Deduzido até"
+  },
+  "fixed_assets.tax_book_closed": {
+    "es": "El libro fiscal del activo {{number}} se cerró el {{date}}, con su baja.",
+    "en": "The tax book of asset {{number}} closed on {{date}}, with its disposal.",
+    "pt": "O livro fiscal do ativo {{number}} foi encerrado em {{date}}, com sua baixa."
+  },
+  "fixed_assets.tax_book_has_charges": {
+    "es": "El libro fiscal del activo {{number}} ya registró {{months}} meses de deducción: es el registro de lo deducido y no se puede quitar.",
+    "en": "The tax book of asset {{number}} has recorded {{months}} months of deductions: it is the record of what was deducted and cannot be removed.",
+    "pt": "O livro fiscal do ativo {{number}} já registrou {{months}} meses de dedução: é o registro do que foi deduzido e não pode ser removido."
+  },
+  "fixed_assets.tax_book_method_unsupported": {
+    "es": "El libro fiscal deprecia en línea recta o por saldo decreciente.",
+    "en": "The tax book depreciates by straight line or by declining balance.",
+    "pt": "O livro fiscal deprecia em linha reta ou por saldo decrescente."
+  },
+  "fixed_assets.tax_book_rate_required": {
+    "es": "El libro fiscal necesita su método y su tasa anual: indícalos, o elige una categoría fiscal que los tenga.",
+    "en": "The tax book needs its method and its yearly rate: state them, or choose a tax category that has them.",
+    "pt": "O livro fiscal precisa de seu método e de sua taxa anual: informe-os, ou escolha uma categoria fiscal que os tenha."
+  },
+  "fixed_assets.tax_book_terms_fixed": {
+    "es": "El libro fiscal del activo {{number}} ya registró meses de deducción: estos campos ya no cambian: {{fields}}. El método, la tasa y la categoría fiscal sí, desde el mes siguiente.",
+    "en": "The tax book of asset {{number}} has already recorded deductions: these fields no longer change: {{fields}}. Its method, rate and tax category still can, from the next month on.",
+    "pt": "O livro fiscal do ativo {{number}} já registrou meses de dedução: estes campos não mudam mais: {{fields}}. O método, a taxa e a categoria fiscal ainda podem mudar, a partir do mês seguinte."
+  },
+  "fixed_assets.tax_categories.do_1": {
+    "es": "Categoría 1 — Edificaciones y sus componentes estructurales (5 %)",
+    "en": "Category 1 — Buildings and their structural components (5 %)",
+    "pt": "Categoria 1 — Edificações e seus componentes estruturais (5 %)"
+  },
+  "fixed_assets.tax_categories.do_2": {
+    "es": "Categoría 2 — Automóviles y camiones livianos, mobiliario y equipo de oficina, computadoras y equipo de procesamiento de datos (25 %)",
+    "en": "Category 2 — Cars and light trucks, office furniture and equipment, computers and data-processing equipment (25 %)",
+    "pt": "Categoria 2 — Automóveis e caminhões leves, mobiliário e equipamento de escritório, computadores e equipamento de processamento de dados (25 %)"
+  },
+  "fixed_assets.tax_categories.do_3": {
+    "es": "Categoría 3 — Cualquier otra propiedad depreciable (15 %)",
+    "en": "Category 3 — Any other depreciable property (15 %)",
+    "pt": "Categoria 3 — Qualquer outro bem depreciável (15 %)"
+  },
+  "fixed_assets.tax_categories.do_caveat": {
+    "es": "La DGII deprecia las categorías 2 y 3 en cuentas agrupadas, sobre el saldo de la cuenta al cierre del ejercicio (Ley 11-92, art. 287). Este libro calcula activo por activo a la misma tasa: coincide salvo en las bajas, donde la ley resta lo cobrado del saldo de la cuenta en lugar de reconocer una ganancia o una pérdida. Verificar con un contador local.",
+    "en": "The DGII depreciates categories 2 and 3 in pooled accounts, on the account's balance at the close of the year (Law 11-92, art. 287). This book works asset by asset at the same rate: it agrees except on disposals, where the law takes the proceeds off the account's balance instead of recognising a gain or a loss. Check with a local accountant.",
+    "pt": "A DGII deprecia as categorias 2 e 3 em contas agrupadas, sobre o saldo da conta no fechamento do exercício (Lei 11-92, art. 287). Este livro calcula ativo por ativo à mesma taxa: coincide exceto nas baixas, em que a lei desconta o valor recebido do saldo da conta em vez de reconhecer ganho ou perda. Verificar com um contador local."
+  },
+  "fixed_assets.tax_categories.mx_34_i": {
+    "es": "Construcciones (5 %)",
+    "en": "Buildings (5 %)",
+    "pt": "Construções (5 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_iii": {
+    "es": "Mobiliario y equipo de oficina (10 %)",
+    "en": "Office furniture and equipment (10 %)",
+    "pt": "Mobiliário e equipamento de escritório (10 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_vi": {
+    "es": "Automóviles, autobuses, camiones de carga, tractocamiones, montacargas y remolques (25 %)",
+    "en": "Cars, buses, freight trucks, tractor-trailers, forklifts and trailers (25 %)",
+    "pt": "Automóveis, ônibus, caminhões de carga, cavalos mecânicos, empilhadeiras e reboques (25 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_vii": {
+    "es": "Computadoras personales, servidores, impresoras y equipo periférico de cómputo (30 %)",
+    "en": "Personal computers, servers, printers and computer peripherals (30 %)",
+    "pt": "Computadores pessoais, servidores, impressoras e periféricos de informática (30 %)"
+  },
+  "fixed_assets.tax_categories.mx_34_viii": {
+    "es": "Dados, troqueles, moldes, matrices y herramental (35 %)",
+    "en": "Dies, punches, moulds, matrices and tooling (35 %)",
+    "pt": "Matrizes, punções, moldes e ferramental (35 %)"
+  },
+  "fixed_assets.tax_categories.mx_caveat": {
+    "es": "Son los porcentajes máximos de la LISR (art. 34) sobre el monto original de la inversión, en línea recta; la maquinaria y el equipo se deprecian según la actividad (art. 35). La deducción de cada ejercicio se actualiza con el factor del INPC (art. 31), que este libro no aplica. Verificar con un contador local.",
+    "en": "These are the LISR's maximum rates (art. 34) on the original investment, straight line; machinery and equipment are depreciated by activity (art. 35). Each year's deduction is restated by the INPC factor (art. 31), which this book does not apply. Verify with a local accountant.",
+    "pt": "São as taxas máximas da LISR (art. 34) sobre o valor original do investimento, em linha reta; máquinas e equipamentos se depreciam conforme a atividade (art. 35). A dedução de cada exercício é atualizada pelo fator do INPC (art. 31), que este livro não aplica. Verificar com um contador local."
+  },
+  "fixed_assets.tax_category_unknown": {
+    "es": "{{code}} no es una categoría de {{authority}}. Sus categorías son: {{known}}.",
+    "en": "{{code}} is not a {{authority}} category. Its categories are: {{known}}.",
+    "pt": "{{code}} não é uma categoria de {{authority}}. Suas categorias são: {{known}}."
+  },
+  "fixed_assets.tax_method_and_rate_together": {
+    "es": "El método fiscal y la tasa fiscal van juntos: indica los dos o ninguno.",
+    "en": "The tax method and the tax rate go together: state both or neither.",
+    "pt": "O método fiscal e a taxa fiscal andam juntos: informe os dois ou nenhum."
+  },
+  "fixed_assets.tax_opening_above_basis": {
+    "es": "La depreciación fiscal inicial no puede superar la base fiscal ({{maximum}}).",
+    "en": "The opening tax depreciation cannot exceed the tax basis ({{maximum}}).",
+    "pt": "A depreciação fiscal inicial não pode superar a base fiscal ({{maximum}})."
+  },
+  "fixed_assets.tax_opening_not_year_end": {
+    "es": "El saldo inicial de un saldo decreciente se declara al cierre de un año fiscal, que es donde se aplica la tasa: {{month}} no lo es. El año fiscal anterior cerró en {{yearEnd}}.",
+    "en": "A declining balance's opening is stated at the close of a fiscal year, where its rate applies: {{month}} is not one. The fiscal year before it closed in {{yearEnd}}.",
+    "pt": "O saldo inicial de um saldo decrescente é declarado no encerramento de um ano fiscal, onde a taxa se aplica: {{month}} não é um. O ano fiscal anterior encerrou em {{yearEnd}}."
+  },
+  "fixed_assets.tax_opening_through_before_service": {
+    "es": "La depreciación fiscal inicial no puede cubrir meses anteriores a la puesta en servicio.",
+    "en": "The opening tax depreciation cannot cover months before the asset entered service.",
+    "pt": "A depreciação fiscal inicial não pode cobrir meses anteriores à entrada em serviço."
+  },
+  "fixed_assets.tax_opening_through_required": {
+    "es": "Indica hasta qué mes cubre la depreciación fiscal inicial.",
+    "en": "State the month the opening tax depreciation covers through.",
+    "pt": "Informe até que mês cobre a depreciação fiscal inicial."
+  },
+  "fixed_assets.useful_life_required": {
+    "es": "Indica la vida útil, o elige una categoría que la tenga.",
+    "en": "State the useful life, or choose a category that has one.",
+    "pt": "Informe a vida útil, ou escolha uma categoria que a tenha."
+  },
   "fixed_assets.valuation_locked_after_depreciation": {
-    "es": "El activo {{number}} ya tiene depreciación registrada: no se pueden cambiar {{fields}}. Para corregir el costo registra una mejora o un deterioro.",
-    "en": "Asset {{number}} already has depreciation posted: {{fields}} cannot change. To correct the cost, record an improvement or an impairment.",
-    "pt": "O ativo {{number}} já tem depreciação registrada: não é possível alterar {{fields}}. Para corrigir o custo, registre uma melhoria ou uma perda por redução."
+    "es": "El activo {{number}} ya tiene depreciación registrada: estos campos ya no cambian: {{fields}}. Para corregir el costo registra una mejora o un deterioro.",
+    "en": "Asset {{number}} already has depreciation posted: these fields no longer change: {{fields}}. To correct the cost, record an improvement or an impairment.",
+    "pt": "O ativo {{number}} já tem depreciação registrada: estes campos não mudam mais: {{fields}}. Para corrigir o custo, registre uma melhoria ou uma perda por redução."
   },
   "fixed_assets.vendor_bill_not_found": {
     "es": "La factura de proveedor indicada no existe en esta empresa.",

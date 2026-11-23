@@ -136,6 +136,7 @@ export class TenantBookkeepingProvisioner {
       (key, lang) => this.i18n.translate(key, lang),
     );
     await this.translateSeededPaymentMethods(organizationId, organization.country ?? null, language, manager);
+    await this.provisionFixedAssetCategories(organizationId, organization.country ?? null, language, manager);
 
     this.logger.log(`Contabilidad operativa provisionada para la organización ${organizationId}.`);
   }
@@ -379,6 +380,44 @@ export class TenantBookkeepingProvisioner {
         `UPDATE "payment_methods" SET "name_translations" = $4::jsonb
           WHERE "organization_id" = $1 AND "code" = $2 AND "name" = $3 AND "name_translations" = '{}'::jsonb`,
         [organizationId, method.code, this.i18n.translate(method.nameKey, language), JSON.stringify(translations)],
+      );
+    }
+  }
+
+  // ── Fixed-asset categories ───────────────────────────────────────────────────
+
+  /**
+   * The tax authority's depreciation categories, where the market fixes them (audit 2026-11-07,
+   * FINB-16): a Dominican company starts with the DGII's three, a Mexican one with the SAT's, each
+   * named in the books language and translated, its tax book at the authority's rate. The company
+   * gives each its own life, method and accounts. Idempotent: a category it already has — or
+   * renamed — is left as it is.
+   *
+   * Written as rows rather than through the fixed-asset module's entities, as the warehouse is: the
+   * provisioner spans modules without depending on them.
+   */
+  private async provisionFixedAssetCategories(
+    organizationId: string,
+    country: string | null,
+    language: LanguageCode,
+    manager: EntityManager,
+  ): Promise<void> {
+    const tax = marketFor(country).accounting.taxDepreciation;
+    if (!tax) return;
+    for (const category of tax.categories) {
+      await manager.query(
+        `INSERT INTO "fixed_asset_categories"
+           ("organization_id", "code", "name", "name_translations", "tax_category_code", "tax_method", "tax_annual_rate")
+         VALUES ($1, $2, $3, $4::jsonb, $2, $5, $6)
+         ON CONFLICT ("organization_id", "code") DO NOTHING`,
+        [
+          organizationId,
+          category.code,
+          this.i18n.translate(category.nameKey, language),
+          JSON.stringify(this.i18n.translationsOf(category.nameKey, language)),
+          category.method,
+          category.annualRate,
+        ],
       );
     }
   }

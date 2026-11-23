@@ -494,6 +494,7 @@
       "customer_payments",
       "customers",
       "employees",
+      "fixed_asset",
       "invoices",
       "locations",
       "opportunities",

@@ -28,4 +28,6 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Tasa de Cambio Representativa del Mercado certificada por la Superintendencia Financiera.',
     feed: officialRateFeed,
   },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

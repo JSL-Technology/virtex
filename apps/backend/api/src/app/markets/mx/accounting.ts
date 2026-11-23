@@ -76,4 +76,17 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Tipo de cambio FIX que el Banco de México publica en el DOF; las contribuciones se convierten al publicado el día anterior (CFF art. 20).',
     feed: officialRateFeed,
   },
+  // LISR, art. 34: the maximum yearly percentage on the original investment, straight line. A
+  // starting point — verificar con contador local (art. 35 fixes machinery by activity).
+  taxDepreciation: {
+    authority: 'SAT',
+    categories: [
+      { code: 'MX-34-I', nameKey: 'fixed_assets.tax_categories.mx_34_i', method: 'STRAIGHT_LINE', annualRate: 0.05, legalBasis: 'LISR, art. 34, fracción I, inciso b' },
+      { code: 'MX-34-III', nameKey: 'fixed_assets.tax_categories.mx_34_iii', method: 'STRAIGHT_LINE', annualRate: 0.1, legalBasis: 'LISR, art. 34, fracción III' },
+      { code: 'MX-34-VI', nameKey: 'fixed_assets.tax_categories.mx_34_vi', method: 'STRAIGHT_LINE', annualRate: 0.25, legalBasis: 'LISR, art. 34, fracción VI' },
+      { code: 'MX-34-VII', nameKey: 'fixed_assets.tax_categories.mx_34_vii', method: 'STRAIGHT_LINE', annualRate: 0.3, legalBasis: 'LISR, art. 34, fracción VII' },
+      { code: 'MX-34-VIII', nameKey: 'fixed_assets.tax_categories.mx_34_viii', method: 'STRAIGHT_LINE', annualRate: 0.35, legalBasis: 'LISR, art. 34, fracción VIII' },
+    ],
+    caveat: 'fixed_assets.tax_categories.mx_caveat',
+  },
 };

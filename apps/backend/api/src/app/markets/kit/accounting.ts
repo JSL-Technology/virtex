@@ -11,4 +11,5 @@ export const NEUTRAL_ACCOUNTING: MarketAccounting = {
   exclusiveTerms: [],
   inflationAccounting: null,
   officialExchangeRates: null,
+  taxDepreciation: null,
 };

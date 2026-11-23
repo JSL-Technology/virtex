@@ -34,7 +34,11 @@ describe('depreciation schedule', () => {
 
   it('never charges below the residual value, whatever the method', () => {
     for (const method of Object.values(DepreciationMethod)) {
-      const schedule = remainingSchedule(asset({ cost: 50_000, residualValue: 5_000, usefulLifeMonths: 48, depreciationMethod: method }));
+      // A declining balance at a yearly rate needs its rate; the life is where what is left goes.
+      const decliningAnnualRate = method === DepreciationMethod.DECLINING_BALANCE ? 0.3 : null;
+      const schedule = remainingSchedule(
+        asset({ cost: 50_000, residualValue: 5_000, usefulLifeMonths: 48, depreciationMethod: method, decliningAnnualRate }),
+      );
       expect(cents(schedule.map((row) => row.amount))).toBe(45_000);
       expect(schedule[schedule.length - 1].bookValueAfter).toBe(5_000);
       expect(schedule).toHaveLength(48);
@@ -252,4 +256,90 @@ describe('depreciation conventions', () => {
     expect(disposalMonthCharge({ ...late, depreciationConvention: 'DAILY' }, '2024-12-15')).toMatchObject({ amount: 50 });
     expect(disposalMonthCharge({ ...late, depreciationConvention: 'DAILY', accumulatedDepreciation: 1_200 }, '2024-12-15')).toBeNull();
   });
+
+  describe('a declining balance at a yearly rate — how a tax authority states one', () => {
+    const taxBook = (overrides: Partial<DepreciableAsset> = {}): DepreciableAsset =>
+      asset({
+        cost: 10_000,
+        usefulLifeMonths: 1200,
+        depreciationMethod: DepreciationMethod.DECLINING_BALANCE,
+        decliningAnnualRate: 0.25,
+        inServiceDate: '2026-01-10',
+        depreciationConvention: 'FULL_MONTH',
+        ...overrides,
+      });
+    const yearTotal = (charges: { periodEnd: string; amount: number }[], year: string) =>
+      cents(charges.filter((charge) => charge.periodEnd.startsWith(year)).map((charge) => charge.amount));
+
+    it('charges the rate on the value at the start of each year: 2 500, then 1 875, of 10 000 at 25 %', () => {
+      const charges = chargesDue(taxBook(), '2027-12-31');
+      expect(yearTotal(charges, '2026')).toBe(2_500);
+      expect(yearTotal(charges, '2027')).toBe(1_875);
+      // Evenly within a year: a twelfth of the year's charge a month.
+      // A twelfth of the year's charge a month, the cents falling where the running total puts them.
+      expect(charges.filter((charge) => charge.periodEnd.startsWith('2026')).every((charge) => [208.33, 208.34].includes(charge.amount))).toBe(true);
+    });
+
+    it('charges a first year in part for the months in service', () => {
+      const charges = chargesDue(taxBook({ inServiceDate: '2026-07-15' }), '2027-12-31');
+      expect(yearTotal(charges, '2026')).toBe(1_250);
+      expect(yearTotal(charges, '2027')).toBe(2_187.5);
+    });
+
+    it('resumes in the middle of a year on the value it started the year at', () => {
+      const charges = chargesDue(
+        taxBook({ accumulatedDepreciation: 1_250, depreciatedThrough: '2026-06-30', decliningYearBase: 10_000 }),
+        '2026-12-31',
+      );
+      expect(charges[0]).toMatchObject({ periodEnd: '2026-07-31', amount: 208.33 });
+      expect(yearTotal(charges, '2026')).toBe(1_250);
+    });
+
+    it('follows the company\'s fiscal year: a year from April starts again in April', () => {
+      const charges = chargesDue(taxBook({ fiscalYearStartMonth: 4 }), '2026-06-30');
+      // January to March close the year that started in April: three twelfths of 2 500.
+      expect(cents(charges.slice(0, 3).map((charge) => charge.amount))).toBe(625);
+      // April: 25 % of the 9 375 left, a twelfth a month.
+      expect(charges[3]).toMatchObject({ periodEnd: '2026-04-30', amount: 195.31 });
+    });
+  });
+
+  describe('a straight line stated as a yearly rate', () => {
+    // As a tax law states it: the rate on the base every year, the life only a bound.
+    const atRate = (rate: number, overrides: Partial<DepreciableAsset> = {}) =>
+      asset({ cost: 12_000, usefulLifeMonths: 1200, straightLineAnnualRate: rate, inServiceDate: '2026-01-01', ...overrides });
+
+    it('deducts exactly the rate a year, the last month what is left: 35 % of 12 000 is 350 a month', () => {
+      const schedule = remainingSchedule(atRate(0.35));
+      // 34 months of 350 and a 35th of 100 — never the 4 235.29 a year a life of 34 months gives.
+      expect(schedule).toHaveLength(35);
+      expect(schedule.slice(0, 34).every((row) => row.amount === 350)).toBe(true);
+      expect(schedule[34]).toMatchObject({ periodEnd: '2028-11-30', amount: 100, accumulatedAfter: 12_000, bookValueAfter: 0 });
+    });
+
+    it('adds up to the rate on the base each year, to the cent, where a month is not whole cents', () => {
+      const schedule = remainingSchedule(atRate(0.35, { cost: 10_000 }));
+      const year = (prefix: string) => cents(schedule.filter((row) => row.periodEnd.startsWith(prefix)).map((row) => row.amount));
+      // 291.666… a month: 3 500.00 a year, not the 3 500.04 twelve rounded months give.
+      expect(year('2026')).toBe(3_500);
+      expect(year('2027')).toBe(3_500);
+      expect(cents(schedule.map((row) => row.amount))).toBe(10_000);
+    });
+
+    it('applies a new rate to the base from then on, not to what is left over the life left', () => {
+      // A year at 35 %, then 30 %: 300 a month — not 7 800 over the 28 months a 40-month life leaves.
+      const charges = chargesDue(atRate(0.3, { accumulatedDepreciation: 4_200, depreciatedThrough: '2026-12-31' }), '2027-03-31');
+      expect(charges.map((row) => row.amount)).toEqual([300, 300, 300]);
+    });
+
+    it('starts the month after it enters service where the law says so, and follows the fiscal year', () => {
+      const next = remainingSchedule(atRate(0.35, { inServiceDate: '2026-01-20', depreciationConvention: 'NEXT_MONTH' }));
+      expect(next[0]).toMatchObject({ periodEnd: '2026-02-28', amount: 350 });
+      expect(cents(next.map((row) => row.amount))).toBe(12_000);
+      const april = remainingSchedule(atRate(0.35, { cost: 10_000, fiscalYearStartMonth: 4 }));
+      // The fiscal year from April: April 2026 to March 2027 is one year at 3 500.
+      expect(cents(april.filter((row) => row.periodEnd >= '2026-04-30' && row.periodEnd <= '2027-03-31').map((row) => row.amount))).toBe(3_500);
+    });
+  });
 });
+

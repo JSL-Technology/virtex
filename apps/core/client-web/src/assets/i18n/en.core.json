@@ -56,6 +56,8 @@
   "common.dependents.customers_one": "customer",
   "common.dependents.employees": "employees",
   "common.dependents.employees_one": "employee",
+  "common.dependents.fixed_asset": "fixed assets",
+  "common.dependents.fixed_asset_one": "fixed asset",
   "common.dependents.invoice_lines": "invoice lines",
   "common.dependents.invoice_lines_one": "invoice line",
   "common.dependents.invoices": "invoices",

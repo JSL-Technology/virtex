@@ -21,4 +21,6 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Dólar observado publicado por el Banco Central de Chile.',
     feed: null,
   },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

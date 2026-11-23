@@ -39,6 +39,8 @@ import { ClosingAutomationService } from './closing-automation.service';
 import { InflationAdjustmentService } from './inflation-adjustment.service';
 import { PriceIndicesService } from '../currencies/price-indices.service';
 import { ResultTransferService } from './result-transfer.service';
+import { TaxBookService } from '../fixed-assets/tax-book.service';
+import { I18nService } from '../i18n/i18n.service';
 import { DepreciationService } from '../fixed-assets/depreciation.service';
 import { DepreciationRunTrigger } from '../fixed-assets/entities/fixed-asset-depreciation-run.entity';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
@@ -163,6 +165,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       dataSource,
       new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
       new JournalLookupService(dataSource.getRepository(Journal)),
+      new TaxBookService(dataSource, new I18nService()),
     );
     // The real resolver, on the real data source. Stubbing it would put back exactly the kind of
     // gap that let the close crash in production while this suite's ancestor passed.
@@ -405,6 +408,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       dataSource,
       new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
       new JournalLookupService(dataSource.getRepository(Journal)),
+      new TaxBookService(dataSource, new I18nService()),
     );
     await addAsset();
     await post('2026-01-10', 'Venta', [

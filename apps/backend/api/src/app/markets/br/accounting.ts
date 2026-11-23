@@ -22,4 +22,6 @@ export const accounting: MarketAccounting = {
     legalBasis: 'Taxa PTAX divulgada pelo Banco Central do Brasil.',
     feed: officialRateFeed,
   },
+  // No categories the product carries for this market: each company sets its own categories' rates.
+  taxDepreciation: null,
 };

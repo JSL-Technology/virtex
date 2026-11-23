@@ -26,6 +26,13 @@ export enum DepreciationMethod {
   STRAIGHT_LINE = 'STRAIGHT_LINE',
   DOUBLE_DECLINING_BALANCE = 'DOUBLE_DECLINING_BALANCE',
   SUM_OF_YEARS_DIGITS = 'SUM_OF_YEARS_DIGITS',
+  /**
+   * A fixed annual rate on the value not yet depreciated, with no switch to straight line — the way
+   * a tax authority states a declining balance: 25 % a year on what is left (DGII, Ley 11-92 art.
+   * 287, categories 2 and 3). The rate is the book's (`decliningAnnualRate`); the life is only the
+   * horizon at which what is left is written off.
+   */
+  DECLINING_BALANCE = 'DECLINING_BALANCE',
 }
 
 /** A reference to an account or an entry, without importing the ledger's entities. */
@@ -56,6 +63,7 @@ interface Ref {
 @Entity({ name: 'fixed_asset' })
 @Index('UQ_fixed_asset_org_number', ['organizationId', 'number'], { unique: true })
 @Index('IDX_fixed_asset_org_status', ['organizationId', 'status'])
+@Index('IDX_fixed_asset_category', ['categoryId'])
 @Check('CHK_fixed_asset_cost', `"cost" >= 0`)
 @Check('CHK_fixed_asset_residual', `"residual_value" >= 0 AND "residual_value" <= "cost"`)
 @Check('CHK_fixed_asset_useful_life', `"useful_life_months" > 0`)
@@ -65,7 +73,11 @@ interface Ref {
 )
 @Check(
   'CHK_fixed_asset_method',
-  `"depreciation_method" IN ('STRAIGHT_LINE', 'DOUBLE_DECLINING_BALANCE', 'SUM_OF_YEARS_DIGITS')`,
+  `"depreciation_method" IN ('STRAIGHT_LINE', 'DOUBLE_DECLINING_BALANCE', 'SUM_OF_YEARS_DIGITS', 'DECLINING_BALANCE')`,
+)
+@Check(
+  'CHK_fixed_asset_declining_rate',
+  `("depreciation_method" = 'DECLINING_BALANCE') = ("declining_annual_rate" IS NOT NULL) AND ("declining_annual_rate" IS NULL OR ("declining_annual_rate" > 0 AND "declining_annual_rate" <= 1))`,
 )
 @Check(
   'CHK_fixed_asset_convention',
@@ -90,6 +102,17 @@ export class FixedAsset {
 
   @Column({ type: 'text', nullable: true })
   description: string | null;
+
+  /**
+   * Its class (FINB-16): vehicles, computers, buildings. What it was registered with came from
+   * there and is the asset's own — a change to the category rewrites no asset.
+   */
+  @Column({ name: 'category_id', type: 'uuid', nullable: true })
+  categoryId: string | null;
+
+  @ManyToOne('FixedAssetCategory', { nullable: true, onDelete: 'NO ACTION' })
+  @JoinColumn({ name: 'category_id', foreignKeyConstraintName: 'FK_fixed_asset_category' })
+  category?: Ref | null;
 
   /** Where the asset is held and used — see `IssuedAtBranch`. */
   @Column({ name: 'branch_id', type: 'uuid', nullable: true })
@@ -121,6 +144,10 @@ export class FixedAsset {
 
   @Column({ name: 'depreciation_method', type: 'varchar', length: 32, default: DepreciationMethod.STRAIGHT_LINE })
   depreciationMethod: DepreciationMethod;
+
+  /** The yearly rate of a `DECLINING_BALANCE` method, as a fraction: 0.25 for 25 %. Null for any other. */
+  @Column('decimal', { name: 'declining_annual_rate', precision: 7, scale: 6, nullable: true, transformer: numericTransformer })
+  decliningAnnualRate: number | null;
 
   /**
    * How much of the month it entered service in, and of the month it leaves, is charged
