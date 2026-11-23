@@ -2,7 +2,7 @@
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**108 de 387 resueltos; 279 por corregir** (15 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**109 de 387 resueltos; 278 por corregir** (15 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada. La evidencia es la registrada en el informe de cierre (`herramientas/informe-cierre.mjs`, mapa `M`): commit y qué se comprobó. Cada commit citado se comprueba contra el repositorio al generar esta lista.
 
@@ -10,7 +10,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 |---|---|---|
 | Crítica | 13 | 0 |
 | Alta | 48 | 68 |
-| Media | 37 | 135 |
+| Media | 38 | 134 |
 | Baja | 9 | 61 |
 | — | 1 | 15 |
 
@@ -202,7 +202,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FIN-DIM-01 | Filtros por valor padre no incluyen hijos (ADM devuelve 10 de 20). Ubicación: filtro de dimensión en financial-reporting.service.ts (igualdad JSONB). Forma correcta: expandir con dimension_… | Sin corrección registrada. | `modulos/dimensions.md:43` |
 | ❌ | FIN-DIM-02 | Dimensión referida por nombre en JSONB (journal_entry_lines.dimensions), sin integridad referencial; impide renombrar y obliga a contar uso por texto. Esfuerzo: M. | Sin corrección registrada. | `modulos/dimensions.md:45` |
 | ❌ | FIN-FR-03 | Un solo formato IFRS para los 19 países; sin estados en formato oficial (DO, MX, CO…). Esfuerzo: L. | Sin corrección registrada. | `modulos/financial-reporting.md:70` |
-| ❌ | FINB-15 | fixed-assets.service.ts:57 ("registering posts nothing"). Registro 122.800 de costo frente a 1210 = 0 en el mayor; no hay informe de conciliación registro↔mayor ni vínculo obligatorio con l… | Sin corrección registrada. | `modulos/fixed-assets.md:65` |
 | ❌ | FINB-23 | budget-control.service.ts:123-137, budgets.service.ts:200-241. Línea sin dimensiones solo cuenta reales con dimensions = {}: el gasto etiquetado con centro de costo queda fuera del presupue… | Sin corrección registrada. | `modulos/budgets.md:47` |
 | ❌ | FINB-24 | budgets.service.ts:121-133, 139 (update/delete por criterio). Cambios y borrados de presupuesto sin rastro. S. | Sin corrección registrada. | `modulos/budgets.md:49` |
 | ❌ | FINB-42 | cuentas IC por defecto no aprovisionadas (organization_settings.default_intercompany_* NULL) → 400 intercompany.default_intercompany_accounts_not_configured_one en todo tenant nuevo (por có… | Sin corrección registrada. | `modulos/intercompany.md:40` |
@@ -306,6 +305,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | FINB-11 | depreciation-schedule.ts:201-216. SYD con vida 18 meses: 12×100, 5×50 y 350 en el último mes (años = ceil(18/12) reparte el año 2 en 12 meses). DDB 12 meses: último mes 134,58 frente a 26,9… | Commit `c6ea5877`. Suma de dígitos sobre la vida real: cada año pesa la vida que le queda y la fracción final de año lo que es (f×f); 18 meses cargan 1,5/1,75 de la base en los primeros doce y 0,25/1,75 en los últimos seis (128,57 y 42,86, donde el último mes cargaba 350). Dobl… | `modulos/fixed-assets.md:59` |
 | ✅ | FINB-12 | depreciation-schedule.ts:148-152, fixed-assets.service.ts:318. Convención fija de mes completo: alta el 31-01 deprecia enero completo (166,67); el mes de la baja nunca se deprecia. Sin opci… | Commit `bf1ce84a`. Convenciones de prorrata como contrato compartido (`DEPRECIATION_CONVENTIONS`): mes completo, desde el mes siguiente, medio mes y por días en servicio; la vida se coloca sobre un eje continuo de meses y cada mes se carga por el tramo que contiene, con los tre… | `modulos/fixed-assets.md:61` |
 | ✅ | FINB-14 | dto/fixed-asset.dto.ts:44 (solo regex). acquisitionDate":"2026-02-30" → HTTP 500 (QueryFailedError: date/time field value out of range, api.log). Usar validador de fecha real (IsIsoDate). S. | Commit `c6ea5877`. `@IsIsoDate()` (día que existe, sin hora) en alta, edición y baja de activos; los 120 `@IsDateString` del producto, estrictos; `verify:date-validators` (nuevo, en CI) falla ante uno no estricto o una fecha validada por expresión regular. Red bajo todo: 22008/… | `modulos/fixed-assets.md:63` |
+| ✅ | FINB-15 | fixed-assets.service.ts:57 ("registering posts nothing"). Registro 122.800 de costo frente a 1210 = 0 en el mayor; no hay informe de conciliación registro↔mayor ni vínculo obligatorio con l… | Commit `b9527444`. Capitalización obligatoria: cada activo dice cómo entró su costo al mayor — `VENDOR_BILL` (factura contabilizada), `JOURNAL_ENTRY` (asiento del mayor) o `POSTED` (alta contabilizada por el registro: Dr costo, Cr acumulada de apertura, Cr contrapartida; bloque… | `modulos/fixed-assets.md:65` |
 | ✅ | FINB-34 | consolidation.service.ts:365-372, 592-595: todo el patrimonio a tasa histórica de adquisición (incluye resultados posteriores), promedio = media simple de cierres mensuales; CTA no persisti… | Commit `958cf094`. Lo posterior a la adquisición se convierte al promedio desde la adquisición (no al histórico); la diferencia de conversión se acumula por corrida en `consolidation_runs` (migración 1789460000000, solo inserción). El promedio sigue siendo la media de cierres m… | `modulos/consolidation.md:50` |
 | ✅ | FINB-35 | organizations.service.ts:200-288: solo se pueden crear subsidiarias nuevas; no se puede vincular una organización existente (adquisición). M. | Commit `958cf094`. `OrganizationsService.linkSubsidiary` + `POST /organizations/subsidiaries/link` (step-up, propietario, administrador de ambas empresas, sin ciclos ni doble control, cupo del plan) y diálogo en Ajustes › Subsidiarias; `subsidiary-link.spec.ts`. | `modulos/consolidation.md:52` |
 | ✅ | I18N-02 | i18n · multi-país: I18N-03 · ui-i18n · eje 11 · UX · Baja/Media. El idioma ignora el prefijo /es\|en\|pt/ una vez dentro de la aplicación y no hay preferencia de usuario por defecto. Un usuar… | Commit `aeabe621`, `96754204`. Igual que LOC-04. | `modulos/i18n.md:57` |
