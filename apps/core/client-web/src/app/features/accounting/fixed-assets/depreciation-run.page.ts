@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -39,6 +39,8 @@ export class DepreciationRunPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly organization = inject(ActiveOrganizationService);
 
+  /** The month to open on — the one being closed, from the close's checklist (`?period=`). */
+  readonly periodParam = input<string | undefined>(undefined, { alias: 'period' });
   readonly period = signal(previousMonth());
   readonly preview = signal<DepreciationRunResult | null>(null);
   /** The run just posted, kept on screen with a link to its entry. */
@@ -62,6 +64,8 @@ export class DepreciationRunPage implements OnInit {
   );
 
   ngOnInit(): void {
+    const requested = this.periodParam();
+    if (requested && /^\d{4}-(0[1-9]|1[0-2])$/.test(requested)) this.period.set(requested);
     this.load();
   }
 

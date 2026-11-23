@@ -17,7 +17,7 @@ import {
 } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
-import { DepreciationMethod, FixedAssetStatus } from '../entities/fixed-asset.entity';
+import { DepreciationMethod, FixedAssetCapitalization, FixedAssetStatus } from '../entities/fixed-asset.entity';
 import { DepreciationRunTrigger } from '../entities/fixed-asset-depreciation-run.entity';
 import { DEPRECIATION_CONVENTIONS, type DepreciationConvention } from '@virtex/shared/types';
 
@@ -73,6 +73,36 @@ export class TaxBookDto {
   @Matches(ISO_MONTH)
   @IsOptional()
   openingThrough?: string | null;
+}
+
+/**
+ * How an asset's cost entered the ledger (audit 2026-11-07, FINB-15): the posted supplier bill that
+ * bought it, an entry already in the books, or the acquisition the register posts itself against
+ * the account named.
+ */
+export class CapitalizationDto {
+  @IsIn([FixedAssetCapitalization.VENDOR_BILL, FixedAssetCapitalization.JOURNAL_ENTRY, FixedAssetCapitalization.POSTED], {
+    message: 'validation.constraints.is_in',
+  })
+  method: FixedAssetCapitalization.VENDOR_BILL | FixedAssetCapitalization.JOURNAL_ENTRY | FixedAssetCapitalization.POSTED;
+
+  @IsUUID()
+  @IsOptional()
+  vendorBillId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  journalEntryId?: string;
+
+  /** `POSTED`: what the acquisition is credited to — the bank, a payable, opening equity. */
+  @IsUUID()
+  @IsOptional()
+  offsetAccountId?: string;
+
+  /** `POSTED`: the entry's date; the acquisition's when not stated. */
+  @IsIsoDate()
+  @IsOptional()
+  date?: string;
 }
 
 /**
@@ -164,9 +194,16 @@ export class CreateFixedAssetDto {
   @IsOptional()
   depreciationExpenseAccountId?: string | null;
 
+  /** Shorthand for a capitalization from this bill. */
   @IsUUID()
   @IsOptional()
   vendorBillId?: string | null;
+
+  /** How its cost entered the ledger. Required, unless `vendorBillId` names the bill. */
+  @ValidateNested()
+  @Type(() => CapitalizationDto)
+  @IsOptional()
+  capitalization?: CapitalizationDto;
 
   /** Depreciation charged before the asset entered this product — a migration's opening balance. */
   @Type(() => Number)
@@ -269,9 +306,8 @@ export class UpdateFixedAssetDto {
   @IsOptional()
   depreciationExpenseAccountId?: string | null;
 
-  @IsUUID()
-  @IsOptional()
-  vendorBillId?: string | null;
+  // How it entered the ledger is changed by `POST /fixed-assets/:id/capitalization`, which checks
+  // the new source — not by an edit.
 
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -384,4 +420,38 @@ export class TaxDepreciationReportQueryDto extends PaginationQueryDto {
   @MaxLength(40, { message: 'validation.constraints.max_length|{"max":40}' })
   @IsOptional()
   taxCategoryCode?: string;
+}
+
+/** The purchases and entries waiting to be registered as assets. */
+export class CapitalizationSourcesQueryDto extends PaginationQueryDto {
+  @IsUUID()
+  @IsOptional()
+  accountId?: string;
+
+  /** What of one bill is waiting to be registered. */
+  @IsUUID()
+  @IsOptional()
+  vendorBillId?: string;
+
+  /** What of one entry is waiting to be registered. */
+  @IsUUID()
+  @IsOptional()
+  journalEntryId?: string;
+
+  @IsString()
+  @MaxLength(100)
+  @IsOptional()
+  search?: string;
+}
+
+/** The register against the ledger on a day. */
+export class FixedAssetReconciliationQueryDto {
+  @IsIsoDate()
+  asOf: string;
+}
+
+/** What explains the difference on a day — the assets with no source in the ledger, or the movements with no asset —, by page. */
+export class FixedAssetReconciliationListQueryDto extends PaginationQueryDto {
+  @IsIsoDate()
+  asOf: string;
 }

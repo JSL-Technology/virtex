@@ -34,6 +34,196 @@
     "en": "The branch named does not exist or is inactive.",
     "pt": "A filial indicada não existe ou está inativa."
   },
+  "fixed_assets.capitalization.change": {
+    "es": "Cambiar",
+    "en": "Change",
+    "pt": "Alterar"
+  },
+  "fixed_assets.capitalization.current": {
+    "es": "Ahora: {{method}}.",
+    "en": "Now: {{method}}.",
+    "pt": "Agora: {{method}}."
+  },
+  "fixed_assets.capitalization.date": {
+    "es": "Fecha del asiento",
+    "en": "Entry date",
+    "pt": "Data do lançamento"
+  },
+  "fixed_assets.capitalization.date_hint": {
+    "es": "Vacía, la de adquisición. Para un activo migrado, la de los saldos de apertura.",
+    "en": "Empty, the acquisition date. For a migrated asset, the opening balances date.",
+    "pt": "Vazia, a de aquisição. Para um ativo migrado, a dos saldos de abertura."
+  },
+  "fixed_assets.capitalization.hint": {
+    "es": "El costo del activo está en el mayor por una compra ya contabilizada, o lo registra aquí su asiento de alta. Sin esto, el registro y el mayor no se pueden conciliar.",
+    "en": "The asset's cost is in the ledger through a purchase already posted, or its acquisition entry posts it here. Without this, the register and the ledger cannot be reconciled.",
+    "pt": "O custo do ativo está no razão por uma compra já contabilizada, ou seu lançamento de entrada o registra aqui. Sem isso, o registro e o razão não podem ser conciliados."
+  },
+  "fixed_assets.capitalization.how": {
+    "es": "Origen del costo",
+    "en": "Where the cost came from",
+    "pt": "Origem do custo"
+  },
+  "fixed_assets.capitalization.link_now": {
+    "es": "Vincular con el mayor",
+    "en": "Link to the ledger",
+    "pt": "Vincular ao razão"
+  },
+  "fixed_assets.capitalization.methods.journal_entry": {
+    "es": "Asiento ya contabilizado",
+    "en": "Entry already posted",
+    "pt": "Lançamento já contabilizado"
+  },
+  "fixed_assets.capitalization.methods.posted": {
+    "es": "Asiento de alta registrado aquí",
+    "en": "Acquisition entry posted here",
+    "pt": "Lançamento de entrada registrado aqui"
+  },
+  "fixed_assets.capitalization.methods.unlinked": {
+    "es": "Sin vincular con el mayor",
+    "en": "Not linked to the ledger",
+    "pt": "Sem vínculo com o razão"
+  },
+  "fixed_assets.capitalization.methods.vendor_bill": {
+    "es": "Factura de proveedor",
+    "en": "Supplier bill",
+    "pt": "Fatura de fornecedor"
+  },
+  "fixed_assets.capitalization.mode_posted": {
+    "es": "Registrar aquí el asiento de alta",
+    "en": "Post the acquisition entry here",
+    "pt": "Registrar aqui o lançamento de entrada"
+  },
+  "fixed_assets.capitalization.mode_source": {
+    "es": "De una compra ya contabilizada (factura o asiento)",
+    "en": "From a purchase already posted (bill or entry)",
+    "pt": "De uma compra já contabilizada (fatura ou lançamento)"
+  },
+  "fixed_assets.capitalization.no_sources": {
+    "es": "No hay compras pendientes de registrar en esa cuenta",
+    "en": "No purchases waiting to be registered on that account",
+    "pt": "Não há compras pendentes de registro nessa conta"
+  },
+  "fixed_assets.capitalization.offset": {
+    "es": "Contrapartida del alta",
+    "en": "Acquisition offset",
+    "pt": "Contrapartida da entrada"
+  },
+  "fixed_assets.capitalization.offset_hint": {
+    "es": "A qué se acredita: el banco o la caja, una cuenta por pagar, el patrimonio de apertura de un activo migrado.",
+    "en": "What it is credited to: the bank or cash, a payable, the opening equity of a migrated asset.",
+    "pt": "A que é creditado: o banco ou o caixa, uma conta a pagar, o patrimônio de abertura de um ativo migrado."
+  },
+  "fixed_assets.capitalization.page_subtitle": {
+    "es": "Registra o corrige cómo entró al mayor el costo del activo. No cambia nada de su valoración.",
+    "en": "Record or correct how the asset's cost entered the ledger. Nothing it is valued on changes.",
+    "pt": "Registre ou corrija como o custo do ativo entrou no razão. Nada de sua avaliação muda."
+  },
+  "fixed_assets.capitalization.replaces_posted": {
+    "es": "El asiento de alta registrado aquí se revertirá y se registrará el nuevo.",
+    "en": "The acquisition entry posted here will be reversed and the new one posted.",
+    "pt": "O lançamento de entrada registrado aqui será revertido e o novo registrado."
+  },
+  "fixed_assets.capitalization.save_failed": {
+    "es": "No se pudo guardar la capitalización.",
+    "en": "The capitalization could not be saved.",
+    "pt": "Não foi possível salvar a capitalização."
+  },
+  "fixed_assets.capitalization.saved": {
+    "es": "Capitalización del activo {{number}} guardada.",
+    "en": "Capitalization of asset {{number}} saved.",
+    "pt": "Capitalização do ativo {{number}} salva."
+  },
+  "fixed_assets.capitalization.source": {
+    "es": "Compra",
+    "en": "Purchase",
+    "pt": "Compra"
+  },
+  "fixed_assets.capitalization.source_hint": {
+    "es": "Facturas y asientos que cargaron una cuenta de activo fijo, con lo que falta por registrar de cada uno.",
+    "en": "Bills and entries that debited a fixed-asset account, with what is left to register of each.",
+    "pt": "Faturas e lançamentos que debitaram uma conta de ativo imobilizado, com o que falta registrar de cada um."
+  },
+  "fixed_assets.capitalization.source_placeholder": {
+    "es": "Busca la factura o el asiento",
+    "en": "Search the bill or the entry",
+    "pt": "Busque a fatura ou o lançamento"
+  },
+  "fixed_assets.capitalization.source_required": {
+    "es": "Elige la compra de la que viene el activo.",
+    "en": "Choose the purchase the asset comes from.",
+    "pt": "Escolha a compra de onde vem o ativo."
+  },
+  "fixed_assets.capitalization.title": {
+    "es": "Cómo entró al mayor",
+    "en": "How it entered the ledger",
+    "pt": "Como entrou no razão"
+  },
+  "fixed_assets.capitalization.unlinked_banner": {
+    "es": "Este activo se registró sin decir cómo entró su costo al mayor: la conciliación lo cuenta como diferencia.",
+    "en": "This asset was registered without saying how its cost entered the ledger: the reconciliation counts it as a difference.",
+    "pt": "Este ativo foi registrado sem dizer como seu custo entrou no razão: a conciliação o conta como diferença."
+  },
+  "fixed_assets.capitalization_before_acquisition": {
+    "es": "El asiento de alta no puede ser anterior a la fecha de adquisición.",
+    "en": "The acquisition entry cannot be dated before the acquisition date.",
+    "pt": "O lançamento de entrada não pode ser anterior à data de aquisição."
+  },
+  "fixed_assets.capitalization_bill_not_posted": {
+    "es": "La factura {{bill}} no está contabilizada: un activo se capitaliza de una factura que ya llegó al mayor.",
+    "en": "Bill {{bill}} is not posted: an asset is capitalized from a bill that has reached the ledger.",
+    "pt": "A fatura {{bill}} não está contabilizada: um ativo é capitalizado a partir de uma fatura que já chegou ao razão."
+  },
+  "fixed_assets.capitalization_bill_required": {
+    "es": "Elige la factura de proveedor que compró el activo.",
+    "en": "Choose the supplier bill that bought the asset.",
+    "pt": "Escolha a fatura de fornecedor que comprou o ativo."
+  },
+  "fixed_assets.capitalization_entry_not_found": {
+    "es": "El asiento no existe en esta empresa.",
+    "en": "That entry does not exist in this company.",
+    "pt": "O lançamento não existe nesta empresa."
+  },
+  "fixed_assets.capitalization_entry_not_posted": {
+    "es": "El asiento {{entry}} no está en los libros: está sin contabilizar o fue revertido.",
+    "en": "Entry {{entry}} is not in the books: it is unposted or was reversed.",
+    "pt": "O lançamento {{entry}} não está nos livros: não foi contabilizado ou foi revertido."
+  },
+  "fixed_assets.capitalization_entry_of_register": {
+    "es": "El asiento {{entry}} es del propio registro de activos (alta, depreciación o baja): no es la compra de un activo.",
+    "en": "Entry {{entry}} belongs to the asset register itself (acquisition, depreciation or disposal): it is not the purchase of an asset.",
+    "pt": "O lançamento {{entry}} é do próprio registro de ativos (entrada, depreciação ou baixa): não é a compra de um ativo."
+  },
+  "fixed_assets.capitalization_entry_required": {
+    "es": "Elige el asiento que registró el costo del activo.",
+    "en": "Choose the entry that recorded the asset's cost.",
+    "pt": "Escolha o lançamento que registrou o custo do ativo."
+  },
+  "fixed_assets.capitalization_exceeds_source": {
+    "es": "{{source}} cargó la cuenta {{account}} por menos de lo que ya se registró de ella: quedan {{available}} por registrar.",
+    "en": "{{source}} debited account {{account}} by less than has been registered from it: {{available}} is left to register.",
+    "pt": "{{source}} debitou a conta {{account}} por menos do que já foi registrado dela: restam {{available}} a registrar."
+  },
+  "fixed_assets.capitalization_offset_is_asset_account": {
+    "es": "La contrapartida del alta no puede ser la cuenta del activo ni la de su depreciación acumulada.",
+    "en": "The acquisition's offset cannot be the asset account or its accumulated depreciation account.",
+    "pt": "A contrapartida da entrada não pode ser a conta do ativo nem a de sua depreciação acumulada."
+  },
+  "fixed_assets.capitalization_offset_required": {
+    "es": "Indica la cuenta contra la que se registra el alta: el banco, una cuenta por pagar, el patrimonio de apertura.",
+    "en": "State the account the acquisition is posted against: the bank, a payable, opening equity.",
+    "pt": "Indique a conta contra a qual a entrada é registrada: o banco, uma conta a pagar, o patrimônio de abertura."
+  },
+  "fixed_assets.capitalization_required": {
+    "es": "Indica cómo entró el costo del activo al mayor: la factura de proveedor que lo compró, un asiento que ya lo registró, o el asiento de alta que se registra aquí.",
+    "en": "State how the asset's cost entered the ledger: the supplier bill that bought it, an entry that already recorded it, or the acquisition entry posted here.",
+    "pt": "Indique como o custo do ativo entrou no razão: a fatura de fornecedor que o comprou, um lançamento que já o registrou, ou o lançamento de entrada registrado aqui."
+  },
+  "fixed_assets.capitalization_source_not_on_account": {
+    "es": "{{source}} no cargó la cuenta {{account}} del activo: el costo no entró por ahí.",
+    "en": "{{source}} did not debit the asset's account {{account}}: the cost did not come in through it.",
+    "pt": "{{source}} não debitou a conta {{account}} do ativo: o custo não entrou por ali."
+  },
   "fixed_assets.categories.activate": {
     "es": "Activar",
     "en": "Activate",
@@ -224,6 +414,46 @@
     "en": "That fixed-asset category does not exist in this company.",
     "pt": "A categoria de ativos imobilizados não existe nesta empresa."
   },
+  "fixed_assets.closing.depreciation_nothing": {
+    "es": "Ningún activo fijo tiene depreciación pendiente en el período.",
+    "en": "No fixed asset has depreciation left to charge in the period.",
+    "pt": "Nenhum ativo imobilizado tem depreciação pendente no período."
+  },
+  "fixed_assets.closing.depreciation_ready": {
+    "es": "El cierre cargará la depreciación del período a {{count}} activos: {{amount}}.",
+    "en": "The close will charge the period's depreciation to {{count}} assets: {{amount}}.",
+    "pt": "O fechamento lançará a depreciação do período em {{count}} ativos: {{amount}}."
+  },
+  "fixed_assets.closing.depreciation_ready_one": {
+    "es": "El cierre cargará la depreciación del período a {{count}} activo: {{amount}}.",
+    "en": "The close will charge the period's depreciation to {{count}} asset: {{amount}}.",
+    "pt": "O fechamento lançará a depreciação do período em {{count}} ativo: {{amount}}."
+  },
+  "fixed_assets.closing.depreciation_skipped": {
+    "es": "El cierre no puede depreciar {{count}} activos porque les faltan cuentas: {{assets}}.",
+    "en": "The close cannot depreciate {{count}} assets because they lack accounts: {{assets}}.",
+    "pt": "O fechamento não pode depreciar {{count}} ativos porque lhes faltam contas: {{assets}}."
+  },
+  "fixed_assets.closing.depreciation_skipped_one": {
+    "es": "El cierre no puede depreciar {{count}} activo porque le faltan cuentas: {{assets}}.",
+    "en": "The close cannot depreciate {{count}} asset because it lacks accounts: {{assets}}.",
+    "pt": "O fechamento não pode depreciar {{count}} ativo porque lhe faltam contas: {{assets}}."
+  },
+  "fixed_assets.closing.register_not_reconciled": {
+    "es": "El registro de activos fijos no coincide con el mayor al {{date}}: diferencia {{difference}}. Activos sin su costo en el mayor: {{unlinked}}; movimientos del mayor sin activo detrás: {{untraced}}.",
+    "en": "The fixed-asset register does not agree with the ledger on {{date}}: difference {{difference}}. Assets without their cost in the ledger: {{unlinked}}; ledger movements with no asset behind them: {{untraced}}.",
+    "pt": "O registro do ativo imobilizado não coincide com o razão em {{date}}: diferença {{difference}}. Ativos sem seu custo no razão: {{unlinked}}; movimentos do razão sem ativo por trás: {{untraced}}."
+  },
+  "fixed_assets.closing.register_note": {
+    "es": "Es un control: el cierre no lo corrige. La conciliación dice qué explica cada diferencia.",
+    "en": "This is a control: the close does not correct it. The reconciliation says what explains each difference.",
+    "pt": "É um controle: o fechamento não o corrige. A conciliação diz o que explica cada diferença."
+  },
+  "fixed_assets.closing.register_reconciled": {
+    "es": "El registro de activos fijos coincide con el mayor al {{date}}.",
+    "en": "The fixed-asset register agrees with the ledger on {{date}}.",
+    "pt": "O registro do ativo imobilizado coincide com o razão em {{date}}."
+  },
   "fixed_assets.conventions.daily": {
     "es": "Por días en servicio",
     "en": "By days in service",
@@ -388,11 +618,6 @@
     "es": "Volver a activos fijos",
     "en": "Back to fixed assets",
     "pt": "Voltar aos ativos imobilizados"
-  },
-  "fixed_assets.document.bill": {
-    "es": "Factura de compra",
-    "en": "Purchase bill",
-    "pt": "Fatura de compra"
   },
   "fixed_assets.document.charge": {
     "es": "Cargo",
@@ -913,6 +1138,201 @@
     "es": "Indica la cuenta donde entra el importe de la venta.",
     "en": "Name the account the sale proceeds go to.",
     "pt": "Indique a conta onde entra o valor da venda."
+  },
+  "fixed_assets.reconciliation.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "fixed_assets.reconciliation.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "fixed_assets.reconciliation.as_of": {
+    "es": "Al",
+    "en": "As of",
+    "pt": "Em"
+  },
+  "fixed_assets.reconciliation.available": {
+    "es": "Por registrar",
+    "en": "Left to register",
+    "pt": "A registrar"
+  },
+  "fixed_assets.reconciliation.by_account": {
+    "es": "Por cuenta",
+    "en": "By account",
+    "pt": "Por conta"
+  },
+  "fixed_assets.reconciliation.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "fixed_assets.reconciliation.debited": {
+    "es": "Cargado",
+    "en": "Debited",
+    "pt": "Debitado"
+  },
+  "fixed_assets.reconciliation.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "fixed_assets.reconciliation.disposed_on": {
+    "es": "Dado de baja el {{date}}",
+    "en": "Disposed of on {{date}}",
+    "pt": "Baixado em {{date}}"
+  },
+  "fixed_assets.reconciliation.empty_help": {
+    "es": "Cuando registres activos, aquí verás cada cuenta frente al mayor.",
+    "en": "Once assets are registered, each account is set against the ledger here.",
+    "pt": "Quando houver ativos registrados, aqui você verá cada conta frente ao razão."
+  },
+  "fixed_assets.reconciliation.empty_title": {
+    "es": "El registro aún no tiene activos",
+    "en": "The register has no assets yet",
+    "pt": "O registro ainda não tem ativos"
+  },
+  "fixed_assets.reconciliation.explained": {
+    "es": "Diferencia = lo que el mayor tiene sin activo detrás − lo que el registro tiene sin su costo en el mayor. El registro cuenta cada activo desde que se adquiere hasta su baja; cada cargo de depreciación, desde su asiento.",
+    "en": "Difference = what the ledger holds with no asset behind it − what the register holds without its cost in the ledger. The register counts each asset from its acquisition to its disposal, and each depreciation charge from its entry.",
+    "pt": "Diferença = o que o razão tem sem ativo por trás − o que o registro tem sem seu custo no razão. O registro conta cada ativo desde a aquisição até a baixa, e cada encargo de depreciação desde seu lançamento."
+  },
+  "fixed_assets.reconciliation.ledger": {
+    "es": "Mayor",
+    "en": "Ledger",
+    "pt": "Razão"
+  },
+  "fixed_assets.reconciliation.load_failed": {
+    "es": "No se pudo cargar la conciliación.",
+    "en": "The reconciliation could not be loaded.",
+    "pt": "Não foi possível carregar a conciliação."
+  },
+  "fixed_assets.reconciliation.net_totals": {
+    "es": "Valor neto en libros",
+    "en": "Net carrying amount",
+    "pt": "Valor contábil líquido"
+  },
+  "fixed_assets.reconciliation.reason": {
+    "es": "Por qué",
+    "en": "Why",
+    "pt": "Por quê"
+  },
+  "fixed_assets.reconciliation.reasons.never_linked": {
+    "es": "Nunca se dijo cómo entró su costo al mayor",
+    "en": "Nobody ever said how its cost entered the ledger",
+    "pt": "Nunca se disse como seu custo entrou no razão"
+  },
+  "fixed_assets.reconciliation.reasons.source_later": {
+    "es": "Su asiento {{entry}} es del {{date}}, después de esta fecha",
+    "en": "Its entry {{entry}} is dated {{date}}, after this date",
+    "pt": "Seu lançamento {{entry}} é de {{date}}, depois desta data"
+  },
+  "fixed_assets.reconciliation.reasons.source_not_posted": {
+    "es": "Su factura o su asiento no está contabilizado",
+    "en": "Its bill or its entry is not posted",
+    "pt": "Sua fatura ou seu lançamento não está contabilizado"
+  },
+  "fixed_assets.reconciliation.reasons.source_reversed": {
+    "es": "Su asiento {{entry}} se revirtió, o su factura se anuló",
+    "en": "Its entry {{entry}} was reversed, or its bill voided",
+    "pt": "Seu lançamento {{entry}} foi estornado, ou sua fatura cancelada"
+  },
+  "fixed_assets.reconciliation.reconciled": {
+    "es": "El registro y el mayor coinciden en todas las cuentas.",
+    "en": "The register and the ledger agree on every account.",
+    "pt": "O registro e o razão coincidem em todas as contas."
+  },
+  "fixed_assets.reconciliation.register": {
+    "es": "Registro",
+    "en": "Register",
+    "pt": "Registro"
+  },
+  "fixed_assets.reconciliation.register_asset": {
+    "es": "Registrar como activo",
+    "en": "Register as an asset",
+    "pt": "Registrar como ativo"
+  },
+  "fixed_assets.reconciliation.registered": {
+    "es": "Registrado",
+    "en": "Registered",
+    "pt": "Registrado"
+  },
+  "fixed_assets.reconciliation.role": {
+    "es": "Qué guarda",
+    "en": "What it holds",
+    "pt": "O que guarda"
+  },
+  "fixed_assets.reconciliation.roles.accumulated": {
+    "es": "Depreciación acumulada",
+    "en": "Accumulated depreciation",
+    "pt": "Depreciação acumulada"
+  },
+  "fixed_assets.reconciliation.roles.both": {
+    "es": "Costo y depreciación",
+    "en": "Cost and depreciation",
+    "pt": "Custo e depreciação"
+  },
+  "fixed_assets.reconciliation.roles.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "fixed_assets.reconciliation.source": {
+    "es": "Compra",
+    "en": "Purchase",
+    "pt": "Compra"
+  },
+  "fixed_assets.reconciliation.subtitle": {
+    "es": "Lo que el registro de activos dice de cada cuenta frente a su saldo en el mayor, y qué explica la diferencia.",
+    "en": "What the asset register says of each account against its ledger balance, and what explains the difference.",
+    "pt": "O que o registro de ativos diz de cada conta frente a seu saldo no razão, e o que explica a diferença."
+  },
+  "fixed_assets.reconciliation.title": {
+    "es": "Conciliación registro↔mayor",
+    "en": "Register↔ledger reconciliation",
+    "pt": "Conciliação registro↔razão"
+  },
+  "fixed_assets.reconciliation.unlinked": {
+    "es": "Sin costo en el mayor",
+    "en": "Not in the ledger",
+    "pt": "Sem custo no razão"
+  },
+  "fixed_assets.reconciliation.unlinked_assets": {
+    "es": "{{count}} activos sin su costo en el mayor a esta fecha",
+    "en": "{{count}} assets without their cost in the ledger on this date",
+    "pt": "{{count}} ativos sem seu custo no razão nesta data"
+  },
+  "fixed_assets.reconciliation.unlinked_assets_one": {
+    "es": "{{count}} activo sin su costo en el mayor a esta fecha",
+    "en": "{{count}} asset without its cost in the ledger on this date",
+    "pt": "{{count}} ativo sem seu custo no razão nesta data"
+  },
+  "fixed_assets.reconciliation.untraced": {
+    "es": "Sin activo detrás",
+    "en": "No asset behind",
+    "pt": "Sem ativo por trás"
+  },
+  "fixed_assets.reconciliation.untraced_postings": {
+    "es": "{{count}} movimientos del mayor sin activo detrás",
+    "en": "{{count}} ledger movements with no asset behind them",
+    "pt": "{{count}} movimentos do razão sem ativo por trás"
+  },
+  "fixed_assets.reconciliation.untraced_postings_one": {
+    "es": "{{count}} movimiento del mayor sin activo detrás",
+    "en": "{{count}} ledger movement with no asset behind it",
+    "pt": "{{count}} movimento do razão sem ativo por trás"
+  },
+  "fixed_assets.reconciliation.waiting": {
+    "es": "{{count}} compras pendientes de registrar como activo",
+    "en": "{{count}} purchases waiting to be registered as assets",
+    "pt": "{{count}} compras pendentes de registro como ativo"
+  },
+  "fixed_assets.reconciliation.waiting_one": {
+    "es": "{{count}} compra pendiente de registrar como activo",
+    "en": "{{count}} purchase waiting to be registered as an asset",
+    "pt": "{{count}} compra pendente de registro como ativo"
   },
   "fixed_assets.report_period_reversed": {
     "es": "El período termina ({{to}}) antes de empezar ({{from}}).",

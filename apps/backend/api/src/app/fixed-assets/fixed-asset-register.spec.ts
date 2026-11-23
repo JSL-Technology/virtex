@@ -2,10 +2,12 @@ import { DataSource, In } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FixedAssetsService } from './fixed-assets.service';
 import { TaxBookService } from './tax-book.service';
+import { FixedAssetCapitalizationService } from './capitalization.service';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { DepreciationService } from './depreciation.service';
 import { AssetPostingService } from './asset-posting.service';
-import { DepreciationMethod, FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
+import { DepreciationMethod, FixedAsset, FixedAssetCapitalization, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
 import { DepreciationRunTrigger, FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
 import { describeEntryOrigin } from '../journal-entries/entry-origin';
@@ -83,7 +85,17 @@ describeWithDb('fixed-asset register', () => {
       lookup,
       taxBooks,
     );
-    assets = new FixedAssetsService(dataSource.getRepository(FixedAsset), dataSource, posting, lookup, depreciation, taxBooks, i18n);
+    const narrative = new LedgerNarrativeService(i18n);
+    assets = new FixedAssetsService(
+      dataSource.getRepository(FixedAsset),
+      dataSource,
+      posting,
+      lookup,
+      depreciation,
+      taxBooks,
+      i18n,
+      new FixedAssetCapitalizationService(dataSource, posting, lookup, narrative),
+    );
 
     const ledger = await dataSource.getRepository(Ledger).save(
       dataSource.getRepository(Ledger).create({
@@ -167,6 +179,8 @@ describeWithDb('fixed-asset register', () => {
         depreciationMethod: DepreciationMethod.STRAIGHT_LINE,
         assetAccountId: account['vehicles'],
         accumulatedDepreciationAccountId: account['accumulated'],
+        // Bought from the bank: the register posts its acquisition (FINB-15).
+        capitalization: { method: FixedAssetCapitalization.POSTED, offsetAccountId: account['bank'] },
         ...overrides,
       },
       organizationId,

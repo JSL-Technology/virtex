@@ -113,6 +113,28 @@
         </div>
       </div>
 
+      @if (fixedAssetSources().length > 0) {
+        <div class="card" role="region" [attr.aria-label]="'accounts_payable.detail.fixed_assets_waiting' | translate">
+          <div class="card-header">
+            <h2>{{ 'accounts_payable.detail.fixed_assets_waiting' | translate }}</h2>
+          </div>
+          <div class="card-body">
+            <p class="text-muted">{{ 'accounts_payable.detail.fixed_assets_waiting_hint' | translate }}</p>
+            <ul>
+              @for (source of fixedAssetSources(); track source.accountId) {
+                <li>
+                  {{ source.accountCode }} — {{ source.accountName | vxName }}:
+                  {{ 'accounts_payable.detail.fixed_assets_available' | translate: { available: (source.available | vxNumber: '1.2-2'), debited: (source.debited | vxNumber: '1.2-2') } }}
+                  <a *appHasPermission="'fixed_assets:manage'" [routerLink]="['/accounting/fixed-assets/new']" [queryParams]="fixedAssetParams(source, billData)">
+                    {{ 'accounts_payable.detail.register_fixed_asset' | translate }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
       <div class="card">
         <div class="card-header">
           <h2>{{ 'accounts_payable.detail.invoice_lines' | translate }}</h2>

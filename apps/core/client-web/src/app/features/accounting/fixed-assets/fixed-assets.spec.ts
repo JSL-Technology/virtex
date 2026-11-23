@@ -35,6 +35,9 @@ describe('fixed assets', () => {
     categoryId: null,
     category: null,
     taxBook: null,
+    capitalizationMethod: 'POSTED',
+    capitalizationEntryId: 'je-acq',
+    capitalizationOffsetAccountId: 'acc-bank',
     bookValue: 120_000,
     accumulatedDepreciation: 0,
     openingAccumulatedDepreciation: 0,
@@ -102,6 +105,7 @@ describe('fixed assets', () => {
       ),
       listCategories: jest.fn().mockReturnValue(of([])),
       taxCategories: jest.fn().mockReturnValue(of(null)),
+      capitalizationSources: jest.fn().mockReturnValue(of({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false })),
     };
     notifications = {
       httpErrorMessage: jest.fn().mockReturnValue('x'),
@@ -157,9 +161,17 @@ describe('fixed assets', () => {
       accumulatedDepreciationAccountId: 'acc-accum',
     });
     expect(page.form.controls.inServiceDate.value).toBe('2026-02-03');
+    // Bought from the bank: the register posts its acquisition (FINB-15).
+    page.form.controls.capitalization.patchValue({ mode: 'POSTED', offsetAccountId: 'acc-bank' });
     page.save();
     expect(api['create']).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Camioneta', cost: 120_000, inServiceDate: '2026-02-03', openingAccumulatedDepreciation: 0 }),
+      expect.objectContaining({
+        name: 'Camioneta',
+        cost: 120_000,
+        inServiceDate: '2026-02-03',
+        openingAccumulatedDepreciation: 0,
+        capitalization: { method: 'POSTED', offsetAccountId: 'acc-bank' },
+      }),
     );
     // No convention chosen: none is sent, and the server applies the company's.
     expect(api['create'].mock.calls[0][0]).not.toHaveProperty('depreciationConvention');
@@ -181,6 +193,7 @@ describe('fixed assets', () => {
       assetAccountId: 'acc-asset',
       accumulatedDepreciationAccountId: 'acc-accum',
     });
+    page.form.controls.capitalization.patchValue({ mode: 'POSTED', offsetAccountId: 'acc-bank' });
     page.save();
     expect(api['create']).toHaveBeenCalledWith(expect.objectContaining({ depreciationConvention: 'DAILY' }));
   });
@@ -284,6 +297,19 @@ describe('fixed assets', () => {
     expect(page.posted()?.journalEntryId).toBe('je-1');
     // What it posted is a run, and the summary leads to it.
     expect(page.posted()?.runId).toBe('run-1');
+  });
+
+  it('opens on the month the close asks about, and ignores one that is not a month', () => {
+    TestBed.overrideComponent(DepreciationRunPage, { set: { template: '' } });
+    const fixture = TestBed.createComponent(DepreciationRunPage);
+    fixture.componentRef.setInput('period', '2026-03');
+    fixture.componentInstance.ngOnInit();
+    expect(api['previewDepreciation']).toHaveBeenLastCalledWith('2026-03');
+
+    const other = TestBed.createComponent(DepreciationRunPage);
+    other.componentRef.setInput('period', '2026-13');
+    other.componentInstance.ngOnInit();
+    expect(api['previewDepreciation']).toHaveBeenLastCalledWith(previousMonth());
   });
 
   it('lists the runs, by what set them going', () => {

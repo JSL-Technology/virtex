@@ -46,8 +46,33 @@
         </div>
       }
 
+      @if (doc.capitalizationMethod === 'UNLINKED') {
+        <div class="banner-error" role="status">
+          <strong>{{ 'fixed_assets.capitalization.unlinked_banner' | translate }}</strong>
+          <a *appHasPermission="'fixed_assets:manage'" [routerLink]="['/accounting/fixed-assets', doc.id, 'capitalization']">
+            {{ 'fixed_assets.capitalization.link_now' | translate }}
+          </a>
+        </div>
+      }
+
       <section class="doc-card">
         <dl class="doc-facts">
+          <div>
+            <dt>{{ 'fixed_assets.capitalization.title' | translate }}</dt>
+            <dd>
+              {{ 'fixed_assets.capitalization.methods.' + doc.capitalizationMethod | translate }}
+              @if (doc.capitalizationMethod === 'VENDOR_BILL' && doc.vendorBillId) {
+                · <a [routerLink]="['/accounts-payable', doc.vendorBillId]">{{ 'fixed_assets.document.open_bill' | translate }}</a>
+              } @else if (entryLink(doc.capitalizationEntryId); as link) {
+                · <a [routerLink]="link">{{ 'fixed_assets.document.view_entry' | translate }}</a>
+              }
+              @if (inUse() || doc.capitalizationMethod === 'UNLINKED') {
+                <a *appHasPermission="'fixed_assets:manage'" class="field__note" [routerLink]="['/accounting/fixed-assets', doc.id, 'capitalization']">
+                  · {{ 'fixed_assets.capitalization.change' | translate }}
+                </a>
+              }
+            </dd>
+          </div>
           <div>
             <dt>{{ 'fixed_assets.form.cost' | translate }}</dt>
             <dd><vx-amount [value]="doc.cost" /></dd>
@@ -115,12 +140,6 @@
             <div>
               <dt>{{ 'branches.picker.label' | translate }}</dt>
               <dd><vx-branch-label [branchId]="doc.branchId" /></dd>
-            </div>
-          }
-          @if (doc.vendorBillId) {
-            <div>
-              <dt>{{ 'fixed_assets.document.bill' | translate }}</dt>
-              <dd><a [routerLink]="['/accounts-payable', doc.vendorBillId]">{{ 'fixed_assets.document.open_bill' | translate }}</a></dd>
             </div>
           }
         </dl>

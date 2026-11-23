@@ -1961,6 +1961,21 @@ export class AccountsPayableService {
         throw new BadRequestError('accounts_payable.bill_with_payments_applied_cannot_voided');
       }
 
+      // A bill fixed assets were capitalized from (audit 2026-11-07, FINB-15): voiding it would take
+      // their cost out of the ledger while the register kept them — or, for one already sold, take
+      // it out twice. The assets are deleted, or linked to what really brought them in, first.
+      const capitalized: Array<{ number: string }> = await manager.query(
+        `SELECT "number" FROM "fixed_asset"
+          WHERE "vendor_bill_id" = $1 AND "organization_id" = $2 AND "capitalization_method" = 'VENDOR_BILL'
+          ORDER BY "number"`,
+        [id, organizationId],
+      );
+      if (capitalized.length > 0) {
+        throw new ConflictError('accounts_payable.bill_capitalized_as_fixed_assets', {
+          assets: capitalized.map((asset) => asset.number).join(', '),
+        });
+      }
+
       // Only a bill that reached the ledger has anything to reverse or to return. A draft or a
       // rejected bill never posted and never received goods.
       const wasPosted =

@@ -59,6 +59,11 @@
     "es": "El asiento {{number}} lo generó un documento (factura, cobro, venta de caja…). Anula ese documento: así se revierte el asiento y el documento queda en su estado correcto.",
     "pt": "O lançamento {{number}} foi gerado por um documento (fatura, recebimento, venda de caixa…). Anule esse documento: assim o lançamento é estornado e o documento fica no estado correto."
   },
+  "journal_entries.entry_capitalized_fixed_assets": {
+    "es": "De este asiento se capitalizaron los activos fijos {{assets}}: revertirlo o modificarlo sacaría su costo del mayor mientras el registro los conserva. Vincúlalos antes a lo que de verdad los trajo.",
+    "en": "Fixed assets {{assets}} were capitalized from this entry: reversing or modifying it would take their cost out of the ledger while the register kept them. Link them to what really brought them in first.",
+    "pt": "Deste lançamento foram capitalizados os ativos imobilizados {{assets}}: revertê-lo ou modificá-lo tiraria seu custo do razão enquanto o registro os mantém. Vincule-os antes ao que de fato os trouxe."
+  },
   "journal_entries.entry_containing_reconciled_lines_cannot_modified": {
     "es": "No se puede modificar un asiento que contiene líneas conciliadas.",
     "en": "An entry containing reconciled lines cannot be modified.",

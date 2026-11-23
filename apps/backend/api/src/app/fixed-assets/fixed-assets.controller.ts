@@ -3,6 +3,7 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FixedAssetsService } from './fixed-assets.service';
 import { DepreciationService } from './depreciation.service';
 import { FixedAssetCategoriesService } from './fixed-asset-categories.service';
+import { FixedAssetCapitalizationService } from './capitalization.service';
 import { TaxBookService } from './tax-book.service';
 import { resolvePaging } from '../common/pagination';
 import { DepreciationRunTrigger } from './entities/fixed-asset-depreciation-run.entity';
@@ -11,6 +12,10 @@ import {
   DepreciationRunDto,
   DepreciationRunsQueryDto,
   DisposeAssetDto,
+  CapitalizationDto,
+  CapitalizationSourcesQueryDto,
+  FixedAssetReconciliationListQueryDto,
+  FixedAssetReconciliationQueryDto,
   FixedAssetsQueryDto,
   TaxDepreciationReportQueryDto,
   UpdateFixedAssetDto,
@@ -34,7 +39,44 @@ export class FixedAssetsController {
     private readonly depreciation: DepreciationService,
     private readonly categories: FixedAssetCategoriesService,
     private readonly taxBooks: TaxBookService,
+    private readonly capitalization: FixedAssetCapitalizationService,
   ) {}
+
+  /**
+   * The purchases and entries that debited a fixed-asset account and still have cost to register
+   * as an asset: what is waiting to be registered (FINB-15).
+   */
+  @Get('capitalization-sources')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  capitalizationSources(@Query() query: CapitalizationSourcesQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.capitalization.sources(user.organizationId, resolvePaging(query.page, query.pageSize), {
+      accountId: query.accountId,
+      search: query.search,
+      vendorBillId: query.vendorBillId,
+      journalEntryId: query.journalEntryId,
+    });
+  }
+
+  /** The register against the ledger on a day, account by account, and what explains the difference. */
+  @Get('reconciliation')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  reconciliation(@Query() query: FixedAssetReconciliationQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.capitalization.reconciliation(user.organizationId, query.asOf);
+  }
+
+  /** The assets whose cost is not in the ledger on the day, and why, by page. */
+  @Get('reconciliation/unlinked-assets')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  reconciliationUnlinkedAssets(@Query() query: FixedAssetReconciliationListQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.capitalization.unlinkedAssets(user.organizationId, query.asOf, resolvePaging(query.page, query.pageSize));
+  }
+
+  /** What the ledger moved on the register's accounts by the day with no asset behind it, by page. */
+  @Get('reconciliation/untraced-postings')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  reconciliationUntracedPostings(@Query() query: FixedAssetReconciliationListQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.capitalization.untracedPostings(user.organizationId, query.asOf, resolvePaging(query.page, query.pageSize));
+  }
 
   // Declared before `:id`, so `depreciation-runs`, `tax-categories` and `tax-depreciation` are
   // never read as an asset id.
@@ -130,13 +172,21 @@ export class FixedAssetsController {
     @Body() dto: UpdateFixedAssetDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.fixedAssetsService.update(id, dto, user.organizationId);
+    return this.fixedAssetsService.update(id, dto, user.organizationId, user.id);
+  }
+
+  /** Record, or correct, how the asset's cost entered the ledger (FINB-15). */
+  @Post(':id/capitalization')
+  @Idempotent()
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
+  capitalize(@Param('id', UuidParamPipe) id: string, @Body() dto: CapitalizationDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.fixedAssetsService.capitalize(id, dto, user.organizationId, user.id);
   }
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.fixedAssetsService.remove(id, user.organizationId);
+    return this.fixedAssetsService.remove(id, user.organizationId, user.id);
   }
 
   @Post(':id/dispose')

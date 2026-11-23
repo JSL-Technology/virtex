@@ -144,6 +144,36 @@
     "en": "Accumulated depreciation written back — {{asset}}",
     "pt": "Baixa da depreciação acumulada — {{asset}}"
   },
+  "ledger.fixed_asset.acquisition_accumulated": {
+    "es": "Depreciación acumulada inicial de {{asset}}",
+    "en": "Opening accumulated depreciation of {{asset}}",
+    "pt": "Depreciação acumulada inicial de {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_cost": {
+    "es": "Costo de {{asset}}",
+    "en": "Cost of {{asset}}",
+    "pt": "Custo de {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_entry": {
+    "es": "Alta de activo fijo: {{asset}}",
+    "en": "Fixed-asset acquisition: {{asset}}",
+    "pt": "Entrada de ativo imobilizado: {{asset}}"
+  },
+  "ledger.fixed_asset.acquisition_offset": {
+    "es": "Contrapartida del alta de {{asset}}",
+    "en": "Offset of the acquisition of {{asset}}",
+    "pt": "Contrapartida da entrada de {{asset}}"
+  },
+  "ledger.fixed_asset.capitalization_deleted": {
+    "es": "{{asset}} eliminado del registro de activos",
+    "en": "{{asset}} deleted from the asset register",
+    "pt": "{{asset}} excluído do registro de ativos"
+  },
+  "ledger.fixed_asset.capitalization_replaced": {
+    "es": "capitalización de {{asset}} corregida",
+    "en": "capitalization of {{asset}} corrected",
+    "pt": "capitalização de {{asset}} corrigida"
+  },
   "ledger.fixed_asset.cost_reversal": {
     "es": "Baja de activo fijo: {{asset}}",
     "en": "Fixed asset written off: {{asset}}",

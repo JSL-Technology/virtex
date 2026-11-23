@@ -630,6 +630,12 @@
       "submitted",
       "changed"
     ],
+    "fixed_assets.capitalization.methods": [
+      "VENDOR_BILL",
+      "JOURNAL_ENTRY",
+      "POSTED",
+      "UNLINKED"
+    ],
     "fixed_assets.conventions": [
       "FULL_MONTH",
       "NEXT_MONTH",
@@ -641,6 +647,17 @@
       "DOUBLE_DECLINING_BALANCE",
       "SUM_OF_YEARS_DIGITS",
       "DECLINING_BALANCE"
+    ],
+    "fixed_assets.reconciliation.reasons": [
+      "NEVER_LINKED",
+      "SOURCE_NOT_POSTED",
+      "SOURCE_REVERSED",
+      "SOURCE_LATER"
+    ],
+    "fixed_assets.reconciliation.roles": [
+      "COST",
+      "ACCUMULATED",
+      "BOTH"
     ],
     "fixed_assets.runs.trigger": [
       "SCHEDULE",

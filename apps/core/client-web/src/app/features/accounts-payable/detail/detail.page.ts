@@ -28,6 +28,8 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
+import { CapitalizationSource, FixedAssetsService } from '../../accounting/data/fixed-assets.service';
+import { VxLocalizedNamePipe } from '@virtex/shared/ui-i18n';
 
 /**
  * A supplier bill, in full.
@@ -46,7 +48,7 @@ import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-ba
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [AiProvenanceBadgeComponent, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
+  imports: [AiProvenanceBadgeComponent, RouterLink, LucideAngularModule, TranslateModule, VxLocalizedNamePipe, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,6 +87,12 @@ export class VendorBillDetailPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   readonly bill = signal<VendorBill | null>(null);
+  /**
+   * What this bill debited to fixed-asset accounts and nobody registered as an asset yet (FINB-15):
+   * each one, a «register as a fixed asset» that opens the asset's form on it.
+   */
+  readonly fixedAssetSources = signal<CapitalizationSource[]>([]);
+  private readonly fixedAssets = inject(FixedAssetsService);
   readonly payments = signal<VendorPayment[]>([]);
   readonly debitNotes = signal<VendorDebitNoteRow[]>([]);
   /** Payments still standing: a voided one gave back everything it settled. */
@@ -179,6 +187,31 @@ export class VendorBillDetailPage implements OnInit {
   /** Read-only: a payment or a debit note from another tab updates the bill on return (QA M-06). */
   private readonly refresh = refreshWhenStale(() => this.load());
 
+  /** A posted bill's purchases still waiting to be registered as fixed assets; none for someone who cannot see them. */
+  private loadFixedAssetSources(bill: VendorBill): void {
+    if (!bill.journalEntryId) {
+      this.fixedAssetSources.set([]);
+      return;
+    }
+    this.fixedAssets
+      .capitalizationSources({ vendorBillId: bill.id, pageSize: 50 })
+      .pipe(catchError(() => of({ rows: [] as CapitalizationSource[] })))
+      .subscribe((page) => this.fixedAssetSources.set(page.rows));
+  }
+
+  /** The new asset's form, opened on what of this bill is waiting to be registered. */
+  fixedAssetParams(source: CapitalizationSource, bill: VendorBill): Record<string, string> {
+    const product = bill.lines?.find((line) => line.expenseAccountId === source.accountId)?.product;
+    return {
+      sourceKind: 'VENDOR_BILL',
+      sourceId: bill.id,
+      sourceAccountId: source.accountId,
+      cost: String(source.available),
+      date: source.date,
+      ...(product ? { name: product } : {}),
+    };
+  }
+
   private load(): void {
     this.route.paramMap
       .pipe(
@@ -209,6 +242,7 @@ export class VendorBillDetailPage implements OnInit {
       .subscribe(({ bill, payments, debitNotes }) => {
         this.debitNotes.set(debitNotes.items);
         this.bill.set(bill);
+        this.loadFixedAssetSources(bill);
         //  Ya se conoce el NCF: la pestaña deja de llamarse por el UUID de la ruta.
         this.tab?.setTitle(this.documentTitle(bill));
         this.payments.set(payments);

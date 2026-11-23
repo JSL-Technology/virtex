@@ -140,6 +140,19 @@
     </section>
 
     <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.capitalization.title' | translate }}</h2>
+      @if (current(); as asset) {
+        <p class="form-hint">
+          {{ 'fixed_assets.capitalization.methods.' + asset.capitalizationMethod | translate }}
+          · <a [routerLink]="['/accounting/fixed-assets', asset.id, 'capitalization']">{{ 'fixed_assets.capitalization.change' | translate }}</a>
+        </p>
+      } @else {
+        <p class="form-hint">{{ 'fixed_assets.capitalization.hint' | translate }}</p>
+        <app-capitalization-fields [group]="capitalizationForm" [assetAccountId]="assetAccount()" idPrefix="fa-cap" />
+      }
+    </section>
+
+    <section class="form-section">
       <h2 class="form-section-title">{{ 'fixed_assets.tax_book.title' | translate }}</h2>
       <label class="doc-check">
         <input type="checkbox" formControlName="keepTaxBook" />

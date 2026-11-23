@@ -54,6 +54,11 @@
     "en": "A bill in {{bill}} cannot be paid from an account in {{account}}; use an account in {{bill}} or in the books’ currency.",
     "pt": "Não é possível pagar uma fatura em {{bill}} a partir de uma conta em {{account}}; use uma conta em {{bill}} ou na moeda dos livros."
   },
+  "accounts_payable.bill_capitalized_as_fixed_assets": {
+    "es": "La factura capitalizó los activos fijos {{assets}}: anularla sacaría su costo del mayor mientras el registro los conserva. Elimínalos, o vincúlalos a lo que de verdad los trajo, antes de anularla.",
+    "en": "The bill capitalized fixed assets {{assets}}: voiding it would take their cost out of the ledger while the register kept them. Delete them, or link them to what really brought them in, before voiding it.",
+    "pt": "A fatura capitalizou os ativos imobilizados {{assets}}: anulá-la tiraria seu custo do razão enquanto o registro os mantém. Exclua-os, ou vincule-os ao que de fato os trouxe, antes de anulá-la."
+  },
   "accounts_payable.bill_exceeds_ordered_quantity": {
     "es": "Se facturaría {{billed}} de «{{description}}», pero se pidieron {{ordered}}. Revisa la cantidad o amplía la orden.",
     "en": "{{billed}} of “{{description}}” would be billed, but {{ordered}} were ordered. Check the quantity or amend the order.",
@@ -664,6 +669,21 @@
     "en": "Recorded on the purchase.",
     "pt": "Registrado na compra."
   },
+  "accounts_payable.detail.fixed_assets_available": {
+    "es": "{{available}} por registrar de {{debited}}",
+    "en": "{{available}} left to register of {{debited}}",
+    "pt": "{{available}} a registrar de {{debited}}"
+  },
+  "accounts_payable.detail.fixed_assets_waiting": {
+    "es": "Activos fijos por registrar",
+    "en": "Fixed assets to register",
+    "pt": "Ativos imobilizados a registrar"
+  },
+  "accounts_payable.detail.fixed_assets_waiting_hint": {
+    "es": "Esta factura cargó una cuenta de activo fijo y aún no se registró todo como activo.",
+    "en": "This bill debited a fixed-asset account and not all of it has been registered as an asset yet.",
+    "pt": "Esta fatura debitou uma conta de ativo imobilizado e ainda não foi tudo registrado como ativo."
+  },
   "accounts_payable.detail.general_information": {
     "es": "Información general",
     "en": "General information",
@@ -773,6 +793,11 @@
     "en": "Type the number in full, exactly as printed on the supplier’s document.",
     "es": "Escribe el número completo tal como está impreso en el documento del proveedor.",
     "pt": "Digite o número completo, exatamente como está impresso no documento do fornecedor."
+  },
+  "accounts_payable.detail.register_fixed_asset": {
+    "es": "Registrar como activo fijo",
+    "en": "Register as a fixed asset",
+    "pt": "Registrar como ativo imobilizado"
   },
   "accounts_payable.detail.release_hold": {
     "es": "Liberar retención",

@@ -46,6 +46,8 @@ const DOCUMENT_ROUTES: Readonly<Record<string, (id: string) => string | null>> =
   // the asset it took off the books.
   'depreciation-run': (id) => `/accounting/fixed-assets/depreciation-runs/${id}`,
   'fixed-asset-disposal': (id) => `/accounting/fixed-assets/${id}`,
+  // The acquisition the register posted (FINB-15), and its reversal, lead to the asset.
+  'fixed-asset-acquisition': (id) => `/accounting/fixed-assets/${id}`,
 };
 
 export function describeEntryOrigin(entry: {

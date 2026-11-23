@@ -85,6 +85,9 @@ describe('fixed-asset categories and the tax book', () => {
     categoryId: 'cat-veh',
     category: { id: 'cat-veh', code: 'VEH', name: 'Vehículos', nameTranslations: { en: 'Vehicles' } },
     taxBook: null,
+    capitalizationMethod: 'POSTED',
+    capitalizationEntryId: 'je-acq',
+    capitalizationOffsetAccountId: 'acc-bank',
     bookValue: 120_000,
     accumulatedDepreciation: 0,
     openingAccumulatedDepreciation: 0,
@@ -152,6 +155,7 @@ describe('fixed-asset categories and the tax book', () => {
       updateCategory: jest.fn().mockReturnValue(of(vehicles)),
       removeCategory: jest.fn().mockReturnValue(of(undefined)),
       taxCategories: jest.fn().mockReturnValue(of(catalogue)),
+      capitalizationSources: jest.fn().mockReturnValue(of({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false })),
       taxDepreciation: jest.fn().mockImplementation((query: { page?: number }) => of(report(query.page ?? 1, (query.page ?? 1) === 1))),
       previewDepreciation: jest.fn().mockReturnValue(
         of({ periodEnd: '2026-01-31', runId: null, journalEntryId: null, total: 0, assets: [], skipped: [], tax: { total: 50, assets: [{ id: 'fa-9', number: 'AF-2027-000009', name: 'Estantería', months: 1, amount: 50 }] }, postable: true, notPostable: null }),
@@ -187,6 +191,7 @@ describe('fixed-asset categories and the tax book', () => {
     const page = TestBed.createComponent(FixedAssetFormPage).componentInstance;
     page.ngOnInit();
     page.form.patchValue({ name: 'Camioneta', acquisitionDate: '2026-01-10', cost: 120_000 });
+    page.form.controls.capitalization.patchValue({ mode: 'POSTED', offsetAccountId: 'acc-bank' });
     page.form.controls.categoryId.setValue('cat-veh');
     expect(page.form.getRawValue()).toMatchObject({
       usefulLifeMonths: 60,
@@ -216,6 +221,7 @@ describe('fixed-asset categories and the tax book', () => {
     const page = TestBed.createComponent(FixedAssetFormPage).componentInstance;
     page.ngOnInit();
     page.form.patchValue({ name: 'Montacargas', acquisitionDate: '2026-01-10', cost: 80_000, usefulLifeMonths: 120, assetAccountId: 'a', accumulatedDepreciationAccountId: 'b', depreciationMethod: 'DECLINING_BALANCE' });
+    page.form.controls.capitalization.patchValue({ mode: 'POSTED', offsetAccountId: 'acc-bank' });
     expect(page.declining()).toBe(true);
     page.save();
     expect(api['create']).not.toHaveBeenCalled();

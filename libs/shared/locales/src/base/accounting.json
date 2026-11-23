@@ -755,11 +755,6 @@
     "en": "Right for inventory, fixed assets or advances. If any is money held, receivable or payable, mark its account as revalued in the chart of accounts.",
     "pt": "Correto para estoque, ativo imobilizado ou adiantamentos. Se alguma for dinheiro a receber, a pagar ou em banco, marque-a como reavaliável no plano de contas."
   },
-  "accounting.checklist.items.fixed_assets_depreciation": {
-    "es": "Ejecutar la depreciación de activos fijos del período.",
-    "en": "Run the fixed-asset depreciation for the period.",
-    "pt": "Execute a depreciação do ativo imobilizado do período."
-  },
   "accounting.checklist.items.historical_fx_balances": {
     "es": "{{count}} saldos en moneda extranjera quedan a la tasa histórica: {{accounts}}.",
     "en": "{{count}} foreign-currency balances stay at their historical rate: {{accounts}}.",
@@ -864,11 +859,6 @@
     "es": "Quedan {{count}} transacciones bancarias sin conciliar.",
     "en": "{{count}} bank transactions are still unreconciled.",
     "pt": "Restam {{count}} transações bancárias sem conciliar."
-  },
-  "accounting.checklist.manual_step": {
-    "es": "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar.",
-    "en": "This is a manual step: make sure you have run it before closing.",
-    "pt": "Esta é uma etapa manual: confirme que a executou antes de encerrar."
   },
   "accounting.checklist.no_checklists_have_been_created_yet": {
     "es": "Todavía no se ha creado ninguna lista de verificación.",

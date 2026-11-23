@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { Observable, map, startWith } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, VxLocalizedNamePipe, tenantToday, LocaleStore } from '@virtex/shared/ui-i18n';
@@ -21,6 +21,7 @@ import {
   fixedAssetCostAccounts,
 } from '../../../core/services/account-selection';
 import { Account } from '../../../core/models/account.model';
+import { CapitalizationFieldsComponent, capitalizationGroup, capitalizationOf } from './capitalization-fields.component';
 import {
   DEPRECIATION_METHODS,
   DepreciationMethod,
@@ -83,6 +84,8 @@ const TAX_CONTROLS = ['keepTaxBook', 'taxCategoryCode', 'taxMethod', 'taxRatePer
     DraftShellComponent,
     VxDateFieldComponent,
     VxBranchPickerComponent,
+    CapitalizationFieldsComponent,
+    RouterLink,
   ],
   templateUrl: './fixed-asset-form.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss', '../../../shared/styles/document-list.scss'],
@@ -101,6 +104,16 @@ export class FixedAssetFormPage implements OnInit {
 
   /** Present when editing. */
   readonly id = input<string>();
+  /**
+   * A purchase waiting to be registered, from the reconciliation or the bill (`?sourceKind=…`): the
+   * form opens on it — its account, its amount, its date (FINB-15).
+   */
+  readonly sourceKind = input<string>();
+  readonly sourceId = input<string>();
+  readonly sourceAccountId = input<string>();
+  readonly cost = input<string>();
+  readonly date = input<string>();
+  readonly name = input<string>();
 
   protected readonly methods = DEPRECIATION_METHODS;
   protected readonly taxMethods = TAX_DEPRECIATION_METHODS;
@@ -139,7 +152,19 @@ export class FixedAssetFormPage implements OnInit {
     taxBasis: [null as number | null, [Validators.min(0)]],
     taxOpeningAccumulated: [0 as number | null, [Validators.min(0)]],
     taxOpeningThrough: [''],
+    // ── How its cost entered the ledger (FINB-15) ──
+    capitalization: capitalizationGroup(this.fb),
   });
+
+  protected get capitalizationForm() {
+    return this.form.controls.capitalization;
+  }
+
+  /** The asset's account, for the purchases the capitalization offers. */
+  protected readonly assetAccount = toSignal(
+    this.form.controls.assetAccountId.valueChanges.pipe(startWith(this.form.controls.assetAccountId.value)),
+    { initialValue: '' as string | null },
+  );
 
   readonly current = signal<FixedAsset | null>(null);
   readonly categories = signal<FixedAssetCategory[]>([]);
@@ -219,6 +244,9 @@ export class FixedAssetFormPage implements OnInit {
       const residual = this.form.controls.residualValue;
       if (!this.current() && category?.residualRate && residual.pristine) residual.setValue(round2((Number(cost) || 0) * category.residualRate));
     });
+    // A purchase chosen as the source brings its amount, account and date to a form not yet filled.
+    this.form.controls.capitalization.controls.source.valueChanges.subscribe((key) => this.applySource(key));
+    this.prefillFromSource();
     // One of the authority's categories brings its method and rate.
     this.form.controls.taxCategoryCode.valueChanges.subscribe((code) => {
       const entry = this.catalogue()?.categories.find((candidate) => candidate.code === code);
@@ -265,6 +293,15 @@ export class FixedAssetFormPage implements OnInit {
     const existing = this.current();
     // A new asset always says whether it keeps a tax book; an edit, only when its terms changed.
     if (!existing || TAX_CONTROLS.some((name) => this.form.controls[name].dirty)) body.taxBook = this.taxBook();
+    // A new asset says how its cost entered the ledger; an asset registered changes it on its own page.
+    if (!existing) {
+      const capitalization = capitalizationOf(this.form.controls.capitalization.getRawValue());
+      if ('problem' in capitalization) {
+        this.problems.set([{ message: capitalization.problem }]);
+        return;
+      }
+      body.capitalization = capitalization.input;
+    }
 
     this.saving.set(true);
     const request = existing ? this.assets.update(existing.id, this.editable(body)) : this.assets.create(body);
@@ -290,6 +327,40 @@ export class FixedAssetFormPage implements OnInit {
     void this.router.navigateByUrl(
       this.organization.urlFor(asset ? `/accounting/fixed-assets/${asset.id}` : '/accounting/fixed-assets'),
     );
+  }
+
+  /** The purchase the form was opened on, as its source, with its account, amount and date. */
+  private prefillFromSource(): void {
+    const kind = this.sourceKind();
+    const id = this.sourceId();
+    if (this.id() || !id || (kind !== 'VENDOR_BILL' && kind !== 'JOURNAL_ENTRY')) return;
+    const amount = Number(this.cost());
+    this.form.patchValue({
+      ...(this.name() ? { name: this.name() } : {}),
+      ...(this.sourceAccountId() ? { assetAccountId: this.sourceAccountId() } : {}),
+      ...(Number.isFinite(amount) && amount > 0 ? { cost: round2(amount) } : {}),
+      ...(this.date() ? { acquisitionDate: this.date(), inServiceDate: this.date() } : {}),
+    });
+    this.form.controls.capitalization.patchValue({ mode: 'SOURCE', source: `${kind}|${id}|${this.sourceAccountId() ?? ''}` });
+  }
+
+  /** A source chosen fills what the form has not been given yet: its amount, account and date. */
+  private applySource(key: string | null): void {
+    if (this.current() || !key) return;
+    const [kind, id, accountId] = key.split('|');
+    this.assets
+      .capitalizationSources({ ...(kind === 'VENDOR_BILL' ? { vendorBillId: id } : { journalEntryId: id }), accountId: accountId || null, pageSize: 5 })
+      .subscribe({
+        next: (page) => {
+          const source = page.rows[0];
+          if (!source) return;
+          const controls = this.form.controls;
+          if (!controls.cost.value || controls.cost.pristine) controls.cost.setValue(source.available);
+          if (!controls.assetAccountId.value) controls.assetAccountId.setValue(source.accountId);
+          if (controls.acquisitionDate.pristine && source.date) controls.acquisitionDate.setValue(source.date);
+        },
+        error: () => undefined,
+      });
   }
 
   /** The tax book the form describes, or null for none. */

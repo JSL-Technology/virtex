@@ -65,7 +65,8 @@ export class ClosingChecklistService {
       resolutionLink: `/accounting/journal-entries?periodId=${periodId}&status=draft,pending_approval`,
     });
 
-    // Lo que aportan los demás módulos, preguntado sin saber quiénes son.
+    // Lo que aportan los demás módulos, preguntado sin saber quiénes son — entre ellos el registro
+    // de activos fijos: lo que el cierre depreciará y si el registro cuadra con el mayor (FINB-15).
     //
     // Aquí se contaban facturas de proveedor sin aprobar y líneas de banco sin conciliar
     // importando `VendorBill` y `BankTransaction`. Eran dos líneas de import y entre las dos
@@ -166,14 +167,6 @@ export class ClosingChecklistService {
         resolutionLink: '/accounting/inflation-adjustment',
       });
     }
-
-    checklist.push({
-      id: 'fixed-assets-depreciation',
-      descriptionKey: 'accounting.checklist.items.fixed_assets_depreciation',
-      isCompleted: false,
-      noteKey: 'accounting.checklist.manual_step',
-      resolutionLink: `/accounting/fixed-assets/depreciation`,
-    });
 
     const pendingApprovalsCount = await this.dataSource
       .getRepository(ApprovalRequest)

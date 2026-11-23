@@ -1207,6 +1207,7 @@ export class JournalEntriesService {
           number: original.entryNumber ?? '',
         });
       }
+      await assertNotCapitalizationSource(manager, organizationId, id);
       return this.reverseWithin(id, organizationId, reverseDto, manager, context);
     });
   }
@@ -1437,6 +1438,7 @@ export class JournalEntriesService {
           'journal_entries.entry_containing_reconciled_lines_cannot_modified',
         );
       }
+      await assertNotCapitalizationSource(manager, organizationId, id);
 
       // The reversal undoes the original where the original lives: on its own date, in its own
       // period. It used to take the corrected date, so moving an entry from 2031 to 2026 left the
@@ -1661,4 +1663,21 @@ function escapeLike(value: string): string {
 /** A line entity's description and the narrative it was written from. */
 function narratedLine(text: LedgerText): { description: string; descriptionKey: string; descriptionParams: NarrativeRef['params'] } {
   return { description: text.text, descriptionKey: text.ref.key, descriptionParams: text.ref.params };
+}
+
+/**
+ * An entry fixed assets were capitalized from (audit 2026-11-07, FINB-15) is their cost in the
+ * ledger: reversed or replaced, it would take that cost out while the register kept the assets.
+ * They are linked to what really brought them in first.
+ */
+async function assertNotCapitalizationSource(manager: EntityManager, organizationId: string, entryId: string): Promise<void> {
+  const assets: Array<{ number: string }> = await manager.query(
+    `SELECT "number" FROM "fixed_asset"
+      WHERE "organization_id" = $1 AND "capitalization_method" = 'JOURNAL_ENTRY' AND "capitalization_entry_id" = $2
+      ORDER BY "number"`,
+    [organizationId, entryId],
+  );
+  if (assets.length > 0) {
+    throw new ConflictError('journal_entries.entry_capitalized_fixed_assets', { assets: assets.map((asset) => asset.number).join(', ') });
+  }
 }

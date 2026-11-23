@@ -1,0 +1,207 @@
+<vx-list-shell
+  titleKey="fixed_assets.reconciliation.title"
+  subtitleKey="fixed_assets.reconciliation.subtitle"
+  [count]="accounts().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <div listFilters class="doc-filter">
+    <label for="far-as-of">{{ 'fixed_assets.reconciliation.as_of' | translate }}</label>
+    <vx-date-field inputId="far-as-of" [ngModel]="asOf()" (ngModelChange)="setAsOf($event)" />
+  </div>
+
+  @if (reconciled()) {
+    <p listCreate class="ls__state-help" role="status">{{ 'fixed_assets.reconciliation.reconciled' | translate }}</p>
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'fixed_assets.reconciliation.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'fixed_assets.reconciliation.empty_help' | translate }}</p>
+  </div>
+
+  @if (report(); as data) {
+    <div class="table-container card">
+      <table class="data-table">
+        <caption>{{ 'fixed_assets.reconciliation.by_account' | translate }}</caption>
+        <thead>
+          <tr>
+            <th>{{ 'fixed_assets.reconciliation.account' | translate }}</th>
+            <th>{{ 'fixed_assets.reconciliation.role' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.tax_report.assets' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.reconciliation.register' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.reconciliation.ledger' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.reconciliation.difference' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.reconciliation.untraced' | translate }}</th>
+            <th class="numeric">{{ 'fixed_assets.reconciliation.unlinked' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of data.accounts; track row.accountId) {
+            <tr>
+              <td>{{ row.code }} — {{ row.name | vxName }}</td>
+              <td>{{ 'fixed_assets.reconciliation.roles.' + row.role | translate }}</td>
+              <td class="numeric">{{ row.assets }}</td>
+              <td class="numeric"><vx-amount [value]="row.register" /></td>
+              <td class="numeric"><vx-amount [value]="row.ledger" /></td>
+              <td class="numeric"><strong><vx-amount [value]="row.difference" /></strong></td>
+              <td class="numeric"><vx-amount [value]="row.untraced" /></td>
+              <td class="numeric"><vx-amount [value]="row.unlinked" /></td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3">{{ 'fixed_assets.reconciliation.net_totals' | translate }}</th>
+            <th class="numeric"><vx-amount [value]="data.totals.register" /></th>
+            <th class="numeric"><vx-amount [value]="data.totals.ledger" /></th>
+            <th class="numeric"><vx-amount [value]="data.totals.difference" /></th>
+            <th class="numeric"><vx-amount [value]="data.totals.untraced" /></th>
+            <th class="numeric"><vx-amount [value]="data.totals.unlinked" /></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="form-hint">{{ 'fixed_assets.reconciliation.explained' | translate }}</p>
+
+    @if (unlinked(); as list) {
+      @if (list.total > 0) {
+        <div class="table-container card">
+          <table class="data-table">
+            <caption>{{ 'fixed_assets.reconciliation.unlinked_assets' | translate: { count: list.total } }}</caption>
+            <thead>
+              <tr>
+                <th>{{ 'fixed_assets.page.number' | translate }}</th>
+                <th>{{ 'fixed_assets.page.name' | translate }}</th>
+                <th>{{ 'fixed_assets.reconciliation.account' | translate }}</th>
+                <th class="numeric">{{ 'fixed_assets.form.cost' | translate }}</th>
+                <th>{{ 'fixed_assets.reconciliation.reason' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (asset of list.rows; track asset.id) {
+                <tr>
+                  <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', asset.id]">{{ asset.number }}</a></td>
+                  <td>{{ asset.name }}</td>
+                  <td>{{ codeOf(asset.accountId) }}</td>
+                  <td class="numeric"><vx-amount [value]="asset.cost" /></td>
+                  <td>
+                    @if (asset.entryId && asset.reason !== 'NEVER_LINKED') {
+                      <a [routerLink]="entryLink(asset.entryId)">{{ 'fixed_assets.reconciliation.reasons.' + asset.reason | translate: reasonParams(asset) }}</a>
+                    } @else {
+                      {{ 'fixed_assets.reconciliation.reasons.' + asset.reason | translate: reasonParams(asset) }}
+                    }
+                    @if (asset.disposalDate) {
+                      <br /><small>{{ 'fixed_assets.reconciliation.disposed_on' | translate: { date: (asset.disposalDate | vxDate: 'date' : true) } }}</small>
+                    }
+                  </td>
+                  <td>
+                    @if (correctable(asset)) {
+                      <a *appHasPermission="'fixed_assets:manage'" [routerLink]="['/accounting/fixed-assets', asset.id, 'capitalization']">
+                        {{ (asset.reason === 'NEVER_LINKED' ? 'fixed_assets.capitalization.link_now' : 'fixed_assets.capitalization.change') | translate }}
+                      </a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (list.total > 50) {
+          <vx-pager
+            [page]="unlinkedPage()"
+            [pageSize]="unlinkedPageSize()"
+            [total]="list.total"
+            [pageSizes]="[50, 100, 200]"
+            (pageChange)="goToUnlinkedPage($event)"
+            (pageSizeChange)="unlinkedPageSize.set($event); goToUnlinkedPage(1)"
+          />
+        }
+      }
+    }
+
+    @if (waiting().length > 0) {
+      <div class="table-container card">
+        <table class="data-table">
+          <caption>{{ 'fixed_assets.reconciliation.waiting' | translate: { count: waitingTotal() } }}</caption>
+          <thead>
+            <tr>
+              <th>{{ 'fixed_assets.reconciliation.date' | translate }}</th>
+              <th>{{ 'fixed_assets.reconciliation.source' | translate }}</th>
+              <th>{{ 'fixed_assets.reconciliation.account' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.reconciliation.debited' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.reconciliation.registered' | translate }}</th>
+              <th class="numeric">{{ 'fixed_assets.reconciliation.available' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (source of waiting(); track source.journalEntryId + source.accountId) {
+              <tr>
+                <td>{{ source.date | vxDate: 'date' : true }}</td>
+                <td>
+                  @if (source.kind === 'VENDOR_BILL') {
+                    <a [routerLink]="['/accounts-payable', source.id]">{{ source.supplier }} · {{ source.reference }}</a>
+                  } @else {
+                    <a [routerLink]="entryLink(source.journalEntryId)">{{ source.entryNumber ?? source.reference }}</a>
+                  }
+                </td>
+                <td>{{ source.accountCode }} — {{ source.accountName | vxName }}</td>
+                <td class="numeric"><vx-amount [value]="source.debited" /></td>
+                <td class="numeric"><vx-amount [value]="source.registered" /></td>
+                <td class="numeric"><vx-amount [value]="source.available" /></td>
+                <td>
+                  <a *appHasPermission="'fixed_assets:manage'" [routerLink]="['/accounting/fixed-assets/new']" [queryParams]="registerParams(source)">
+                    {{ 'fixed_assets.reconciliation.register_asset' | translate }}
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (untraced(); as postings) {
+      @if (postings.total > 0) {
+        <div class="table-container card">
+          <table class="data-table">
+            <caption>{{ 'fixed_assets.reconciliation.untraced_postings' | translate: { count: postings.total } }}</caption>
+            <thead>
+              <tr>
+                <th>{{ 'fixed_assets.reconciliation.date' | translate }}</th>
+                <th>{{ 'fixed_assets.document.entry' | translate }}</th>
+                <th>{{ 'fixed_assets.form.description' | translate }}</th>
+                <th>{{ 'fixed_assets.reconciliation.account' | translate }}</th>
+                <th class="numeric">{{ 'fixed_assets.reconciliation.amount' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (posting of postings.rows; track posting.entryId + posting.accountId) {
+                <tr>
+                  <td>{{ posting.date | vxDate: 'date' : true }}</td>
+                  <td><a class="table-link" [routerLink]="entryLink(posting.entryId)">{{ posting.entryNumber ?? posting.entryId.slice(0, 8) }}</a></td>
+                  <td>{{ posting.description }}</td>
+                  <td>{{ codeOf(posting.accountId) }}</td>
+                  <td class="numeric"><vx-amount [value]="posting.amount" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (postings.total > 50) {
+          <vx-pager
+            [page]="untracedPage()"
+            [pageSize]="untracedPageSize()"
+            [total]="postings.total"
+            [pageSizes]="[50, 100, 200]"
+            (pageChange)="goToUntracedPage($event)"
+            (pageSizeChange)="untracedPageSize.set($event); goToUntracedPage(1)"
+          />
+        }
+      }
+    }
+  }
+</vx-list-shell>

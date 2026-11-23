@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, DataSource, EntityManager, Repository } from 'typeorm';
-import { FixedAsset, FixedAssetStatus, DepreciationMethod } from './entities/fixed-asset.entity';
+import { FixedAsset, FixedAssetCapitalization, FixedAssetStatus, DepreciationMethod } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
 import { FixedAssetCategory } from './entities/fixed-asset-category.entity';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import {
+  CapitalizationDto,
   CreateFixedAssetDto,
   DisposeAssetDto,
   FixedAssetsQueryDto,
@@ -15,6 +16,8 @@ import {
 import { AssetPostingService } from './asset-posting.service';
 import { DepreciationService } from './depreciation.service';
 import { TaxBookService, type TaxBookSchedule, type TaxBookSummary } from './tax-book.service';
+import { FixedAssetCapitalizationService, type CapitalizationRequest } from './capitalization.service';
+import { REGISTER_REASON } from './register-reasons';
 import { openingTerms, revisedTerms, type TaxBookAsset } from './tax-book-terms';
 import { assertDecliningOpeningAtYearEnd } from './fiscal-year-calendar';
 import { organizationDefaultAccounts } from '../organizations/contracts/default-accounts.contract';
@@ -74,6 +77,15 @@ const VALUATION_FIELDS = [
   'accumulatedDepreciationAccountId',
 ] as const;
 
+/** What an asset's capitalization is checked, or posted, on. */
+const CAPITALIZED_FIELDS = [
+  'cost',
+  'acquisitionDate',
+  'openingAccumulatedDepreciation',
+  'assetAccountId',
+  'accumulatedDepreciationAccountId',
+] as const;
+
 /** How the register's form names each of them, for a message that lists them. */
 const VALUATION_FIELD_LABELS: Record<(typeof VALUATION_FIELDS)[number], string> = {
   cost: 'fixed_assets.form.cost',
@@ -103,6 +115,7 @@ export class FixedAssetsService {
     private readonly depreciation: DepreciationService,
     private readonly taxBooks: TaxBookService,
     private readonly i18n: I18nService,
+    private readonly capitalization: FixedAssetCapitalizationService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(new I18nService()),
   ) {}
@@ -140,10 +153,11 @@ export class FixedAssetsService {
         // Null charges the company's default at each run, so it follows a change of that default.
         depreciationExpenseAccountId:
           dto.depreciationExpenseAccountId !== undefined ? dto.depreciationExpenseAccountId : (category?.depreciationExpenseAccountId ?? null),
-        vendorBillId: dto.vendorBillId ?? null,
+        vendorBillId: null as string | null,
         openingAccumulatedDepreciation: roundAmount(dto.openingAccumulatedDepreciation ?? 0),
       };
       if (!values.usefulLifeMonths) throw new BadRequestError('fixed_assets.useful_life_required');
+      const capitalization = capitalizationOf(dto);
       const depreciatedThrough = this.validateValuation(values, dto.openingDepreciatedThrough ?? null);
       await this.assertDecliningOpening(manager, organizationId, values.depreciationMethod, depreciatedThrough);
       await this.assertReferences(manager, organizationId, values);
@@ -170,7 +184,25 @@ export class FixedAssetsService {
         }),
       );
       if (taxTerms) await this.taxBooks.open(manager, asset, taxTerms);
+      // How its cost entered the ledger: checked against its source, or posted here (FINB-15).
+      await this.capitalization.capitalize(manager, asset, capitalization, actorUserId);
+      await manager.save(asset);
       return asset.id;
+    });
+    return this.findOne(id, organizationId);
+  }
+
+  /**
+   * Record, or correct, how an asset's cost entered the ledger — an asset registered before the
+   * rule, or one linked to the wrong source. It changes nothing the asset is valued on, so it is
+   * allowed at any time; an acquisition the register posted before is reversed first.
+   */
+  async capitalize(id: string, dto: CapitalizationDto, organizationId: string, actorUserId: string | null): Promise<FixedAssetView> {
+    await this.dataSource.transaction(async (manager) => {
+      const asset = await manager.findOne(FixedAsset, { where: { id, organizationId }, lock: { mode: 'pessimistic_write' } });
+      if (!asset) throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
+      await this.capitalization.capitalize(manager, asset, dto as CapitalizationRequest, actorUserId);
+      await manager.save(asset);
     });
     return this.findOne(id, organizationId);
   }
@@ -270,7 +302,7 @@ export class FixedAssetsService {
    *
    * Its tax book opens, changes or goes with `taxBook` — see `TaxBookService.revise`.
    */
-  async update(id: string, dto: UpdateFixedAssetDto, organizationId: string): Promise<FixedAssetView> {
+  async update(id: string, dto: UpdateFixedAssetDto, organizationId: string, actorUserId: string | null = null): Promise<FixedAssetView> {
     await this.dataSource.transaction(async (manager) => {
       const asset = await manager.findOne(FixedAsset, {
         where: { id, organizationId },
@@ -324,7 +356,7 @@ export class FixedAssetsService {
         accumulatedDepreciationAccountId: dto.accumulatedDepreciationAccountId ?? asset.accumulatedDepreciationAccountId,
         depreciationExpenseAccountId:
           dto.depreciationExpenseAccountId !== undefined ? dto.depreciationExpenseAccountId : asset.depreciationExpenseAccountId,
-        vendorBillId: dto.vendorBillId !== undefined ? dto.vendorBillId : asset.vendorBillId,
+        vendorBillId: asset.vendorBillId,
         openingAccumulatedDepreciation:
           dto.openingAccumulatedDepreciation !== undefined
             ? roundAmount(dto.openingAccumulatedDepreciation)
@@ -365,6 +397,11 @@ export class FixedAssetsService {
       }
       await manager.save(asset);
       await this.updateTaxBook(manager, asset, dto, previous);
+      // Its capitalization follows what values it: posted again, or checked again (FINB-15).
+      if (charged === 0 && CAPITALIZED_FIELDS.some((field) => dto[field] !== undefined)) {
+        await this.capitalization.refresh(manager, asset, actorUserId);
+        await manager.save(asset);
+      }
     });
     return this.findOne(id, organizationId);
   }
@@ -411,7 +448,7 @@ export class FixedAssetsService {
    * mistake is deleted; one that has been charged is retired through disposal, which books the
    * result.
    */
-  async remove(id: string, organizationId: string): Promise<void> {
+  async remove(id: string, organizationId: string, actorUserId: string | null = null): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       const asset = await manager.findOne(FixedAsset, { where: { id, organizationId }, lock: { mode: 'pessimistic_write' } });
       if (!asset) throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
@@ -419,6 +456,8 @@ export class FixedAssetsService {
       if (charged > 0 || asset.status !== FixedAssetStatus.IN_USE) {
         throw new ConflictError('fixed_assets.asset_in_books_dispose_instead', { name: asset.name });
       }
+      // The acquisition the register posted for it goes with it.
+      await this.capitalization.release(manager, asset, 'ledger.fixed_asset.capitalization_deleted', actorUserId);
       await manager.delete(FixedAsset, { id, organizationId });
     });
   }
@@ -526,7 +565,7 @@ export class FixedAssetsService {
         organizationId,
         // A disposal is a document of the register: the entry says so and leads back to the asset,
         // instead of reading as a hand-made entry nobody can trace (FINB-17).
-        { actorUserId, systemReason: 'fixed-asset-disposal', idempotencyKey: `fixed-asset-disposal:${asset.id}` },
+        { actorUserId, systemReason: REGISTER_REASON.disposal, idempotencyKey: `fixed-asset-disposal:${asset.id}` },
       );
 
       await this.depreciation.recordDisposalCharge(manager, asset, depreciation, entry.id);
@@ -680,6 +719,17 @@ function decliningRateOf(
     (category?.taxMethod === DepreciationMethod.DECLINING_BALANCE ? category.taxAnnualRate : null);
   if (rate === null || rate === undefined) throw new BadRequestError('fixed_assets.declining_rate_required');
   return rate;
+}
+
+/**
+ * How a new asset's cost entered the ledger, as its registration states it: its capitalization, or
+ * the bill it names. Nothing else is accepted — an asset with no source is how the register and
+ * the ledger drifted apart (FINB-15).
+ */
+function capitalizationOf(dto: CreateFixedAssetDto): CapitalizationRequest {
+  if (dto.capitalization) return dto.capitalization as CapitalizationRequest;
+  if (dto.vendorBillId) return { method: FixedAssetCapitalization.VENDOR_BILL, vendorBillId: dto.vendorBillId };
+  throw new BadRequestError('fixed_assets.capitalization_required');
 }
 
 /** What of the asset a tax book's terms are resolved against. */

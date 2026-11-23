@@ -16,6 +16,108 @@ export const DEPRECIATION_METHODS: readonly DepreciationMethod[] = [
   'DECLINING_BALANCE',
 ];
 
+/** How an asset's cost entered the ledger (FINB-15). */
+export type CapitalizationMethod = 'VENDOR_BILL' | 'JOURNAL_ENTRY' | 'POSTED' | 'UNLINKED';
+
+/** How a registration, or a correction, says the cost entered the ledger. */
+export interface CapitalizationInput {
+  method: Exclude<CapitalizationMethod, 'UNLINKED'>;
+  vendorBillId?: string;
+  journalEntryId?: string;
+  /** `POSTED`: what the acquisition is credited to. */
+  offsetAccountId?: string;
+  /** `POSTED`: the entry's date; the acquisition's when left out. */
+  date?: string;
+}
+
+/** A purchase or an entry that debited a fixed-asset account, with what is left to register. */
+export interface CapitalizationSource {
+  kind: 'VENDOR_BILL' | 'JOURNAL_ENTRY';
+  /** The bill's id for a bill; the entry's for an entry. */
+  id: string;
+  journalEntryId: string;
+  entryNumber: string | null;
+  date: string;
+  reference: string | null;
+  supplier: string | null;
+  accountId: string;
+  accountCode: string;
+  accountName: LocalizedName;
+  debited: number;
+  registered: number;
+  available: number;
+}
+
+export interface CapitalizationSourceQuery {
+  accountId?: string | null;
+  vendorBillId?: string | null;
+  journalEntryId?: string | null;
+  search?: string | null;
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * What an account of the register keeps: assets' cost, their accumulated depreciation, or both — a
+ * register that credits depreciation to the asset account itself.
+ */
+export type ReconciliationRole = 'COST' | 'ACCUMULATED' | 'BOTH';
+
+/** One account of the register against the ledger on a day, in the sense the account keeps. */
+export interface ReconciliationAccount {
+  accountId: string;
+  code: string;
+  name: LocalizedName;
+  role: ReconciliationRole;
+  /** The assets standing on it that day: acquired, and not disposed of. */
+  assets: number;
+  register: number;
+  ledger: number;
+  /** The ledger less the register: `untraced − unlinked`, to the cent. */
+  difference: number;
+  /** What the ledger has here that no asset is behind. */
+  untraced: number;
+  /** What the register has here, or took out, with no source in the ledger that day. */
+  unlinked: number;
+}
+
+export interface ReconciliationReport {
+  asOf: string;
+  accounts: ReconciliationAccount[];
+  /** Every account in debit terms: the register's net carrying amount against the ledger's. */
+  totals: { register: number; ledger: number; difference: number; untraced: number; unlinked: number };
+  counts: { unlinkedAssets: number; untracedPostings: number };
+}
+
+/** Why an asset's cost is not in the ledger on the day. */
+export type UnlinkedReason = 'NEVER_LINKED' | 'SOURCE_NOT_POSTED' | 'SOURCE_REVERSED' | 'SOURCE_LATER';
+
+/** An asset the register carries, or carried and disposed of, with no source in the ledger that day. */
+export interface UnlinkedAsset {
+  id: string;
+  number: string;
+  name: string;
+  accountId: string | null;
+  accumulatedAccountId: string | null;
+  cost: number;
+  openingAccumulated: number;
+  reason: UnlinkedReason;
+  entryId: string | null;
+  entryNumber: string | null;
+  entryDate: string | null;
+  disposalDate: string | null;
+}
+
+/** A movement of the ledger on the register's accounts that no asset is behind. */
+export interface UntracedPosting {
+  entryId: string;
+  entryNumber: string | null;
+  date: string;
+  description: string;
+  accountId: string;
+  amount: number;
+}
+
 /** How a tax book depreciates: what tax laws state (FINB-16). */
 export type TaxDepreciationMethod = 'STRAIGHT_LINE' | 'DECLINING_BALANCE';
 export const TAX_DEPRECIATION_METHODS: readonly TaxDepreciationMethod[] = ['STRAIGHT_LINE', 'DECLINING_BALANCE'];
@@ -160,6 +262,10 @@ export interface FixedAsset {
   category?: { id: string; code: string; name: string; nameTranslations: LocalizedName } | null;
   /** Present on one asset read on its own; null when it keeps none. */
   taxBook?: TaxBookSummary | null;
+  /** How its cost entered the ledger, and the entry or the bill that carried it (FINB-15). */
+  capitalizationMethod: CapitalizationMethod;
+  capitalizationEntryId: string | null;
+  capitalizationOffsetAccountId: string | null;
   bookValue: number;
   accumulatedDepreciation: number;
   openingAccumulatedDepreciation: number;
@@ -199,6 +305,8 @@ export interface FixedAssetInput {
   openingDepreciatedThrough?: string;
   /** Left out, the category's terms; null keeps no tax book (or removes one that has charged nothing). */
   taxBook?: TaxBookInput | null;
+  /** How its cost entered the ledger: required to register one, changed on its own afterwards. */
+  capitalization?: CapitalizationInput;
 }
 
 export interface DisposeAssetInput {
@@ -373,6 +481,37 @@ export class FixedAssetsService {
 
   getRun(id: string): Observable<DepreciationRunDetail> {
     return this.http.get<DepreciationRunDetail>(`${this.base}/depreciation-runs/${id}`);
+  }
+
+  // ── How the cost entered the ledger, and the register against it (FINB-15) ────────────────
+
+  /** Record, or correct, how an asset's cost entered the ledger. */
+  capitalize(id: string, input: CapitalizationInput): Observable<FixedAsset> {
+    return this.http.post<FixedAsset>(`${this.base}/${id}/capitalization`, input);
+  }
+
+  /** The purchases and entries that debited a fixed-asset account and still have cost to register. */
+  capitalizationSources(query: CapitalizationSourceQuery = {}): Observable<Page<CapitalizationSource>> {
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (value !== null && value !== undefined && value !== '') params = params.set(key, String(value));
+    }
+    return this.http.get<Page<CapitalizationSource>>(`${this.base}/capitalization-sources`, { params });
+  }
+
+  /** The register against the ledger on a day, account by account. */
+  reconciliation(asOf: string): Observable<ReconciliationReport> {
+    return this.http.get<ReconciliationReport>(`${this.base}/reconciliation`, { params: { asOf } });
+  }
+
+  /** The assets whose cost is not in the ledger on the day, and why, by page. */
+  unlinkedAssets(asOf: string, page = 1, pageSize = 50): Observable<Page<UnlinkedAsset>> {
+    return this.http.get<Page<UnlinkedAsset>>(`${this.base}/reconciliation/unlinked-assets`, { params: { asOf, page, pageSize } });
+  }
+
+  /** What the ledger moved on the register's accounts by the day with no asset behind it, by page. */
+  untracedPostings(asOf: string, page = 1, pageSize = 50): Observable<Page<UntracedPosting>> {
+    return this.http.get<Page<UntracedPosting>>(`${this.base}/reconciliation/untraced-postings`, { params: { asOf, page, pageSize } });
   }
 
   // ── Categories and the tax book (FINB-16) ────────────────────────────────────────────────

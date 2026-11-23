@@ -3,9 +3,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FixedAssetsService } from './fixed-assets.service';
 import { FixedAssetCategoriesService } from './fixed-asset-categories.service';
 import { TaxBookService } from './tax-book.service';
+import { FixedAssetCapitalizationService } from './capitalization.service';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { DepreciationService } from './depreciation.service';
 import { AssetPostingService } from './asset-posting.service';
-import { DepreciationMethod, FixedAsset } from './entities/fixed-asset.entity';
+import { DepreciationMethod, FixedAsset, FixedAssetCapitalization } from './entities/fixed-asset.entity';
 import { FixedAssetBook } from './entities/fixed-asset-book.entity';
 import { DepreciationRunTrigger, FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
 import { CreateFixedAssetDto } from './dto/fixed-asset.dto';
@@ -98,7 +100,16 @@ describeWithDb('fixed-asset categories and the tax book', () => {
       lookup,
       taxBooks,
     );
-    assets = new FixedAssetsService(dataSource.getRepository(FixedAsset), dataSource, posting, lookup, depreciation, taxBooks, i18n);
+    assets = new FixedAssetsService(
+      dataSource.getRepository(FixedAsset),
+      dataSource,
+      posting,
+      lookup,
+      depreciation,
+      taxBooks,
+      i18n,
+      new FixedAssetCapitalizationService(dataSource, posting, lookup, new LedgerNarrativeService(i18n)),
+    );
     categories = new FixedAssetCategoriesService(dataSource);
   });
 
@@ -182,8 +193,18 @@ describeWithDb('fixed-asset categories and the tax book', () => {
     }
   }
 
+  // Bought from the bank: the register posts its acquisition (FINB-15).
   const register = (target: Company, dto: Partial<CreateFixedAssetDto> & Pick<CreateFixedAssetDto, 'name' | 'cost'>) =>
-    assets.create({ acquisitionDate: '2026-01-10', depreciationConvention: 'FULL_MONTH', ...dto }, target.organizationId, ACTOR);
+    assets.create(
+      {
+        acquisitionDate: '2026-01-10',
+        depreciationConvention: 'FULL_MONTH',
+        capitalization: { method: FixedAssetCapitalization.POSTED, offsetAccountId: target.account['bank'] },
+        ...dto,
+      },
+      target.organizationId,
+      ACTOR,
+    );
 
   const report = (target: Company, from: string, to: string) => taxBooks.report(target.organizationId, from, to, resolvePaging(1, 100));
 
@@ -418,19 +439,22 @@ describeWithDb('fixed-asset categories and the tax book', () => {
     });
 
     it('opens, follows and removes a book that has charged nothing', async () => {
-      const printer = await register(target, { name: 'Impresora', cost: 5_000, usefulLifeMonths: 24, assetAccountId: target.account['equipment'], acquisitionDate: '2027-01-10' });
-      expect(printer.taxBook).toBeNull();
-      const opened = await assets.update(printer.id, { taxBook: { method: DepreciationMethod.STRAIGHT_LINE, annualRate: 0.25 } }, target.organizationId);
-      expect(opened.taxBook).toMatchObject({ cost: 5_000, chargedMonths: 0 });
-      // Its basis was the cost: it follows a correction of the cost made before anything was charged.
-      const corrected = await assets.update(printer.id, { cost: 6_000 }, target.organizationId);
-      expect(corrected.taxBook).toMatchObject({ cost: 6_000 });
-      const removed = await assets.update(printer.id, { taxBook: null }, target.organizationId);
-      expect(removed.taxBook).toBeNull();
+      // Bought in January 2027, registered then: its acquisition is posted on its own day.
+      await atInstant('2027-01-20T12:00:00Z', async () => {
+        const printer = await register(target, { name: 'Impresora', cost: 5_000, usefulLifeMonths: 24, assetAccountId: target.account['equipment'], acquisitionDate: '2027-01-10' });
+        expect(printer.taxBook).toBeNull();
+        const opened = await assets.update(printer.id, { taxBook: { method: DepreciationMethod.STRAIGHT_LINE, annualRate: 0.25 } }, target.organizationId);
+        expect(opened.taxBook).toMatchObject({ cost: 5_000, chargedMonths: 0 });
+        // Its basis was the cost: it follows a correction of the cost made before anything was charged.
+        const corrected = await assets.update(printer.id, { cost: 6_000 }, target.organizationId);
+        expect(corrected.taxBook).toMatchObject({ cost: 6_000 });
+        const removed = await assets.update(printer.id, { taxBook: null }, target.organizationId);
+        expect(removed.taxBook).toBeNull();
+      });
     });
 
     it('keeps an asset charged only in its tax book: it is retired, not deleted, and its book cannot be deleted under it', async () => {
-      const shelf = await register(target, {
+      const shelf = await atInstant('2027-01-20T12:00:00Z', () => register(target, {
         name: 'Estantería',
         cost: 2_400,
         acquisitionDate: '2027-01-15',
@@ -439,7 +463,7 @@ describeWithDb('fixed-asset categories and the tax book', () => {
         // The books start the month after; the tax book, the month it entered service.
         depreciationConvention: 'NEXT_MONTH',
         taxBook: { method: DepreciationMethod.STRAIGHT_LINE, annualRate: 0.25, convention: 'FULL_MONTH' },
-      });
+      }));
       const january = await atInstant('2027-02-06T12:00:00Z', () => depreciation.runMonthlyDepreciation(target.organizationId, '2027-01-31', MANUAL));
       expect(january.assets.map((row) => row.id)).not.toContain(shelf.id);
       expect(january.tax.assets).toEqual(expect.arrayContaining([expect.objectContaining({ id: shelf.id, amount: 50 })]));
@@ -513,6 +537,8 @@ describeWithDb('fixed-asset categories and the tax book', () => {
         openingAccumulatedDepreciation: 15_000,
         openingDepreciatedThrough: '2025-12',
         taxBook: { taxCategoryCode: 'DO-2', openingAccumulated: 10_000, openingThrough },
+        // Brought over on the opening date: its cost and its opening depreciation enter the ledger then.
+        capitalization: { method: FixedAssetCapitalization.POSTED, offsetAccountId: target.account['bank'], date: '2026-01-01' },
       });
 
     it('states a declining balance\'s opening at the close of a fiscal year, and applies the rate to the value at its start', async () => {

@@ -3,6 +3,7 @@ import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { DepreciationPort } from './depreciation.port';
+import { REGISTER_REASON } from './register-reasons';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
 import { DepreciationRunTrigger, FixedAssetDepreciationRun } from './entities/fixed-asset-depreciation-run.entity';
@@ -448,7 +449,7 @@ export class DepreciationService extends DepreciationPort {
     const journal = await this.journalLookup.findByCode(organizationId, SYSTEM_JOURNALS.depreciation.code, em);
     if (!journal) throw new BadRequestError('fixed_assets.depreciation_journal_deprec_not_found_create');
     // What posted the entries: a disposal's catch-up, or a run of the register.
-    const systemReason = origin.trigger === DepreciationRunTrigger.DISPOSAL ? 'asset-disposal' : 'depreciation-run';
+    const systemReason = origin.trigger === DepreciationRunTrigger.DISPOSAL ? REGISTER_REASON.disposalRun : REGISTER_REASON.depreciationRun;
 
     // One entry per month, dated on that month's last day (QA R3-M14: a run that caught up August
     // and September booked both in one entry dated 30/09, so August's expense sat in September's

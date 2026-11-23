@@ -397,6 +397,17 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: (p) => `contabilidad:fixed-asset-category:${p['id']}`,
       load: () => import('../../../features/accounting/fixed-assets/fixed-asset-category-form.page').then((m) => m.FixedAssetCategoryFormPage),
     },
+    // The register against the ledger (FINB-15): what each account holds in each, and why not alike.
+    {
+      path: 'fixed-assets/reconciliation',
+      kind: WindowKind.LIST,
+      permission: 'fixed_assets:view',
+      titleKey: 'page_titles.fixed_asset_reconciliation',
+      icon: 'GitCompareArrows',
+      entityKeyFn: () => 'contabilidad:fixed-asset-reconciliation',
+      menu: { group: 'analysis', labelKey: 'page_titles.fixed_asset_reconciliation' },
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-reconciliation.page').then((m) => m.FixedAssetReconciliationPage),
+    },
     {
       path: 'fixed-assets/tax-depreciation',
       kind: WindowKind.LIST,
@@ -437,6 +448,15 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       icon: 'FilePen',
       entityKeyFn: (p) => `contabilidad:fixed-asset:${p['id']}:edit`,
       load: () => import('../../../features/accounting/fixed-assets/fixed-asset-form.page').then((m) => m.FixedAssetFormPage),
+    },
+    {
+      path: 'fixed-assets/:id/capitalization',
+      kind: WindowKind.DRAFT,
+      permission: 'fixed_assets:manage',
+      titleKey: 'page_titles.fixed_asset_capitalization',
+      icon: 'FilePen',
+      entityKeyFn: (p) => `contabilidad:fixed-asset:${p['id']}:capitalization`,
+      load: () => import('../../../features/accounting/fixed-assets/fixed-asset-capitalization.page').then((m) => m.FixedAssetCapitalizationPage),
     },
     {
       path: 'fixed-assets/:id/dispose',
